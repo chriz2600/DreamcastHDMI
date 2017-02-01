@@ -9,8 +9,6 @@ module readAudio(
 	reg [2:0] counter;
 	reg [11:0] testCounter;
 	reg [11:0] testCounter2;
-	reg window = 0;
-
 	
 	always @(posedge rclock) begin
 

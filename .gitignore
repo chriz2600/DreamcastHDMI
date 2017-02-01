@@ -1,2 +1,17 @@
 FPGA/db/*
 FPGA/incremental_db/*
+FPGA/*.summary
+FPGA/DCx.sta.rpt
+FPGA/DCx.asm.rpt
+FPGA/DCx.done
+FPGA/DCx.fit.rpt
+FPGA/DCx.fit.smsg
+FPGA/DCx.flow.rpt
+FPGA/DCx.jdi
+FPGA/DCx.map.rpt
+FPGA/DCx.pin
+FPGA/DCx.qws
+FPGA/DCx.sld
+FPGA/DCx.sof
+FPGA/c5_pin_model_dump.txt
+FPGA/greybox_tmp/cbx_args.txt
