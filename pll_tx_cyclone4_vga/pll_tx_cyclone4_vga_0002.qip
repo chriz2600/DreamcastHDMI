@@ -1,4 +1,0 @@
-set_instance_assignment -name PLL_COMPENSATION_MODE NORMAL -to "*pll_tx_cyclone4_vga_0002*|altera_pll:altera_pll_i*|*"
- 
-set_instance_assignment -name PLL_AUTO_RESET ON -to "*pll_tx_cyclone4_vga_0002*|altera_pll:altera_pll_i*|*"
-set_instance_assignment -name PLL_BANDWIDTH_PRESET AUTO -to "*pll_tx_cyclone4_vga_0002*|altera_pll:altera_pll_i*|*"
