@@ -6,7 +6,7 @@ set_global_assignment -name FAMILY "Cyclone V"
 set_global_assignment -name DEVICE 5CSEMA4U23C6
 set_global_assignment -name TOP_LEVEL_ENTITY Top
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 14.1
-set_global_assignment -name LAST_QUARTUS_VERSION 16.0.2
+set_global_assignment -name LAST_QUARTUS_VERSION "16.1.2 Lite Edition"
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "10:32:09 JULY 18,2016"
 set_global_assignment -name DEVICE_FILTER_PACKAGE UFBGA
 set_global_assignment -name DEVICE_FILTER_PIN_COUNT 896
@@ -124,22 +124,6 @@ set_location_assignment PIN_AE11 -to LRCIN
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to LRCIN
 set_location_assignment PIN_AE12 -to audioclk
 set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to audioclk
-set_global_assignment -name SDC_FILE DCx.SDC
-set_global_assignment -name BDF_FILE Top.bdf
-set_global_assignment -name SIGNALTAP_FILE stp1.stp
-set_global_assignment -name VERILOG_FILE data.v
-set_global_assignment -name VERILOG_FILE HDMI_TMDS.v
-set_global_assignment -name QIP_FILE pll_tx_cyclone4_vga.qip
-set_global_assignment -name SIP_FILE pll_tx_cyclone4_vga.sip
-set_global_assignment -name VERILOG_FILE simple_serializer.v
-set_global_assignment -name QIP_FILE DDIO.qip
-set_global_assignment -name VERILOG_FILE errcounter.v
-set_global_assignment -name VERILOG_FILE counter.v
-set_global_assignment -name VERILOG_FILE LEDBlink.v
-set_global_assignment -name VERILOG_FILE audioData.v
-set_global_assignment -name VERILOG_FILE modules/encodez.v
-set_global_assignment -name QIP_FILE fifo.qip
-set_global_assignment -name VERILOG_FILE modules/readAudio.v
 set_global_assignment -name SLD_NODE_CREATOR_ID 110 -section_id data
 set_global_assignment -name SLD_NODE_ENTITY_NAME sld_signaltap -section_id data
 set_instance_assignment -name CONNECT_TO_SLD_NODE_ENTITY_PORT acq_clk -to "data:inst3|clock" -section_id data
@@ -542,5 +526,21 @@ set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_COUNTER_PIPELINE=
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ADVANCED_TRIGGER_ENTITY=basic,1," -section_id datain_20from_20getdata
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_TRIGGER_LEVEL_PIPELINE=1" -section_id datain_20from_20getdata
 set_global_assignment -name SLD_NODE_PARAMETER_ASSIGNMENT "SLD_ENABLE_ADVANCED_TRIGGER=0" -section_id datain_20from_20getdata
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name SDC_FILE DCx.SDC
+set_global_assignment -name BDF_FILE Top.bdf
+set_global_assignment -name SIGNALTAP_FILE stp1.stp
+set_global_assignment -name VERILOG_FILE data.v
+set_global_assignment -name VERILOG_FILE HDMI_TMDS.v
+set_global_assignment -name QIP_FILE pll_tx_cyclone4_vga.qip
+set_global_assignment -name SIP_FILE pll_tx_cyclone4_vga.sip
+set_global_assignment -name VERILOG_FILE simple_serializer.v
+set_global_assignment -name QIP_FILE DDIO.qip
+set_global_assignment -name VERILOG_FILE errcounter.v
+set_global_assignment -name VERILOG_FILE counter.v
+set_global_assignment -name VERILOG_FILE LEDBlink.v
+set_global_assignment -name VERILOG_FILE audioData.v
+set_global_assignment -name VERILOG_FILE modules/encodez.v
+set_global_assignment -name QIP_FILE fifo.qip
+set_global_assignment -name VERILOG_FILE modules/readAudio.v
 set_global_assignment -name SLD_FILE db/stp1_auto_stripped.stp
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
