@@ -3,6 +3,6 @@ Dreamcast HDMI
 
 ----------
  
-[Technical details](./assets/index.html)
+[Technical details](https://rawgit.com/chriz2600/DreamcastHDMI/master/assets/index.html)
 
 
