@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/wavedrom/1.4.1/skins/default.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/wavedrom/1.4.1/wavedrom.min.js" type="text/javascript"></script>
+<script>
+  function loadWaveDrom(target, index, source) {
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200) {
+          var data = eval('(' + xhr.responseText + ')');
+          console.log(data);
+          WaveDrom.RenderWaveForm(index, data, target);
+        } else {
+          console.log('Error: ' + xhr.status);
+        }
+      }
+    };
+    
+    xhr.open('GET', source);
+    xhr.send(null);    
+  }
+
+  document.addEventListener("DOMContentLoaded", function() {
+    loadWaveDrom('dcvideo', 0, 'dc-video.json');
+  });
+</script>
+</head>
+
+<body>
+    <div id="dcvideo0"></div>
+    <object data="Timing.svg" type="image/svg+xml" style="width:100%;"></object>
+</body>
+
+</html>

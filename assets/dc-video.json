@@ -1,0 +1,29 @@
+{
+	signal : [
+		{name : 'VideoClk', wave: 'p..........'},
+  	{name : 'PxlClk', wave: 'hlhlhlhlhlh' },
+  
+		{name : 'Red Input', wave: 'x|4x4x4xx|.', node: '...A.B', data: ['[7:0]', '[7:0]']},
+  	{name : 'Red Output', wave: 'x|xx4.4.x|x', node: '.....C.D', data: ['[7:0]','[7:0]']},
+		{name : 'Green Input', wave: 'x|333333x|.', node: '...EFGH', data: ['[7:4]', '[3:0]','[7:4]', '[3:0]']},
+	  {name : 'Green Output', wave: 'x|xx3.3.x|x', node: '.....I.J', data: ['[7:0]','[7:0]']},
+		{name : 'Blue Input', wave: 'x|x5x5x5x|.', node: '....K.L',  data: ['[7:0]','[7:0]']},
+		{name : 'Blue Output', wave: 'x|xx5.5.x|x',  node: '.....M.N', data: ['[7:0]','[7:0]']},
+  	/*{name: 'hsync',   wave: 'l...h...'},
+  	{},
+  	{name: 'ack', wave: '1...0...'}*/
+	], 
+  edge : [
+		'A~C', 'B~D', 'E~-I', 'F~-I', 'K-~M', 'L-~N', 'G~-J', 'H~-J'
+	],
+ 	config : { 
+  	hscale : 1
+ 	},
+ 	head : {
+		text : 'Dreamcast Video'
+	},
+ 	foot : {
+   	text : '12 Bit to 24 Bit',
+		tock : -2
+ 	}
+}
