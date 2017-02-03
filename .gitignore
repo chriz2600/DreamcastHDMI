@@ -15,3 +15,14 @@ FPGA/DCx.sld
 FPGA/DCx.sof
 FPGA/c5_pin_model_dump.txt
 FPGA/greybox_tmp/cbx_args.txt
+FPGA/DCx.ipregen.rpt
+FPGA/aldec/
+FPGA/cadence/
+FPGA/mentor/
+FPGA/synopsys/
+FPGA/output_file.jic
+FPGA/output_file.map
+FPGA/DCx.cdf
+FPGA/pll_tx_cyclone4_vga.bsf
+FPGA/pll_tx_cyclone4_vga.ppf
+FPGA/pll_tx_cyclone4_vga_sim.f
