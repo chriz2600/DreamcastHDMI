@@ -1,0 +1,2 @@
+assets/*.pxm filter=lfs diff=lfs merge=lfs -text
+*.pxm filter=lfs diff=lfs merge=lfs -text
