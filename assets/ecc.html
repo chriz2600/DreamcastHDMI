@@ -1,0 +1,673 @@
+<html>
+	<head>
+		<style>
+			body, input, button {
+				font-family: Courier New, sans-serif, fixed;
+				font-size: 1em;
+			}
+
+			.def {
+				margin-top:20px;
+				margin-left:100px;
+			}
+			.def2 {
+				margin-top:20px;
+				margin-left:100px;
+				min-height:20px;
+			}
+			.def3 {
+				margin-top:30px;
+				margin-left:100px;
+			}
+
+			.defx {
+				margin-top:10px;
+			}
+
+			.result {
+				background-color: lightgreen;
+				color: black;
+			}
+
+			td {
+				min-width : 20px;
+				text-align: center;
+			}
+
+			.default {
+				color: lightgrey;
+			}
+
+			.calc {
+				color: darkgreen;
+				font-weight: bold;
+			}
+		</style>
+		<script>
+			function getBinaryStringValue(id) {
+				var elem = document.getElementById(id);
+
+				if (elem.value.startsWith("0x")) {
+					var v = parseInt(elem.value, 16);
+					toValue(id, v);
+				}
+
+				return elem.value;
+			}
+
+			function calculateSubpacket() {
+				var _b6 = getBinaryStringValue("sbyte6");
+				var _b5 = getBinaryStringValue("sbyte5");
+				var _b4 = getBinaryStringValue("sbyte4");
+				var _b3 = getBinaryStringValue("sbyte3");
+				var _b2 = getBinaryStringValue("sbyte2");
+				var _b1 = getBinaryStringValue("sbyte1");
+				var __b2 = getBinaryStringValue("hbyte2");
+				var __b1 = getBinaryStringValue("hbyte1");
+				var __b0 = getBinaryStringValue("hbyte0");
+
+				var xxx = parseInt(__b0, 2)
+					+ parseInt(__b1, 2)
+					+ parseInt(__b2, 2)
+					+ parseInt(_b1, 2)
+					+ parseInt(_b2, 2)
+					+ parseInt(_b3, 2)
+					+ parseInt(_b4, 2)
+					+ parseInt(_b5, 2)
+					+ parseInt(_b6, 2);
+
+				var checksum = (
+					parseInt("100000000", 2)
+					- xxx
+				);
+
+				var _chk = checksum.toString(2);
+				if (_chk.length > 8) {
+					_chk = _chk.substring(0, 8);
+				}
+
+				toValue("sbyte0", parseInt(_chk, 2));
+
+				var comb = parseInt("" + _b6 + _b5 + _b4 + _b3 + _b2 + _b1 + document.getElementById("sbyte0").value, 2);
+
+				console.log("PRE:  " + "" + _b6 + _b5 + _b4 + _b3 + _b2 + _b1 + document.getElementById("sbyte0").value);
+				console.log("POST: " + comb.toString(2));
+
+
+				_calculate(comb, 56, "sbyte7");
+				var _b7 = document.getElementById("sbyte7").value;
+				var _b0 = document.getElementById("sbyte0").value;
+
+				document.getElementById("c1").innerHTML = "";
+				document.getElementById("c2").innerHTML = "";
+
+				var comb2 = [ parseInt("" + _b3 + _b2 + _b1 + _b0, 2), parseInt("" + _b7 + _b6 + _b5 + _b4, 2) ];
+				var j = 0;
+				var icount = 0;
+				for (var m = 0 ; m < 2 ; m++) {
+					if (m == 2) { j++; }
+					if (icount == 32) { icount = 0; };
+					for (var i = 0 ; i < 16 ; i++) {
+						for (var c = 1 ; c < 3 ; c++) {
+							var lsb = comb2[m] & 1;
+							var elem = document.getElementById("c" + c + "_d" + j + "_" + icount);
+
+							document.getElementById("c" + c).innerHTML = lsb + document.getElementById("c" + c).innerHTML;
+
+
+							elem.innerHTML = lsb;
+							elem.className = "calc";
+							comb2[m] = comb2[m] >> 1;
+						}
+						icount++;
+					}
+				}
+
+				document.getElementById("c1").innerHTML = document.getElementById("c1").innerHTML + " (" + parseInt(document.getElementById("c1").innerHTML, 2).toString(16) + "h)";
+				document.getElementById("c2").innerHTML = document.getElementById("c2").innerHTML + " (" + parseInt(document.getElementById("c2").innerHTML, 2).toString(16) + "h)";
+			}
+
+			function calculateHeader() {
+				var _b2 = getBinaryStringValue("hbyte2");
+				var _b1 = getBinaryStringValue("hbyte1");
+				var _b0 = getBinaryStringValue("hbyte0");
+
+				var comb = parseInt("" + _b2 + _b1 + _b0, 2);
+
+				_calculate(comb, 24, "hbyte3");
+				var _b3 = document.getElementById("hbyte3").value;
+				var comb2 = parseInt("" + _b3 + _b2 + _b1 + _b0, 2);
+
+				document.getElementById("h").innerHTML = comb2.toString(2);
+
+				for (var i = 0 ; i < 32 ; i++) {
+					var lsb = comb2 & 1;
+					var elem = document.getElementById("h_d2_" + i);
+					elem.innerHTML = lsb;
+					elem.className = "calc";
+					comb2 = comb2 >> 1;
+				}
+
+				document.getElementById("h").innerHTML = document.getElementById("h").innerHTML + " (" + parseInt(document.getElementById("h").innerHTML, 2).toString(16) + "h)";
+			}
+
+			function _calculate(comb, length, result) {
+				// step 0: Set an 8-bit register to 0
+				var reg = 0;
+
+				// then for each data bit, starting from LSB:
+				for (var i = 0 ; i < length ; i++) {
+					var lsbData = comb & 1;
+					var lsbReg = reg & 1;
+
+					// step 1: XOR the current data bit with the LSB of the 8-bit register
+					var xor = lsbData ^ lsbReg;
+					// step 2: shift the register right one bit
+					reg = reg >> 1;
+					// step 3: if the result of step 1 was '1' then we XOR with 10000011, otherwise do nothing
+					if (xor == 1) {
+						reg = reg ^ parseInt("10000011", 2);
+					}
+					// next bit from input data
+					//comb = comb >> 1;
+					comb = Math.floor(comb / 2);
+				}
+
+				// step 4: the state of the shift register is the ECC value
+				toValue(result, reg);
+			}
+
+			function toValue(id, num) {
+				var n= num.toString(2);
+				document.getElementById(id).value = "00000000".substr(n.length)+n;
+			}
+
+		</script>
+	</head>
+	<body>
+		<div class="def">
+			<h2>Packet Header</h2>
+			<div class="defx">byte3: <input maxlength="8" value="" type="text" readonly id="hbyte3" class="result"/></div>
+			<div class="defx">byte2: <input maxlength="8" value="00001101" type="text" id="hbyte2"/></div>
+			<div class="defx">byte1: <input maxlength="8" value="00000010" type="text" id="hbyte1"/></div>
+			<div class="defx">byte0: <input maxlength="8" value="10000010" type="text" id="hbyte0"/></div>
+			<div class="def3">
+				<button onclick="calculateHeader();">Calculate</button>
+			</div>
+			<table style="margin-top:10px;">
+				<thead>
+					<tr>
+						<td colspan="32">Channel 0 Data Island Period Packet Header 1</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td>00</td>
+						<td>01</td>
+						<td>02</td>
+						<td>03</td>
+						<td>04</td>
+						<td>05</td>
+						<td>06</td>
+						<td>07</td>
+						<td>08</td>
+						<td>09</td>
+						<td>10</td>
+						<td>11</td>
+						<td>12</td>
+						<td>13</td>
+						<td>14</td>
+						<td>15</td>
+						<td>16</td>
+						<td>17</td>
+						<td>18</td>
+						<td>19</td>
+						<td>20</td>
+						<td>21</td>
+						<td>22</td>
+						<td>23</td>
+						<td>24</td>
+						<td>25</td>
+						<td>26</td>
+						<td>27</td>
+						<td>28</td>
+						<td>29</td>
+						<td>30</td>
+						<td>31</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>D0</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td><td>h</td>
+					</tr>
+					<tr>
+						<td>D1</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td><td>v</td>
+					</tr>
+					<tr>
+						<td>D2</td>
+						<td id="h_d2_0" class="default">0</td>
+						<td id="h_d2_1" class="default">0</td>
+						<td id="h_d2_2" class="default">0</td>
+						<td id="h_d2_3" class="default">0</td>
+						<td id="h_d2_4" class="default">0</td>
+						<td id="h_d2_5" class="default">0</td>
+						<td id="h_d2_6" class="default">0</td>
+						<td id="h_d2_7" class="default">0</td>
+						<td id="h_d2_8" class="default">0</td>
+						<td id="h_d2_9" class="default">0</td>
+						<td id="h_d2_10" class="default">0</td>
+						<td id="h_d2_11" class="default">0</td>
+						<td id="h_d2_12" class="default">0</td>
+						<td id="h_d2_13" class="default">0</td>
+						<td id="h_d2_14" class="default">0</td>
+						<td id="h_d2_15" class="default">0</td>
+						<td id="h_d2_16" class="default">0</td>
+						<td id="h_d2_17" class="default">0</td>
+						<td id="h_d2_18" class="default">0</td>
+						<td id="h_d2_19" class="default">0</td>
+						<td id="h_d2_20" class="default">0</td>
+						<td id="h_d2_21" class="default">0</td>
+						<td id="h_d2_22" class="default">0</td>
+						<td id="h_d2_23" class="default">0</td>
+						<td id="h_d2_24" class="default">0</td>
+						<td id="h_d2_25" class="default">0</td>
+						<td id="h_d2_26" class="default">0</td>
+						<td id="h_d2_27" class="default">0</td>
+						<td id="h_d2_28" class="default">0</td>
+						<td id="h_d2_29" class="default">0</td>
+						<td id="h_d2_30" class="default">0</td>
+						<td id="h_d2_31" class="default">0</td>
+					</tr>
+					<tr>
+						<td>D3</td><td>0</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td><td>1</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="def3" id="h"></div>
+		</div>
+
+		<div class="def">
+			<h2>Subpacket 0</h2>
+			<div class="defx">byte7: <input maxlength="8" value="" type="text" readonly id="sbyte7" class="result"/></div>
+			<div class="defx">byte6: <input maxlength="8" value="00000000" type="text" id="sbyte6"</div>
+			<div class="defx">byte5: <input maxlength="8" value="00000000" type="text" id="sbyte5"</div>
+			<div class="defx">byte4: <input maxlength="8" value="00000010" type="text" id="sbyte4"</div>
+			<div class="defx">byte3: <input maxlength="8" value="00000000" type="text" id="sbyte3"</div>
+			<div class="defx">byte2: <input maxlength="8" value="00101010" type="text" id="sbyte2"/></div>
+			<div class="defx">byte1: <input maxlength="8" value="00010000" type="text" id="sbyte1"/></div>
+			<div class="defx">byte0: <input maxlength="8" value="" type="text" readonly id="sbyte0" class="result"/></div>
+			<div class="def3">
+				<button onclick="calculateSubpacket();">Calculate</button>
+			</div>
+			<table style="margin-top:10px;">
+				<thead>
+					<tr>
+						<td colspan="32">Channel 1 Data Island Period Packet 1</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td>00</td>
+						<td>01</td>
+						<td>02</td>
+						<td>03</td>
+						<td>04</td>
+						<td>05</td>
+						<td>06</td>
+						<td>07</td>
+						<td>08</td>
+						<td>09</td>
+						<td>10</td>
+						<td>11</td>
+						<td>12</td>
+						<td>13</td>
+						<td>14</td>
+						<td>15</td>
+						<td>16</td>
+						<td>17</td>
+						<td>18</td>
+						<td>19</td>
+						<td>20</td>
+						<td>21</td>
+						<td>22</td>
+						<td>23</td>
+						<td>24</td>
+						<td>25</td>
+						<td>26</td>
+						<td>27</td>
+						<td>28</td>
+						<td>29</td>
+						<td>30</td>
+						<td>31</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>D0</td>
+						<td id="c1_d0_0"  class="default">0</td>
+						<td id="c1_d0_1"  class="default">0</td>
+						<td id="c1_d0_2"  class="default">0</td>
+						<td id="c1_d0_3"  class="default">0</td>
+						<td id="c1_d0_4"  class="default">0</td>
+						<td id="c1_d0_5"  class="default">0</td>
+						<td id="c1_d0_6"  class="default">0</td>
+						<td id="c1_d0_7"  class="default">0</td>
+						<td id="c1_d0_8"  class="default">0</td>
+						<td id="c1_d0_9"  class="default">0</td>
+						<td id="c1_d0_10"  class="default">0</td>
+						<td id="c1_d0_11"  class="default">0</td>
+						<td id="c1_d0_12"  class="default">0</td>
+						<td id="c1_d0_13"  class="default">0</td>
+						<td id="c1_d0_14"  class="default">0</td>
+						<td id="c1_d0_15"  class="default">0</td>
+						<td id="c1_d0_16"  class="default">0</td>
+						<td id="c1_d0_17"  class="default">0</td>
+						<td id="c1_d0_18"  class="default">0</td>
+						<td id="c1_d0_19"  class="default">0</td>
+						<td id="c1_d0_20"  class="default">0</td>
+						<td id="c1_d0_21"  class="default">0</td>
+						<td id="c1_d0_22"  class="default">0</td>
+						<td id="c1_d0_23"  class="default">0</td>
+						<td id="c1_d0_24"  class="default">0</td>
+						<td id="c1_d0_25"  class="default">0</td>
+						<td id="c1_d0_26"  class="default">0</td>
+						<td id="c1_d0_27"  class="default">0</td>
+						<td id="c1_d0_28"  class="default">0</td>
+						<td id="c1_d0_29"  class="default">0</td>
+						<td id="c1_d0_30"  class="default">0</td>
+						<td id="c1_d0_31"  class="default">0</td>
+					</tr>
+					<tr>
+						<td>D1</td>
+						<td id="c1_d1_0"  class="default">0</td>
+						<td id="c1_d1_1"  class="default">0</td>
+						<td id="c1_d1_2"  class="default">0</td>
+						<td id="c1_d1_3"  class="default">0</td>
+						<td id="c1_d1_4"  class="default">0</td>
+						<td id="c1_d1_5"  class="default">0</td>
+						<td id="c1_d1_6"  class="default">0</td>
+						<td id="c1_d1_7"  class="default">0</td>
+						<td id="c1_d1_8"  class="default">0</td>
+						<td id="c1_d1_9"  class="default">0</td>
+						<td id="c1_d1_10"  class="default">0</td>
+						<td id="c1_d1_11"  class="default">0</td>
+						<td id="c1_d1_12"  class="default">0</td>
+						<td id="c1_d1_13"  class="default">0</td>
+						<td id="c1_d1_14"  class="default">0</td>
+						<td id="c1_d1_15"  class="default">0</td>
+						<td id="c1_d1_16"  class="default">0</td>
+						<td id="c1_d1_17"  class="default">0</td>
+						<td id="c1_d1_18"  class="default">0</td>
+						<td id="c1_d1_19"  class="default">0</td>
+						<td id="c1_d1_20"  class="default">0</td>
+						<td id="c1_d1_21"  class="default">0</td>
+						<td id="c1_d1_22"  class="default">0</td>
+						<td id="c1_d1_23"  class="default">0</td>
+						<td id="c1_d1_24"  class="default">0</td>
+						<td id="c1_d1_25"  class="default">0</td>
+						<td id="c1_d1_26"  class="default">0</td>
+						<td id="c1_d1_27"  class="default">0</td>
+						<td id="c1_d1_28"  class="default">0</td>
+						<td id="c1_d1_29"  class="default">0</td>
+						<td id="c1_d1_30"  class="default">0</td>
+						<td id="c1_d1_31"  class="default">0</td>
+					</tr>
+					<tr>
+						<td>D2</td>
+						<td id="c1_d2_0"  class="default">0</td>
+						<td id="c1_d2_1"  class="default">0</td>
+						<td id="c1_d2_2"  class="default">0</td>
+						<td id="c1_d2_3"  class="default">0</td>
+						<td id="c1_d2_4"  class="default">0</td>
+						<td id="c1_d2_5"  class="default">0</td>
+						<td id="c1_d2_6"  class="default">0</td>
+						<td id="c1_d2_7"  class="default">0</td>
+						<td id="c1_d2_8"  class="default">0</td>
+						<td id="c1_d2_9"  class="default">0</td>
+						<td id="c1_d2_10"  class="default">0</td>
+						<td id="c1_d2_11"  class="default">0</td>
+						<td id="c1_d2_12"  class="default">0</td>
+						<td id="c1_d2_13"  class="default">0</td>
+						<td id="c1_d2_14"  class="default">0</td>
+						<td id="c1_d2_15"  class="default">0</td>
+						<td id="c1_d2_16"  class="default">0</td>
+						<td id="c1_d2_17"  class="default">0</td>
+						<td id="c1_d2_18"  class="default">0</td>
+						<td id="c1_d2_19"  class="default">0</td>
+						<td id="c1_d2_20"  class="default">0</td>
+						<td id="c1_d2_21"  class="default">0</td>
+						<td id="c1_d2_22"  class="default">0</td>
+						<td id="c1_d2_23"  class="default">0</td>
+						<td id="c1_d2_24"  class="default">0</td>
+						<td id="c1_d2_25"  class="default">0</td>
+						<td id="c1_d2_26"  class="default">0</td>
+						<td id="c1_d2_27"  class="default">0</td>
+						<td id="c1_d2_28"  class="default">0</td>
+						<td id="c1_d2_29"  class="default">0</td>
+						<td id="c1_d2_30"  class="default">0</td>
+						<td id="c1_d2_31"  class="default">0</td>
+					</tr>
+					<tr>
+						<td>D3</td>
+						<td id="c1_d3_0"  class="default">0</td>
+						<td id="c1_d3_1"  class="default">0</td>
+						<td id="c1_d3_2"  class="default">0</td>
+						<td id="c1_d3_3"  class="default">0</td>
+						<td id="c1_d3_4"  class="default">0</td>
+						<td id="c1_d3_5"  class="default">0</td>
+						<td id="c1_d3_6"  class="default">0</td>
+						<td id="c1_d3_7"  class="default">0</td>
+						<td id="c1_d3_8"  class="default">0</td>
+						<td id="c1_d3_9"  class="default">0</td>
+						<td id="c1_d3_10"  class="default">0</td>
+						<td id="c1_d3_11"  class="default">0</td>
+						<td id="c1_d3_12"  class="default">0</td>
+						<td id="c1_d3_13"  class="default">0</td>
+						<td id="c1_d3_14"  class="default">0</td>
+						<td id="c1_d3_15"  class="default">0</td>
+						<td id="c1_d3_16"  class="default">0</td>
+						<td id="c1_d3_17"  class="default">0</td>
+						<td id="c1_d3_18"  class="default">0</td>
+						<td id="c1_d3_19"  class="default">0</td>
+						<td id="c1_d3_20"  class="default">0</td>
+						<td id="c1_d3_21"  class="default">0</td>
+						<td id="c1_d3_22"  class="default">0</td>
+						<td id="c1_d3_23"  class="default">0</td>
+						<td id="c1_d3_24"  class="default">0</td>
+						<td id="c1_d3_25"  class="default">0</td>
+						<td id="c1_d3_26"  class="default">0</td>
+						<td id="c1_d3_27"  class="default">0</td>
+						<td id="c1_d3_28"  class="default">0</td>
+						<td id="c1_d3_29"  class="default">0</td>
+						<td id="c1_d3_30"  class="default">0</td>
+						<td id="c1_d3_31"  class="default">0</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="def3" id="c1"></div>
+			<table style="margin-top:10px;">
+				<thead>
+					<tr>
+						<td colspan="32">Channel 2 Data Island Period Packet 1</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td>00</td>
+						<td>01</td>
+						<td>02</td>
+						<td>03</td>
+						<td>04</td>
+						<td>05</td>
+						<td>06</td>
+						<td>07</td>
+						<td>08</td>
+						<td>09</td>
+						<td>10</td>
+						<td>11</td>
+						<td>12</td>
+						<td>13</td>
+						<td>14</td>
+						<td>15</td>
+						<td>16</td>
+						<td>17</td>
+						<td>18</td>
+						<td>19</td>
+						<td>20</td>
+						<td>21</td>
+						<td>22</td>
+						<td>23</td>
+						<td>24</td>
+						<td>25</td>
+						<td>26</td>
+						<td>27</td>
+						<td>28</td>
+						<td>29</td>
+						<td>30</td>
+						<td>31</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>D0</td>
+						<td id="c2_d0_0"  class="default">0</td>
+						<td id="c2_d0_1"  class="default">0</td>
+						<td id="c2_d0_2"  class="default">0</td>
+						<td id="c2_d0_3"  class="default">0</td>
+						<td id="c2_d0_4"  class="default">0</td>
+						<td id="c2_d0_5"  class="default">0</td>
+						<td id="c2_d0_6"  class="default">0</td>
+						<td id="c2_d0_7"  class="default">0</td>
+						<td id="c2_d0_8"  class="default">0</td>
+						<td id="c2_d0_9"  class="default">0</td>
+						<td id="c2_d0_10"  class="default">0</td>
+						<td id="c2_d0_11"  class="default">0</td>
+						<td id="c2_d0_12"  class="default">0</td>
+						<td id="c2_d0_13"  class="default">0</td>
+						<td id="c2_d0_14"  class="default">0</td>
+						<td id="c2_d0_15"  class="default">0</td>
+						<td id="c2_d0_16"  class="default">0</td>
+						<td id="c2_d0_17"  class="default">0</td>
+						<td id="c2_d0_18"  class="default">0</td>
+						<td id="c2_d0_19"  class="default">0</td>
+						<td id="c2_d0_20"  class="default">0</td>
+						<td id="c2_d0_21"  class="default">0</td>
+						<td id="c2_d0_22"  class="default">0</td>
+						<td id="c2_d0_23"  class="default">0</td>
+						<td id="c2_d0_24"  class="default">0</td>
+						<td id="c2_d0_25"  class="default">0</td>
+						<td id="c2_d0_26"  class="default">0</td>
+						<td id="c2_d0_27"  class="default">0</td>
+						<td id="c2_d0_28"  class="default">0</td>
+						<td id="c2_d0_29"  class="default">0</td>
+						<td id="c2_d0_30"  class="default">0</td>
+						<td id="c2_d0_31"  class="default">0</td>
+					</tr>
+					<tr>
+						<td>D1</td>
+						<td id="c2_d1_0"  class="default">0</td>
+						<td id="c2_d1_1"  class="default">0</td>
+						<td id="c2_d1_2"  class="default">0</td>
+						<td id="c2_d1_3"  class="default">0</td>
+						<td id="c2_d1_4"  class="default">0</td>
+						<td id="c2_d1_5"  class="default">0</td>
+						<td id="c2_d1_6"  class="default">0</td>
+						<td id="c2_d1_7"  class="default">0</td>
+						<td id="c2_d1_8"  class="default">0</td>
+						<td id="c2_d1_9"  class="default">0</td>
+						<td id="c2_d1_10"  class="default">0</td>
+						<td id="c2_d1_11"  class="default">0</td>
+						<td id="c2_d1_12"  class="default">0</td>
+						<td id="c2_d1_13"  class="default">0</td>
+						<td id="c2_d1_14"  class="default">0</td>
+						<td id="c2_d1_15"  class="default">0</td>
+						<td id="c2_d1_16"  class="default">0</td>
+						<td id="c2_d1_17"  class="default">0</td>
+						<td id="c2_d1_18"  class="default">0</td>
+						<td id="c2_d1_19"  class="default">0</td>
+						<td id="c2_d1_20"  class="default">0</td>
+						<td id="c2_d1_21"  class="default">0</td>
+						<td id="c2_d1_22"  class="default">0</td>
+						<td id="c2_d1_23"  class="default">0</td>
+						<td id="c2_d1_24"  class="default">0</td>
+						<td id="c2_d1_25"  class="default">0</td>
+						<td id="c2_d1_26"  class="default">0</td>
+						<td id="c2_d1_27"  class="default">0</td>
+						<td id="c2_d1_28"  class="default">0</td>
+						<td id="c2_d1_29"  class="default">0</td>
+						<td id="c2_d1_30"  class="default">0</td>
+						<td id="c2_d1_31"  class="default">0</td>
+					</tr>
+					<tr>
+						<td>D2</td>
+						<td id="c2_d2_0"  class="default">0</td>
+						<td id="c2_d2_1"  class="default">0</td>
+						<td id="c2_d2_2"  class="default">0</td>
+						<td id="c2_d2_3"  class="default">0</td>
+						<td id="c2_d2_4"  class="default">0</td>
+						<td id="c2_d2_5"  class="default">0</td>
+						<td id="c2_d2_6"  class="default">0</td>
+						<td id="c2_d2_7"  class="default">0</td>
+						<td id="c2_d2_8"  class="default">0</td>
+						<td id="c2_d2_9"  class="default">0</td>
+						<td id="c2_d2_10"  class="default">0</td>
+						<td id="c2_d2_11"  class="default">0</td>
+						<td id="c2_d2_12"  class="default">0</td>
+						<td id="c2_d2_13"  class="default">0</td>
+						<td id="c2_d2_14"  class="default">0</td>
+						<td id="c2_d2_15"  class="default">0</td>
+						<td id="c2_d2_16"  class="default">0</td>
+						<td id="c2_d2_17"  class="default">0</td>
+						<td id="c2_d2_18"  class="default">0</td>
+						<td id="c2_d2_19"  class="default">0</td>
+						<td id="c2_d2_20"  class="default">0</td>
+						<td id="c2_d2_21"  class="default">0</td>
+						<td id="c2_d2_22"  class="default">0</td>
+						<td id="c2_d2_23"  class="default">0</td>
+						<td id="c2_d2_24"  class="default">0</td>
+						<td id="c2_d2_25"  class="default">0</td>
+						<td id="c2_d2_26"  class="default">0</td>
+						<td id="c2_d2_27"  class="default">0</td>
+						<td id="c2_d2_28"  class="default">0</td>
+						<td id="c2_d2_29"  class="default">0</td>
+						<td id="c2_d2_30"  class="default">0</td>
+						<td id="c2_d2_31"  class="default">0</td>
+					</tr>
+					<tr>
+						<td>D3</td>
+						<td id="c2_d3_0"  class="default">0</td>
+						<td id="c2_d3_1"  class="default">0</td>
+						<td id="c2_d3_2"  class="default">0</td>
+						<td id="c2_d3_3"  class="default">0</td>
+						<td id="c2_d3_4"  class="default">0</td>
+						<td id="c2_d3_5"  class="default">0</td>
+						<td id="c2_d3_6"  class="default">0</td>
+						<td id="c2_d3_7"  class="default">0</td>
+						<td id="c2_d3_8"  class="default">0</td>
+						<td id="c2_d3_9"  class="default">0</td>
+						<td id="c2_d3_10"  class="default">0</td>
+						<td id="c2_d3_11"  class="default">0</td>
+						<td id="c2_d3_12"  class="default">0</td>
+						<td id="c2_d3_13"  class="default">0</td>
+						<td id="c2_d3_14"  class="default">0</td>
+						<td id="c2_d3_15"  class="default">0</td>
+						<td id="c2_d3_16"  class="default">0</td>
+						<td id="c2_d3_17"  class="default">0</td>
+						<td id="c2_d3_18"  class="default">0</td>
+						<td id="c2_d3_19"  class="default">0</td>
+						<td id="c2_d3_20"  class="default">0</td>
+						<td id="c2_d3_21"  class="default">0</td>
+						<td id="c2_d3_22"  class="default">0</td>
+						<td id="c2_d3_23"  class="default">0</td>
+						<td id="c2_d3_24"  class="default">0</td>
+						<td id="c2_d3_25"  class="default">0</td>
+						<td id="c2_d3_26"  class="default">0</td>
+						<td id="c2_d3_27"  class="default">0</td>
+						<td id="c2_d3_28"  class="default">0</td>
+						<td id="c2_d3_29"  class="default">0</td>
+						<td id="c2_d3_30"  class="default">0</td>
+						<td id="c2_d3_31"  class="default">0</td>
+					</tr>
+				</tbody>
+			</table>
+			<div class="def3" id="c2"></div>
+		</div>
+	</body>
+</html>

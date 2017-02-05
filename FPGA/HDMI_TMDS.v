@@ -190,8 +190,12 @@ module HDMI_TMDS(
 	///////////////////////////////
 	always @(posedge pixclk_global) begin
 		////////////////////////////////////////////////////////
+		// reset audio sample count after packets are sent
+		if (counterX == 816) begin
+			audio_sample_counter <= 0;
+		end
 		// aquire audio packets
-		if (!audio_rdempty && counterX != 751 /* header prep pixel */ && (counterX < 780 || counterX >= 816) /* audio data send period */) begin
+		if (!audio_rdempty /*&& counterX != 751 header prep pixel */ && (counterX < 780 || counterX > 816) /* audio data send period */) begin
 			audio_rdreq <= 1'b1;
 		end
 		if (audio_rdempty) begin
@@ -270,7 +274,7 @@ module HDMI_TMDS(
 			end
 			
 			// send regen packet every 49 audio packets
-			if (sendRegenCounter + audio_sample_counter < 48) begin
+			if (sendRegenCounter + audio_sample_counter < 48/*orig: 48*/) begin
 				sendRegenCounter <= sendRegenCounter + audio_sample_counter;
 			end else begin
 				sendRegenPacket <= 1'b1;
@@ -278,7 +282,6 @@ module HDMI_TMDS(
 				//sendRegenCounter <= sendRegenCounter + audio_sample_counter - 6'd48;
 				sendRegenCounter <= 1'b0;
 			end
-			audio_sample_counter <= 0;
 		end
 
 		if (counterX >= 752 && counterX < 784) begin
