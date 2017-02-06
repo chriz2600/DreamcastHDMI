@@ -44,5 +44,5 @@
  
 [Technical details](https://rawgit.com/chriz2600/DreamcastHDMI/master/assets/index.html)
 
-[IC401schematic]: assets/VideoDAConSchematic.png
-[IC401photo]: assets/VideoDAC3.png
+[IC401schematic]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/VideoDAConSchematic.png
+[IC401photo]: https://media.githubusercontent.com/media/chriz2600/DreamcastHDMI/master/assets/VideoDAC3.JPG
