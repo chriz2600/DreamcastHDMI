@@ -11,11 +11,12 @@
 
 I started this project to get familiar with FPGAs and HDMI protocol. What I have now is working 480p video directly from dreamcasts GPU (Holly) with digital audio via HDMI.
 
-### What's missing
+### What's missing?
 
 1. Only 480p(VGA) capable games are working, no 480i support yet
 2. EDID support
-3. Upscaling 
+3. Upscaling
+4. OSD
 
 ## 1. Hardware Modifications
 
@@ -27,12 +28,11 @@ Luckily, the dreamcast uses an external VideoDAC (IC401), so we can tap into the
 
 ![Schematic][IC401schematic]
 
-- VSync (pin 52)
-- HSync (pin 53)
-- VideoClk (pin 54) 
+- VSync (VSYNC) (pin 52)
+- HSync (HSYNC) (pin 53)
+- VClk (VCLK) (pin 54) 
 
-    Double the pixel clock (54Mhz for 480p), because RGB values are transmitted in two clock cycles. 
-    (See "Dreamcast Video" graphic below)
+    Video clock: double the pixel clock (54Mhz for 480p), because RGB values are transmitted in two clock cycles. (See below)
 
 - D0-D11 (pin 56, pins 1-11)
 
@@ -42,21 +42,33 @@ Luckily, the dreamcast uses an external VideoDAC (IC401), so we can tap into the
 
 ![Dreamcast video][DCvideo]
 
-It's quite tricky to solder kynar wire directly to the video DAC, because the round wire tends to slip between the legs of the chip, but with a relatively steady hand (mine is not) it should be manageable. Lots of flux is the key.
+*Soldering points on Dreamcast mainboard*
+
+![Photo][IC401solderPoints]
 
 *Kynar wire soldered to VideoDAC:*
 
 ![Photo][IC401photo]
 
+It's quite tricky to solder kynar wire directly to the video DAC, because the round wire tends to slip between the legs of the chip, but with a relatively steady hand - mine is not :) - it should be manageable. Lots of flux is the key.
+
 ### Audio
 
-- DSCK: 256Fs clock signal to external DAC LVTTL
+- LRC (DLRCK) (pin 1)
+    
+    44.1K Digital Audio LR Clock (LVTTL)
 
-- DSD: 44.1K Digital Audio Data to external DAC LVTTL
+- AData (DSD) (pin 2)
 
-- DBCK: 44.1K Digital Audio Clock to external DAC LVTTL
+    44.1K Digital Audio Data (LVTTL)
 
-- DLRCK: 44.1K Digital Audio LR Clock to external DAC LVTTL
+- BCK (DBCK) (pin 3)
+
+    44.1K Digital Audio Clock (LVTTL)
+
+- AClk (DSCK) (pin 14)
+
+    256Fs audio clock signal (LVTTL)
 
 ## 2. Video 
     
@@ -80,5 +92,6 @@ The dreamcast is generating 480p (not VGA)
 [Technical details]: (https://rawgit.com/chriz2600/DreamcastHDMI/master/assets/index.html)
 [IC401schematic]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/VideoDAConSchematic.png
 [IC401photo]: https://media.githubusercontent.com/media/chriz2600/DreamcastHDMI/master/assets/VideoDAC3.JPG
+[IC401solderPoints]: https://media.githubusercontent.com/media/chriz2600/DreamcastHDMI/master/assets/VideoDACSolderingPoints.png
 [DCvideo]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/dc-video.png
 [dc-hso]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Dreamcast_Hardware_Specification_Outline.pdf
