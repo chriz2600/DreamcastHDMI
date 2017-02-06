@@ -4,25 +4,40 @@
 
 ### Thanks 
 
-1. [Holguer A Becerra (spanish)], [google translated version]
-2. [FPGA4FUN]
-3. [chipos81/charcole]
-4. [Public.Resource.Org]
+This project is based on the work of:
 
-I started this project to get familiar with FPGAs and HDMI protocol. What I have now is working 480p video directly from dreamcasts GPU (Holly) with digital audio via HDMI.
+1. [Holguer A Becerra (spanish)], [google translated version] 
+    
+    HDMI (video) output using a DE0 Nano Development Kit.
+
+2. [FPGA4FUN] 
+    
+    Creating HDMI video using a FPGA.
+
+3. [chipos81/charcole] 
+
+    HDMI output for NeoGeo.
+
+4. [Public.Resource.Org] 
+    
+    HDMI [1.3a][HDMI1.3a] and [1.4][HDMI1.4] specification can be easily found on the internet, but [CEA Standard CEA-861-D][EIA-CEA-861-D], to which is refered many time in HDMI specification, was harder to find. [IEC Standard 60958-3][IEC-60958-3] (Digital Audio Interface: Part 3 Consumer Applications), which is needed to understand, how digital audio is embedded into HDMI, I found only here.
+
+### What's working
+
+Dreamcast 480p output via HDMI with embedded 44.1kHz audio (no A/D conversion) directly from dreamcast's video/audio subsystem.
 
 ### What's missing?
 
-1. Only 480p(VGA) capable games are working, no 480i support yet
+1. 480i support (only 480p(VGA))
 2. EDID support
 3. Upscaling
 4. OSD
 
 ## 1. Hardware Modifications
 
-Luckily, the dreamcast uses an external VideoDAC (IC401), so we can tap into the signals here:
+Luckily, the dreamcast uses an external video DAC (IC401), so we can tap into the signals here:
 
-*VideoDAC on Schematic:*
+*Video DAC on Schematic:*
 
 ![Schematic][IC401schematic]
 
@@ -40,9 +55,9 @@ Luckily, the dreamcast uses an external VideoDAC (IC401), so we can tap into the
 
 ![Dreamcast video][DCvideo]
 
-For the audio part we can tap into the AudioDAC ([PCM1725][PCM1725]) (IC303). The sampling rate is 44.1kHz.
+For the audio part we can tap into the audio DAC ([PCM1725][PCM1725]) (IC303). The sampling rate is 44.1kHz.
 
-*AudioDAC on Schematic:*
+*Audio DAC on Schematic:*
 
 ![Schematic][IC303]
 
@@ -55,16 +70,19 @@ For the audio part we can tap into the AudioDAC ([PCM1725][PCM1725]) (IC303). Th
 
 ![Photo][IC401solderPoints]
 
-*Kynar wire soldered to VideoDAC:*
+*Kynar wire soldered to video DAC:*
 
 ![Photo][IC401photo]
 
-It's quite tricky to solder kynar wire directly to the video DAC, because the round wire tends to slip between the legs of the chip, but with a relatively steady hand - mine is not :) - it should be manageable. Lots of flux is the key. It should be possible to design a flatflex cable which is soldered directly to the VideoDAC (like the [UltraHDMI] is doing [UltraHDMI Flatflex])
+It's quite tricky to solder kynar wire directly to the video DAC, because the round wire tends to slip between the legs of the chip, but with a relatively steady hand - mine is not :) - it should be manageable. Lots of flux is the key. Soldering to the audio DAC should be much easier, because it's pitch is much larger :)
+
+It should be possible to design a flatflex cable which is soldered directly to the VideoDAC - like the [UltraHDMI] is doing ([UltraHDMI Flatflex])
+
+To enable "VGA" output, you either have to plugin any dreamcast VGA cable, or pull pins 6 and 7 of the dreamcast video connector to ground (this should be done with a switch, to keep 480i capability).
 
 ## 2. Video 
     
-The dreamcast is generating 480p (not VGA)
-- Dreamcast 480p (not VGA)
+The dreamcast is generating 720x480p (not VGA) according to [EIA-CEA-861-D][EIA-CEA-861-D] "720x480p @59.94/60 Hz (Formats 2 & 3)" (chapter 4.5), not "640x480p @59.94/60 Hz (Format 1)" (chapter 4.2), but uses only 640 pixels of the possible 720.
 
 ## 3. Audio
 
@@ -89,10 +107,11 @@ For a real product a real HDMI transmitter should be used (e.g. [ADV7513][ADV751
 
 ## 5. FPGA
 
-
+I'm using a [DE0 Nano SOC][de0nanosoc], which is quite overpowered for this job (Cyclone V). It should be possible to use at least a Cyclone III or even a Cyclone II.
 
 ---
 
+[de0nanosoc]: http://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=941
 [UltraHDMI]: http://ultrahdmi.retroactive.be/
 [UltraHDMI Flatflex]: http://cdn3.bigcommerce.com/s-c7bpm05/product_images/theme_images/ultrahdmi_carousel_2.png?t=1478293813
 [Holguer A Becerra (spanish)]: https://sites.google.com/site/ece31289upb/practicas-de-clase/practica-4-sincronizadores/hdmi_de0-nano
@@ -111,4 +130,9 @@ For a real product a real HDMI transmitter should be used (e.g. [ADV7513][ADV751
 [PCM1725]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Datasheets/pcm1725.pdf
 [LVDS2TMDS]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/LVDS2TMDS.png
 [LVDS2TMDS-breadboard]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/LVDS2TMDS2.JPG
-[IC303]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/IC303.png
+[IC303]: https://media.githubusercontent.com/media/chriz2600/DreamcastHDMI/master/assets/IC303.png?x=https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/IC303.png?x=
+
+[HDMI1.3a]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Specs/HDMISpecification13a.pdf
+[HDMI1.4]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Specs/HDMI-Specification-1.4.pdf
+[EIA-CEA-861-D]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Specs/EIA-CEA-861-D.pdf
+[IEC-60958-3]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Specs/is.iec.60958.3.2003.pdf
