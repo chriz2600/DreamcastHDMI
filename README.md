@@ -20,18 +20,18 @@ This project is based on the work of:
 
 4. [Public.Resource.Org] 
     
-    HDMI [1.3a][HDMI1.3a] and [1.4][HDMI1.4] specification can be easily found on the internet, but [CEA Standard CEA-861-D][EIA-CEA-861-D], to which is refered many time in HDMI specification, was harder to find. [IEC Standard 60958-3][IEC-60958-3] (Digital Audio Interface: Part 3 Consumer Applications), which is needed to understand, how digital audio is embedded into HDMI, I found only here.
+    HDMI [1.3a][HDMI1.3a] and [1.4][HDMI1.4] specification can be easily found on the internet, but [CEA Standard CEA-861-D][EIA-CEA-861-D], to which is refered many times in the HDMI specification, was harder to find. [IEC Standard 60958-3][IEC-60958-3] (Digital Audio Interface: Part 3 Consumer Applications), which is needed to understand how digital audio is embedded into HDMI, I found only here.
 
-### What's working
+### What's working?
 
-Dreamcast 480p output via HDMI with embedded 44.1kHz audio (no A/D conversion) directly from dreamcast's video/audio subsystem.
+Dreamcast 480p (VGA) output via HDMI with embedded 44.1kHz audio (no A/D conversion) directly from dreamcast's video/audio subsystem.
 
 ### What's missing?
 
-1. 480i support (only 480p(VGA))
-2. EDID support
-3. Upscaling
-4. OSD
+1. 480i support
+2. Upscaling
+3. OSD
+4. EDID support
 
 ## 1. Hardware Modifications
 
