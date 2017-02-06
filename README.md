@@ -6,9 +6,22 @@
         2. [FPGA4FUN](http://fpga4fun.com/HDMI.html)
         3. [chipos81/charcole](https://github.com/charcole/NeoGeoHDMI)
         4. [Public.Resource.Org](https://law.resource.org/pub/12tables.html)
+    
+    I started this project to get familiar with FPGAs and HDMI protocol.
 
 1. Hardware Modifications
-    - 
+    - Video:
+        
+        Get HSync,VSync, VideoClk and D0-D11 from IC401.
+
+        It's quite tricky to solder kynar wire directly to the video DAC, but with a relatively steady hand it should be ok.
+        
+        ![Schematic][IC401schematic]
+        
+        ![Photo][IC401photo]
+
+    - Audio: 
+
 
 2. Video
     - Video Clock
@@ -31,4 +44,5 @@
  
 [Technical details](https://rawgit.com/chriz2600/DreamcastHDMI/master/assets/index.html)
 
-
+[IC401schematic]: assets/VideoDAConSchematic.png
+[IC401photo]: assets/VideoDAC3.png
