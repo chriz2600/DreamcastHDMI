@@ -12,12 +12,21 @@
 1. Hardware Modifications
     - Video:
         
-        Get HSync,VSync, VideoClk and D0-D11 from IC401.
+        Luckily, the dreamcast uses an external VideoDAC (IC401), so we can tap into the signals here:
+        - HSync
+        - VSync
+        - VideoClk (double the pixel clock, because RGB values are transmitted in two clock cycles)
+        - D0-D11. 
+        ![Dreamcast video][DCvideo]
 
-        It's quite tricky to solder kynar wire directly to the video DAC, but with a relatively steady hand it should be ok.
+        It's quite tricky to solder kynar wire directly to the video DAC, because the round wire tends to slip between the legs of the chip, but with a relatively (mine is not) steady hand it should be ok. Lots of flux is the key.
+        
+        VideoDAC on Schematic: 
         
         ![Schematic][IC401schematic]
         
+        Kynar wire soldered to VideoDAC:
+
         ![Photo][IC401photo]
 
     - Audio: 
@@ -46,3 +55,4 @@
 
 [IC401schematic]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/VideoDAConSchematic.png
 [IC401photo]: https://media.githubusercontent.com/media/chriz2600/DreamcastHDMI/master/assets/VideoDAC3.JPG
+[DCvideo]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/dc-video.svg
