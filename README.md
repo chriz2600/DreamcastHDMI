@@ -13,19 +13,29 @@
     - Video:
         
         Luckily, the dreamcast uses an external VideoDAC (IC401), so we can tap into the signals here:
-        - HSync
-        - VSync
-        - VideoClk (double the pixel clock, because RGB values are transmitted in two clock cycles)
-        - D0-D11. 
-        ![Dreamcast video][DCvideo]
 
-        It's quite tricky to solder kynar wire directly to the video DAC, because the round wire tends to slip between the legs of the chip, but with a relatively (mine is not) steady hand it should be ok. Lots of flux is the key.
-        
-        VideoDAC on Schematic: 
+        *VideoDAC on Schematic:*
         
         ![Schematic][IC401schematic]
         
-        Kynar wire soldered to VideoDAC:
+        - VSync (pin 52)
+        - HSync (pin 53)
+        - VideoClk (pin 54) 
+        
+            Double the pixel clock (54Mhz for 480p), because RGB values are transmitted in two clock cycles. 
+            (See "Dreamcast Video" below)
+
+        - D0-D11 (pin 56, pins 1-11)
+
+            From [Dreamcast Hardware Specification Outline (page 37)][dc-hso]:
+
+            > From HOLLY, the 24bit RGB image information (each RGB 8bit) is sent in units of 12 bit to the Digital-Video-Encoder (video DAC/encoder). The original 24 bit image data is divided into 12bit(RGB [11:0]) of MSB (RGB [11:0] = R [7:0], G[7:4]) and 12 bit of LSB (RGB [11:0] = G [3:0], B [7:0]). Then it is sent to the 54 Hz clock (which is double the 27Hz VGA pixel-clock) in a synchronised manner where it alternates between MSB and LSB. For details refer to a separate specification design document.
+
+        ![Dreamcast video][DCvideo]
+
+        It's quite tricky to solder kynar wire directly to the video DAC, because the round wire tends to slip between the legs of the chip, but with a relatively steady hand (mine is not) it should be manageable. Lots of flux is the key.
+        
+        *Kynar wire soldered to VideoDAC:*
 
         ![Photo][IC401photo]
 
@@ -56,3 +66,4 @@
 [IC401schematic]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/VideoDAConSchematic.png
 [IC401photo]: https://media.githubusercontent.com/media/chriz2600/DreamcastHDMI/master/assets/VideoDAC3.JPG
 [DCvideo]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/dc-video.png
+[dc-hso]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Dreamcast_Hardware_Specification_Outline.pdf
