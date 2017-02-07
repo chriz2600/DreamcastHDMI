@@ -12,7 +12,7 @@ This project is based on the work of:
 
 2. [FPGA4FUN] 
     
-    Creating HDMI video using a FPGA.
+    Creating HDMI video using an FPGA.
 
 3. [chipos81/charcole] 
 
@@ -24,7 +24,7 @@ This project is based on the work of:
 
 ### What's working?
 
-Dreamcast 480p (VGA) output via HDMI with embedded 44.1kHz audio (no A/D conversion) directly from dreamcast's video/audio subsystem.
+Dreamcast 480p (VGA) output via HDMI with embedded 44.1kHz audio (no A/D conversion) directly from dreamcast's video/audio subsystems.
 
 ### What's missing?
 
@@ -74,7 +74,7 @@ For the audio part we can tap into the audio DAC ([PCM1725][PCM1725]) (IC303). T
 
 ![Photo][IC401photo]
 
-It's quite tricky to solder kynar wire directly to the video DAC, because the round wire tends to slip between the legs of the chip, but with a relatively steady hand - mine is not :) - it should be manageable. Lots of flux is the key. Soldering to the audio DAC should be much easier, because it's pitch is much larger :)
+It's quite tricky to solder kynar wire directly to the video DAC, because the round wire tends to slip between the legs of the chip, but with a relatively steady hand - mine is not :) - it should be manageable. Lots of flux is the key. Soldering to the audio DAC is be much easier, because of it's larger pitch :)
 
 It should be possible to design a flatflex cable which is soldered directly to the VideoDAC - like the [UltraHDMI] is doing ([UltraHDMI Flatflex])
 
@@ -86,8 +86,7 @@ The dreamcast is generating 720x480p (not VGA) according to [EIA-CEA-861-D][EIA-
 
 ## 3. Audio
 
-- Encoding
-- Shielding issues
+When tapping into audio, I highly recommend to solder 4 kynar wires to ground and create twisted cables for the audio signals. Without that I experienced major interference from the video lines.
     
 ## 4. HDMI
 
@@ -109,8 +108,15 @@ For a real product a real HDMI transmitter should be used (e.g. [ADV7513][ADV751
 
 I'm using a [DE0 Nano SOC][de0nanosoc], which is quite overpowered for this job (Cyclone V). It should be possible to use at least a Cyclone III or even a Cyclone II.
 
+The project was recently updated to Altera Quartus Prime 16.1.2 (now Intel), which is available for free from their [website][Quartus]. Just open FPGA/DCx.qpf project and you should be able to compile it.
+
+*Project Photo:*
+
+![Project Photo][Overview]
+
 ---
 
+[Quartus]: https://www.altera.com/products/design-software/fpga-design/quartus-prime/overview.html
 [de0nanosoc]: http://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=941
 [UltraHDMI]: http://ultrahdmi.retroactive.be/
 [UltraHDMI Flatflex]: http://cdn3.bigcommerce.com/s-c7bpm05/product_images/theme_images/ultrahdmi_carousel_2.png?t=1478293813
@@ -119,7 +125,6 @@ I'm using a [DE0 Nano SOC][de0nanosoc], which is quite overpowered for this job 
 [FPGA4FUN]: http://fpga4fun.com/HDMI.html
 [chipos81/charcole]: https://github.com/charcole/NeoGeoHDMI
 [Public.Resource.Org]: https://law.resource.org/pub/12tables.html
-
 [Technical Details]: https://rawgit.com/chriz2600/DreamcastHDMI/master/assets/index.html
 [IC401schematic]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/VideoDAConSchematic.png
 [IC401photo]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/VideoDAC3.JPG
@@ -130,7 +135,8 @@ I'm using a [DE0 Nano SOC][de0nanosoc], which is quite overpowered for this job 
 [PCM1725]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Datasheets/pcm1725.pdf
 [LVDS2TMDS]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/LVDS2TMDS.png
 [LVDS2TMDS-breadboard]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/LVDS2TMDS2.JPG
-[IC303]: https://media.githubusercontent.com/media/chriz2600/DreamcastHDMI/master/assets/IC303.png?x=https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/IC303.png?x=
+[IC303]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/IC303.png
+[Overview]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/Overview.JPG
 
 [HDMI1.3a]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Specs/HDMISpecification13a.pdf
 [HDMI1.4]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Specs/HDMI-Specification-1.4.pdf
