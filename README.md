@@ -1,5 +1,7 @@
 # DreamcastHDMI
 
+This documentation is a work in progress, so expect more in the future.
+
 ## 0. Preface
 
 ### Thanks 
