@@ -26,3 +26,4 @@ FPGA/DCx.cdf
 FPGA/pll_tx_cyclone4_vga.bsf
 FPGA/pll_tx_cyclone4_vga.ppf
 FPGA/pll_tx_cyclone4_vga_sim.f
+*.BAK.v
