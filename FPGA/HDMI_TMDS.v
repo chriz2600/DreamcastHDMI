@@ -259,7 +259,9 @@ module HDMI_TMDS(
 					// populate data
 					header[0] <= 24'h0D0282;
 					//subpacket0 <= 56'h000002002a1033;
-					subpacket[0] <= 56'h0000020000006d;
+					//subpacket[0] <= 56'h0000020000006d;
+					//subpacket[0] <= 56'h000002002b1032;
+					subpacket[0] <= 56'h00000200291034;
 					subpacket[1] <= 56'h00000000000000;
 					subpacket[2] <= 56'h00000000000000;
 					subpacket[3] <= 56'h00000000000000;
