@@ -1,0 +1,119 @@
+#============================================================
+# Build by Terasic System Builder
+#============================================================
+
+set_global_assignment -name FAMILY "Cyclone IV E"
+set_global_assignment -name DEVICE EP4CE6E22C8
+set_global_assignment -name TOP_LEVEL_ENTITY Top
+set_global_assignment -name ORIGINAL_QUARTUS_VERSION 14.1
+set_global_assignment -name LAST_QUARTUS_VERSION "16.1.2 Lite Edition"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "10:32:09 JULY 18,2016"
+set_global_assignment -name NUM_PARALLEL_PROCESSORS 4
+
+#============================================================
+# KEY
+#============================================================
+
+#============================================================
+# LED
+#============================================================
+
+#============================================================
+# GPIO_0, GPIO connect to GPIO Default
+#============================================================
+
+#============================================================
+# GPIO_1, GPIO connect to GPIO Default
+#============================================================
+
+#============================================================
+# End of pin assignments by Terasic System Builder
+#============================================================
+
+
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_global_assignment -name ENABLE_SIGNALTAP ON
+set_global_assignment -name USE_SIGNALTAP_FILE stp1.stp
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to top_GPIO[10]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to top_GPIO[11]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to top_GPIO[12]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to top_GPIO[13]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to top_GPIO[14]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to top_GPIO[15]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to top_GPIO[16]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to top_GPIO[17]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to top_GPIO[18]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to top_GPIO[19]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to top_GPIO[20]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to top_GPIO[21]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to bot_GPIO[3]
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR OFF -to clock
+set_instance_assignment -name WEAK_PULL_UP_RESISTOR ON -to bot_GPIO[2]
+set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
+set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_location_assignment PIN_23 -to clock
+set_location_assignment PIN_58 -to top_GPIO[21]
+set_location_assignment PIN_55 -to top_GPIO[20]
+set_location_assignment PIN_54 -to top_GPIO[19]
+set_location_assignment PIN_53 -to top_GPIO[18]
+set_location_assignment PIN_52 -to top_GPIO[17]
+set_location_assignment PIN_51 -to top_GPIO[16]
+set_location_assignment PIN_50 -to top_GPIO[15]
+set_location_assignment PIN_49 -to top_GPIO[14]
+set_location_assignment PIN_46 -to top_GPIO[13]
+set_location_assignment PIN_44 -to top_GPIO[12]
+set_location_assignment PIN_43 -to top_GPIO[11]
+set_location_assignment PIN_42 -to top_GPIO[10]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to top_GPIO[21]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to top_GPIO[20]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to top_GPIO[19]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to top_GPIO[18]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to top_GPIO[17]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to top_GPIO[16]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to top_GPIO[15]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to top_GPIO[14]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to top_GPIO[13]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to top_GPIO[12]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to top_GPIO[11]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to top_GPIO[10]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to top_GPIO
+set_location_assignment PIN_34 -to bot_GPIO[3]
+set_location_assignment PIN_32 -to bot_GPIO[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to bot_GPIO[3]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to bot_GPIO[2]
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to bot_GPIO
+set_location_assignment PIN_74 -to BCKIN
+set_location_assignment PIN_70 -to LRCIN
+set_location_assignment PIN_112 -to DIN
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to LRCIN
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to BCKIN
+set_instance_assignment -name IO_STANDARD LVDS -to Clk
+set_location_assignment PIN_87 -to Clk
+set_location_assignment PIN_86 -to "Clk(n)"
+set_location_assignment PIN_10 -to D0
+set_instance_assignment -name IO_STANDARD LVDS -to D0
+set_instance_assignment -name IO_STANDARD LVDS -to D1
+set_instance_assignment -name IO_STANDARD LVDS -to D2
+set_location_assignment PIN_11 -to "D0(n)"
+set_location_assignment PIN_99 -to D1
+set_location_assignment PIN_98 -to "D1(n)"
+set_location_assignment PIN_85 -to D2
+set_location_assignment PIN_84 -to "D2(n)"
+set_instance_assignment -name IO_STANDARD "3.3-V LVCMOS" -to clock
+set_instance_assignment -name IO_STANDARD LVDS -to "D2(n)"
+set_global_assignment -name VERILOG_FILE encodez.v
+set_global_assignment -name SDC_FILE DCx.SDC
+set_global_assignment -name BDF_FILE Top.bdf
+set_global_assignment -name VERILOG_FILE data.v
+set_global_assignment -name VERILOG_FILE HDMI_TMDS.v
+set_global_assignment -name VERILOG_FILE simple_serializer.v
+set_global_assignment -name QIP_FILE DDIO.qip
+set_global_assignment -name VERILOG_FILE audioData.v
+set_global_assignment -name QIP_FILE fifo.qip
+set_global_assignment -name QIP_FILE clocks.qip
+set_global_assignment -name SLD_FILE db/stp1_auto_stripped.stp
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
