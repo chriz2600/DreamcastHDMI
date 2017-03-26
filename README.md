@@ -1,6 +1,8 @@
 # DreamcastHDMI
 
-This documentation is a work in progress, so expect more in the future.
+Instead of a [DE0 Nano SOC][de0nanosoc] you can also use a [Waveshare CoreEP4CE6 Development Board][CoreEP4CE6]. You can get it for 20-25$ via [Aliexpress][AliCoreEP4CE6]. The project folder for this is [FPGA-CycloneIV]. Because the board does not expose any clock pins, you have to desolder the oscillator and attach the dreamcast clock directly to the board.
+
+![Oscillator][CoreEP4CE6-Oscillator]
 
 ## 0. Preface
 
@@ -139,8 +141,14 @@ The project was recently updated to Altera Quartus Prime 16.1.2 (now Intel), whi
 [LVDS2TMDS-breadboard]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/LVDS2TMDS2.JPG
 [IC303]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/IC303.png
 [Overview]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/Overview.JPG
+[CoreEP4CE6-Oscillator]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/Waveshare-CoreEP4CE6.png
+
 
 [HDMI1.3a]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Specs/HDMISpecification13a.pdf
 [HDMI1.4]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Specs/HDMI-Specification-1.4.pdf
 [EIA-CEA-861-D]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Specs/EIA-CEA-861-D.pdf
 [IEC-60958-3]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Specs/is.iec.60958.3.2003.pdf
+
+[CoreEP4CE6]: http://www.waveshare.com/wiki/CoreEP4CE6
+[AliCoreEP4CE6]: https://www.aliexpress.com/item/Waveshare-Altera-Cyclone-Board-CoreEP4CE6-EP4CE6E22C8N-EP4CE6-ALTERA-Cyclone-IV-CPLD-FPGA-Development-Core-Board-Full/32643916772.html
+[FPGA-CycloneIV]: https://github.com/chriz2600/DreamcastHDMI/tree/master/FPGA-CycloneIV
