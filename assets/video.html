@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+        <style type="text/css">
+            body { 
+                background-color:darkgrey;
+                font-family:Arial;
+            }
+
+            .demo {
+                position:absolute;
+                border: 2px solid black;
+                box-sizing: border-box;
+                top:50%;
+                left:50%;
+            }
+
+            .canvas {
+                background-color:black;
+                width:960px;
+                height:540px;
+                margin-top:-270px;
+                margin-left:-480px;
+            }
+
+            .content {
+                text-align: center;
+                vertical-align:middle;
+                display: table-cell;
+                padding:10px;
+            }
+
+            .text {
+                position:absolute;
+                top:50%;
+                left:50%;
+                margin-top:-290px;
+                margin-left:-480px;
+            }
+
+            /* ================================ */
+
+            .dc_orig {
+                width:360px;
+                height:240px;
+                margin-top:-120px;
+                margin-left:-180px;
+                background-color:black;
+                border: 2px solid red;
+            }
+
+            .dc_inner {
+                width:320px;
+                height:240px;
+                margin-top:-120px;
+                margin-left:-160px;
+                background-color:red;
+                border: 2px solid red;
+                color: white;
+                text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+                display: table;
+                background-image: url(https://i.stack.imgur.com/WSLvD.png);
+                background-size: cover;
+            }
+
+            .text2 {
+                position:absolute;
+                top:50%;
+                left:50%;
+                margin-top:-140px;
+                margin-left:-180px;
+                color:white;
+            }
+
+            /* ================================ */
+
+            .dc_orig2x {
+                width:720px;
+                height:480px;
+                margin-top:-240px;
+                margin-left:-360px;
+                background-color:black;
+                border: 2px solid red;
+            }
+
+            .dc_inner2x {
+                width:640px;
+                height:480px;
+                margin-top:-240px;
+                margin-left:-320px;
+                background-color:red;
+                border: 2px solid red;
+                color: white;
+                text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+                display: table;
+                background-image: url(https://i.stack.imgur.com/WSLvD.png);
+                background-size: cover;
+            }
+
+            .text2x {
+                position:absolute;
+                top:50%;
+                left:50%;
+                margin-top:-260px;
+                margin-left:-360px;
+                color:white;
+            }
+
+            /* ================================ */
+
+            .dc_orig4_3 {
+                width:720px;
+                height:540px;
+                margin-top:-270px;
+                margin-left:-360px;
+                background-color:black;
+                border: 2px solid red;
+            }
+
+            .dc_inner4_3 {
+                width:640px;
+                height:540px;
+                margin-top:-270px;
+                margin-left:-320px;
+                background-color:red;
+                border: 2px solid red;
+                color: white;
+                text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+                display: table;
+                background-image: url(https://i.stack.imgur.com/WSLvD.png);
+                background-size: 100% 100%;
+            }
+
+            .text4_3 {
+                position:absolute;
+                top:50%;
+                left:50%;
+                margin-top:-290px;
+                margin-left:-360px;
+            }
+
+            /* ================================ */
+
+            .dc_orig16_9 {
+                width:960px;
+                height:540px;
+                margin-top:-270px;
+                margin-left:-480px;
+                background-color:black;
+                border: 2px solid red;
+            }
+
+            .dc_inner16_9 {
+                width:853px;
+                height:540px;
+                margin-top:-270px;
+                margin-left:-426px;
+                background-color:red;
+                border: 2px solid red;
+                color: white;
+                text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+                display: table;
+                background-image: url(https://i.stack.imgur.com/WSLvD.png);
+                background-size: 100% 100%;
+            }
+
+            .text16_9 {
+                position:absolute;
+                top:50%;
+                left:50%;
+                margin-top:-290px;
+                margin-left:-360px;
+            }
+
+            /* ================================ */
+
+            .dc_2x {
+                display:none;
+            }
+        </style>
+        <script>
+            function showme(name) {
+                document.querySelectorAll(".hideme").forEach(function(e){e.hidden=true;});
+                document.querySelector(name).hidden = false;
+            }
+        </script>
+    </head>
+    <body>
+        <button onclick="showme('#orig');">Dreamcast 480p 1:1 on 1080p</button>
+        <button onclick="showme('#o2x');">Dreamcast 480p 2:2 on 1080p</button>
+        <br><br>
+        <button onclick="showme('#o4_3');">Dreamcast 480p scaled 4:3</button>
+        <button onclick="showme('#o16_9');">Dreamcast 480p scaled 16:9</button>
+
+        <div class="demo canvas">
+            <div class="demo dc_2x">
+            </div>
+        </div>
+        <div class="text">1920x1080</div>
+
+        <div id="orig" class="hideme" hidden>
+            <div class="demo dc_orig">
+                <div class="demo dc_inner">
+                    <div class="content">
+                        Dreamcast creates a 720p EDTV image, but is only using the inner 640 pixels.
+                        <br><br>The pixel ratio is 1:1, if displayed via VGA adapter.
+                    </div>
+                </div>
+            </div>
+            <div class="text2">720x480 1:1</div>
+        </div>
+
+        <div id="o2x" class="hideme" hidden>
+            <div class="demo dc_orig2x">
+                <div class="demo dc_inner2x">
+                    <div class="content">
+                        Dreamcast image is pixel doubled to 1280x960 pixels.
+                        <br><br>The pixel ratio remains 1:1.
+                        <br><br>As most HDTVs do not support this, you have to either use a Framemeister or implement it on the FPGA.
+                    </div>
+                </div>
+            </div>
+            <div class="text2x">1440x960 1:1</div>
+        </div>
+
+        <div id="o4_3" class="hideme" hidden>
+            <div class="demo dc_orig4_3">
+                <div class="demo dc_inner4_3">
+                    <div class="content">
+                        Dreamcast image is scaled to full size 4:3 by HDTV.
+                        <br><br>The pixel ratio will be 8:9, so the image will be squashed.
+                    </div>
+                </div>
+            </div>
+            <div class="text4_3">1440x1080 4:3</div>
+        </div>
+
+        <div id="o16_9" class="hideme" hidden>
+            <div class="demo dc_orig16_9">
+                <div class="demo dc_inner16_9">
+                    <div class="content">
+                        Dreamcast image is scaled to full size 16:9
+                        <br><br>The pixel ratio will be 32:27, so the image will be stretched.
+                    </div>
+                </div>
+            </div>
+            <div class="text4_3">1920x1080 16:9</div>
+        </div>
+
+    </body>
+</html>
