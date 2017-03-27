@@ -4,6 +4,18 @@ Instead of a [DE0 Nano SOC][de0nanosoc] you can also use a [Waveshare CoreEP4CE6
 
 ![Oscillator][CoreEP4CE6-Oscillator]
 
+I also created a board for experimenting with the [Analog Devices ADV7513 HDMI Transmitter][ADV7513] which can be found [here][ADV7513p]. The verilog code for this can be found [here][FPGA-CycloneIV-ADV7513].
+
+If you want to go the "cheap" DIY route, i've made a PCB for the [LVDS2TMDS][LVDS2TMDSboard] part.
+
+### Roadmap
+
+0. Some detailed HOWTOs.
+1. Use FPGA to enable 480p mode. Currently I have to plug in a VGA cable ;)
+2. Design FPGA board with Cyclone IV FPGA and ADV7513 transmitter. I'm planning to include some RAM to be able to implement 480i as well as basic upscaling later.
+3. Design flat flex circuit to connect Dreamcast video DAC and audio DAC to FPGA board.
+4. ...
+
 ## 0. Preface
 
 ### Thanks 
@@ -143,7 +155,6 @@ The project was recently updated to Altera Quartus Prime 16.1.2 (now Intel), whi
 [Overview]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/Overview.JPG
 [CoreEP4CE6-Oscillator]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/Waveshare-CoreEP4CE6.png
 
-
 [HDMI1.3a]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Specs/HDMISpecification13a.pdf
 [HDMI1.4]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Specs/HDMI-Specification-1.4.pdf
 [EIA-CEA-861-D]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Specs/EIA-CEA-861-D.pdf
@@ -152,3 +163,9 @@ The project was recently updated to Altera Quartus Prime 16.1.2 (now Intel), whi
 [CoreEP4CE6]: http://www.waveshare.com/wiki/CoreEP4CE6
 [AliCoreEP4CE6]: https://www.aliexpress.com/item/Waveshare-Altera-Cyclone-Board-CoreEP4CE6-EP4CE6E22C8N-EP4CE6-ALTERA-Cyclone-IV-CPLD-FPGA-Development-Core-Board-Full/32643916772.html
 [FPGA-CycloneIV]: https://github.com/chriz2600/DreamcastHDMI/tree/master/FPGA-CycloneIV
+[FPGA-CycloneIV-ADV7513]: https://github.com/chriz2600/DreamcastHDMI/tree/master/FPGA-CycloneIV-ADV7513
+
+[ADV7513]: http://www.analog.com/en/products/audio-video/analoghdmidvi-interfaces/analog-hdmidvi-display-interfaces/adv7513.html
+[ADV7513p]: https://github.com/chriz2600/ADV7513
+
+[LVDS2TMDSboard]: https://github.com/chriz2600/LVDS2TMDS
