@@ -30,3 +30,4 @@ FPGA*/pll_tx_cyclone4_vga_sim.f
 FPGA-CycloneIV/db/cmpr_su5.tdf
 FPGA-CycloneIV/db/
 FPGA-CycloneIV/incremental_db/
+prep/*
