@@ -189,12 +189,14 @@
             }
         </script>
     </head>
-    <body>
-        <button onclick="showme('#orig');">Dreamcast 480p 1:1 on 1080p</button>
-        <button onclick="showme('#o2x');">Dreamcast 480p 2:2 on 1080p</button>
+    <body onload="showme('#orig');">
+        <button onclick="showme('#orig');">1. Dreamcast 480p 1:1 on 1080p</button>
         <br><br>
-        <button onclick="showme('#o4_3');">Dreamcast 480p scaled 4:3</button>
-        <button onclick="showme('#o16_9');">Dreamcast 480p scaled 16:9</button>
+        <button onclick="showme('#o2x');">2. Dreamcast 480p 2:2 on 1080p</button>
+        <br><br>
+        <button onclick="showme('#o4_3');">3. Dreamcast 480p scaled 4:3</button>
+        <br><br>
+        <button onclick="showme('#o16_9');">4. Dreamcast 480p scaled 16:9</button>
 
         <div class="demo canvas">
             <div class="demo dc_2x">
@@ -207,7 +209,8 @@
                 <div class="demo dc_inner">
                     <div class="content">
                         Dreamcast creates a 720p EDTV image, but is only using the inner 640 pixels.
-                        <br><br>The pixel ratio is 1:1, if displayed via VGA adapter.
+                        <br><br>The pixel ratio is usually 1:1, if displayed via VGA adapter on an analog VGA monitor. 
+                        This may be also the cause for the unusual video timing of the Dreamcast (to ensure the image is displayed as VGA).
                     </div>
                 </div>
             </div>
@@ -218,7 +221,7 @@
             <div class="demo dc_orig2x">
                 <div class="demo dc_inner2x">
                     <div class="content">
-                        Dreamcast image is pixel doubled to 1280x960 pixels.
+                        Best approach for pixel perfect display: <br>Dreamcast image is pixel doubled to 1280x960 pixels.
                         <br><br>The pixel ratio remains 1:1.
                         <br><br>As most HDTVs do not support this, you have to either use a Framemeister or implement it on the FPGA.
                     </div>
@@ -231,8 +234,10 @@
             <div class="demo dc_orig4_3">
                 <div class="demo dc_inner4_3">
                     <div class="content">
-                        Dreamcast image is scaled to full size 4:3 by HDTV.
+                        Dreamcast image, if using the full size 4:3 scaling of an HDTV.
                         <br><br>The pixel ratio will be 8:9, so the image will be squashed.
+                        <br><br>Because of the Dreamcast's '"special" video timing, a 90s TV displays 640 
+                        horizontal pixels on 720 pixels with, so the pixel ratio should be about 1:1.
                     </div>
                 </div>
             </div>
@@ -243,7 +248,7 @@
             <div class="demo dc_orig16_9">
                 <div class="demo dc_inner16_9">
                     <div class="content">
-                        Dreamcast image is scaled to full size 16:9
+                        Dreamcast image, if using the full size 16:9 scaling of an HDTV.
                         <br><br>The pixel ratio will be 32:27, so the image will be stretched.
                     </div>
                 </div>

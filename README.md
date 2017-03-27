@@ -8,6 +8,8 @@ I also created a board for experimenting with the [Analog Devices ADV7513 HDMI T
 
 If you want to go the "cheap" DIY route, i've made a PCB for the [LVDS2TMDS][LVDS2TMDSboard] part.
 
+Some details about the Dreamcast scaling issue on modern HDTVs: [Video details link]
+
 ### Roadmap
 
 0. Some detailed HOWTOs.
@@ -15,6 +17,10 @@ If you want to go the "cheap" DIY route, i've made a PCB for the [LVDS2TMDS][LVD
 2. Design FPGA board with Cyclone IV FPGA and ADV7513 transmitter. I'm planning to include some RAM to be able to implement 480i as well as basic upscaling later.
 3. Design flat flex circuit to connect Dreamcast video DAC and audio DAC to FPGA board.
 4. ...
+
+
+
+
 
 ## 0. Preface
 
@@ -142,6 +148,7 @@ The project was recently updated to Altera Quartus Prime 16.1.2 (now Intel), whi
 [chipos81/charcole]: https://github.com/charcole/NeoGeoHDMI
 [Public.Resource.Org]: https://law.resource.org/pub/12tables.html
 [Technical Details]: https://rawgit.com/chriz2600/DreamcastHDMI/master/assets/index.html
+[Video Details Link]: https://rawgit.com/chriz2600/DreamcastHDMI/master/assets/video.html
 [IC401schematic]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/VideoDAConSchematic.png
 [IC401photo]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/VideoDAC3.JPG
 [IC401solderPoints]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/VideoDACSolderingPoints.png
