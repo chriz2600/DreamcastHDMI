@@ -23,7 +23,7 @@ FPGA*/synopsys/
 FPGA*/output_file.jic
 FPGA*/output_file.map
 FPGA*/DCx.cdf
-FPGA*/*.bsf
+FPGA*/pll_tx_cyclone4_vga.bsf
 FPGA*/pll_tx_cyclone4_vga.ppf
 FPGA*/pll_tx_cyclone4_vga_sim.f
 *.BAK.v
@@ -31,3 +31,4 @@ FPGA-CycloneIV/db/cmpr_su5.tdf
 FPGA-CycloneIV/db/
 FPGA-CycloneIV/incremental_db/
 prep/*
+FPGA-CycloneIV-ADV7513/DCx.map.smsg
