@@ -4,23 +4,35 @@
 
 ---
 
+### News
+
+#### 2017-03-27
+
+##### Cheaper FPGA
+
 Instead of a [DE0 Nano SOC][de0nanosoc] you can also use a [Waveshare CoreEP4CE6 Development Board][CoreEP4CE6]. You can get it for 20-25$ via [Aliexpress][AliCoreEP4CE6]. The project folder for this is [FPGA-CycloneIV]. Because the board does not expose any clock pins, you have to desolder the oscillator and attach the dreamcast clock directly to the board.
 
 ![Oscillator][CoreEP4CE6-Oscillator]
 
+##### ADV7513
+
 I also created a board for experimenting with the [Analog Devices ADV7513 HDMI Transmitter][ADV7513] which can be found [here][ADV7513p]. The verilog code for this can be found [here][FPGA-CycloneIV-ADV7513].
+
+##### Direct HDMI output from FPGA
 
 If you want to go the "cheap" DIY route, i've made a PCB for the [LVDS2TMDS][LVDS2TMDSboard] part.
 
+##### Dreamcast video output
+
 Some details about the Dreamcast scaling issue on modern HDTVs: [Video details link]
 
-### Roadmap
+##### Roadmap
 
-0. Some detailed HOWTOs.
-1. Use FPGA to enable 480p mode. Currently I have to plug in a VGA cable ;)
-2. Design FPGA board with Cyclone IV FPGA and ADV7513 transmitter. I'm planning to include some RAM to be able to implement 480i as well as basic upscaling later.
-3. Design flat flex circuit to connect Dreamcast video DAC and audio DAC to FPGA board.
-4. ...
+0. ~~Create cheaper solution based on simple FPGA development board.~~
+0. Use FPGA to enable 480p mode. Currently I have to plug in a VGA cable ;)
+0. Design FPGA board with Cyclone IV FPGA and ADV7513 transmitter. I'm planning to include some RAM to be able to implement 480i as well as basic upscaling later.
+0. Design flat flex circuit to connect Dreamcast video DAC and audio DAC to FPGA board.
+0. Detailed HOWTOs.
 
 ---
 
