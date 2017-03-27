@@ -23,7 +23,7 @@ FPGA*/synopsys/
 FPGA*/output_file.jic
 FPGA*/output_file.map
 FPGA*/DCx.cdf
-FPGA*/pll_tx_cyclone4_vga.bsf
+FPGA*/*.bsf
 FPGA*/pll_tx_cyclone4_vga.ppf
 FPGA*/pll_tx_cyclone4_vga_sim.f
 *.BAK.v
