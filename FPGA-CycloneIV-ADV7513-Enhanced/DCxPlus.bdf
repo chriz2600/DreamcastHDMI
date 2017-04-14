@@ -54,7 +54,7 @@ agreement for further details.
 )
 (pin
 	(input)
-	(rect 240 504 416 520)
+	(rect 240 592 416 608)
 	(text "INPUT" (rect 133 0 161 10)(font "Arial" (font_size 6)))
 	(text "clock74_175824" (rect 5 0 82 17)(font "Intel Clear" ))
 	(pt 176 8)
@@ -104,7 +104,7 @@ agreement for further details.
 	(input)
 	(rect 248 712 416 728)
 	(text "INPUT" (rect 125 0 153 10)(font "Arial" (font_size 6)))
-	(text "HDMI_INT_N" (rect 5 0 72 12)(font "Arial" ))
+	(text "HDMI_INT_N" (rect 5 0 71 12)(font "Arial" ))
 	(pt 168 8)
 	(drawing
 		(line (pt 84 12)(pt 109 12))
@@ -788,7 +788,7 @@ agreement for further details.
 	)
 )
 (symbol
-	(rect 440 448 704 600)
+	(rect 440 536 704 688)
 	(text "pll74" (rect 119 0 150 16)(font "Arial" (font_size 10)))
 	(text "pll74" (rect 8 136 30 148)(font "Arial" ))
 	(port
@@ -1015,10 +1015,6 @@ agreement for further details.
 	(bus)
 )
 (connector
-	(pt 1032 472)
-	(pt 1032 512)
-)
-(connector
 	(pt 1032 640)
 	(pt 1056 640)
 )
@@ -1029,22 +1025,6 @@ agreement for further details.
 (connector
 	(pt 816 656)
 	(pt 752 656)
-)
-(connector
-	(pt 752 656)
-	(pt 752 512)
-)
-(connector
-	(pt 704 512)
-	(pt 752 512)
-)
-(connector
-	(pt 704 528)
-	(pt 728 528)
-)
-(connector
-	(pt 728 528)
-	(pt 728 672)
 )
 (connector
 	(pt 728 672)
@@ -1065,14 +1045,6 @@ agreement for further details.
 (connector
 	(pt 1272 656)
 	(pt 1272 600)
-)
-(connector
-	(pt 1032 600)
-	(pt 1272 600)
-)
-(connector
-	(pt 1032 512)
-	(pt 1032 600)
 )
 (connector
 	(pt 1032 600)
@@ -1138,10 +1110,6 @@ agreement for further details.
 (connector
 	(pt 760 312)
 	(pt 416 312)
-)
-(connector
-	(pt 440 512)
-	(pt 416 512)
 )
 (connector
 	(pt 1032 672)
@@ -1235,19 +1203,46 @@ agreement for further details.
 	(pt 1016 376)
 )
 (connector
-	(pt 1016 512)
+	(pt 1032 472)
+	(pt 1032 600)
+)
+(connector
 	(pt 1016 376)
+	(pt 1016 600)
 )
 (connector
-	(pt 752 512)
-	(pt 1016 512)
+	(pt 1032 600)
+	(pt 1272 600)
 )
 (connector
-	(pt 1016 512)
-	(pt 1032 512)
+	(pt 728 616)
+	(pt 704 616)
 )
-(junction (pt 1032 512))
-(junction (pt 752 512))
+(connector
+	(pt 728 672)
+	(pt 728 616)
+)
+(connector
+	(pt 416 600)
+	(pt 440 600)
+)
+(connector
+	(pt 752 600)
+	(pt 752 656)
+)
+(connector
+	(pt 704 600)
+	(pt 752 600)
+)
+(connector
+	(pt 752 600)
+	(pt 1016 600)
+)
+(connector
+	(pt 1016 600)
+	(pt 1032 600)
+)
 (junction (pt 1032 600))
 (junction (pt 736 168))
-(junction (pt 1016 512))
+(junction (pt 1016 600))
+(junction (pt 752 600))
