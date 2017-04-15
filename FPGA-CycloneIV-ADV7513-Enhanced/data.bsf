@@ -21,9 +21,9 @@ agreement for further details.
 */
 (header "symbol" (version "1.1"))
 (symbol
-	(rect 16 16 224 224)
+	(rect 16 16 224 192)
 	(text "data" (rect 5 0 21 12)(font "Arial" ))
-	(text "inst" (rect 8 192 20 204)(font "Arial" ))
+	(text "inst" (rect 8 160 20 172)(font "Arial" ))
 	(port
 		(pt 0 32)
 		(input)
@@ -58,6 +58,13 @@ agreement for further details.
 		(text "_vsync" (rect 0 0 31 12)(font "Arial" ))
 		(text "_vsync" (rect 21 91 52 103)(font "Arial" ))
 		(line (pt 0 96)(pt 16 96)(line_width 1))
+	)
+	(port
+		(pt 0 112)
+		(input)
+		(text "line_doubler" (rect 0 0 46 12)(font "Arial" ))
+		(text "line_doubler" (rect 21 107 67 119)(font "Arial" ))
+		(line (pt 0 112)(pt 16 112)(line_width 1))
 	)
 	(port
 		(pt 208 32)
@@ -104,25 +111,11 @@ agreement for further details.
 	(port
 		(pt 208 128)
 		(output)
-		(text "hsync" (rect 0 0 24 12)(font "Arial" ))
-		(text "hsync" (rect 163 123 187 135)(font "Arial" ))
+		(text "add_line" (rect 0 0 31 12)(font "Arial" ))
+		(text "add_line" (rect 156 123 187 135)(font "Arial" ))
 		(line (pt 208 128)(pt 192 128)(line_width 1))
 	)
-	(port
-		(pt 208 144)
-		(output)
-		(text "vsync" (rect 0 0 25 12)(font "Arial" ))
-		(text "vsync" (rect 162 139 187 151)(font "Arial" ))
-		(line (pt 208 144)(pt 192 144)(line_width 1))
-	)
-	(port
-		(pt 208 160)
-		(output)
-		(text "DrawArea" (rect 0 0 42 12)(font "Arial" ))
-		(text "DrawArea" (rect 145 155 187 167)(font "Arial" ))
-		(line (pt 208 160)(pt 192 160)(line_width 1))
-	)
 	(drawing
-		(rectangle (rect 16 16 192 192)(line_width 1))
+		(rectangle (rect 16 16 192 160)(line_width 1))
 	)
 )

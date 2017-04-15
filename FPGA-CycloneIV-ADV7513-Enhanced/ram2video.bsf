@@ -53,10 +53,24 @@ agreement for further details.
 		(line (pt 0 80)(pt 16 80)(line_width 1))
 	)
 	(port
+		(pt 0 96)
+		(input)
+		(text "line_doubler" (rect 0 0 46 12)(font "Arial" ))
+		(text "line_doubler" (rect 21 91 67 103)(font "Arial" ))
+		(line (pt 0 96)(pt 16 96)(line_width 1))
+	)
+	(port
+		(pt 0 112)
+		(input)
+		(text "add_line" (rect 0 0 31 12)(font "Arial" ))
+		(text "add_line" (rect 21 107 52 119)(font "Arial" ))
+		(line (pt 0 112)(pt 16 112)(line_width 1))
+	)
+	(port
 		(pt 200 32)
 		(output)
-		(text "rdaddr[9..0]" (rect 0 0 46 12)(font "Arial" ))
-		(text "rdaddr[9..0]" (rect 133 27 179 39)(font "Arial" ))
+		(text "rdaddr[11..0]" (rect 0 0 48 12)(font "Arial" ))
+		(text "rdaddr[11..0]" (rect 131 27 179 39)(font "Arial" ))
 		(line (pt 200 32)(pt 184 32)(line_width 3))
 	)
 	(port

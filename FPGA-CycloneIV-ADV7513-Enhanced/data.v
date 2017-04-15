@@ -4,6 +4,7 @@ module data(
 	input [11:0] indata,
 	input _hsync,
 	input _vsync,
+	input line_doubler,
 
 	output clock_out,
 	
@@ -13,74 +14,78 @@ module data(
 	
 	output [11:0] counterX,
 	output [11:0] counterY,
-
-	output hsync,
-	output vsync,
-	
-	output DrawArea
+	output add_line
 );
 
-reg hsync_reg;
-reg hsync_reg_q = 1'b1;
-reg vsync_reg;
-reg vsync_reg_q = 1'b1;
+	reg hsync_reg;
+	reg vsync_reg;
 
-reg [7:0] red_reg_buf;
-reg [7:0] red_reg;
-reg [7:0] green_reg_buf;
-reg [7:0] green_reg;
-reg [7:0] blue_reg;
+	reg [7:0] red_reg_buf;
+	reg [7:0] red_reg;
+	reg [7:0] green_reg_buf;
+	reg [7:0] green_reg;
+	reg [7:0] blue_reg;
 
-reg [11:0] raw_counterX_reg;
-reg [11:0] counterX_reg;
-reg [11:0] counterX_reg_q;
+	reg [11:0] raw_counterX_reg;
+	reg [11:0] counterX_reg;
+	reg [11:0] counterX_reg_q;
 
-reg [11:0] raw_counterY_reg;
-reg [11:0] counterY_reg;
-reg [11:0] counterY_reg_q;
+	reg [11:0] raw_counterY_reg;
+	reg [11:0] counterY_reg;
+	reg [11:0] counterY_reg_q;
 
-reg hsync_ready;
-reg vsync_ready;
-
-localparam CEA_861_D_TIMING_CORRECTION = "TRUE";
-
-localparam VISIBLE_AREA_HSTART = 217 + 40;
-localparam VISIBLE_AREA_VSTART =  40;
-localparam VISIBLE_AREA_WIDTH  = 720;
-localparam VISIBLE_AREA_HEIGHT = 480;
-
-localparam HSYNC_START = 736;
-localparam HSYNC_WIDTH =  62;
-localparam VSYNC_START = 483; // 488 according to CEA-861-D 4.5 Figure 4
-localparam VSYNC_WIDTH =   6;
-
-always @(negedge clock) begin
-	if (~reset) begin
-		/*hsync_reg_q <= 0;
-		vsync_reg_q <= 0;
-		counterX_reg_q <= 0;
-		counterY_reg_q <= 0;
-		red_reg <= 0;
-		green_reg <= 0;
-		blue_reg <= 0;*/
-		hsync_ready <= 0;
-		vsync_ready <= 0;
-	end else begin
+	reg [9:0] VISIBLE_AREA_HSTART;
+	reg [9:0] VISIBLE_AREA_VSTART;
+	reg [9:0] VISIBLE_AREA_WIDTH;
+	reg [9:0] VISIBLE_AREA_HEIGHT;
+	
+	reg add_line_reg;
+	
+	always @(*) begin
+		if (line_doubler) begin
+			if (add_line) begin
+				VISIBLE_AREA_HSTART = 10'd347;
+				VISIBLE_AREA_VSTART = 10'd18;
+				VISIBLE_AREA_WIDTH  = 10'd643;
+				VISIBLE_AREA_HEIGHT = 10'd504;
+			end else begin
+				VISIBLE_AREA_HSTART = 10'd327;
+				VISIBLE_AREA_VSTART = 10'd18;
+				VISIBLE_AREA_WIDTH  = 10'd643;
+				VISIBLE_AREA_HEIGHT = 10'd504;
+			end
+		end else begin
+			VISIBLE_AREA_HSTART = 10'd257;
+			VISIBLE_AREA_VSTART = 10'd40;
+			VISIBLE_AREA_WIDTH  = 10'd720;
+			VISIBLE_AREA_HEIGHT = 10'd480;
+		end
+	end
+	
+	
+	always @(negedge clock) begin
 		hsync_reg <= _hsync;
 		vsync_reg <= _vsync;
 		
 		// reset horizontal raw counter on hsync
 		if (hsync_reg && !_hsync) begin
 			raw_counterX_reg <= 0;
+			
+			// reset vertical raw counter on vsync
+			if (vsync_reg && !_vsync) begin
+				// 240p has only 263 lines per frame
+				if (raw_counterY_reg == 262) begin
+					add_line_reg <= 1'b1;
+				end else begin
+					add_line_reg <= 1'b0;
+				end
+				
+				raw_counterY_reg <= 0;
+			end else begin
+				raw_counterY_reg <= raw_counterY_reg + 1'b1;
+			end
 		end else begin
 			raw_counterX_reg <= raw_counterX_reg + 1'b1;
-		end
-		
-		// reset vertical raw counter on vsync
-		if (vsync_reg && !_vsync) begin
-			raw_counterY_reg <= 0;
-		end else if (hsync_reg && !_hsync) begin
-			raw_counterY_reg <= raw_counterY_reg + 1'b1;
 		end
 		
 		// recalculate counterX and counterY to match visible area
@@ -115,46 +120,16 @@ always @(negedge clock) begin
 			blue_reg <= 8'd0;
 		end
 
-		if (CEA_861_D_TIMING_CORRECTION == "TRUE") begin
-			// reconstruct hsync according to CEA-861-D 4.5 Figure 4
-			if (counterX_reg >= HSYNC_START && counterX_reg < HSYNC_START + HSYNC_WIDTH) begin
-				hsync_reg_q <= 0;
-				hsync_ready <= 1;
-			end else begin
-				hsync_reg_q <= 1;
-			end
-			
-			// reconstruct vsync according to CEA-861-D 4.5 Figure 4
-			if (counterY_reg >= VSYNC_START && counterY_reg < VSYNC_START + VSYNC_WIDTH + 1) begin // + 1: synchronize last vsync period with hsync negative edge
-				if ((counterY_reg == VSYNC_START && counterX_reg < HSYNC_START) 
-				 || (counterY_reg == VSYNC_START + VSYNC_WIDTH && counterX_reg >= HSYNC_START)) begin
-					vsync_reg_q <= 1;
-				end else begin
-					vsync_reg_q <= 0;
-					vsync_ready <= 1;
-				end
-			end else begin
-				vsync_reg_q <= 1;
-			end
-		end else begin
-			hsync_reg_q <= hsync_reg;
-			vsync_reg_q <= vsync_reg;
-		end
-		
 		counterX_reg_q <= counterX_reg;
 		counterY_reg_q <= counterY_reg;
 	end
-end
 
-assign hsync = (hsync_ready && vsync_ready) ? hsync_reg_q : 1'b1;
-assign vsync = (hsync_ready && vsync_ready) ? vsync_reg_q : 1'b1;
-assign counterX = (hsync_ready && vsync_ready) ? counterX_reg_q : 12'b0;
-assign counterY = (hsync_ready && vsync_ready) ? counterY_reg_q : 12'b0;
-assign DrawArea = (hsync_ready && vsync_ready) ? (counterX_reg_q >= 0 && counterX_reg_q < VISIBLE_AREA_WIDTH && counterY_reg_q >= 0 && counterY_reg_q < VISIBLE_AREA_HEIGHT) : 1'b0;
-//assign DrawArea = (hsync_ready && vsync_ready) ? (43 < counterX_reg_q <= 683 && counterY_reg_q >= 0 && counterY_reg_q < VISIBLE_AREA_HEIGHT) : 1'b0;
-assign red = (hsync_ready && vsync_ready) ? red_reg : 8'b0;
-assign green = (hsync_ready && vsync_ready) ? green_reg : 8'b0;
-assign blue = (hsync_ready && vsync_ready) ? blue_reg : 8'b0;
-assign clock_out = ~raw_counterX_reg[0];
+	assign counterX = counterX_reg_q;
+	assign counterY = counterY_reg_q;
+	assign red = red_reg;
+	assign green = green_reg;
+	assign blue = blue_reg;
+	assign clock_out = ~raw_counterX_reg[0];
+	assign add_line = add_line_reg;
 
 endmodule
