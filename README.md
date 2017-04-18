@@ -6,6 +6,30 @@
 
 ### News
 
+#### 2017-04-18
+
+A new version of the Cyclone IV + ADV7513 version is available [here][FPGA-CycloneIV-ADV7513-Enhanced].
+
+Features in this version:
+- Recoding of 480p (720x480) to VGA (640x480). 
+
+    HDTVs will display correct 1:1 instead of 8:9 pixel ratio for 4:3 aspect ratio. To achieve the required clock multiplication/division an [ICS664-03] digitial video clock source is used. 
+    320 pixel are buffered in RAM, so the delay from this will be 11.9us (microseconds, I will call this zero delay :) ) 
+    
+    This diagram shows the setup:
+
+![Block diagram][DCblock]
+
+- Support for 480i and 240p by line doubling with recoding to 480p as above.
+
+- Support for 480p/480i switching detection
+
+Not in this version:
+
+- PAL 576i support
+
+---
+
 #### 2017-03-27
 
 ##### Cheaper FPGA
@@ -51,9 +75,11 @@ Some details about the Dreamcast scaling issue on modern HDTVs: [Video details l
 [IC401photo]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/VideoDAC3.JPG
 [IC401solderPoints]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/VideoDACSolderingPoints.png
 [DCvideo]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/dc-video.png
+[DCblock]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/DC-Block.png
 [dc-hso]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Dreamcast_Hardware_Specification_Outline.pdf
 [ADV7513]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Datasheets/ADV7513.pdf
 [PCM1725]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Datasheets/pcm1725.pdf
+[ICS664-03]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Datasheets/IDT_664-03_DST_20100514.pdf
 [LVDS2TMDS]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/LVDS2TMDS.png
 [LVDS2TMDS-breadboard]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/LVDS2TMDS2.JPG
 [IC303]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/IC303.png
@@ -69,6 +95,7 @@ Some details about the Dreamcast scaling issue on modern HDTVs: [Video details l
 [AliCoreEP4CE6]: https://www.aliexpress.com/item/Waveshare-Altera-Cyclone-Board-CoreEP4CE6-EP4CE6E22C8N-EP4CE6-ALTERA-Cyclone-IV-CPLD-FPGA-Development-Core-Board-Full/32643916772.html
 [FPGA-CycloneIV]: https://github.com/chriz2600/DreamcastHDMI/tree/master/FPGA-CycloneIV
 [FPGA-CycloneIV-ADV7513]: https://github.com/chriz2600/DreamcastHDMI/tree/master/FPGA-CycloneIV-ADV7513
+[FPGA-CycloneIV-ADV7513-Enhanced]: https://github.com/chriz2600/DreamcastHDMI/tree/master/FPGA-CycloneIV-ADV7513-Enhanced
 
 [ADV7513]: http://www.analog.com/en/products/audio-video/analoghdmidvi-interfaces/analog-hdmidvi-display-interfaces/adv7513.html
 [ADV7513p]: https://github.com/chriz2600/ADV7513
