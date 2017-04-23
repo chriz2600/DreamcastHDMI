@@ -51,7 +51,7 @@ After all is connected together, you get something like this :)
 [step03]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/04-ICS664-3.png
 [step04]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/project-with-ics664.JPG
 
-[schematics1]: https://rawgit.com/chriz2600/DreamcastHDMI/master/assets/05-DreamcastHDMI.pdf
+[schematics1]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/05-DreamcastHDMI.pdf
 [schematics1s]: https://rawgit.com/chriz2600/DreamcastHDMI/master/assets/05-DreamcastHDMI.svg
 [schematics2]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/06-DCxPlus-Schematic.png
 
