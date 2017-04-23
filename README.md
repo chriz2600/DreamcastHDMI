@@ -6,6 +6,10 @@
 
 ### News
 
+#### 2017-04-23
+
+Added schematics and some information on Cyclone IV + ADV7513 + ICS664-3 build: [CycloneIV-ADV7513-ICS664][builddoc]
+
 #### 2017-04-18
 
 A new version of the Cyclone IV + ADV7513 version is available [here][FPGA-CycloneIV-ADV7513-Enhanced].
@@ -53,8 +57,9 @@ Some details about the Dreamcast scaling issue on modern HDTVs: [Video details l
 ##### Roadmap
 
 0. ~~Create cheaper solution based on simple FPGA development board.~~
-0. Use FPGA to enable 480p mode. Currently I have to plug in a VGA cable ;)
-0. Design FPGA board with Cyclone IV FPGA and ADV7513 transmitter. I'm planning to include some RAM to be able to implement 480i as well as basic upscaling later.
+0. ~~Use FPGA to enable 480p mode. Currently I have to plug in a VGA cable ;)~~
+0. Design FPGA board with Cyclone IV FPGA and ADV7513 transmitter. ~~I'm planning to include some RAM to be able to implement 480i as well as basic upscaling later.~~
+    Edit: I don't need external RAM for line doubling.
 0. Design flat flex circuit to connect Dreamcast video DAC and audio DAC to FPGA board.
 0. Detailed HOWTOs.
 
@@ -102,3 +107,4 @@ Some details about the Dreamcast scaling issue on modern HDTVs: [Video details l
 
 [LVDS2TMDSboard]: https://github.com/chriz2600/LVDS2TMDS
 [maindoc]: https://github.com/chriz2600/DreamcastHDMI/blob/master/Documentation.md
+[builddoc]: https://github.com/chriz2600/DreamcastHDMI/blob/master/Build.md
