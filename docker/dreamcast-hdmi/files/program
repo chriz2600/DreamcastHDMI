@@ -1,0 +1,4 @@
+#!/bin/bash -l
+
+quartus_pgm -c "`jtagconfig --enum  | head -n 1 | sed 's/1) //'`" -m jtag -o "ipv;/srv/output_file.jic"
+

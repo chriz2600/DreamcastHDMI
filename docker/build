@@ -1,0 +1,13 @@
+#!/bin/bash
+
+SRV="$1"
+
+if [ -z "$SRV" ] ; then
+    echo
+    echo "$0: <path_to_save_output_files>"
+    echo
+    exit 1
+fi
+
+docker run -it -v $SRV:/srv/ chriz2600/dreamcast-hdmi /root/build
+

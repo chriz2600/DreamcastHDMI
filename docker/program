@@ -1,0 +1,15 @@
+#!/bin/bash
+
+SRV="$1"
+
+if [ -z "$SRV" ] ; then
+    echo
+    echo "$0: <path_to_saved_output_files>"
+    echo
+    exit 1
+fi
+
+DEVICE=$(lsusb | grep Altera | awk '{print "/dev/bus/usb/"$2"/"$4}' | sed -e 's,:$,,g')
+
+docker run -it -v $SRV:/srv/ --device=$DEVICE:$DEVICE chriz2600/dreamcast-hdmi /root/program
+

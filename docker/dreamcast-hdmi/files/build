@@ -1,0 +1,15 @@
+#!/bin/bash -l
+
+cd /root/DreamcastHDMI/FPGA-CycloneIV-ADV7513-Enhanced/
+
+git pull
+
+cp JICsetup.cof JICsetup.cof.x && {
+   cat JICsetup.cof.x | sed -e 's:<output_filename>output_file.jic</output_filename>:<output_filename>/srv/output_file.jic</output_filename>:g' | sed -e 's,<sof_filename>C:/Users/chriz/Development/FPGA/DreamcastHDMI/FPGA-CycloneIV-ADV7513-Enhanced/output_files/DCxPlus.sof</sof_filename>,<sof_filename>output_files/DCxPlus.sof</sof_filename>,g' > JICsetup.cof && {
+       rm JICsetup.cof.x
+   }
+}
+
+quartus_sh --flow compile DCxPlus
+quartus_cpf -c JICsetup.cof
+
