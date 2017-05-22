@@ -1,0 +1,7 @@
+
+build-project:
+  stage: build
+  script: /root/build
+  tags:
+    - dreamcast-hdmi
+
