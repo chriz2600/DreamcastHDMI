@@ -5,3 +5,8 @@ build-project:
   tags:
     - dreamcast-hdmi
 
+publish-project:
+  stage: deploy
+  script: create-index-html
+  tags:
+    - index-gen
