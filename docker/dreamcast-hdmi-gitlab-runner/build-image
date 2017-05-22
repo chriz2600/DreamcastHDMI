@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo building chriz2600/dreamcast-hdmi-gitlab-runner
+
+./support/prepare
+
+docker build -t chriz2600/dreamcast-hdmi-gitlab-runner .

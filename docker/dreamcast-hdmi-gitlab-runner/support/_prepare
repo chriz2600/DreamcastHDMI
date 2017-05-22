@@ -1,0 +1,28 @@
+#!/usr/bin/env python
+
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+from os import mkdir
+from shutil import rmtree
+
+env = Environment(
+    loader=FileSystemLoader('./'),
+    autoescape=select_autoescape(['html', 'xml', 'cof.in'])
+)
+
+try:
+    try:
+        rmtree("build")
+    except:
+        print("build does not exists")
+    mkdir("build")
+except:
+    print("build exists")
+
+template = env.get_template('JICsetup.cof.in')
+
+for project in (('FPGA-CycloneIV', 'DCx'), ('FPGA-CycloneIV-ADV7513', 'DCx'), ('FPGA-CycloneIV-ADV7513-Enhanced', 'DCxPlus')):
+    for eprom in ('EPCS16', 'EPCS4'):
+        xml = template.render(eprom=eprom, output_filename='/srv/'+project[0]+'_'+eprom+'.jic', sof_filename='output_files/'+project[1]+'.sof')
+        with open("build/JICsetup_"+project[0]+"_"+eprom+".cof", "wb") as fh:
+            fh.write(xml)
+
