@@ -23,10 +23,7 @@ else
     ARG=$(basename $SRV)
 fi
 
-echo $VOLUME
-echo $ARG
+DEVICE=$(lsusb | grep Altera | awk '{print "/dev/bus/usb/"$2"/"$4}' | sed -e 's,:$,,g')
 
-#DEVICE=$(lsusb | grep Altera | awk '{print "/dev/bus/usb/"$2"/"$4}' | sed -e 's,:$,,g')
-
-echo docker run -it $VOLUME --device=$DEVICE:$DEVICE chriz2600/dreamcast-hdmi /root/program $ARG
+docker run -it $VOLUME --device=$DEVICE:$DEVICE chriz2600/dreamcast-hdmi:latest /root/program $ARG
 
