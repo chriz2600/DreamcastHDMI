@@ -1,5 +1,7 @@
 #!/bin/bash -l
 
+set -e
+
 source $(dirname $0)/build.projects
 
 CWD=$(pwd)
