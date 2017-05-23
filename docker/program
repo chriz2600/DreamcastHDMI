@@ -4,12 +4,29 @@ SRV="$1"
 
 if [ -z "$SRV" ] ; then
     echo
-    echo "$0: <path_to_saved_output_files>"
+    echo "$0: <path_to_file_to_program>"
     echo
     exit 1
 fi
 
-DEVICE=$(lsusb | grep Altera | awk '{print "/dev/bus/usb/"$2"/"$4}' | sed -e 's,:$,,g')
+echo "/test/" | egrep -q '^(http|https)://' && echo "TRUE"
 
-docker run -it -v $SRV:/srv/ --device=$DEVICE:$DEVICE chriz2600/dreamcast-hdmi /root/program
+VOLUME=""
+ARG=""
+
+echo "$SRV" | egrep -q '^(http|https)://'
+
+if [ $? -eq 0 ] ; then
+    ARG="$SRV"
+else 
+    VOLUME="-v "$(dirname $SRV)":/srv/"
+    ARG=$(basename $SRV)
+fi
+
+echo $VOLUME
+echo $ARG
+
+#DEVICE=$(lsusb | grep Altera | awk '{print "/dev/bus/usb/"$2"/"$4}' | sed -e 's,:$,,g')
+
+echo docker run -it $VOLUME --device=$DEVICE:$DEVICE chriz2600/dreamcast-hdmi /root/program $ARG
 

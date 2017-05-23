@@ -1,0 +1,18 @@
+#!/bin/bash -l
+
+function doBuildProjects { 
+    for DIR in FPGA-CycloneIV \
+               FPGA-CycloneIV-ADV7513 \
+               FPGA-CycloneIV-ADV7513-Enhanced ; do
+
+	echo "----------------------------------------"
+	echo "$CWD/$DIR"
+	echo "----------------------------------------"
+
+	cd $CWD/$DIR
+
+	quartus_sh --flow compile *.qpf
+	quartus_cpf -c /root/JIC/JICsetup_${DIR}_EPCS16.cof
+	quartus_cpf -c /root/JIC/JICsetup_${DIR}_EPCS4.cof
+    done
+}

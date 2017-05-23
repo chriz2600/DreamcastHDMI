@@ -35,5 +35,5 @@ FPGA-CycloneIV-ADV7513/DCx.map.smsg
 FPGA-CycloneIV-ADV7513-Enhanced/output_files/
 FPGA-CycloneIV-ADV7513-Enhanced/DCxPlus.ipregen.rpt
 notes
-docker/dreamcast-hdmi-gitlab-runner/support/build
-docker/dreamcast-hdmi-gitlab-runner/files/JIC.tgz
+docker/dreamcast-hdmi/support/build
+docker/dreamcast-hdmi/files/JIC.tgz
