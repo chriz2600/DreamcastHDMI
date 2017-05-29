@@ -6,6 +6,10 @@
 
 ### News
 
+#### 2017-05-29
+
+New (auto)-build system using docker. [Build system using docker][docker]
+
 #### 2017-04-23
 
 Added schematics and some information on Cyclone IV + ADV7513 + ICS664-3 build: [CycloneIV-ADV7513-ICS664][builddoc]
@@ -65,6 +69,7 @@ Some details about the Dreamcast scaling issue on modern HDTVs: [Video details l
 
 ---
 
+[docker]: https://github.com/chriz2600/DreamcastHDMI/blob/master/docker/README.md
 [Quartus]: https://www.altera.com/products/design-software/fpga-design/quartus-prime/overview.html
 [de0nanosoc]: http://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=941
 [UltraHDMI]: http://ultrahdmi.retroactive.be/
