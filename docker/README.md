@@ -1,5 +1,7 @@
 # Dreamcast Docker Build/Programming Envirnonment
 
+Docker must be installed: [Docker Homepage][docker]
+
 ### Building DreamcastHDMI Firmware
 
 Building dreamcast-hdmi firmware has been tested with windows/mac os x and linux.
@@ -34,3 +36,4 @@ Link: [dc.i74.de][dc.i74.de]
 ---
 
 [dc.i74.de]: http://dc.i74.de/
+[docker]: https://www.docker.com/
