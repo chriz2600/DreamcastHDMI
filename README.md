@@ -6,6 +6,11 @@
 
 ### News
 
+#### 2017-06-11
+
+Many thanks to citrus3000psi for his work on a QSB (quick soldering board).
+Check out the thread on the shmups forum: [DreamcastHDMI github by chriz2600][shmups]
+
 #### 2017-05-29
 
 New (auto)-build system using docker. [Build system using docker][docker]
@@ -113,3 +118,4 @@ Some details about the Dreamcast scaling issue on modern HDTVs: [Video details l
 [LVDS2TMDSboard]: https://github.com/chriz2600/LVDS2TMDS
 [maindoc]: https://github.com/chriz2600/DreamcastHDMI/blob/master/Documentation.md
 [builddoc]: https://github.com/chriz2600/DreamcastHDMI/blob/master/Build.md
+[shmups]: http://shmups.system11.org/viewtopic.php?f=6&t=59339
