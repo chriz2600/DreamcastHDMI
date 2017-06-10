@@ -178,6 +178,40 @@
 
             /* ================================ */
 
+	    .dc_origVGA {
+                width:720px;
+                height:540px;
+                margin-top:-270px;
+                margin-left:-360px;
+                background-color:black;
+                border: 2px solid red;
+	    }
+
+	    .dc_innerVGA {
+                width:720px;
+                height:540px;
+                margin-top:-270px;
+                margin-left:-360px;
+                background-color:red;
+                border: 2px solid red;
+                color: white;
+                text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+                display: table;
+                background-image: url(https://i.stack.imgur.com/WSLvD.png);
+                background-size: 100% 100%;
+            }
+
+
+	    .text_vga {
+	        position:absolute;
+                top:50%;
+                left:50%;
+                margin-top:-290px;
+                margin-left:-360px;	    
+	    }
+
+            /* ================================ */
+
             .dc_2x {
                 display:none;
             }
@@ -192,11 +226,13 @@
     <body onload="showme('#orig');">
         <button onclick="showme('#orig');">1. Dreamcast 480p 1:1 on 1080p</button>
         <br><br>
-        <button onclick="showme('#o2x');">2. Dreamcast 480p 2:2 on 1080p</button>
-        <br><br>
+        <!--<button onclick="showme('#o2x');">2. Dreamcast 480p 2:2 on 1080p</button>
+        <br><br>-->
         <button onclick="showme('#o4_3');">3. Dreamcast 480p scaled 4:3</button>
         <br><br>
         <button onclick="showme('#o16_9');">4. Dreamcast 480p scaled 16:9</button>
+	<br><br>
+	<button onclick="showme('#vga');">5. Real VGA scaled 4:3</button>
 
         <div class="demo canvas">
             <div class="demo dc_2x">
@@ -255,6 +291,19 @@
             </div>
             <div class="text4_3">1920x1080 16:9</div>
         </div>
+
+        <div id="vga" class="hideme" hidden>
+            <div class="demo dc_origVGA">
+                <div class="demo dc_innerVGA">
+                    <div class="content">
+                        Dreamcast image, if using the real VGA
+                        <br><br>The pixel ratio will be 1:1.
+                    </div>
+                </div>
+            </div>
+            <div class="text_vga">1440x1080 scaled VGA</div>
+        </div>
+
 
     </body>
 </html>

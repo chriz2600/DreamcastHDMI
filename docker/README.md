@@ -20,7 +20,7 @@ Usage: ./docker/build <path_to_save_output_files> [<path_to_local_source>]
 
 ### Programming DreamcastHDMI Firmware
 
-Programming dreamcast-hdmi firmware does only work with qemu (kvm) on linux, due to the lack of hyperkit (Mac OS X) and Hyper-V (Windows) allowing USB-Device access. It may also work with docker-machine (which utilizes virtualbox), but I've not tested this. It also runs on Mac OS X and Windows using VMWare and virtualized Linux (so docker is running inside the virtualized Linux and access to USB-Blaster is given to VMWare Linux).
+Programming dreamcast-hdmi firmware does only work on linux, due to the lack of hyperkit (Mac OS X) and Hyper-V (Windows) allowing USB-Device access. It may also work with docker-machine (which utilizes virtualbox), but I've not tested this. It also runs on Mac OS X and Windows using VMWare and virtualized Linux (so docker is running inside the virtualized Linux and access to USB-Blaster is given to VMWare Linux).
 
 ```
 Usage: ./docker/program <path_to_file_to_program>
