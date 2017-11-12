@@ -37,3 +37,4 @@ FPGA-CycloneIV-ADV7513-Enhanced/DCxPlus.ipregen.rpt
 notes
 docker/dreamcast-hdmi/support/build
 docker/dreamcast-hdmi/files/JIC.tgz
+*.rbf

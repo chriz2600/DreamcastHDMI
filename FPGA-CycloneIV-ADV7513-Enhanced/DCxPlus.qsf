@@ -195,5 +195,5 @@ set_global_assignment -name SIGNALTAP_FILE stp1.stp
 set_global_assignment -name CDF_FILE Chain1.cdf
 set_global_assignment -name VERILOG_FILE config.v
 set_global_assignment -name VERILOG_FILE configuration.v
-set_global_assignment -name SLD_FILE db/stp1_auto_stripped.stp
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
+set_global_assignment -name SLD_FILE db/stp1_auto_stripped.stp
