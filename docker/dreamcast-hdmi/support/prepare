@@ -3,5 +3,6 @@
 cd "$(dirname $0)"
 
 ./_prepare
-cd build 
+cp firmware.cof build/
+cd build
 tar cvfz ../../files/JIC.tgz *.cof
