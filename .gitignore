@@ -38,3 +38,4 @@ notes
 docker/dreamcast-hdmi/support/build
 docker/dreamcast-hdmi/files/JIC.tgz
 *.rbf
+.vscode/
