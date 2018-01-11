@@ -6,6 +6,12 @@
 
 ### News
 
+#### 2017-12-21
+
+Added ESP-12 based firmware management tool, for upgrading firmware via WiFi.
+
+- A demo of the FirmwareManager could be found here: [Demo][dcfwdemo]
+
 #### 2017-06-11
 
 Many thanks to citrus3000psi for his work on a QSB (quick soldering board).
@@ -74,6 +80,7 @@ Some details about the Dreamcast scaling issue on modern HDTVs: [Video details l
 
 ---
 
+[dcfwdemo]: http://dc-fw-manager.i74.de/
 [docker]: https://github.com/chriz2600/DreamcastHDMI/blob/master/docker/README.md
 [Quartus]: https://www.altera.com/products/design-software/fpga-design/quartus-prime/overview.html
 [de0nanosoc]: http://www.terasic.com.tw/cgi-bin/page/archive.pl?Language=English&No=941
