@@ -114,10 +114,10 @@ always @ (posedge clk) begin
 						// [1:0]: MCLK Ratio 128fs = 00
 						14: write_i2c(CHIP_ADDR, 16'h0A00); 
 
-						// Audip Clock Regeneratrion N Value, 44.1kHz@automatic CTS = 0x1880
+						// Audip Clock Regeneratrion N Value, 44.1kHz@automatic CTS = 0x1B5F
 						15: write_i2c(CHIP_ADDR, 16'h0100);
-						16: write_i2c(CHIP_ADDR, 16'h0218);
-						17: write_i2c(CHIP_ADDR, 16'h0380);
+						16: write_i2c(CHIP_ADDR, 16'h021B);
+						17: write_i2c(CHIP_ADDR, 16'h035F);
 
 						// Audip Clock Regeneratrion CTS Value, 44.1kHz@25.2/1.001Mhz = (31250) 0x7a12
 						//18: write_i2c(CHIP_ADDR, 16'h0700);
