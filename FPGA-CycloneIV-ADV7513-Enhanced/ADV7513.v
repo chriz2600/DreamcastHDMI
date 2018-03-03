@@ -100,11 +100,12 @@ always @ (posedge clk) begin
 						 8: write_i2c(CHIP_ADDR, 16'hF900);	// Fixed register	
 						 9: write_i2c(CHIP_ADDR, 16'h1500);	// [3:0] Video Format ID = 0x00 4:4:4
 																		// [7:4] I2S Sampling Frequency = 0x00 
-						10: write_i2c(CHIP_ADDR, 16'h1630);	// Video Format 
+						10: write_i2c(CHIP_ADDR, 16'hBA60);	// No clock delay
+						11: write_i2c(CHIP_ADDR, 16'h1630);	// Video Format 
 						//10: write_i2c(CHIP_ADDR, 16'h1670);	// Video Format 
-						11: write_i2c(CHIP_ADDR, 16'h1700);	// Video Format 
-						12: write_i2c(CHIP_ADDR, 16'h1846);
-						13: write_i2c(CHIP_ADDR, 16'hAF06);
+						12: write_i2c(CHIP_ADDR, 16'h1700);	// Video Format 
+						13: write_i2c(CHIP_ADDR, 16'h1846);
+						14: write_i2c(CHIP_ADDR, 16'hAF06);
 						//17: write_i2c(CHIP_ADDR, 16'h0A01);
 						//14: write_i2c(CHIP_ADDR, 16'h0A80);
 						
@@ -112,28 +113,30 @@ always @ (posedge clk) begin
 						// [6:4]: I2S = 000
 						// [3:2]: default = 00
 						// [1:0]: MCLK Ratio 128fs = 00
-						14: write_i2c(CHIP_ADDR, 16'h0A00); 
+						15: write_i2c(CHIP_ADDR, 16'h0A00); 
 
 						// Audip Clock Regeneratrion N Value, 44.1kHz@automatic CTS = 0x1B5F
-						15: write_i2c(CHIP_ADDR, 16'h0100);
-						16: write_i2c(CHIP_ADDR, 16'h021B);
-						17: write_i2c(CHIP_ADDR, 16'h035F);
-
+						16: write_i2c(CHIP_ADDR, 16'h0100);
+						//16: write_i2c(CHIP_ADDR, 16'h021B);
+						//17: write_i2c(CHIP_ADDR, 16'h035F);
+						17: write_i2c(CHIP_ADDR, 16'h0218); // recommended when generating CTS 
+						18: write_i2c(CHIP_ADDR, 16'h0380); // is 0x1880
+						
 						// Audip Clock Regeneratrion CTS Value, 44.1kHz@25.2/1.001Mhz = (31250) 0x7a12
 						//18: write_i2c(CHIP_ADDR, 16'h0700);
 						//19: write_i2c(CHIP_ADDR, 16'h087a);
 						//20: write_i2c(CHIP_ADDR, 16'h0912);
 
-						18: write_i2c(CHIP_ADDR, 16'h0B0E);
-						19: write_i2c(CHIP_ADDR, 16'h0C85);
-						20: write_i2c(CHIP_ADDR, 16'h0D10);
-						21: write_i2c(CHIP_ADDR, 16'h5618);
-						22: write_i2c(CHIP_ADDR, 16'h94C0);	// interrupt
-						23: write_i2c(CHIP_ADDR, 16'h96C0);	// interrupt
+						19: write_i2c(CHIP_ADDR, 16'h0B0E);
+						//19: write_i2c(CHIP_ADDR, 16'h0C85); // audio clock fixed to 44.1kHz
+						20: write_i2c(CHIP_ADDR, 16'h0C05); // audio clock is read from stream
+						21: write_i2c(CHIP_ADDR, 16'h0D10);
+						22: write_i2c(CHIP_ADDR, 16'h5618);
+						23: write_i2c(CHIP_ADDR, 16'h94C0);	// interrupt
+						24: write_i2c(CHIP_ADDR, 16'h96C0);	// interrupt
 					
 						default: begin
 							// todo monitor PLL locked state bef
-						
 							cmd_counter <= 0;
 							state <= s_idle;
 							ready <= 1;
