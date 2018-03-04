@@ -1,7 +1,7 @@
 `include "config.inc"
 
 module ram2video(
-	input [31:0] rddata,
+	input [23:0] rddata,
 	input starttrigger,
 
 	input clock,
@@ -137,9 +137,9 @@ module ram2video(
 		) 
 		: 12'd1023
 	);
-	assign red = rddata[31:24];
-	assign green = rddata[23:16];
-	assign blue = rddata[15:8];
+	assign red = rddata[23:16];
+	assign green = rddata[15:8];
+	assign blue = rddata[7:0];
 	assign hsync = hsync_reg_q;
 	assign vsync = vsync_reg_q;
 	assign DrawArea = counterX_reg_q_q >= 0 && counterX_reg_q_q < `HORIZONTAL_PIXELS_VISIBLE && counterY_reg_q_q >= 0 && counterY_reg_q_q < `VERTICAL_LINES_VISIBLE;

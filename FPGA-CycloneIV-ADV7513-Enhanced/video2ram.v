@@ -9,7 +9,7 @@ module video2ram(
 	
 	input line_doubler,
 	
-	output [31:0] wrdata,
+	output [23:0] wrdata,
 	output [11:0] wraddr,
 	output wren,
 	output wrclock,
@@ -25,7 +25,7 @@ module video2ram(
 	reg [9:0] V_TRIGGER_POINT = 0;
 
 	reg wren_reg = 0;
-	reg [31:0] wrdata_reg;
+	reg [23:0] wrdata_reg;
 	reg [11:0] wraddr_reg;
 	reg [11:0] tmp;
 	reg trigger = 0;
@@ -59,12 +59,12 @@ module video2ram(
 				if (counterY < 240) begin
 					wren_reg <= 1;
 					wraddr_reg[11:10] <= counterY[1:0];
-					wrdata_reg <= { R, G, B, 8'd0 };
+					wrdata_reg <= { R, G, B };
 				end else if (counterY > 262 && counterY < 504) begin
 					tmp = counterY - 12'd3;
 					wren_reg <= 1;
 					wraddr_reg[11:10] <= tmp[1:0];
-					wrdata_reg <= { R, G, B, 8'd0 };
+					wrdata_reg <= { R, G, B };
 				end else begin
 					wren_reg <= 0;
 				end
@@ -82,7 +82,7 @@ module video2ram(
 			if (counterY >= V_CAPTURE_START && counterY < V_CAPTURE_END && counterX >= H_CAPTURE_START && counterX < H_CAPTURE_END) begin
 				wren_reg <= 1;
 				wraddr_reg <= counterX - 12'd44;
-				wrdata_reg <= { R, G, B, 8'd0 };
+				wrdata_reg <= { R, G, B };
 				
 				if (counterX == H_TRIGGER_POINT && counterY == V_TRIGGER_POINT) begin
 					trigger <= 1'b1;

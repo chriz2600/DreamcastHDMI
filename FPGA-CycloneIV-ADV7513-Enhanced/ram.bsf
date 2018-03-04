@@ -26,8 +26,8 @@ refer to the applicable agreement for further details.
 	(port
 		(pt 0 32)
 		(input)
-		(text "data[31..0]" (rect 0 0 60 14)(font "Arial" (font_size 8)))
-		(text "data[31..0]" (rect 4 18 53 31)(font "Arial" (font_size 8)))
+		(text "data[23..0]" (rect 0 0 60 14)(font "Arial" (font_size 8)))
+		(text "data[23..0]" (rect 4 18 53 31)(font "Arial" (font_size 8)))
 		(line (pt 0 32)(pt 112 32)(line_width 3))
 	)
 	(port
@@ -68,12 +68,12 @@ refer to the applicable agreement for further details.
 	(port
 		(pt 256 88)
 		(output)
-		(text "q[31..0]" (rect 0 0 42 14)(font "Arial" (font_size 8)))
-		(text "q[31..0]" (rect 217 74 251 87)(font "Arial" (font_size 8)))
+		(text "q[23..0]" (rect 0 0 42 14)(font "Arial" (font_size 8)))
+		(text "q[23..0]" (rect 217 74 251 87)(font "Arial" (font_size 8)))
 		(line (pt 256 88)(pt 192 88)(line_width 3))
 	)
 	(drawing
-		(text "131072 Bit(s)" (rect 137 -6 235 185)(font "Arial" )(vertical))
+		(text "98304 Bit(s)" (rect 137 -5 233 181)(font "Arial" )(vertical))
 		(text "RAM" (rect 148 -16 229 151)(font "Arial" )(vertical))
 		(text "Block Type: AUTO" (rect 40 141 156 293)(font "Arial" ))
 		(line (pt 128 24)(pt 168 24))

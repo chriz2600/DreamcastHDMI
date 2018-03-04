@@ -12,12 +12,11 @@ functions, and any output files from any of the foregoing
 associated documentation or information are expressly subject 
 to the terms and conditions of the Intel Program License 
 Subscription Agreement, the Intel Quartus Prime License Agreement,
-the Intel MegaCore Function License Agreement, or other 
-applicable license agreement, including, without limitation, 
-that your use is for the sole purpose of programming logic 
-devices manufactured by Intel and sold by Intel or its 
-authorized distributors.  Please refer to the applicable 
-agreement for further details.
+the Intel FPGA IP License Agreement, or other applicable license
+agreement, including, without limitation, that your use is for
+the sole purpose of programming logic devices manufactured by
+Intel and sold by Intel or its authorized distributors.  Please
+refer to the applicable agreement for further details.
 */
 (header "symbol" (version "1.1"))
 (symbol
@@ -76,8 +75,8 @@ agreement for further details.
 	(port
 		(pt 208 32)
 		(output)
-		(text "wrdata[31..0]" (rect 0 0 49 12)(font "Arial" ))
-		(text "wrdata[31..0]" (rect 138 27 187 39)(font "Arial" ))
+		(text "wrdata[23..0]" (rect 0 0 50 12)(font "Arial" ))
+		(text "wrdata[23..0]" (rect 137 27 187 39)(font "Arial" ))
 		(line (pt 208 32)(pt 192 32)(line_width 3))
 	)
 	(port
