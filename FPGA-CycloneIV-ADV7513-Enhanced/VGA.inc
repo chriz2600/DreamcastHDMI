@@ -5,8 +5,8 @@
 // 
 // VGA
 //
-`define ASPECT_R 2'b0
-`define PIXEL_CLK 25_200_000
+`define ASPECT_R                    2'b0
+`define PIXEL_CLK             25_200_000
 
 `define HORIZONTAL_PIXELS_PER_LINE   800
 `define HORIZONTAL_PIXELS_VISIBLE    640
@@ -24,7 +24,7 @@
 `define HORIZONTAL_START_OFFSET        0
 `define PIXEL_FACTOR                   1
 
-`define PLL_CLK0_DIVIDE_BY				 165
-`define PLL_CLK0_MULTIPLY_BY			  56
+`define PLL_CLK0_DIVIDE_BY           165
+`define PLL_CLK0_MULTIPLY_BY          56
 
 `endif

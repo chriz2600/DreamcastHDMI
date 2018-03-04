@@ -16,4 +16,7 @@
 `include "1080p.inc"
 `endif
 
+// common variables
+`define STARTUP_TIME_IN_MILLIS 200
+
 `endif

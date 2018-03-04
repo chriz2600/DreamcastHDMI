@@ -5,8 +5,8 @@
 // 
 // 960p
 //
-`define ASPECT_R 2'b0
-`define PIXEL_CLK 108_000_000
+`define ASPECT_R                    2'b0
+`define PIXEL_CLK            108_000_000
 
 `define HORIZONTAL_PIXELS_PER_LINE  1800
 `define HORIZONTAL_PIXELS_VISIBLE   1280
@@ -24,7 +24,7 @@
 `define HORIZONTAL_START_OFFSET        0
 `define PIXEL_FACTOR                   2
 
-`define PLL_CLK0_DIVIDE_BY				  11
-`define PLL_CLK0_MULTIPLY_BY			  16
+`define PLL_CLK0_DIVIDE_BY            11
+`define PLL_CLK0_MULTIPLY_BY          16
 
 `endif
