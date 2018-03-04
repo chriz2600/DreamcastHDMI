@@ -17,6 +17,8 @@ reg [7:0] i2c_data_rd;
 reg i2c_ack_error;
 
 defparam i2c_master.input_clk = 25_200_000;
+//defparam i2c_master.input_clk = 108_000_000;
+//defparam i2c_master.input_clk = 148_500_000;
 defparam i2c_master.bus_clk = 20_000;
 i2c_master i2c_master(
 	.clk       (clk),
@@ -89,51 +91,65 @@ always @ (posedge clk) begin
 					
 					case (cmd_counter)
 					
-						 0: write_i2c(CHIP_ADDR, 16'h4110);	// Power-up Tx
-						 1: write_i2c(CHIP_ADDR, 16'h9803);	// Fixed register
-						 2: write_i2c(CHIP_ADDR, 16'h9AE0);	// Fixed register
-						 3: write_i2c(CHIP_ADDR, 16'h9C30);	// Fixed register
-						 4: write_i2c(CHIP_ADDR, 16'h9D01);	// Fixed register
-						 5: write_i2c(CHIP_ADDR, 16'hA2A4);	// Fixed register
-						 6: write_i2c(CHIP_ADDR, 16'hA3A4);	// Fixed register
-						 7: write_i2c(CHIP_ADDR, 16'hE0D0);	// Fixed register
-						 8: write_i2c(CHIP_ADDR, 16'hF900);	// Fixed register	
-						 9: write_i2c(CHIP_ADDR, 16'h1500);	// [3:0] Video Format ID = 0x00 4:4:4
-																		// [7:4] I2S Sampling Frequency = 0x00 
-						10: write_i2c(CHIP_ADDR, 16'hBA60);	// No clock delay
-						11: write_i2c(CHIP_ADDR, 16'h1630);	// Video Format 
-						//10: write_i2c(CHIP_ADDR, 16'h1670);	// Video Format 
-						12: write_i2c(CHIP_ADDR, 16'h1700);	// Video Format 
-						13: write_i2c(CHIP_ADDR, 16'h1846);
-						14: write_i2c(CHIP_ADDR, 16'hAF06);
-						//17: write_i2c(CHIP_ADDR, 16'h0A01);
-						//14: write_i2c(CHIP_ADDR, 16'h0A80);
+						 0: write_i2c(CHIP_ADDR, 16'h_41_10); // [6]:   power down = 0b0, all circuits powered up
+																		  // [5]:	fixed = 0b0
+																		  // [4]:   reserved = 0b1
+																		  // [3:2]: fixed = 0b00
+																		  // [1]:   sync adjustment enable = 0b0, disabled
+																		  // [0]:   fixed = 0b0
+						 1: write_i2c(CHIP_ADDR, 16'h_98_03); // Fixed register
+						 2: write_i2c(CHIP_ADDR, 16'h_9A_E0); // Fixed register
+						 3: write_i2c(CHIP_ADDR, 16'h_9C_30); // Fixed register
+						 4: write_i2c(CHIP_ADDR, 16'h_9D_01); // Fixed register
+						 5: write_i2c(CHIP_ADDR, 16'h_A2_A4); // Fixed register
+						 6: write_i2c(CHIP_ADDR, 16'h_A3_A4); // Fixed register
+						 7: write_i2c(CHIP_ADDR, 16'h_E0_D0); // Fixed register
+						 8: write_i2c(CHIP_ADDR, 16'h_F9_00); // Fixed register	
+						 9: write_i2c(CHIP_ADDR, 16'h_15_00); // [7:4]: I2S Sampling Frequency = 0b0000, 44.1kHz
+																		  // [3:0]: Video Input ID = 0b0000, 24 bit RGB 4:4:4 (separate syncs)
+						10: write_i2c(CHIP_ADDR, 16'h_16_30); // [7]:   output format = 0b0, 4:4:4
+																		  // [6]:   reserved = 0b0
+																		  // [5:4]: color depth = 0b11, 8bit
+																		  // [3:2]: input style = 0b0, not valid
+																		  // [1]:   ddr input edge = 0b0, falling edge
+																		  // [0]:   output colorspace for blackimage = 0b0, RGB
+						11: write_i2c(CHIP_ADDR, 16'h_17_00); // [7]:   fixed = 0b0
+																		  // [6]:   vsync polarity = 0b0, sync polarity pass through (sync adjust is off in 0x41)
+																		  // [5]:   hsync polarity = 0b0, sync polarity pass through 
+																		  // [4:3]: reserved = 0b00
+																		  // [2]:   4:2:2 to 4:4:4 interpolation style = 0b0, use zero order interpolation
+																		  // [1]:   input video aspect ratio = 0b0, 4:3 for VGA
+																		  // [0]:   DE generator = 0b0, disabled
+						12: write_i2c(CHIP_ADDR, 16'h_18_46); // [7]:   CSC enable = 0b0, disabled
+																		  // [6:5]: default = 0b10
+																		  // [4:0]: default = 0b00110
+						13: write_i2c(CHIP_ADDR, 16'h_AF_06); // [7]:   HDCP enable = 0b0, disabled
+																		  // [6:5]: fixed = 0b00
+																		  // [4]:   frame encryption = 0b0, current frame not encrypted
+																		  // [3:2]: fixed = 0b01
+																		  // [1]:   HDMI/DVI mode select = 0b1, HDMI mode
+																		  // [0]:   fixed = 0b0
+						14: write_i2c(CHIP_ADDR, 16'h_BA_60); // [7:5]: clock delay, 0b011 no delay
+																		  // [4]:   hdcp eprom, 0b0 external
+																		  // [3]:   fixed, 0b0
+																		  // [2]:   display aksv, 0b0 don't show
+																		  // [1]:   Ri two point check, 0b0 hdcp Ri standard
+						15: write_i2c(CHIP_ADDR, 16'h_0A_00); // [7]:   CTS automatic = 0b0
+																		  // [6:4]: I2S = 0b000
+																		  // [3:2]: default = 0b00
+																		  // [1:0]: MCLK Ratio 128fs = 0b00
+						16: write_i2c(CHIP_ADDR, 16'h_01_00); // audio clock regeneratrion N value, 44.1kHz@automatic CTS
+						17: write_i2c(CHIP_ADDR, 16'h_02_18); // recommended N when automatically
+						18: write_i2c(CHIP_ADDR, 16'h_03_80); // generating CTS is 0x1880
 						
-						// [7]:   CTS automatic = 0
-						// [6:4]: I2S = 000
-						// [3:2]: default = 00
-						// [1:0]: MCLK Ratio 128fs = 00
-						15: write_i2c(CHIP_ADDR, 16'h0A00); 
-
-						// Audip Clock Regeneratrion N Value, 44.1kHz@automatic CTS = 0x1B5F
-						16: write_i2c(CHIP_ADDR, 16'h0100);
-						//16: write_i2c(CHIP_ADDR, 16'h021B);
-						//17: write_i2c(CHIP_ADDR, 16'h035F);
-						17: write_i2c(CHIP_ADDR, 16'h0218); // recommended when generating CTS 
-						18: write_i2c(CHIP_ADDR, 16'h0380); // is 0x1880
-						
-						// Audip Clock Regeneratrion CTS Value, 44.1kHz@25.2/1.001Mhz = (31250) 0x7a12
-						//18: write_i2c(CHIP_ADDR, 16'h0700);
-						//19: write_i2c(CHIP_ADDR, 16'h087a);
-						//20: write_i2c(CHIP_ADDR, 16'h0912);
-
-						19: write_i2c(CHIP_ADDR, 16'h0B0E);
-						//19: write_i2c(CHIP_ADDR, 16'h0C85); // audio clock fixed to 44.1kHz
-						20: write_i2c(CHIP_ADDR, 16'h0C05); // audio clock is read from stream
-						21: write_i2c(CHIP_ADDR, 16'h0D10);
-						22: write_i2c(CHIP_ADDR, 16'h5618);
-						23: write_i2c(CHIP_ADDR, 16'h94C0);	// interrupt
-						24: write_i2c(CHIP_ADDR, 16'h96C0);	// interrupt
+						19: write_i2c(CHIP_ADDR, 16'h_0B_0E); // disable SPDIF
+						20: write_i2c(CHIP_ADDR, 16'h_0C_05); // use sample freq from stream, enable I2S0, right justified mode
+						21: write_i2c(CHIP_ADDR, 16'h_0D_10); // set I2S Bit Width to 16bit
+						//22: write_i2c(CHIP_ADDR, 16'h_56_18); // [7:6]: Colorimetry: nodata
+																		  // [5:4]: Picture Aspect Ratio: 4:3
+																		  // [3:0]: Active Format Aspect Ratio, Same as Aspect Ratio
+						22: write_i2c(CHIP_ADDR, 16'h_94_C0); // Interrupt Enable: hot plug detect, monitor sense
+						23: write_i2c(CHIP_ADDR, 16'h_96_C0); // clear interrupt
 					
 						default: begin
 							// todo monitor PLL locked state bef
