@@ -1,0 +1,19 @@
+
+`ifndef _config_inc_
+`define _config_inc_
+
+`define _VGA_
+
+`ifdef _VGA_
+`include "VGA.inc"
+`endif
+
+`ifdef _960p_
+`include "960p.inc"
+`endif
+
+`ifdef _1080p_
+`include "1080p.inc"
+`endif
+
+`endif

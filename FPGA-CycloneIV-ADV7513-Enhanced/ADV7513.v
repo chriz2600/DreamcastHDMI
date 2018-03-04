@@ -1,3 +1,5 @@
+`include "config.inc"
+
 module ADV7513(
 	input clk,
 	input reset,
@@ -16,9 +18,7 @@ reg i2c_busy;
 reg [7:0] i2c_data_rd;
 reg i2c_ack_error;
 
-defparam i2c_master.input_clk = 25_200_000;
-//defparam i2c_master.input_clk = 108_000_000;
-//defparam i2c_master.input_clk = 148_500_000;
+defparam i2c_master.input_clk = `PIXEL_CLK;
 defparam i2c_master.bus_clk = 20_000;
 i2c_master i2c_master(
 	.clk       (clk),
@@ -113,12 +113,13 @@ always @ (posedge clk) begin
 																		  // [3:2]: input style = 0b0, not valid
 																		  // [1]:   ddr input edge = 0b0, falling edge
 																		  // [0]:   output colorspace for blackimage = 0b0, RGB
-						11: write_i2c(CHIP_ADDR, 16'h_17_00); // [7]:   fixed = 0b0
+						11: write_i2c(CHIP_ADDR, 16'h_17_00
+														 | `ASPECT_R);// [7]:   fixed = 0b0
 																		  // [6]:   vsync polarity = 0b0, sync polarity pass through (sync adjust is off in 0x41)
 																		  // [5]:   hsync polarity = 0b0, sync polarity pass through 
 																		  // [4:3]: reserved = 0b00
 																		  // [2]:   4:2:2 to 4:4:4 interpolation style = 0b0, use zero order interpolation
-																		  // [1]:   input video aspect ratio = 0b0, 4:3 for VGA
+																		  // [1]:   input video aspect ratio = 0b0, 4:3; 0b10 for 16:9
 																		  // [0]:   DE generator = 0b0, disabled
 						12: write_i2c(CHIP_ADDR, 16'h_18_46); // [7]:   CSC enable = 0b0, disabled
 																		  // [6:5]: default = 0b10
