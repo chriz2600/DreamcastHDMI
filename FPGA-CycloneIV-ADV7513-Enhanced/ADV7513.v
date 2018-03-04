@@ -134,22 +134,45 @@ always @ (posedge clk) begin
 																		  // [3]:   fixed, 0b0
 																		  // [2]:   display aksv, 0b0 don't show
 																		  // [1]:   Ri two point check, 0b0 hdcp Ri standard
-						15: write_i2c(CHIP_ADDR, 16'h_0A_00); // [7]:   CTS automatic = 0b0
-																		  // [6:4]: I2S = 0b000
-																		  // [3:2]: default = 0b00
-																		  // [1:0]: MCLK Ratio 128fs = 0b00
-						16: write_i2c(CHIP_ADDR, 16'h_01_00); // audio clock regeneratrion N value, 44.1kHz@automatic CTS
-						17: write_i2c(CHIP_ADDR, 16'h_02_18); // recommended N when automatically
-						18: write_i2c(CHIP_ADDR, 16'h_03_80); // generating CTS is 0x1880
-						
-						19: write_i2c(CHIP_ADDR, 16'h_0B_0E); // disable SPDIF
-						20: write_i2c(CHIP_ADDR, 16'h_0C_05); // use sample freq from stream, enable I2S0, right justified mode
-						21: write_i2c(CHIP_ADDR, 16'h_0D_10); // set I2S Bit Width to 16bit
-						//22: write_i2c(CHIP_ADDR, 16'h_56_18); // [7:6]: Colorimetry: nodata
-																		  // [5:4]: Picture Aspect Ratio: 4:3
-																		  // [3:0]: Active Format Aspect Ratio, Same as Aspect Ratio
-						22: write_i2c(CHIP_ADDR, 16'h_94_C0); // Interrupt Enable: hot plug detect, monitor sense
-						23: write_i2c(CHIP_ADDR, 16'h_96_C0); // clear interrupt
+						15: write_i2c(CHIP_ADDR, 16'h_0A_00); // [7]:   CTS selet = 0b0, automatic
+																		  // [6:4]: audio select = 0b000, I2S
+																		  // [3:2]: audio mode = 0b00, default (HBR not used)
+																		  // [1:0]: MCLK Ratio = 0b00, 128xfs
+						16: write_i2c(CHIP_ADDR, 16'h_01_00); // [3:0] \
+						17: write_i2c(CHIP_ADDR, 16'h_02_18); // [7:0]  |--> [19:0]: audio clock regeneration N value, 44.1kHz@automatic CTS = 0x1880 (6272)
+						18: write_i2c(CHIP_ADDR, 16'h_03_80); // [7:0] /
+						19: write_i2c(CHIP_ADDR, 16'h_0B_0E); // [7]:   SPDIF enable = 0b0, disable
+																		  // [6]:   audio clock polarity = 0b0, rising edge
+																		  // [5]:   MCLK enable = 0b0, MCLK internally generated
+																		  // [4:1]: fixed = 0b0111
+						20: write_i2c(CHIP_ADDR, 16'h_0C_05); // [7]:   audio sampling frequency select = 0b0, use sampling frequency from I2S stream
+																		  // [6]:   channel status override = 0b0, use channel status bits from I2S stream
+																		  // [5]:   I2S3 enable = 0b0, disabled
+																		  // [4]:   I2S2 enable = 0b0, disabled
+																		  // [3]:   I2S1 enable = 0b0, disabled
+																		  // [2]:   I2S0 enable = 0b1, enabled
+																		  // [1:0]: I2S format = 0b01, right justified mode
+						21: write_i2c(CHIP_ADDR, 16'h_0D_10); // [4:0]: I2S bit width = 0b10000, 16bit
+						//22: write_i2c(CHIP_ADDR, 16'h_56_18); // [7:6]: Colorimetry = 0b00, no data
+																		  // [5:4]: Picture Aspect Ratio (AVI Info frame) = 0b01, 4:3
+																		  // [3:0]: Active Format Aspect Ratio = 0b1000, Same as Aspect Ratio
+						22: write_i2c(CHIP_ADDR, 16'h_94_C0); // [7]:   HPD interrupt = 0b1, enabled
+																		  // [6]:   monitor sense interrupt = 0b1, enabled
+																		  // [5]:   vsync interrupt = 0b0, disabled
+																		  // [4]:   audio fifo full interrupt = 0b0, disabled
+																		  // [3]:   fixed = 0b0
+																		  // [2]:   EDID ready interrupt = 0b0, disabled
+																		  // [1]:   HDCP authenticated interrupt = 0b0, disabled
+																		  // [0]:   fixed = 0b0
+						23: write_i2c(CHIP_ADDR, 16'h_96_C0); // [7]:   HPD interrupt = 0b1, interrupt detected
+																		  // [6]:   monitor sense interrupt = 0b1, interrupt detected
+																		  // [5]:   vsync interrupt = 0b0, no interrupt detected
+																		  // [4]:   audio fifo full interrupt = 0b0, no interrupt detected
+																		  // [3]:   fixed = 0b0
+																		  // [2]:   EDID ready interrupt = 0b0, no interrupt detected
+																		  // [1]:   HDCP authenticated interrupt = 0b0, no interrupt detected
+																		  // [0]:   fixed = 0b0
+																		  // -> clears interrupt state
 					
 						default: begin
 							// todo monitor PLL locked state bef
