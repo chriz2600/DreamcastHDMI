@@ -192,7 +192,7 @@ set_global_assignment -name VERILOG_FILE video2ram.v
 set_global_assignment -name VERILOG_FILE ram2video.v
 set_global_assignment -name SDC_FILE DCxPlus.sdc
 set_global_assignment -name SIGNALTAP_FILE stp1.stp
-set_global_assignment -name CDF_FILE DCxPlus-EP4CE6.cdf
+set_global_assignment -name CDF_FILE DCxPlus-EP4CE6-old_pinout.cdf
 set_global_assignment -name VERILOG_FILE configuration.v
 set_global_assignment -name ENABLE_BOOT_SEL_PIN OFF
 set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF

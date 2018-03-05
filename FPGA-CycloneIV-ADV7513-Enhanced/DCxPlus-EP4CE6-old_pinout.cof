@@ -2,7 +2,7 @@
 <cof>
 	<eprom_name>EPCS16</eprom_name>
 	<flash_loader_device>EP4CE6</flash_loader_device>
-	<output_filename>output_file.jic</output_filename>
+	<output_filename>output_files/DCxPlus-EP4CE6-old_pinout.jic</output_filename>
 	<n_pages>1</n_pages>
 	<width>1</width>
 	<mode>7</mode>
@@ -10,7 +10,7 @@
 		<user_name>Page_0</user_name>
 		<page_flags>1</page_flags>
 		<bit0>
-			<sof_filename>output_files/DCxPlus.sof</sof_filename> 
+			<sof_filename>output_files/DCxPlus-EP4CE6-old_pinout.sof</sof_filename> 
 		</bit0>
 	</sof_data>
 	<version>10</version>
