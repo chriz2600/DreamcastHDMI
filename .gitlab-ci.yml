@@ -1,7 +1,18 @@
 
+build-project-v0.1:
+  stage: build
+  script: /root/build
+  only:
+    - tags
+  tags:
+    - dreamcast-hdmi-v0.1
+
 build-project:
   stage: build
   script: /root/build
+  only:
+    - master
+    - unified_version
   tags:
     - dreamcast-hdmi
 

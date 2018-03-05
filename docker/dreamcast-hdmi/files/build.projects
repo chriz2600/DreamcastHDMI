@@ -1,21 +1,15 @@
 #!/bin/bash -l
 
 function doBuildProjects { 
-    for DIR in FPGA-CycloneIV \
-               FPGA-CycloneIV-ADV7513 \
-               FPGA-CycloneIV-ADV7513-Enhanced ; do
+    cd $CWD/Core
 
-	echo "----------------------------------------"
-	echo "$CWD/$DIR"
-	echo "----------------------------------------"
-
-	cd $CWD/$DIR
-
-	quartus_sh --flow compile *.qpf
-	quartus_cpf -c /root/JIC/JICsetup_${DIR}_EPCS16.cof
-	quartus_cpf -c /root/JIC/JICsetup_${DIR}_EPCS4.cof
-	if [ "$DIR" == "FPGA-CycloneIV-ADV7513-Enhanced" ] ; then
-	    quartus_cpf -c /root/JIC/firmware.cof
-	fi
+    for x in *.qpf ; do 
+        project=$(echo $x | sed -e 's:\.qpf::g')
+        echo $project
+        quartus_sh --flow compile $project.qpf
+        quartus_cpf -c $project.cof
+        quartus_cpf -c ${project}-raw.cof
+        mv output_files/$project.jic /srv/
+        mv output_files/$project.rbf /srv/
     done
 }

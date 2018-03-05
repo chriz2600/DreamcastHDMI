@@ -5,7 +5,6 @@ set -e
 cd $(dirname $0)
 
 echo building chriz2600/dreamcast-hdmi
-./support/prepare
 docker build -t chriz2600/dreamcast-hdmi .
 echo 
 echo "to add to docker hub: "

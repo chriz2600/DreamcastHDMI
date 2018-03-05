@@ -1,8 +1,0 @@
-#!/bin/bash
-
-cd "$(dirname $0)"
-
-./_prepare
-cp firmware.cof build/
-cd build
-tar cvfz ../../files/JIC.tgz *.cof
