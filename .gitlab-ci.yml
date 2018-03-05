@@ -3,7 +3,7 @@ build-project:
   stage: build
   script: /root/build
   tags:
-    - dreamcast-hdmi
+    - dreamcast-hdmi-v0.1
 
 publish-project:
   stage: deploy
