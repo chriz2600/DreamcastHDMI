@@ -145,8 +145,8 @@ The project was recently updated to Altera Quartus Prime 16.1.2 (now Intel), whi
 
 [CoreEP4CE6]: http://www.waveshare.com/wiki/CoreEP4CE6
 [AliCoreEP4CE6]: https://www.aliexpress.com/item/Waveshare-Altera-Cyclone-Board-CoreEP4CE6-EP4CE6E22C8N-EP4CE6-ALTERA-Cyclone-IV-CPLD-FPGA-Development-Core-Board-Full/32643916772.html
-[FPGA-CycloneIV]: https://github.com/chriz2600/DreamcastHDMI/tree/master/FPGA-CycloneIV
-[FPGA-CycloneIV-ADV7513]: https://github.com/chriz2600/DreamcastHDMI/tree/master/FPGA-CycloneIV-ADV7513
+[FPGA-CycloneIV]: https://github.com/chriz2600/DreamcastHDMI/tree/v0.1/FPGA-CycloneIV
+[FPGA-CycloneIV-ADV7513]: https://github.com/chriz2600/DreamcastHDMI/tree/v0.1/FPGA-CycloneIV-ADV7513
 
 [ADV7513]: http://www.analog.com/en/products/audio-video/analoghdmidvi-interfaces/analog-hdmidvi-display-interfaces/adv7513.html
 [ADV7513p]: https://github.com/chriz2600/ADV7513
