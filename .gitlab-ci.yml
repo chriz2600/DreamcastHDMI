@@ -1,5 +1,5 @@
 
-build-project-v0.1:
+build-project-v01:
   stage: build
   script: /root/build
   only:
