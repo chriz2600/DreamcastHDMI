@@ -10,9 +10,6 @@ build-project-v0.1:
 build-project:
   stage: build
   script: /root/build
-  only:
-    - master
-    - unified_version
   except:
     - v0.1
   tags:
