@@ -1,5 +1,7 @@
 ## Firmware versions
 
+[Firmware site][firmware]
+
 All firmware files come in two variants:
 - `.jic` Active serial configuration file for use with programmer (e.g. USBBlaster).
 - `.rbf` Raw binary configuration file for use with firmware manager.
@@ -48,6 +50,7 @@ This version is intended for citrus3000psi DCHDMI 1.1 ([Mainboard][citrus3000psi
 
 ---
 
+[firmware]: http://dc.i74.de/
 [builddoc]: https://github.com/chriz2600/DreamcastHDMI/blob/master/Build.md
 [docs]: https://github.com/chriz2600/DreamcastHDMI/blob/master/Documentation.md
 [citrus3000psi-oshpark-mainboard]: https://oshpark.com/shared_projects/N92txcNt
