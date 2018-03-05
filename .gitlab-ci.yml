@@ -2,8 +2,6 @@
 build-project:
   stage: build
   script: /root/build
-  except:
-    - /^v0\.1\..*$/
   tags:
     - dreamcast-hdmi
 
