@@ -1,10 +1,23 @@
 # DreamcastHDMI
 
-### [Main documentation][maindoc]
+#### [Main documentation][maindoc] (original version)
 
 ---
 
 ### News
+
+#### 2018-03-05
+
+Restructured source code and updated pin assignments for citrus3000psi's DCHDMI board 1.1: 
+- [Mainboard][citrus3000psi-oshpark-mainboard]
+- [QSB][citrus3000psi-oshpark-qsb]
+
+Moved older versions (without ADV7315 and/or ICS664-3) to [v0.1][v0.1]
+
+Restructured "firmware" site:
+- [Firmware][firmware]
+
+Details on the available versions can be found [here][firmware-docs].
 
 #### 2017-12-21
 
@@ -80,6 +93,11 @@ Some details about the Dreamcast scaling issue on modern HDTVs: [Video details l
 
 ---
 
+[firmware-docs]: https://github.com/chriz2600/DreamcastHDMI/blob/master/Firmware.md
+[firmware]: http://dc.i74.de/
+[v0.1]: https://github.com/chriz2600/DreamcastHDMI/tree/v0.1
+[citrus3000psi-oshpark-mainboard]: https://oshpark.com/shared_projects/N92txcNt
+[citrus3000psi-oshpark-qsb]: https://oshpark.com/shared_projects/N0YmRkIu
 [dcfwdemo]: http://dc-fw-manager.i74.de/
 [docker]: https://github.com/chriz2600/DreamcastHDMI/blob/master/docker/README.md
 [Quartus]: https://www.altera.com/products/design-software/fpga-design/quartus-prime/overview.html
