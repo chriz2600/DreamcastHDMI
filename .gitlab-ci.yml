@@ -1,16 +1,9 @@
-build-project-v01:
-  stage: build
-  script: /root/build
-  only:
-    - /^v.*$/
-  tags:
-    - dreamcast-hdmi-v0.1
 
 build-project:
   stage: build
   script: /root/build
   except:
-    - /^v.*$/
+    - /^v0\.1\..*$/
   tags:
     - dreamcast-hdmi
 
