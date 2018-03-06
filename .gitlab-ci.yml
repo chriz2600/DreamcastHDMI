@@ -4,8 +4,8 @@ firmware:
   script: /root/build
   artifacts:
     paths:
-    - DreamcastHDMI/Core/output_files/*.jic
-    - DreamcastHDMI/Core/output_files/*.rbf
+    - /srv/*.jic
+    - /srv/*.rbf
   tags:
     - dreamcast-hdmi
 
