@@ -1,11 +1,15 @@
 
-build-project:
+firmware:
   stage: build
   script: /root/build
+  artifacts:
+    paths:
+    - Core/output_files/*.jic
+    - Core/output_files/*.rbf
   tags:
     - dreamcast-hdmi
 
-publish-project:
+publish:
   stage: deploy
   script: create-index-html
   tags:
