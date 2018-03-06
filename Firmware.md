@@ -1,12 +1,12 @@
 ## Firmware versions
 
-[Firmware site][firmware]
+All versions are available on the [firmware site][firmware].
 
-All firmware files come in two variants:
+The firmware files come in two variants:
 - `.jic` Active serial configuration file for use with programmer (e.g. USBBlaster).
 - `.rbf` Raw binary configuration file for use with firmware manager.
 
-### v0.1
+### v0.1 [:link:](http://dc.i74.de/fw/v0.1/)
 
 - `FPGA-CycloneIV-ADV7513-Enhanced_EPCS16`
 
@@ -28,9 +28,11 @@ All firmware files come in two variants:
   Version for Waveshare CycloneIV board without ADV7513 dev board nor ICS664-03.
   HDMI output is done via basic LVDS to TMDS converter, as described [here][docs].
 
-### master
+### master [:link:](http://dc.i74.de/fw/master/)
 
 This version is intended for citrus3000psi DCHDMI 1.1 ([Mainboard][citrus3000psi-oshpark-mainboard] / [QSB][citrus3000psi-oshpark-qsb]). There is also a firmware for DCHDMI 1.0, mainly because I have a working 1.0 board at the moment :)
+
+[Direct ZIP file link][master-artifact]
 
 - `DCxPlus-10CL025`
 
@@ -50,6 +52,7 @@ This version is intended for citrus3000psi DCHDMI 1.1 ([Mainboard][citrus3000psi
 
 ---
 
+[master-artifact]: https://gitlab.com/chriz2600/DreamcastHDMI/-/jobs/artifacts/master/download?job=firmware
 [firmware]: http://dc.i74.de/
 [builddoc]: https://github.com/chriz2600/DreamcastHDMI/blob/master/Build.md
 [docs]: https://github.com/chriz2600/DreamcastHDMI/blob/master/Documentation.md
