@@ -56,8 +56,8 @@ module ram2video(
     
         begin
             trigger <= triggered;
-            counterX_reg <= 0;
-            counterY_reg <= 0;
+            counterX_reg <= `HORIZONTAL_OFFSET;
+            counterY_reg <= `VERTICAL_OFFSET;
             hsync_reg_q <= ~`HORIZONTAL_SYNC_ON_POLARITY;
             vsync_reg_q <= ~`VERTICAL_SYNC_ON_POLARITY;
         end
@@ -129,11 +129,12 @@ module ram2video(
     end
     
     assign rdaddr = (
-        counterX_reg >= `HORIZONTAL_START_OFFSET 
+           counterX_reg >= `HORIZONTAL_OFFSET && counterX_reg < `HORIZONTAL_PIXELS_VISIBLE - `HORIZONTAL_OFFSET 
+        && counterY_reg >= `VERTICAL_OFFSET   && counterY_reg < `VERTICAL_LINES_VISIBLE - `VERTICAL_OFFSET
         ? (
             line_doubler_reg 
-            ? { counterY_reg[2:1], counterX_reg[9:0] - (`HORIZONTAL_START_OFFSET / `PIXEL_FACTOR) } 
-            : { 1'b0, (`PIXEL_FACTOR == 2 ? counterX_reg[11:1] : counterX_reg[10:0]) - (`HORIZONTAL_START_OFFSET / `PIXEL_FACTOR) }
+            ? { counterY_reg[2:1], counterX_reg[9:0] - (`HORIZONTAL_OFFSET / `PIXEL_FACTOR) } 
+            : { 1'b0, (`PIXEL_FACTOR == 2 ? counterX_reg[11:1] : counterX_reg[10:0]) - (`HORIZONTAL_OFFSET / `PIXEL_FACTOR) }
         ) 
         : 12'd1023
     );

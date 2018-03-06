@@ -21,7 +21,8 @@
 `define VERTICAL_SYNC_WIDTH            5
 `define VERTICAL_SYNC_ON_POLARITY   1'b1
 
-`define HORIZONTAL_START_OFFSET      240
+`define HORIZONTAL_OFFSET            240
+`define VERTICAL_OFFSET               60
 `define PIXEL_FACTOR                   2
 
 `define PLL_CLK0_DIVIDE_BY             1
