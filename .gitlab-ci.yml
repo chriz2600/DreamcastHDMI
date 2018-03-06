@@ -4,14 +4,15 @@ firmware:
   script: /root/build
   artifacts:
     paths:
-    - /srv/*.jic
-    - /srv/*.rbf
+    - Core/output_files/*.jic
+    - Core/output_files/*.rbf
   tags:
     - dreamcast-hdmi
 
 publish:
   stage: deploy
   script: create-index-html
-  dependencies: []
+  artifacts:
+    expire_in: 1 sec
   tags:
     - index-gen

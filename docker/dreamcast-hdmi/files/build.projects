@@ -9,7 +9,7 @@ function doBuildProjects {
         quartus_sh --flow compile $project.qpf
         quartus_cpf -c $project.cof
         quartus_cpf -c ${project}-raw.cof
-        mv output_files/$project.jic /srv/
-        mv output_files/$project.rbf /srv/
+        cp output_files/$project.jic /srv/
+        cp output_files/$project.rbf /srv/
     done
 }
