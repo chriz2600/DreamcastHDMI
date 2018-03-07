@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="http://code.jquery.com/jquery-3.3.1.js"></script>
+        <style>
+            body {
+                background-color: white;
+            }
+
+            #oneHead, #twoHead {
+                position:absolute;
+                top:25px;
+                width: 640px;
+                text-align:center;
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 16pt;
+                font-weight: bold;
+            }
+
+            #one, #two {
+                position:absolute;
+                top:50px;
+                border: 1px solid black;
+            }
+
+            #oneHead {
+                left: 10px;
+            }
+
+            #twoHead {
+                left: 660px;
+            }
+
+            #one {
+                left: 10px;
+            }
+
+            #two {
+                left: 660px;
+            }
+
+            #oneInner, #twoInner {
+                width: 640px;
+                height: 0px;
+                background-color: red;
+                box-sizing: border-box;
+                border: 0px solid black;
+            }
+
+            #btns {
+                position:absolute;
+                top: 50px;
+                left: 1320px;
+           }
+        </style>
+        <script>
+            var ctxs = {};
+            var COUNTER = 0;
+            var LINES = 480;
+            var CONFIG = {
+                "960p": { 
+                    offset: 23,
+                    one: 200,
+                    one_txt: "30 kHz",
+                    two: 210,
+                    two_txt: "31,5 kHz VGA"
+                },
+                "1080p": { 
+                    offset: 33,
+                    one: 300,
+                    one_txt: "31,5 kHz VGA",
+                    two: 280,
+                    two_txt: "33,75 kHz"
+                }
+            };
+            var CFG_SEL = "1080p";// "960p";
+            var _RUNNING = false;
+            var _OFFSET;
+            var data = {};
+            var data2 = {};
+            function init() {
+                $("#oneHead").html(CONFIG[CFG_SEL].one_txt);
+                $("#twoHead").html(CONFIG[CFG_SEL].two_txt);
+                _OFFSET = CONFIG[CFG_SEL].offset;
+                COUNTER = 1-(_OFFSET * CONFIG[CFG_SEL].one);
+                ctxs['one'] = document.getElementById('one').getContext('2d');
+                ctxs['two'] = document.getElementById('two').getContext('2d');
+                set("two", -_OFFSET -2 /*offset*/);
+                set("one", 0);
+            }
+            function set(x, start) {
+                data[x] = start;
+                setXXX(x, start - 1, start);
+            }
+
+            function update(x, dir) {
+                var selector = x;
+                var h = data[selector] < 0 ? -1 : data[selector];
+
+                if (h == LINES) {
+                    return false;
+                } 
+                
+                setXXX(x, h, data[selector]);
+                data[selector] = data[selector] + dir;
+                data2[x] = data[selector] % _OFFSET;
+                if (data["one"] == data["two"]) {
+                    console.log("--> " + x + ": " + data[selector] + "/" + (COUNTER % CONFIG[CFG_SEL]["one"]) + "/" + (COUNTER % CONFIG[CFG_SEL]["two"]));
+                }
+
+                return true;
+            }
+
+            function setXXX(x, h, d) {
+                ctxs[x].clearRect(0,0,640,480);
+                ctxs[x].fillStyle = "rgba(255,0,0,0.5)";
+                ctxs[x].fillRect(0, 0, 640, h+1);
+                ctxs[x].fillStyle = "rgba(0,255,0,.5)";
+                if (d < 0) {
+                    ctxs[x].fillRect(0, 0 - (0 % _OFFSET), 640, _OFFSET+1);
+                } else {
+                    ctxs[x].fillRect(0, h - (d % _OFFSET), 640, _OFFSET+1);
+                }
+                if (d < 0) {
+                    ctxs[x].fillStyle = "rgb(0,0,0)";
+                    ctxs[x].font = "90px Courier New";
+                    ctxs[x].fillText("XX", 250, 390);
+                    ctxs[x].fillStyle = "rgb(0,0,0)";
+                    ctxs[x].font = "20px Courier New";
+                    ctxs[x].fillText("XX", 10, (_OFFSET / 2 * 1.4) + h);
+                } else {
+                    ctxs[x].fillStyle = "rgb(0,0,0)";
+                    ctxs[x].font = "90px Courier New";
+                    ctxs[x].fillText(d + "", 250, 390);
+                    ctxs[x].fillStyle = "rgb(0,0,0)";
+                    ctxs[x].font = "20px Courier New";
+                    ctxs[x].fillText(d % _OFFSET, 10, (_OFFSET / 2 * 1.4) + h - (d % _OFFSET));
+                }
+            }
+
+            function loop(dir) {
+                var dir = dir || 1;
+                var running = true;
+
+                for (x in { "one":"", "two":"" }) {
+                    if (COUNTER % CONFIG[CFG_SEL][x] == 0) {
+                        running = (update(x, dir) && running && _RUNNING);
+                    }
+                }
+
+                COUNTER++;
+                if (running) {
+                    process.nextTick(function() { loop(dir); });
+                }
+            }
+
+            var process = {};
+            process.nextTick = (function () {
+                var canSetImmediate = typeof window !== 'undefined'
+                && window.setImmediate;
+                var canPost = typeof window !== 'undefined'
+                && window.postMessage && window.addEventListener;
+                if (canSetImmediate) {
+                    return function (f) { return window.setImmediate(f) };
+                }
+                if (canPost) {
+                    var queue = [];
+                    window.addEventListener('message', function (ev) {
+                        var source = ev.source;
+                        if ((source === window || source === null) && ev.data === 'process-tick') {
+                            ev.stopPropagation();
+                            if (queue.length > 0) {
+                                var fn = queue.shift();
+                                fn();
+                            }
+                        }
+                    }, true);
+                    return function nextTick(fn) {
+                        queue.push(fn);
+                        window.postMessage('process-tick', '*');
+                    };
+                }
+                return function nextTick(fn) {
+                    setTimeout(fn, 0);
+                };
+            })();            
+        </script>
+    </head>
+    <body onload="init();">
+        <div id="oneHead"></div>
+        <div id="twoHead"></div>
+        <canvas id="one" width="640" height="480"></canvas>
+        <canvas id="two" width="640" height="480"></canvas>
+        <div id="btns">
+            <button class="btn" onclick="_RUNNING=!_RUNNING;loop();">Start/Stop</button>
+            <br>
+            <br>
+            <button class="btn" onclick="_RUNNING=false;loop();">Next</button>
+            <!--<button class="btn" onclick="loop(-1);">Prev</button>-->
+            <br>
+            <br>
+            <button class="btn" onclick="init();">Reset</button>
+        </div>
+    </body>
+</html>
