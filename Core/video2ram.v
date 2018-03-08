@@ -92,7 +92,7 @@ module video2ram(
             end else begin
                 wren_reg <= 0;
                 wraddr_reg <= 12'd1023;
-                wrdata_reg <= 32'd0;
+                wrdata_reg <= 24'd0;
                 trigger <= 1'b0;
             end
         end
