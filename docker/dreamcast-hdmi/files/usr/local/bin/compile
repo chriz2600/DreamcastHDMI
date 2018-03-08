@@ -10,4 +10,7 @@ if [ -z "$1" ] ; then
 fi
 
 project=$(echo $1 | sed -e 's:\.qpf::g')
+if [ ! -e $project.qpf -a -e /build/$project.qpf ] ; then
+    cd /build
+fi
 doBuildProject
