@@ -187,7 +187,7 @@ set_global_assignment -name VERILOG_FILE video2ram.v
 set_global_assignment -name VERILOG_FILE ram2video.v
 set_global_assignment -name SDC_FILE DCxPlus.sdc
 set_global_assignment -name SIGNALTAP_FILE stp1.stp
-set_global_assignment -name CDF_FILE DCxPlus-10CL025.cdf
+set_global_assignment -name CDF_FILE "DCxPlus-10CL025.cdf"
 set_global_assignment -name VERILOG_FILE configuration.v
 set_global_assignment -name ENABLE_BOOT_SEL_PIN OFF
 set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF
@@ -197,6 +197,7 @@ set_global_assignment -name INCLUDE_FILE VGA.inc
 set_global_assignment -name INCLUDE_FILE 960p.inc
 set_global_assignment -name INCLUDE_FILE 1080p.inc
 set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
+set_global_assignment -name NUM_PARALLEL_PROCESSORS 2
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MINIMUM CURRENT" -to CLOCK
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MINIMUM CURRENT" -to clock54_out
 set_instance_assignment -name CURRENT_STRENGTH_NEW "MINIMUM CURRENT" -to DE
