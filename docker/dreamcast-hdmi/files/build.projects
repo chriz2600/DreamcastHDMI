@@ -5,10 +5,18 @@ function doBuildProjects {
 
     for x in *.qpf ; do 
         project=$(echo $x | sed -e 's:\.qpf::g')
+        echo "----------------------------------------"
         echo $project
-        quartus_sh --flow compile $project.qpf
-        quartus_cpf -c $project.cof
-        quartus_cpf -c ${project}-raw.cof
+        echo "----------------------------------------"
+        (
+            quartus_sh --flow compile $project.qpf
+            quartus_cpf -c $project.cof
+            quartus_cpf -c ${project}-raw.cof
+        ) 2>&1 \
+          | grep -v 'Info: ' \
+          | grep -v 'Info (' \
+          | grep -v 'Inconsistency detected by ld.so'
+
         cp output_files/$project.jic /srv/
         cp output_files/$project.rbf /srv/
     done
