@@ -1,0 +1,13 @@
+#!/bin/bash -l
+
+source /root/build.projects
+
+if [ -z "$1" ] ; then
+    echo
+    echo "usage: "$(basename $0)" <.qpf>"
+    echo
+    exit 1
+fi
+
+project=$(echo $1 | sed -e 's:\.qpf::g')
+doBuildProject

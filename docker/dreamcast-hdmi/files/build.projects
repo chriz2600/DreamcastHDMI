@@ -1,23 +1,47 @@
 #!/bin/bash -l
 
-function doBuildProjects { 
-    cd $CWD/Core
+GREP="grep --line-buffered"
 
+function doBuildProjects {
+    cd $CWD/Core
     for x in *.qpf ; do 
         project=$(echo $x | sed -e 's:\.qpf::g')
         echo "----------------------------------------"
         echo $project
         echo "----------------------------------------"
-        (
-            quartus_sh --flow compile $project.qpf
-            quartus_cpf -c $project.cof
-            quartus_cpf -c ${project}-raw.cof
-        ) 2>&1 \
-          | grep -v 'Info: ' \
-          | grep -v 'Info (' \
-          | grep -v 'Inconsistency detected by ld.so'
-
+        doBuildProject
+        doCreateConfigurationFiles
         cp output_files/$project.jic /srv/
         cp output_files/$project.rbf /srv/
     done
+}
+
+function doBuildProject {
+    (
+        echo "building project..."
+        quartus_sh --flow compile $project.qpf
+        echo "...done"
+    ) 2>&1 \
+        | $GREP -v 'Info: ' \
+        | $GREP -v 'Info (' \
+        | $GREP -v 'Inconsistency detected by ld.so' \
+        | $GREP -v 'Warning (292013)' \
+        | $GREP -v 'Warning (169177)' \
+        | $GREP -v 'Warning (12914)'
+    # ^ filter out all Info messages, LogicLock warning, 
+    #   AN 447 reminder warning, signal tap embedding warning
+}
+
+function doCreateConfigurationFiles { 
+    (
+        echo "creating configuration files..."
+        echo "$project.jic"
+        quartus_cpf -c $project.cof
+        echo "$project.rbf"
+        quartus_cpf -c ${project}-raw.cof
+        echo "...done"
+    ) 2>&1 \
+        | $GREP -v 'Info: ' \
+        | $GREP -v 'Info (' \
+        | $GREP -v 'Inconsistency detected by ld.so'
 }
