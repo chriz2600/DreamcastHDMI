@@ -28,4 +28,6 @@
 `define PLL_CLK0_DIVIDE_BY             165
 `define PLL_CLK0_MULTIPLY_BY            56
 
+`define INVERT_VIDEO_CLOCK            1'b1
+
 `endif

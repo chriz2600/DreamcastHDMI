@@ -144,6 +144,6 @@ module ram2video(
     assign hsync = hsync_reg_q;
     assign vsync = vsync_reg_q;
     assign DrawArea = counterX_reg_q_q >= 0 && counterX_reg_q_q < `HORIZONTAL_PIXELS_VISIBLE && counterY_reg_q_q >= 0 && counterY_reg_q_q < `VERTICAL_LINES_VISIBLE;
-    assign videoClock = clock; 
+    assign videoClock = clock ^ `INVERT_VIDEO_CLOCK; 
 
 endmodule
