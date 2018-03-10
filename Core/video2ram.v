@@ -48,6 +48,7 @@ module video2ram(
         end
     end
     
+    `define GetWriteAddr(x, y) ((x - H_CAPTURE_START) * ((y - V_CAPTURE_START) % `BUFFER_SIZE))
     
     always @ (posedge clock) begin
     
@@ -81,17 +82,17 @@ module video2ram(
             // 480p mode
             if (counterY >= V_CAPTURE_START && counterY < V_CAPTURE_END && counterX >= H_CAPTURE_START && counterX < H_CAPTURE_END) begin
                 wren_reg <= 1;
-                wraddr_reg <= counterX - 12'd44;
+                wraddr_reg <= `GetWriteAddr(counterX, counterY);
                 wrdata_reg <= { R, G, B };
                 
-                if (counterX == H_TRIGGER_POINT && counterY == V_TRIGGER_POINT) begin
+                if (`GetWriteAddr(counterX, counterY) == `TRIGGER_ADDR) begin
                     trigger <= 1'b1;
                 end else begin
                     trigger <= 1'b0;
                 end
             end else begin
                 wren_reg <= 0;
-                wraddr_reg <= 12'd1023;
+                wraddr_reg <= 12'd0;
                 wrdata_reg <= 24'd0;
                 trigger <= 1'b0;
             end

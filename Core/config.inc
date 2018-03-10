@@ -2,7 +2,7 @@
 `ifndef _config_inc_
 `define _config_inc_
 
-`define _960p_
+`define _VGA_
 
 `ifdef _VGA_
 `include "VGA.inc"

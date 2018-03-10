@@ -127,23 +127,26 @@ module ram2video(
             end
         end
     end
-    
+
+    `define IsDrawArea(x, y)   (x >= 0 && x < `HORIZONTAL_PIXELS_VISIBLE \
+                             && y >= 0 && y < `VERTICAL_LINES_VISIBLE)
+
     assign rdaddr = (
            counterX_reg >= `HORIZONTAL_OFFSET && counterX_reg < `HORIZONTAL_PIXELS_VISIBLE - `HORIZONTAL_OFFSET 
         && counterY_reg >= `VERTICAL_OFFSET   && counterY_reg < `VERTICAL_LINES_VISIBLE - `VERTICAL_OFFSET
         ? (
             line_doubler_reg 
             ? { counterY_reg[2:1], counterX_reg[9:0] - (`HORIZONTAL_OFFSET / `PIXEL_FACTOR) } 
-            : { 1'b0, (`PIXEL_FACTOR == 2 ? counterX_reg[11:1] : counterX_reg[10:0]) - (`HORIZONTAL_OFFSET / `PIXEL_FACTOR) }
+            : (`PIXEL_FACTOR == 2 ? counterX_reg[11:1] : counterX_reg[10:0]) * (counterY_reg % `BUFFER_SIZE)
         ) 
-        : 12'd1023
+        : 12'd0
     );
-    assign red = rddata[23:16];
-    assign green = rddata[15:8];
-    assign blue = rddata[7:0];
+    assign red = `IsDrawArea(counterX_reg_q_q, counterY_reg_q_q) ? rddata[23:16] : 8'h00;
+    assign green = `IsDrawArea(counterX_reg_q_q, counterY_reg_q_q) ? rddata[15:8] : 8'h00;
+    assign blue = `IsDrawArea(counterX_reg_q_q, counterY_reg_q_q) ? rddata[7:0] : 8'h00;
     assign hsync = hsync_reg_q;
     assign vsync = vsync_reg_q;
-    assign DrawArea = counterX_reg_q_q >= 0 && counterX_reg_q_q < `HORIZONTAL_PIXELS_VISIBLE && counterY_reg_q_q >= 0 && counterY_reg_q_q < `VERTICAL_LINES_VISIBLE;
+    assign DrawArea = `IsDrawArea(counterX_reg_q_q, counterY_reg_q_q);
     assign videoClock = clock ^ `INVERT_VIDEO_CLOCK; 
 
 endmodule

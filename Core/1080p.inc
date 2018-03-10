@@ -30,4 +30,7 @@
 
 `define INVERT_VIDEO_CLOCK            1'b0
 
+`define BUFFER_SIZE                   8'd33
+`define TRIGGER_ADDR                 15'd21087
+
 `endif
