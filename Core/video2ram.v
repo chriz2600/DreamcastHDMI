@@ -1,3 +1,5 @@
+`include "config.inc"
+
 module video2ram(
     input clock,
     
@@ -10,7 +12,7 @@ module video2ram(
     input line_doubler,
     
     output [23:0] wrdata,
-    output [11:0] wraddr,
+    output [14:0] wraddr,
     output wren,
     output wrclock,
     
@@ -26,7 +28,7 @@ module video2ram(
 
     reg wren_reg = 0;
     reg [23:0] wrdata_reg;
-    reg [11:0] wraddr_reg;
+    reg [14:0] wraddr_reg;
     reg [11:0] tmp;
     reg trigger = 0;
 
@@ -92,7 +94,7 @@ module video2ram(
                 end
             end else begin
                 wren_reg <= 0;
-                wraddr_reg <= 12'd0;
+                wraddr_reg <= 15'd0;
                 wrdata_reg <= 24'd0;
                 trigger <= 1'b0;
             end

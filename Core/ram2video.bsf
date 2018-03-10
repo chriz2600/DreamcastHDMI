@@ -68,8 +68,8 @@ refer to the applicable agreement for further details.
 	(port
 		(pt 200 32)
 		(output)
-		(text "rdaddr[11..0]" (rect 0 0 48 12)(font "Arial" ))
-		(text "rdaddr[11..0]" (rect 131 27 179 39)(font "Arial" ))
+		(text "rdaddr[14..0]" (rect 0 0 50 12)(font "Arial" ))
+		(text "rdaddr[14..0]" (rect 129 27 179 39)(font "Arial" ))
 		(line (pt 200 32)(pt 184 32)(line_width 3))
 	)
 	(port

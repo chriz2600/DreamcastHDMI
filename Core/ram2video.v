@@ -10,7 +10,7 @@ module ram2video(
     input line_doubler,
     input add_line,
 
-    output [11:0] rdaddr,
+    output [14:0] rdaddr,
     
     output [7:0] red,
     output [7:0] green,
