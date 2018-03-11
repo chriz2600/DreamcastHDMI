@@ -59,33 +59,40 @@
             var LINES = 480;
             var CONFIG = {
                 "960p": { 
-                    offset: 23,
+                    buffer: 23,
+                    offset: 0,
                     one: 200,
-                    one_txt: "30 kHz",
+                    one_txt: "31,5 kHz VGA",
                     two: 210,
-                    two_txt: "31,5 kHz VGA"
+                    two_txt: "30 kHz 960p (23 lines buffer)"
                 },
                 "1080p": { 
-                    offset: 33,
+                    buffer: 33,
+                    offset: -35,
                     one: 300,
                     one_txt: "31,5 kHz VGA",
                     two: 280,
-                    two_txt: "33,75 kHz"
+                    two_txt: "33,75 kHz 1080p (33 lines buffer)"
                 }
             };
-            var CFG_SEL = "1080p";// "960p";
-            var _RUNNING = false;
-            var _OFFSET;
+            var DEFAULT_CFG = "1080p";
+            var CFG_SEL;
+            var _RUNNING;
+            var _BUFFER;
             var data = {};
             var data2 = {};
-            function init() {
+            var stopStep;
+            var singleStep;
+            function init(cfg) {
+                CFG_SEL = cfg || DEFAULT_CFG;
                 $("#oneHead").html(CONFIG[CFG_SEL].one_txt);
                 $("#twoHead").html(CONFIG[CFG_SEL].two_txt);
-                _OFFSET = CONFIG[CFG_SEL].offset;
-                COUNTER = 1-(_OFFSET * CONFIG[CFG_SEL].one);
+                _RUNNING = false;
+                _BUFFER = CONFIG[CFG_SEL].buffer;
+                COUNTER = (CONFIG[CFG_SEL].offset * CONFIG[CFG_SEL].two);
                 ctxs['one'] = document.getElementById('one').getContext('2d');
                 ctxs['two'] = document.getElementById('two').getContext('2d');
-                set("two", -_OFFSET -2 /*offset*/);
+                set("two", 0 + CONFIG[CFG_SEL].offset);
                 set("one", 0);
             }
             function set(x, start) {
@@ -103,11 +110,19 @@
                 
                 setXXX(x, h, data[selector]);
                 data[selector] = data[selector] + dir;
-                data2[x] = data[selector] % _OFFSET;
+                data2[x] = data[selector] % _BUFFER;
                 if (data["one"] == data["two"]) {
                     console.log("--> " + x + ": " + data[selector] + "/" + (COUNTER % CONFIG[CFG_SEL]["one"]) + "/" + (COUNTER % CONFIG[CFG_SEL]["two"]));
                 }
+                if (data2["one"] == data2["two"]) {
+                    console.log("2--> " + x + ": " + data[selector] + "/" + (COUNTER % CONFIG[CFG_SEL]["one"]) + "/" + (COUNTER % CONFIG[CFG_SEL]["two"]));
+                }
+                
 
+                if (h == stopStep) {
+                    singleStep = false;
+                    return false;
+                }
                 return true;
             }
 
@@ -117,9 +132,9 @@
                 ctxs[x].fillRect(0, 0, 640, h+1);
                 ctxs[x].fillStyle = "rgba(0,255,0,.5)";
                 if (d < 0) {
-                    ctxs[x].fillRect(0, 0 - (0 % _OFFSET), 640, _OFFSET+1);
+                    ctxs[x].fillRect(0, 0 - (0 % _BUFFER), 640, _BUFFER+1);
                 } else {
-                    ctxs[x].fillRect(0, h - (d % _OFFSET), 640, _OFFSET+1);
+                    ctxs[x].fillRect(0, h - (d % _BUFFER), 640, _BUFFER+1);
                 }
                 if (d < 0) {
                     ctxs[x].fillStyle = "rgb(0,0,0)";
@@ -127,29 +142,36 @@
                     ctxs[x].fillText("XX", 250, 390);
                     ctxs[x].fillStyle = "rgb(0,0,0)";
                     ctxs[x].font = "20px Courier New";
-                    ctxs[x].fillText("XX", 10, (_OFFSET / 2 * 1.4) + h);
+                    ctxs[x].fillText("XX", 10, (_BUFFER / 2 * 1.4) + h);
                 } else {
                     ctxs[x].fillStyle = "rgb(0,0,0)";
                     ctxs[x].font = "90px Courier New";
                     ctxs[x].fillText(d + "", 250, 390);
                     ctxs[x].fillStyle = "rgb(0,0,0)";
                     ctxs[x].font = "20px Courier New";
-                    ctxs[x].fillText(d % _OFFSET, 10, (_OFFSET / 2 * 1.4) + h - (d % _OFFSET));
+                    ctxs[x].fillText(d % _BUFFER, 10, (_BUFFER / 2 * 1.4) + h - (d % _BUFFER));
                 }
+            }
+
+            function nextStep() {
+                _RUNNING = false;
+                stopStep = data["one"];
+                singleStep = true;
+                loop();
             }
 
             function loop(dir) {
                 var dir = dir || 1;
-                var running = true;
+                var running = { "one": true, "two": true };
 
                 for (x in { "one":"", "two":"" }) {
                     if (COUNTER % CONFIG[CFG_SEL][x] == 0) {
-                        running = (update(x, dir) && running && _RUNNING);
+                        running[x] = update(x, dir);
                     }
                 }
 
                 COUNTER++;
-                if (running) {
+                if ((_RUNNING || singleStep) && (running["one"] || running["two"])) {
                     process.nextTick(function() { loop(dir); });
                 }
             }
@@ -195,7 +217,7 @@
             <button class="btn" onclick="_RUNNING=!_RUNNING;loop();">Start/Stop</button>
             <br>
             <br>
-            <button class="btn" onclick="_RUNNING=false;loop();">Next</button>
+            <button class="btn" onclick="nextStep();">Next</button>
             <!--<button class="btn" onclick="loop(-1);">Prev</button>-->
             <br>
             <br>
