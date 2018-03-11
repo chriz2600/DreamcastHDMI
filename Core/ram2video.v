@@ -10,7 +10,7 @@ module ram2video(
     input line_doubler,
     input add_line,
 
-    output [14:0] rdaddr,
+    output [`RAM_ADDRESS_BITS-1:0] rdaddr,
     
     output [7:0] red,
     output [7:0] green,
@@ -141,7 +141,7 @@ module ram2video(
             ? { counterY_reg[2:1], counterX_reg[9:0] - (`HORIZONTAL_OFFSET / `PIXEL_FACTOR) } 
             : (`counterXvga * (counterY_reg % `BUFFER_SIZE)) + `counterXvga
         ) 
-        : 15'd0
+        : `RAM_ADDRESS_BITS'd0
     );
     assign red = `IsDrawArea(counterX_reg_q_q, counterY_reg_q_q) ? rddata[23:16] : 8'h00;
     assign green = `IsDrawArea(counterX_reg_q_q, counterY_reg_q_q) ? rddata[15:8] : 8'h00;

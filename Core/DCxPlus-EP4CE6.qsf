@@ -173,6 +173,7 @@ set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
+set_global_assignment -name VERILOG_FILE DCxPlus.v
 set_global_assignment -name VERILOG_FILE Flag_CrossDomain.v
 set_global_assignment -name VERILOG_FILE startup.v
 set_global_assignment -name VERILOG_FILE I2C_write.v
@@ -180,7 +181,6 @@ set_global_assignment -name VERILOG_FILE I2C_read.v
 set_global_assignment -name VHDL_FILE i2c_master.vhd
 set_global_assignment -name VERILOG_FILE data.v
 set_global_assignment -name VERILOG_FILE ADV7513.v
-set_global_assignment -name BDF_FILE DCxPlus.bdf
 set_global_assignment -name QIP_FILE pll54.qip
 set_global_assignment -name QIP_FILE pll74.qip
 set_global_assignment -name QIP_FILE ram.qip
