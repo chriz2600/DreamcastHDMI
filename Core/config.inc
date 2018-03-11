@@ -2,8 +2,6 @@
 `ifndef _config_inc_
 `define _config_inc_
 
-`define _VGA_
-
 `ifdef _VGA_
 `include "VGA.inc"
 `endif

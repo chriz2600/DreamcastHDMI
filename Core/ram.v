@@ -1,3 +1,5 @@
+`include "config.inc"
+
 // megafunction wizard: %RAM: 2-PORT%
 // GENERATION: STANDARD
 // VERSION: WM1.0
@@ -97,8 +99,8 @@ module ram (
 		altsyncram_component.intended_device_family = "Cyclone IV E",
 		altsyncram_component.lpm_type = "altsyncram",
 		altsyncram_component.maximum_depth = 4096,
-		altsyncram_component.numwords_a = 21120,
-		altsyncram_component.numwords_b = 21120,
+		altsyncram_component.numwords_a = `RAM_NUMWORDS,
+		altsyncram_component.numwords_b = `RAM_NUMWORDS,
 		altsyncram_component.operation_mode = "DUAL_PORT",
 		altsyncram_component.outdata_aclr_b = "NONE",
 		altsyncram_component.outdata_reg_b = "CLOCK1",

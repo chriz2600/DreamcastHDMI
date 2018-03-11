@@ -10,3 +10,6 @@ if [ -z "$PRJ" ] ; then
 fi
 
 docker run -it -v $(pwd):/build chriz2600/dreamcast-hdmi:latest /usr/local/bin/compile $PRJ
+#quartus_sh --flow compile $project.qpf
+#quartus_sh --set VERILOG_MACRO=_VGA_ DCxPlus-10CL025.qpf
+#docker run -it -v $(pwd):/build chriz2600/dreamcast-hdmi:latest /bin/bash -l
