@@ -50,8 +50,10 @@ module video2ram(
         end
     end
     
-    `define GetWriteAddr(x, y) ((x - H_CAPTURE_START) * ((y - V_CAPTURE_START) % `BUFFER_SIZE))
-    
+    `define GetWriteAddr(x, y) (((x - H_CAPTURE_START) * ((y - V_CAPTURE_START) % `BUFFER_SIZE)) + (x - H_CAPTURE_START))
+    `define IsFirstBuffer(y)   ((y - V_CAPTURE_START) <= `BUFFER_SIZE)
+
+
     always @ (posedge clock) begin
     
         if (line_doubler) begin
@@ -87,7 +89,7 @@ module video2ram(
                 wraddr_reg <= `GetWriteAddr(counterX, counterY);
                 wrdata_reg <= { R, G, B };
                 
-                if (`GetWriteAddr(counterX, counterY) == `TRIGGER_ADDR) begin
+                if (`IsFirstBuffer(counterY) && `GetWriteAddr(counterX, counterY) == `TRIGGER_ADDR) begin
                     trigger <= 1'b1;
                 end else begin
                     trigger <= 1'b0;

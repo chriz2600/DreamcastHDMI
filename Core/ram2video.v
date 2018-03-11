@@ -131,15 +131,17 @@ module ram2video(
     `define IsDrawArea(x, y)   (x >= 0 && x < `HORIZONTAL_PIXELS_VISIBLE \
                              && y >= 0 && y < `VERTICAL_LINES_VISIBLE)
 
+    `define counterXvga (`PIXEL_FACTOR == 2 ? counterX_reg[11:1] : counterX_reg[10:0])
+
     assign rdaddr = (
            counterX_reg >= `HORIZONTAL_OFFSET && counterX_reg < `HORIZONTAL_PIXELS_VISIBLE - `HORIZONTAL_OFFSET 
         && counterY_reg >= `VERTICAL_OFFSET   && counterY_reg < `VERTICAL_LINES_VISIBLE - `VERTICAL_OFFSET
         ? (
             line_doubler_reg 
             ? { counterY_reg[2:1], counterX_reg[9:0] - (`HORIZONTAL_OFFSET / `PIXEL_FACTOR) } 
-            : (`PIXEL_FACTOR == 2 ? counterX_reg[11:1] : counterX_reg[10:0]) * (counterY_reg % `BUFFER_SIZE)
+            : (`counterXvga * (counterY_reg % `BUFFER_SIZE)) + `counterXvga
         ) 
-        : 12'd0
+        : 15'd0
     );
     assign red = `IsDrawArea(counterX_reg_q_q, counterY_reg_q_q) ? rddata[23:16] : 8'h00;
     assign green = `IsDrawArea(counterX_reg_q_q, counterY_reg_q_q) ? rddata[15:8] : 8'h00;
