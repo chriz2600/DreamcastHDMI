@@ -96,6 +96,7 @@ module ram (
 		altsyncram_component.clock_enable_output_b = "BYPASS",
 		altsyncram_component.intended_device_family = "Cyclone IV E",
 		altsyncram_component.lpm_type = "altsyncram",
+		altsyncram_component.maximum_depth = 4096,
 		altsyncram_component.numwords_a = 21120,
 		altsyncram_component.numwords_b = 21120,
 		altsyncram_component.operation_mode = "DUAL_PORT",
@@ -143,7 +144,7 @@ endmodule
 // Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Cyclone IV E"
 // Retrieval info: PRIVATE: JTAG_ENABLED NUMERIC "0"
 // Retrieval info: PRIVATE: JTAG_ID STRING "NONE"
-// Retrieval info: PRIVATE: MAXIMUM_DEPTH NUMERIC "0"
+// Retrieval info: PRIVATE: MAXIMUM_DEPTH NUMERIC "4096"
 // Retrieval info: PRIVATE: MEMSIZE NUMERIC "506880"
 // Retrieval info: PRIVATE: MEM_IN_BITS NUMERIC "1"
 // Retrieval info: PRIVATE: MIFfilename STRING ""
@@ -181,6 +182,7 @@ endmodule
 // Retrieval info: CONSTANT: CLOCK_ENABLE_OUTPUT_B STRING "BYPASS"
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Cyclone IV E"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "altsyncram"
+// Retrieval info: CONSTANT: MAXIMUM_DEPTH NUMERIC "4096"
 // Retrieval info: CONSTANT: NUMWORDS_A NUMERIC "21120"
 // Retrieval info: CONSTANT: NUMWORDS_B NUMERIC "21120"
 // Retrieval info: CONSTANT: OPERATION_MODE STRING "DUAL_PORT"
