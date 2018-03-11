@@ -6,5 +6,4 @@ RUN mkdir -p /srv && cd /root && git clone --recurse-submodules https://github.c
 ADD files/build /root/build
 ADD files/build.projects /root/build.projects
 ADD files/program /root/program
-ADD files/usr/local/bin/compile /usr/local/bin/compile
 ADD files/usr/local/bin/quartus /usr/local/bin/quartus

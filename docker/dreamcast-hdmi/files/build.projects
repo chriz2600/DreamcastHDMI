@@ -10,16 +10,27 @@ function doBuildProjects {
         echo $project
         echo "----------------------------------------"
         doBuildProject
-        doCreateConfigurationFiles
-        cp output_files/$project.jic /srv/
-        cp output_files/$project.rbf /srv/
     done
 }
 
 function doBuildProject {
     (
         echo "building project..."
-        quartus_sh --flow compile $project.qpf
+        $GREP "$project " build.config | cut -f 2- -d' ' | while read _version ; do 
+            echo $_version | tr ' ' '\n' | while read version ; do
+                echo "------ creating $version --------------------"
+
+                quartus_sh --set -remove VERILOG_MACRO $project
+                quartus_sh --set VERILOG_MACRO=_${version}_ $project
+                quartus_sh --flow compile $project.qpf
+
+                doCreateConfigurationFiles
+                mv output_files/$project.jic output_files/${project}-${version}.jic
+                mv output_files/$project.rbf output_files/${project}-${version}.rbf
+                cp output_files/${project}-${version}.jic /srv/
+                cp output_files/${project}-${version}.rbf /srv/
+            done
+        done
         echo "...done"
     ) 2>&1 \
         | $GREP -v 'Info: ' \
@@ -34,12 +45,12 @@ function doBuildProject {
 
 function doCreateConfigurationFiles { 
     (
-        echo "creating configuration files..."
+        echo "...creating configuration files..."
         echo "$project.jic"
         quartus_cpf -c $project.cof
         echo "$project.rbf"
         quartus_cpf -c ${project}-raw.cof
-        echo "...done"
+        echo "...done..."
     ) 2>&1 \
         | $GREP -v 'Info: ' \
         | $GREP -v 'Info (' \
