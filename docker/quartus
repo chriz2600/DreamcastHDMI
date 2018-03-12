@@ -1,3 +1,0 @@
-#!/bin/bash
-
-docker run -it -v $(pwd):/build chriz2600/dreamcast-hdmi:latest /usr/local/bin/quartus "$@"

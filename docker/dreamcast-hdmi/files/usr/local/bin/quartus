@@ -1,4 +1,0 @@
-#!/bin/bash -l
-
-cd /build
-quartus_sh "$@"
