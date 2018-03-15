@@ -12,7 +12,11 @@ else
     PGM="/srv/$FILE"
 fi
 
-PROGRAMMER=$(jtagconfig --enum  | head -n 1 | sed 's/1) //')
+if [ -n "$JTAG_SERVER" -a -n "$JTAG_PASSWD" ] ; then
+    jtagconfig --addserver "$JTAG_SERVER" "$JTAG_PASSWD"
+fi
+
+PROGRAMMER=$(jtagconfig --enum | head -n 1 | sed 's/1) //')
 
 quartus_pgm -c "$PROGRAMMER" -m jtag -o "ipv;$PGM"
 

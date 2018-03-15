@@ -16,4 +16,4 @@ if [ ! -z "$SOURCE" ] ; then
     SRCVOLUME="-v $SOURCE:/root/DreamcastHDMI"
 fi
 
-docker run -it -v $SRV:/srv/ $SRCVOLUME chriz2600/dreamcast-hdmi:latest /root/build
+docker run --rm -it -v $SRV:/srv/ $SRCVOLUME chriz2600/dreamcast-hdmi:latest /root/build
