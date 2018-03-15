@@ -128,27 +128,27 @@ module ram2video(
         end
     end
 
-    `define IsDrawArea(x, y)   (x >= 0 && x < `HORIZONTAL_PIXELS_VISIBLE \
-                             && y >= 0 && y < `VERTICAL_LINES_VISIBLE)
+    `define IsDrawAreaHDMI(x, y)   (x >= 0 && x < `HORIZONTAL_PIXELS_VISIBLE \
+                                 && y >= 0 && y < `VERTICAL_LINES_VISIBLE)
 
-    `define counterXvga (`PIXEL_FACTOR == 2 ? counterX_reg[11:1] : counterX_reg[10:0])
+    `define IsDrawAreaVGA(x, y)   (x >= `HORIZONTAL_OFFSET \
+                                && x < `HORIZONTAL_PIXELS_VISIBLE - `HORIZONTAL_OFFSET \
+                                && y >= `VERTICAL_OFFSET \
+                                && y < `VERTICAL_LINES_VISIBLE - `VERTICAL_OFFSET)
+
+    `define counterXvga(x) ((`PIXEL_FACTOR == 2 ? x[11:1] : x[10:0])  - (`HORIZONTAL_OFFSET / `PIXEL_FACTOR))
 
     assign rdaddr = (
-           counterX_reg >= `HORIZONTAL_OFFSET && counterX_reg < `HORIZONTAL_PIXELS_VISIBLE - `HORIZONTAL_OFFSET 
-        && counterY_reg >= `VERTICAL_OFFSET   && counterY_reg < `VERTICAL_LINES_VISIBLE - `VERTICAL_OFFSET
-        ? (
-            line_doubler_reg 
-            ? { counterY_reg[2:1], counterX_reg[9:0] - (`HORIZONTAL_OFFSET / `PIXEL_FACTOR) } 
-            : (`counterXvga * (counterY_reg % `BUFFER_SIZE)) + `counterXvga
-        ) 
+           `IsDrawAreaVGA(counterX_reg, counterY_reg)
+        ? (`counterXvga(counterX_reg) * (counterY_reg % `BUFFER_SIZE)) + `counterXvga(counterX_reg)
         : `RAM_ADDRESS_BITS'd0
     );
-    assign red = `IsDrawArea(counterX_reg_q_q, counterY_reg_q_q) ? rddata[23:16] : 8'h00;
-    assign green = `IsDrawArea(counterX_reg_q_q, counterY_reg_q_q) ? rddata[15:8] : 8'h00;
-    assign blue = `IsDrawArea(counterX_reg_q_q, counterY_reg_q_q) ? rddata[7:0] : 8'h00;
+    assign red = `IsDrawAreaVGA(counterX_reg_q_q, counterY_reg_q_q) ? rddata[23:16] : 8'h00;
+    assign green = `IsDrawAreaVGA(counterX_reg_q_q, counterY_reg_q_q) ? rddata[15:8] : 8'h00;
+    assign blue = `IsDrawAreaVGA(counterX_reg_q_q, counterY_reg_q_q) ? rddata[7:0] : 8'h00;
     assign hsync = hsync_reg_q;
     assign vsync = vsync_reg_q;
-    assign DrawArea = `IsDrawArea(counterX_reg_q_q, counterY_reg_q_q);
+    assign DrawArea = `IsDrawAreaHDMI(counterX_reg_q_q, counterY_reg_q_q);
     assign videoClock = clock ^ `INVERT_VIDEO_CLOCK; 
 
 endmodule
