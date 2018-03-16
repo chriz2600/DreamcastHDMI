@@ -45,21 +45,6 @@ module ram2video(
     reg add_line_reg = 1'b0;
     reg field_reg = 1'b0;
 
-    wire [9:0] w2addr;
-    wire [23:0] w2data;
-    wire w2en;
-    wire [9:0] r2addr;
-    wire [23:0] r2data;
-
-    line_buffer	line_buffer_inst (
-        .clock(clock),
-        .data(w2data),
-        .rdaddress(r2addr),
-        .wraddress(w2addr),
-        .wren(w2en),
-        .q(r2data)
-    );
-
     initial begin
         counterX_reg <= 0;
         counterY_reg <= 0;
@@ -165,27 +150,11 @@ module ram2video(
 
     `define counterXvga(x) ((`PIXEL_FACTOR == 2 ? x[11:1] : x[10:0]) - (`HORIZONTAL_OFFSET / `PIXEL_FACTOR))
 
-    `define counterYvga(y) ((`PIXEL_FACTOR == 2 ? y[11:1] : y[10:0]) - (`VERTICAL_OFFSET / `PIXEL_FACTOR))
-
     `define GetAddr_(x, y) ((`counterXvga(x) * (y % `BUFFER_SIZE)) + `counterXvga(x))
     `define GetAddr(x, y) (`IsDrawAreaVGA(x, y) ? `GetAddr_(x, y) : `RAM_ADDRESS_BITS'd0)
-    `define GetAddrLine(x, y) (`IsDrawAreaVGA(x, y) ? `counterXvga(x) : `RAM_ADDRESS_BITS'd0)
-    `define MustShiftLine(f, y) (f == 1 && (`counterYvga(y) % 2) == 0)
-
-    `define GetData(t,b) (`IsDrawAreaVGA(counterX_reg_q_q, counterY_reg_q_q) \
-        ? (0/*field_reg == 1*/ \
-            ? ((`counterYvga(counterY_reg_q_q) == 0) \
-                ? 8'h00 \
-                : r2data[t:b]) \
-            : rddata[t:b]) \
-        : 8'h00)
+    `define GetData(t,b) (`IsDrawAreaVGA(counterX_reg_q_q, counterY_reg_q_q) ? rddata[t:b] : 8'h00)
 
     assign rdaddr = `GetAddr(counterX_reg, counterY_reg);
-    assign r2addr = `GetAddrLine(counterX_reg, counterY_reg);
-    assign w2addr = `GetAddrLine(counterX_reg_q_q, counterY_reg_q_q);
-    assign w2data = rddata;
-    assign w2en = `MustShiftLine(field_reg, counterY_reg);
-
     assign red = `GetData(23, 16);
     assign green = `GetData(15, 8);
     assign blue = `GetData(7, 0);
