@@ -43,12 +43,14 @@ module ram2video(
     reg trigger = 1'b0;
     reg line_doubler_reg = 1'b0;
     reg add_line_reg = 1'b0;
-    
+    reg field_reg = 1'b0;
+
     initial begin
         counterX_reg <= 0;
         counterY_reg <= 0;
         hsync_reg_q <= ~`HORIZONTAL_SYNC_ON_POLARITY;
         vsync_reg_q <= ~`VERTICAL_SYNC_ON_POLARITY;
+        field_reg <= 0;
     end
     
     task doReset;
@@ -60,6 +62,7 @@ module ram2video(
             counterY_reg <= `VERTICAL_OFFSET;
             hsync_reg_q <= ~`HORIZONTAL_SYNC_ON_POLARITY;
             vsync_reg_q <= ~`VERTICAL_SYNC_ON_POLARITY;
+            field_reg <= 0;
         end
     endtask	
 
@@ -100,26 +103,34 @@ module ram2video(
                         counterY_reg <= counterY_reg + 1'b1;
                     end else begin
                         counterY_reg <= 0;
+
+                        if (line_doubler_reg) begin
+                            field_reg <= ~field_reg;
+                        end else begin
+                            field_reg <= 0;
+                        end
                     end
                 end
 
+                // generate output hsync
                 if (counterX_reg_q >= `HORIZONTAL_SYNC_START && counterX_reg_q < `HORIZONTAL_SYNC_START + `HORIZONTAL_SYNC_WIDTH) begin
                     hsync_reg_q <= `HORIZONTAL_SYNC_ON_POLARITY;
                 end else begin
                     hsync_reg_q <= ~`HORIZONTAL_SYNC_ON_POLARITY;
                 end
 
+                // generate output vsync
                 if (counterY_reg_q >= `VERTICAL_SYNC_START && counterY_reg_q < `VERTICAL_SYNC_START + `VERTICAL_SYNC_WIDTH + 1) begin // + 1: synchronize last vsync period with hsync negative edge
                     if ((counterY_reg_q == `VERTICAL_SYNC_START && counterX_reg_q < `HORIZONTAL_SYNC_START) 
                      || (counterY_reg_q == `VERTICAL_SYNC_START + `VERTICAL_SYNC_WIDTH && counterX_reg_q >= `HORIZONTAL_SYNC_START)) begin
-                        vsync_reg_q <= `VERTICAL_SYNC_ON_POLARITY;
+                        vsync_reg_q <= ~`VERTICAL_SYNC_ON_POLARITY; // OFF
                     end else begin
-                        vsync_reg_q <= ~`VERTICAL_SYNC_ON_POLARITY;
+                        vsync_reg_q <= `VERTICAL_SYNC_ON_POLARITY; // ON
                     end
                 end else begin
-                    vsync_reg_q <= `VERTICAL_SYNC_ON_POLARITY;
+                    vsync_reg_q <= ~`VERTICAL_SYNC_ON_POLARITY; // OFF
                 end
-                
+
                 counterX_reg_q <= counterX_reg;
                 counterY_reg_q <= counterY_reg;
                 counterX_reg_q_q <= counterX_reg_q;
@@ -136,7 +147,7 @@ module ram2video(
                                 && y >= `VERTICAL_OFFSET \
                                 && y < `VERTICAL_LINES_VISIBLE - `VERTICAL_OFFSET)
 
-    `define counterXvga(x) ((`PIXEL_FACTOR == 2 ? x[11:1] : x[10:0])  - (`HORIZONTAL_OFFSET / `PIXEL_FACTOR))
+    `define counterXvga(x) ((`PIXEL_FACTOR == 2 ? x[11:1] : x[10:0]) - (`HORIZONTAL_OFFSET / `PIXEL_FACTOR))
 
     assign rdaddr = (
            `IsDrawAreaVGA(counterX_reg, counterY_reg)
