@@ -29,6 +29,7 @@ Core/pll_tx_cyclone4_vga_sim.f
 Core/DCx.map.smsg
 Core/output_files/
 Core/DCxPlus.ipregen.rpt
+Core/.environment
 *.BAK.v
 prep/*
 notes

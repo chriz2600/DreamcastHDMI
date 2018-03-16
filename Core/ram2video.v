@@ -182,7 +182,7 @@ module ram2video(
 
     assign rdaddr = `GetAddr(counterX_reg, counterY_reg);
     assign r2addr = `GetAddrLine(counterX_reg, counterY_reg);
-    assign w2addr = `GetAddrLine(counterX_reg, counterY_reg);
+    assign w2addr = `GetAddrLine(counterX_reg_q_q, counterY_reg_q_q);
     assign w2data = rddata;
     assign w2en = `MustShiftLine(field_reg, counterY_reg);
 

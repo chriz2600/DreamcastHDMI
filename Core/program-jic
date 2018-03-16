@@ -1,0 +1,23 @@
+#!/bin/bash
+
+cd $(dirname $0)
+
+if [ -f ".environment" ] ; then
+    source ".environment"
+fi
+
+if [ "$1" ] ; then
+    PGM="$1"
+fi
+
+function docker_run {
+    docker run --rm -it \
+        -e "JTAG_SERVER=$JTAG_SERVER" \
+        -e "JTAG_PASSWD=$JTAG_PASSWD" \
+        -v $(pwd):/build \
+        chriz2600/quartus-lite:latest \
+        /usr/local/bin/quartus_wrapper "$@"
+}
+
+PROGRAMMER=$(docker_run jtagconfig --enum | head -n 1 | sed 's/1) //')
+docker_run quartus_pgm -c "$PROGRAMMER" -m jtag -o "ipv;$PGM"
