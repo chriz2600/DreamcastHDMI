@@ -146,7 +146,8 @@ ram2video ram2video(
     .blue(BLUE),
     .green(GREEN),
     .rdaddr(ram_rdaddress),
-    .red(RED));
+    .red(RED)
+);
 
 ADV7513 adv7513(
     .clk(hdmi_clock),

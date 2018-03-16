@@ -97,5 +97,4 @@ module video2ram(
     assign wrdata = wrdata_reg;
     assign starttrigger = trigger;
     
-    
 endmodule
