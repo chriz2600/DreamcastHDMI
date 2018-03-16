@@ -173,7 +173,7 @@ module ram2video(
     `define MustShiftLine(f, y) (f == 1 && (`counterYvga(y) % 2) == 0)
 
     `define GetData(t,b) (`IsDrawAreaVGA(counterX_reg_q_q, counterY_reg_q_q) \
-        ? (`MustShiftLine(field_reg, counterY_reg_q_q) \
+        ? (0/*field_reg == 1*/ \
             ? ((`counterYvga(counterY_reg_q_q) == 0) \
                 ? 8'h00 \
                 : r2data[t:b]) \
