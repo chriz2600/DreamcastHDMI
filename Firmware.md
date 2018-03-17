@@ -32,8 +32,8 @@ The firmware files come in two variants:
 
 This version is intended for citrus3000psi DCHDMI 1.1 ([Mainboard][citrus3000psi-oshpark-mainboard] / [QSB][citrus3000psi-oshpark-qsb]). There is also a firmware for DCHDMI 1.0, mainly because I have a working 1.0 board at the moment :)
 
-[master firmware files][master-artifact]
-[v0.2 firmware files][v0_2-artifact]<br>
+[master firmware files][master-artifact]<br>
+[v0.2 firmware files][v0_2-artifact]
 
 - `DCxPlus-10CL025`
 
