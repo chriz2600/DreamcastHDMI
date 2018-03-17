@@ -17,4 +17,6 @@
 // common variables
 `define STARTUP_TIME_IN_MILLIS 200
 
+`define BUFFER_LINE_LENGTH `RAM_ADDRESS_BITS'd640
+
 `endif

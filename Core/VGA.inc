@@ -33,7 +33,6 @@
 `define RAM_NUMWORDS                   640
 `define RAM_ADDRESS_BITS                12
 `define BUFFER_SIZE                   8'd1
-//`define TRIGGER_ADDR                 15'd48
 `define TRIGGER_ADDR                 15'd320
 
 `endif

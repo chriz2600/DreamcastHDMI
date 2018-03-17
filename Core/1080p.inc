@@ -21,7 +21,7 @@
 `define VERTICAL_SYNC_WIDTH          11'd5
 `define VERTICAL_SYNC_ON_POLARITY     1'b1
 
-`define HORIZONTAL_OFFSET            10'd240
+`define HORIZONTAL_OFFSET            10'd320
 `define VERTICAL_OFFSET              10'd60
 `define PIXEL_FACTOR                  2'd2
 
@@ -32,7 +32,7 @@
 
 `define RAM_NUMWORDS                 21120
 `define RAM_ADDRESS_BITS                15
-`define BUFFER_SIZE                   8'd33
-`define TRIGGER_ADDR                 15'd21087
+`define BUFFER_SIZE                  8'd33
+`define TRIGGER_ADDR             15'd20768
 
 `endif

@@ -149,8 +149,9 @@ module ram2video(
                                 && y < `VERTICAL_LINES_VISIBLE - `VERTICAL_OFFSET)
 
     `define counterXvga(x) ((`PIXEL_FACTOR == 2 ? x[11:1] : x[10:0]) - (`HORIZONTAL_OFFSET / `PIXEL_FACTOR))
+    `define counterYvga(y) ((`PIXEL_FACTOR == 2 ? y[11:1] : y[10:0]) - (`VERTICAL_OFFSET / `PIXEL_FACTOR))
 
-    `define GetAddr_(x, y) ((`counterXvga(x) * (y % `BUFFER_SIZE)) + `counterXvga(x))
+    `define GetAddr_(x, y) ((`BUFFER_LINE_LENGTH * (`counterYvga(y) % `BUFFER_SIZE)) + `counterXvga(x))
     `define GetAddr(x, y) (`IsDrawAreaVGA(x, y) ? `GetAddr_(x, y) : `RAM_ADDRESS_BITS'd0)
     `define GetData(t,b) (`IsDrawAreaVGA(counterX_reg_q_q, counterY_reg_q_q) ? rddata[t:b] : 8'h00)
 
