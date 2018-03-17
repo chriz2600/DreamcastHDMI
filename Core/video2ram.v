@@ -45,7 +45,7 @@ module video2ram(
     end
     
     `define GetWriteAddr(x, y) ((`BUFFER_LINE_LENGTH * ((y - V_CAPTURE_START) % `BUFFER_SIZE)) + (x - H_CAPTURE_START))
-    `define IsFirstBuffer(y)   ((y - V_CAPTURE_START) <= `BUFFER_SIZE)
+    `define IsFirstBuffer(y)   ((y - V_CAPTURE_START) < `BUFFER_SIZE)
     `define IsTriggerPoint(x, y) (`IsFirstBuffer(y) && `GetWriteAddr(x, y) == `TRIGGER_ADDR)
 
     always @ (posedge clock) begin
