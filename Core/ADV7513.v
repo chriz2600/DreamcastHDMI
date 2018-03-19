@@ -130,7 +130,7 @@ always @ (posedge clk) begin
                                                               // [3:2]: fixed = 0b01
                                                               // [1]:   HDMI/DVI mode select = 0b1, HDMI mode
                                                               // [0]:   fixed = 0b0
-                        14: write_i2c(CHIP_ADDR, 16'h_BA_00); // [7:5]: clock delay, 0b011 no delay
+                        14: write_i2c(CHIP_ADDR, 16'h_BA_60); // [7:5]: clock delay, 0b011 no delay
                                                               // [4]:   hdcp eprom, 0b0 external
                                                               // [3]:   fixed, 0b0
                                                               // [2]:   display aksv, 0b0 don't show

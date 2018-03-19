@@ -45,12 +45,17 @@ module ram2video(
     reg add_line_reg = 1'b0;
     reg field_reg = 1'b0;
 
+    reg vga_h_offset;
+    reg vga_v_offset;
+
     initial begin
         counterX_reg <= 0;
         counterY_reg <= 0;
         hsync_reg_q <= ~`HORIZONTAL_SYNC_ON_POLARITY;
         vsync_reg_q <= ~`VERTICAL_SYNC_ON_POLARITY;
         field_reg <= 0;
+        vga_h_offset <= `HORIZONTAL_OFFSET / `PIXEL_FACTOR;
+        vga_v_offset <= `VERTICAL_OFFSET / `PIXEL_FACTOR;
     end
     
     task doReset;
@@ -63,6 +68,8 @@ module ram2video(
             hsync_reg_q <= ~`HORIZONTAL_SYNC_ON_POLARITY;
             vsync_reg_q <= ~`VERTICAL_SYNC_ON_POLARITY;
             field_reg <= 0;
+            vga_h_offset <= `HORIZONTAL_OFFSET / `PIXEL_FACTOR;
+            vga_v_offset <= `VERTICAL_OFFSET / `PIXEL_FACTOR;
         end
     endtask	
 
@@ -148,8 +155,8 @@ module ram2video(
                                 && y >= `VERTICAL_OFFSET \
                                 && y < `VERTICAL_LINES_VISIBLE - `VERTICAL_OFFSET)
 
-    `define counterXvga(x) ((`PIXEL_FACTOR == 2 ? x[11:1] : x[10:0]) - (`HORIZONTAL_OFFSET / `PIXEL_FACTOR))
-    `define counterYvga(y) ((`PIXEL_FACTOR == 2 ? y[11:1] : y[10:0]) - (`VERTICAL_OFFSET / `PIXEL_FACTOR))
+    `define counterXvga(x) ((`PIXEL_FACTOR == 2 ? x[11:1] : x[10:0]) - vga_h_offset)
+    `define counterYvga(y) ((`PIXEL_FACTOR == 2 ? y[11:1] : y[10:0]) - vga_v_offset)
 
     `define GetAddr_(x, y) ((`BUFFER_LINE_LENGTH * (`counterYvga(y) % `BUFFER_SIZE)) + `counterXvga(x))
     `define GetAddr(x, y) (`IsDrawAreaVGA(x, y) ? `GetAddr_(x, y) : `RAM_ADDRESS_BITS'd0)

@@ -1,6 +1,6 @@
 create_clock -period 54Mhz -name clk54 [get_ports clock54]
 create_clock -period 74.25Mhz -name clk74_175824 [get_ports clock74_175824]
-create_clock -period 27Mhz -name clk27 data:video_input|raw_counterX_reg[0]
+create_clock -period 27Mhz -name clk27 {data:video_input|raw_counterX_reg[0]}
 
 derive_pll_clocks -create_base_clocks
 
