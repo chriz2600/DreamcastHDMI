@@ -30,6 +30,8 @@ module video2ram(
     reg [11:0] tmp;
     reg trigger = 0;
 
+    reg [`RAM_ADDRESS_BITS-1:0] ram_addrY_reg = 0;
+
     always @(*) begin
         if (line_doubler) begin
             H_CAPTURE_START = 10'd1;
@@ -44,16 +46,30 @@ module video2ram(
         end
     end
     
-    `define GetWriteAddr(x, y) ((`BUFFER_LINE_LENGTH * ((y - V_CAPTURE_START) % `BUFFER_SIZE)) + (x - H_CAPTURE_START))
+    //`define GetWriteAddr(x, y) ((`BUFFER_LINE_LENGTH * ((y - V_CAPTURE_START) % `BUFFER_SIZE)) + (x - H_CAPTURE_START))
+    `define GetWriteAddr(x) (ram_addrY_reg + (x - H_CAPTURE_START))
     `define IsFirstBuffer(y)   ((y - V_CAPTURE_START) < `BUFFER_SIZE)
-    `define IsTriggerPoint(x, y) (`IsFirstBuffer(y) && `GetWriteAddr(x, y) == `TRIGGER_ADDR)
+    `define IsTriggerPoint(y) (`IsFirstBuffer(y) && wraddr_reg == `TRIGGER_ADDR)
 
     always @ (posedge clock) begin
     
+        if (counterX == 0) begin // once per line
+            // TODO: for line doubler reset addr on second field
+            if (counterY > V_CAPTURE_START) begin
+                if (ram_addrY_reg < `RAM_NUMWORDS - `BUFFER_LINE_LENGTH) begin
+                    ram_addrY_reg <= ram_addrY_reg + `BUFFER_LINE_LENGTH;
+                end else begin
+                    ram_addrY_reg <= 0;
+                end
+            end else begin
+                ram_addrY_reg <= 0;
+            end
+        end
+
         if (line_doubler) begin
             // 480i/240p mode
             if (counterX >= H_CAPTURE_START && counterX < H_CAPTURE_END) begin
-                wraddr_reg <= `GetWriteAddr(counterX, counterY);
+                wraddr_reg <= `GetWriteAddr(counterX);
                 
                 if (counterY < 240 || (counterY > 262 && counterY < 504)) begin
                     wren_reg <= 1;
@@ -62,7 +78,7 @@ module video2ram(
                     wren_reg <= 0;
                 end
                 
-                if (`IsTriggerPoint(counterX, counterY)) begin
+                if (`IsTriggerPoint(counterY)) begin
                     trigger <= 1'b1;
                 end else begin
                     trigger <= 1'b0;
@@ -76,10 +92,10 @@ module video2ram(
             // 480p mode
             if (counterY >= V_CAPTURE_START && counterY < V_CAPTURE_END && counterX >= H_CAPTURE_START && counterX < H_CAPTURE_END) begin
                 wren_reg <= 1;
-                wraddr_reg <= `GetWriteAddr(counterX, counterY);
+                wraddr_reg <= `GetWriteAddr(counterX);
                 wrdata_reg <= { R, G, B };
-                
-                if (`IsTriggerPoint(counterX, counterY)) begin
+
+                if (`IsTriggerPoint(counterY)) begin
                     trigger <= 1'b1;
                 end else begin
                     trigger <= 1'b0;

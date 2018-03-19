@@ -32,8 +32,7 @@
 
 `define RAM_ADDRESS_BITS                15
 `define BUFFER_SIZE                  8'd33
-//`define RAM_ADDRESS_BITS                14
-//`define BUFFER_SIZE                  8'd16
+
 `define TRIGGER_ADDR (`RAM_NUMWORDS - 352)
 
 
