@@ -88,7 +88,7 @@ set_location_assignment PIN_49 -to BLUE[1]
 set_location_assignment PIN_46 -to BLUE[0]
 
 ####################################################
-# PLL placement
+# PLL placement for pinout
 ####################################################
 set_location_assignment PLL_1 -to "pll54:pll54|altpll:altpll_component"
 set_location_assignment PLL_4 -to "pll74:pll74|altpll:altpll_component"

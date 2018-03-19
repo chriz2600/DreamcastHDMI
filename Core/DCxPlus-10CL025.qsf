@@ -41,6 +41,5 @@ set_global_assignment -name DEVICE 10CL025YE144C8G
 
 # -------------------------------------------------
 source Base.qsf
-source Pins.qsf
+source Pins-1.1.qsf
 # -------------------------------------------------
-

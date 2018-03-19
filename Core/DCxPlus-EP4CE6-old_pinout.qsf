@@ -42,5 +42,5 @@ set_global_assignment -name DEVICE EP4CE6E22C8
 
 # -------------------------------------------------
 source Base.qsf
-source Pins-old_pinout.qsf
+source Pins-1.0.qsf
 # -------------------------------------------------
