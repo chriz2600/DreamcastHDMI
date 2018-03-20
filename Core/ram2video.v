@@ -104,7 +104,7 @@ module ram2video(
                 if (counterX_reg < `HORIZONTAL_PIXELS_PER_LINE - 1) begin
                     counterX_reg <= counterX_reg + 1'b1;
 
-                    if (counterX_reg >= `HORIZONTAL_OFFSET - 1) begin
+                    if (counterX_reg + 1 >= `HORIZONTAL_OFFSET) begin
                         if (ram_addrX_reg < `BUFFER_LINE_LENGTH - 1) begin
                             if ((`PIXEL_FACTOR == 2 && counterX_reg[0]) 
                               || `PIXEL_FACTOR == 1 ) begin
@@ -121,7 +121,7 @@ module ram2video(
                     if (counterY_reg < vlines - 1) begin
                         counterY_reg <= counterY_reg + 1'b1;
 
-                        if (counterY_reg >= `VERTICAL_OFFSET - 1) begin
+                        if (counterY_reg + 1 >= `VERTICAL_OFFSET) begin
                             if (ram_addrY_reg < `RAM_NUMWORDS - `BUFFER_LINE_LENGTH) begin
                                 if ((`PIXEL_FACTOR == 2 && counterY_reg[0]) 
                                   || `PIXEL_FACTOR == 1 ) begin
