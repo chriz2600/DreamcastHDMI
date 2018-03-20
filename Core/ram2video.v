@@ -97,12 +97,12 @@ module ram2video(
         if (~reset || config_change) begin
             doReset(1'b0);
         end else begin
-            if (!trigger) begin
-                // wait for trigger to start
-                if (starttrigger) begin
-                    doReset(1'b1);
-                end
-            end else begin
+            // wait for trigger to start
+            if (!trigger && starttrigger) begin
+                doReset(1'b1);
+            end
+
+            if (trigger) begin
                 // trigger is set, output data
                 if (counterX_reg < `HORIZONTAL_PIXELS_PER_LINE - 1) begin
                     counterX_reg <= counterX_reg + 1'b1;
