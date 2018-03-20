@@ -44,18 +44,31 @@ module ram2video(
     reg [`RAM_ADDRESS_BITS-1:0] ram_addrY_reg;
 
     reg trigger = 1'b0;
-    reg line_doubler_reg = 1'b0;
-    reg add_line_reg = 1'b0;
-    reg field_reg = 1'b0;
+
+    wire ld_rise;
+    wire ld_fall;
+    wire al_rise;
+    wire al_fall;
+
+    wire config_change;
+    assign config_change = ld_rise || ld_fall || al_rise || al_fall;
+
+    edge_detect lineDoubler(
+        .async_sig(line_doubler),
+        .clk(clock),
+        .rise(ld_rise),
+        .fall(ld_fall)
+    );
+
+    edge_detect addLine(
+        .async_sig(add_line),
+        .clk(clock),
+        .rise(al_rise),
+        .fall(al_fall)
+    );
 
     initial begin
-        counterX_reg <= 0;
-        counterY_reg <= 0;
-        hsync_reg_q <= ~`HORIZONTAL_SYNC_ON_POLARITY;
-        vsync_reg_q <= ~`VERTICAL_SYNC_ON_POLARITY;
-        field_reg <= 0;
-        ram_addrX_reg <= 0;
-        ram_addrY_reg <= 0;
+        doReset(1'b0);
     end
     
     task doReset;
@@ -67,7 +80,6 @@ module ram2video(
             counterY_reg <= `VERTICAL_OFFSET;
             hsync_reg_q <= ~`HORIZONTAL_SYNC_ON_POLARITY;
             vsync_reg_q <= ~`VERTICAL_SYNC_ON_POLARITY;
-            field_reg <= 0;
             ram_addrX_reg <= 0;
             ram_addrY_reg <= 0;
         end
@@ -75,32 +87,23 @@ module ram2video(
 
     always @(*) begin
         if (add_line) begin
-            vlines = `VERTICAL_LINES_INTERLACED;
+            vlines <= `VERTICAL_LINES_INTERLACED;
         end else begin
-            vlines = `VERTICAL_LINES;
+            vlines <= `VERTICAL_LINES;
         end
     end
     
     always @(posedge clock) begin
-        if (~reset) begin
+        if (~reset || config_change) begin
             doReset(1'b0);
         end else begin
-            if (!trigger && starttrigger) begin
-                doReset(1'b1);
-            end
-            
-            line_doubler_reg <= line_doubler;
-            if (line_doubler != line_doubler_reg) begin
-                doReset(1'b0);
-            end
-
-            add_line_reg <= add_line;
-            if (add_line != add_line_reg) begin
-                doReset(1'b0);
-            end
-        
-            if (trigger) begin
-                
+            if (!trigger) begin
+                // wait for trigger to start
+                if (starttrigger) begin
+                    doReset(1'b1);
+                end
+            end else begin
+                // trigger is set, output data
                 if (counterX_reg < `HORIZONTAL_PIXELS_PER_LINE - 1) begin
                     counterX_reg <= counterX_reg + 1'b1;
 
@@ -134,13 +137,6 @@ module ram2video(
                     end else begin
                         counterY_reg <= 0;
                         ram_addrY_reg <= 0;
-
-                        // switch fields for 480i
-                        if (line_doubler_reg && !add_line_reg) begin
-                            field_reg <= ~field_reg;
-                        end else begin
-                            field_reg <= 0;
-                        end
                     end
                 end
 

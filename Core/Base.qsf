@@ -33,6 +33,7 @@ set_global_assignment -name VERILOG_FILE I2C_read.v
 set_global_assignment -name VHDL_FILE i2c_master.vhd
 set_global_assignment -name VERILOG_FILE data.v
 set_global_assignment -name VERILOG_FILE ADV7513.v
+set_global_assignment -name VERILOG_FILE edge_detect.v
 set_global_assignment -name QIP_FILE pll54.qip
 set_global_assignment -name QIP_FILE pll74.qip
 set_global_assignment -name QIP_FILE ram.qip
