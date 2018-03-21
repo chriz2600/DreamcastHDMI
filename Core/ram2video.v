@@ -50,8 +50,8 @@ module ram2video(
     wire al_rise;
     wire al_fall;
 
-    wire config_change;
-    assign config_change = ld_rise || ld_fall || al_rise || al_fall;
+    wire combined_reset;
+    assign combined_reset = ~reset || ld_rise || ld_fall || al_rise || al_fall;
 
     edge_detect lineDoubler(
         .async_sig(line_doubler),
@@ -94,76 +94,70 @@ module ram2video(
     end
     
     always @(posedge clock) begin
-        if (~reset || config_change) begin
+        if (combined_reset) begin
             doReset(1'b0);
-        end else begin
+        end else if (!trigger) begin
             // wait for trigger to start
-            if (!trigger && starttrigger) begin
+            if (starttrigger) begin
                 doReset(1'b1);
             end
+        end else begin
+            // trigger is set, output data
+            if (counterX_reg < `HORIZONTAL_PIXELS_PER_LINE - 1) begin
+                counterX_reg <= counterX_reg + 1'b1;
 
-            if (trigger) begin
-                // trigger is set, output data
-                if (counterX_reg < `HORIZONTAL_PIXELS_PER_LINE - 1) begin
-                    counterX_reg <= counterX_reg + 1'b1;
-
-                    if (counterX_reg + 1 >= `HORIZONTAL_OFFSET) begin
-                        if (ram_addrX_reg < `BUFFER_LINE_LENGTH - 1) begin
-                            if ((`PIXEL_FACTOR == 2 && counterX_reg[0]) 
-                              || `PIXEL_FACTOR == 1 ) begin
-                                ram_addrX_reg <= ram_addrX_reg + 1'b1;
-                            end
-                        end else begin
-                            ram_addrX_reg <= 0;
-                        end
-                    end
+                if (counterX_reg + 1 >= `HORIZONTAL_OFFSET
+                    && ram_addrX_reg < `BUFFER_LINE_LENGTH - 1
+                    && ((`PIXEL_FACTOR == 2 && counterX_reg[0])
+                         || `PIXEL_FACTOR == 1)) begin
+                    ram_addrX_reg <= ram_addrX_reg + 1'b1;
                 end else begin
-                    counterX_reg <= 0;
                     ram_addrX_reg <= 0;
-                
-                    if (counterY_reg < vlines - 1) begin
-                        counterY_reg <= counterY_reg + 1'b1;
+                end
+            end else begin
+                counterX_reg <= 0;
+                ram_addrX_reg <= 0;
 
-                        if (counterY_reg + 1 >= `VERTICAL_OFFSET) begin
-                            if (ram_addrY_reg < `RAM_NUMWORDS - `BUFFER_LINE_LENGTH) begin
-                                if ((`PIXEL_FACTOR == 2 && counterY_reg[0]) 
-                                  || `PIXEL_FACTOR == 1 ) begin
-                                    ram_addrY_reg <= ram_addrY_reg + `BUFFER_LINE_LENGTH;
-                                end
-                            end else begin
-                                ram_addrY_reg <= 0;
-                            end
-                        end
+                if (counterY_reg < vlines - 1) begin
+                    counterY_reg <= counterY_reg + 1'b1;
+
+                    if (counterY_reg + 1 >= `VERTICAL_OFFSET
+                        && ram_addrY_reg < `RAM_NUMWORDS - `BUFFER_LINE_LENGTH
+                        && ((`PIXEL_FACTOR == 2 && counterY_reg[0])
+                             || `PIXEL_FACTOR == 1)) begin
+                        ram_addrY_reg <= ram_addrY_reg + `BUFFER_LINE_LENGTH;
                     end else begin
-                        counterY_reg <= 0;
                         ram_addrY_reg <= 0;
                     end
-                end
-
-                // generate output hsync
-                if (counterX_reg_q >= `HORIZONTAL_SYNC_START && counterX_reg_q < `HORIZONTAL_SYNC_START + `HORIZONTAL_SYNC_WIDTH) begin
-                    hsync_reg_q <= `HORIZONTAL_SYNC_ON_POLARITY;
                 end else begin
-                    hsync_reg_q <= ~`HORIZONTAL_SYNC_ON_POLARITY;
+                    counterY_reg <= 0;
+                    ram_addrY_reg <= 0;
                 end
-
-                // generate output vsync
-                if (counterY_reg_q >= `VERTICAL_SYNC_START && counterY_reg_q < `VERTICAL_SYNC_START + `VERTICAL_SYNC_WIDTH + 1) begin // + 1: synchronize last vsync period with hsync negative edge
-                    if ((counterY_reg_q == `VERTICAL_SYNC_START && counterX_reg_q < `HORIZONTAL_SYNC_START) 
-                     || (counterY_reg_q == `VERTICAL_SYNC_START + `VERTICAL_SYNC_WIDTH && counterX_reg_q >= `HORIZONTAL_SYNC_START)) begin
-                        vsync_reg_q <= ~`VERTICAL_SYNC_ON_POLARITY; // OFF
-                    end else begin
-                        vsync_reg_q <= `VERTICAL_SYNC_ON_POLARITY; // ON
-                    end
-                end else begin
-                    vsync_reg_q <= ~`VERTICAL_SYNC_ON_POLARITY; // OFF
-                end
-
-                counterX_reg_q <= counterX_reg;
-                counterY_reg_q <= counterY_reg;
-                counterX_reg_q_q <= counterX_reg_q;
-                counterY_reg_q_q <= counterY_reg_q;
             end
+
+            // generate output hsync
+            if (counterX_reg_q >= `HORIZONTAL_SYNC_START && counterX_reg_q < `HORIZONTAL_SYNC_START + `HORIZONTAL_SYNC_WIDTH) begin
+                hsync_reg_q <= `HORIZONTAL_SYNC_ON_POLARITY;
+            end else begin
+                hsync_reg_q <= ~`HORIZONTAL_SYNC_ON_POLARITY;
+            end
+
+            // generate output vsync
+            if (counterY_reg_q >= `VERTICAL_SYNC_START && counterY_reg_q < `VERTICAL_SYNC_START + `VERTICAL_SYNC_WIDTH + 1) begin // + 1: synchronize last vsync period with hsync negative edge
+                if ((counterY_reg_q == `VERTICAL_SYNC_START && counterX_reg_q < `HORIZONTAL_SYNC_START) 
+                    || (counterY_reg_q == `VERTICAL_SYNC_START + `VERTICAL_SYNC_WIDTH && counterX_reg_q >= `HORIZONTAL_SYNC_START)) begin
+                    vsync_reg_q <= ~`VERTICAL_SYNC_ON_POLARITY; // OFF
+                end else begin
+                    vsync_reg_q <= `VERTICAL_SYNC_ON_POLARITY; // ON
+                end
+            end else begin
+                vsync_reg_q <= ~`VERTICAL_SYNC_ON_POLARITY; // OFF
+            end
+
+            counterX_reg_q <= counterX_reg;
+            counterY_reg_q <= counterY_reg;
+            counterX_reg_q_q <= counterX_reg_q;
+            counterY_reg_q_q <= counterY_reg_q;
         end
     end
 
@@ -176,6 +170,7 @@ module ram2video(
                                 && y < `VERTICAL_LINES_VISIBLE - `VERTICAL_OFFSET)
 
     `define GetAddr(x, y) (`IsDrawAreaVGA(x, y) ? ram_addrY_reg + ram_addrX_reg : `RAM_ADDRESS_BITS'd0)
+    //`define GetAddr(x, y) (ram_addrY_reg + ram_addrX_reg)
     `define GetData(t,b) (`IsDrawAreaVGA(counterX_reg_q_q, counterY_reg_q_q) ? rddata[t:b] : 8'h00)
 
     assign rdaddr = `GetAddr(counterX_reg, counterY_reg);

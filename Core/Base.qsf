@@ -56,6 +56,7 @@ set_global_assignment -name OPTIMIZATION_MODE "AGGRESSIVE PERFORMANCE"
 set_global_assignment -name ROUTER_CLOCKING_TOPOLOGY_ANALYSIS ON
 set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 8.0
 set_global_assignment -name ROUTER_EFFORT_MULTIPLIER 2.0
+set_global_assignment -name ROUTER_CLOCKING_TOPOLOGY_ANALYSIS ON
 set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE SPEED
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
 set_global_assignment -name FITTER_EFFORT "AUTO FIT"
