@@ -5,6 +5,11 @@
 // 
 // 960p
 //
+// pixel clock and horizontal pixel values
+// are half the actual value, because ADV7513's 
+// pixel repetition feature is used to create 
+// the rx clock
+//
 `define ASPECT_R                      2'b0
 `define PIXEL_CLK               54_000_000
 
@@ -27,7 +32,7 @@
 `define PIXEL_REPETITION
 
 `define PLL_CLK0_DIVIDE_BY              11
-`define PLL_CLK0_MULTIPLY_BY            16
+`define PLL_CLK0_MULTIPLY_BY             8
 
 `define INVERT_VIDEO_CLOCK            1'b0
 

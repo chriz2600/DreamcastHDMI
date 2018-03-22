@@ -5,6 +5,11 @@
 // 
 // 1080p
 //
+// pixel clock and horizontal pixel values
+// are half the actual value, because ADV7513's 
+// pixel repetition feature is used to create 
+// the rx clock
+//
 `define ASPECT_R                      2'b10
 `define PIXEL_CLK                74_250_000
 
@@ -34,9 +39,6 @@
 `define RAM_ADDRESS_BITS                15
 `define BUFFER_SIZE                  8'd33
 `define RAM_NUMWORDS                 21120
-//`define RAM_ADDRESS_BITS                14
-//`define BUFFER_SIZE                  8'd16
-//`define RAM_NUMWORDS                 10240
 `define TRIGGER_ADDR (`RAM_NUMWORDS - 352)
 
 
