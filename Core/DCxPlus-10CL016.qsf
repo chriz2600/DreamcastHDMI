@@ -42,5 +42,11 @@ set_global_assignment -name DEVICE 10CL016YE144C8G
 
 # -------------------------------------------------
 source Base.qsf
-source Pins-1.1.qsf
+source Pins-1.2.qsf
 # -------------------------------------------------
+
+####################################################
+# PLL placement for pinout
+####################################################
+set_location_assignment PLL_1 -to "pll54:pll54|altpll:altpll_component"
+set_location_assignment PLL_4 -to "pll74:pll74|altpll:altpll_component"
