@@ -108,9 +108,7 @@ module ram2video(
 
                 if (counterX_reg >= `HORIZONTAL_OFFSET
                  && ram_addrX_reg < `BUFFER_LINE_LENGTH - 1) begin
-                    if (`PIXEL_FACTOR == 1 || counterX_reg[0]) begin
-                        ram_addrX_reg <= ram_addrX_reg + 1'b1;
-                    end
+                    ram_addrX_reg <= ram_addrX_reg + 1'b1;
                 end else begin
                     ram_addrX_reg <= 0;
                 end
@@ -123,9 +121,13 @@ module ram2video(
 
                     if (counterY_reg >= `VERTICAL_OFFSET
                      && ram_addrY_reg < `RAM_NUMWORDS - `BUFFER_LINE_LENGTH) begin
-                        if (`PIXEL_FACTOR == 1 || counterY_reg[0]) begin
+`ifdef PIXEL_REPETITION
+                        if (counterY_reg[0]) begin
                             ram_addrY_reg <= ram_addrY_reg + `BUFFER_LINE_LENGTH;
                         end
+`else
+                        ram_addrY_reg <= ram_addrY_reg + `BUFFER_LINE_LENGTH;
+`endif
                     end else begin
                         ram_addrY_reg <= 0;
                     end

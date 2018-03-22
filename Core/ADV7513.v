@@ -174,6 +174,16 @@ always @ (posedge clk) begin
                                                               // [1]:   HDCP authenticated interrupt = 0b0, no interrupt detected
                                                               // [0]:   fixed = 0b0
                                                               // -> clears interrupt state
+`ifdef PIXEL_REPETITION
+                        24: write_i2c(CHIP_ADDR, 16'h_3B_C8); // [7]:   fixed = 0b1
+                                                              // [6:5]: PR Mode = 0b10, manual mode
+                                                              // [4:3]: PR PLL Manual = 0b01, x2
+                                                              // [2:1]: PR Value Manual = 0b00, x1 to rx
+                                                              // [0]:   fixed = 0b0
+                        25: write_i2c(CHIP_ADDR, 16'h_3C_00
+                                              | `VIC_MANUAL); // [5:0]: VIC Manual = 010000, VIC#16: 1080p-60, 16:9
+                                                              //                     000000, VIC#0: VIC Unavailable
+`endif
                         default: begin
                             // todo monitor PLL locked state bef
                             cmd_counter <= 0;
