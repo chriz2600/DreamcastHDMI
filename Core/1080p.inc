@@ -23,7 +23,7 @@
 
 `define HORIZONTAL_OFFSET            10'd320
 `define VERTICAL_OFFSET              10'd60
-`define PIXEL_FACTOR                  2'd2
+`define PIXEL_FACTOR                     2
 
 `define PLL_CLK0_DIVIDE_BY               1
 `define PLL_CLK0_MULTIPLY_BY             2
@@ -33,6 +33,8 @@
 `define RAM_ADDRESS_BITS                15
 `define BUFFER_SIZE                  8'd33
 
+// (`BUFFER_SIZE * `BUFFER_LINE_LENGTH)
+`define RAM_NUMWORDS 21120
 `define TRIGGER_ADDR (`RAM_NUMWORDS - 352)
 
 

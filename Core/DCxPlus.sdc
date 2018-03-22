@@ -15,14 +15,11 @@ set_clock_groups -exclusive \
 
 derive_clock_uncertainty
 
-# output delay constraints
-#set_output_delay -clock {pll74|altpll_component|auto_generated|pll1|clk[0]} -0.7 [get_ports CLOCK]
-
+# output delays
 set tSU 1.0
 set tH 0.7
-#set tSU 0
-#set tH 1.7
+set adv_clock_delay 0
 set hdmi_outputs [get_ports {RED* GREEN* BLUE* DE HSYNC VSYNC}]
-set_output_delay -clock {pll74|altpll_component|auto_generated|pll1|clk[0]} -reference_pin [get_ports CLOCK] -max $tSU $hdmi_outputs
-set_output_delay -clock {pll74|altpll_component|auto_generated|pll1|clk[0]} -reference_pin [get_ports CLOCK] -min -$tH $hdmi_outputs
-set_false_path -to [remove_from_collection [all_outputs] $hdmi_outputs]
+set_output_delay -clock {pll74|altpll_component|auto_generated|pll1|clk[0]} -reference_pin [get_ports CLOCK] -max [expr $tSU - $adv_clock_delay] $hdmi_outputs
+set_output_delay -clock {pll74|altpll_component|auto_generated|pll1|clk[0]} -reference_pin [get_ports CLOCK] -min [expr 0 - $tH - $adv_clock_delay ] $hdmi_outputs
+set_false_path -to [remove_from_collection [all_outputs] "$hdmi_outputs"]

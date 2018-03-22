@@ -106,11 +106,11 @@ module ram2video(
             if (counterX_reg < `HORIZONTAL_PIXELS_PER_LINE - 1) begin
                 counterX_reg <= counterX_reg + 1'b1;
 
-                if (counterX_reg + 1 >= `HORIZONTAL_OFFSET
-                    && ram_addrX_reg < `BUFFER_LINE_LENGTH - 1
-                    && ((`PIXEL_FACTOR == 2 && counterX_reg[0])
-                         || `PIXEL_FACTOR == 1)) begin
-                    ram_addrX_reg <= ram_addrX_reg + 1'b1;
+                if (counterX_reg >= `HORIZONTAL_OFFSET
+                 && ram_addrX_reg < `BUFFER_LINE_LENGTH - 1) begin
+                    if (`PIXEL_FACTOR == 1 || counterX_reg[0]) begin
+                        ram_addrX_reg <= ram_addrX_reg + 1'b1;
+                    end
                 end else begin
                     ram_addrX_reg <= 0;
                 end
@@ -121,11 +121,11 @@ module ram2video(
                 if (counterY_reg < vlines - 1) begin
                     counterY_reg <= counterY_reg + 1'b1;
 
-                    if (counterY_reg + 1 >= `VERTICAL_OFFSET
-                        && ram_addrY_reg < `RAM_NUMWORDS - `BUFFER_LINE_LENGTH
-                        && ((`PIXEL_FACTOR == 2 && counterY_reg[0])
-                             || `PIXEL_FACTOR == 1)) begin
-                        ram_addrY_reg <= ram_addrY_reg + `BUFFER_LINE_LENGTH;
+                    if (counterY_reg >= `VERTICAL_OFFSET
+                     && ram_addrY_reg < `RAM_NUMWORDS - `BUFFER_LINE_LENGTH) begin
+                        if (`PIXEL_FACTOR == 1 || counterY_reg[0]) begin
+                            ram_addrY_reg <= ram_addrY_reg + `BUFFER_LINE_LENGTH;
+                        end
                     end else begin
                         ram_addrY_reg <= 0;
                     end
