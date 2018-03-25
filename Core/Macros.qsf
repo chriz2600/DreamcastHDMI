@@ -1,1 +1,1 @@
-set_global_assignment -name VERILOG_MACRO _VGA_
+set_global_assignment -name VERILOG_MACRO _1080p_
