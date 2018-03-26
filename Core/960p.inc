@@ -20,7 +20,7 @@
 `define HORIZONTAL_SYNC_ON_POLARITY   1'b1
 
 `define VERTICAL_LINES               11'd1000
-`define VERTICAL_LINES_INTERLACED    11'd1000
+`define VERTICAL_LINES_240P          11'd1000
 `define VERTICAL_LINES_VISIBLE       11'd960
 `define VERTICAL_SYNC_START          11'd961
 `define VERTICAL_SYNC_WIDTH          11'd3

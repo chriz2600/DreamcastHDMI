@@ -22,6 +22,8 @@ set dcinputs [get_ports {data* _hsync _vsync}]
 set_input_delay -clock pll54|altpll_component|auto_generated|pll1|clk[0] -clock_fall -max $tSU $dcinputs -add_delay
 set_input_delay -clock pll54|altpll_component|auto_generated|pll1|clk[0] -clock_fall -min -$tH $dcinputs -add_delay
 
+#set_input_delay -clock pll74|altpll_component|auto_generated|pll1|clk[0] 0 [get_ports {SDAT SCLK}]
+
 # output delays
 set tSU 1.0
 set tH 0.7

@@ -87,7 +87,7 @@ module ram2video(
 
     always @(*) begin
         if (add_line) begin
-            vlines <= `VERTICAL_LINES_INTERLACED;
+            vlines <= `VERTICAL_LINES_240P;
         end else begin
             vlines <= `VERTICAL_LINES;
         end
