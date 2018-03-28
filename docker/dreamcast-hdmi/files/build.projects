@@ -28,8 +28,8 @@ function doBuildProject {
                 doCreateConfigurationFiles
                 mv output_files/$project.jic output_files/${project}-${version}.jic
                 mv output_files/$project.rbf output_files/${project}-${version}.rbf
-                cp output_files/${project}-${version}.jic /srv/
-                cp output_files/${project}-${version}.rbf /srv/
+                cp output_files/${project}-${version}.jic /srv/${CI_COMMIT_REF_NAME}
+                cp output_files/${project}-${version}.rbf /srv/${CI_COMMIT_REF_NAME}
             done
         done
         echo "...done"
