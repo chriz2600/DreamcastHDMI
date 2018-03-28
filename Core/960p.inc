@@ -37,8 +37,8 @@
 `define INVERT_VIDEO_CLOCK            1'b0
 
 `define RAM_ADDRESS_BITS                14
-`define BUFFER_SIZE                  8'd23
-`define RAM_NUMWORDS                 14720
-`define TRIGGER_ADDR               15'd320
+`define BUFFER_SIZE                  8'd24
+`define RAM_NUMWORDS                 15360
+`define TRIGGER_ADDR               15'd440
 
 `endif

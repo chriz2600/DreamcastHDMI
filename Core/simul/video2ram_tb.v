@@ -70,16 +70,30 @@ module video2ram_tb;
     .blue(BLUE)
   );
 
-
+`ifdef _1080p_
+  initial $display("1080p");
   always #250 clkIn = ~clkIn;
   always #91 clkOut = ~clkOut;
+`endif
+
+`ifdef _960p_
+  initial $display("960p");
+  always #2000 clkIn = ~clkIn;
+  always #1001 clkOut = ~clkOut;
+`endif
+
+`ifdef _VGA_
+  initial $display("VGA");
+  always #400 clkIn = ~clkIn;
+  always #429 clkOut = ~clkOut;
+`endif
 
   always @(posedge clkIn) begin
-    if (counterX < 858) begin
+    if (counterX < 858 - 1) begin
       counterX <= counterX + 1;
     end else begin
       counterX <= 0;
-      if (counterY < 525) begin
+      if (counterY < 525 - 1) begin
         //$display("y:%0d ay:%0d ay2:%0d - %0d %0d", counterY, video2ram.ram_addrY_reg, ram2video.ram_addrY_reg, (video2ram.ram_addrY_reg == ram2video.ram_addrY_reg), rdaddr);
         counterY <= counterY + 1;
       end else begin
@@ -97,31 +111,19 @@ module video2ram_tb;
       `__IsVerticalCaptureTime(y) && x >= video2ram.H_CAPTURE_START && x < video2ram.H_CAPTURE_END \
   )
 
-
   initial 
     begin
       counterX <= 0;
       counterY <= 0;
-      $monitor("%0dx%0d %0d %0dx%0d %0d", counterX, counterY, wraddr, ram2video.counterX_reg, ram2video.counterY_reg, rdaddr);
-      //$monitor("x:%0d y:%0d ray:%0d", counterX, counterY, video2ram.ram_addrY_reg);
+      $monitor("%0d - %0d: %0dx%0d %0d(%0d) %0dx%0d %0d", $time, starttriggerOut, counterX, counterY, wraddr, wren, ram2video.counterX_reg, ram2video.counterY_reg, rdaddr);
+
       wait (starttriggerOut) begin
         $display("TRIGGER");
       end
 
-      wait ((counterY >= 480 && ram2video.counterX_reg >= 960) || (1 && `__IsCaptureTime(counterX, counterY) && `IsDrawAreaVGA(ram2video.counterX_reg, ram2video.counterY_reg) && wraddr == rdaddr)) begin
+      wait ((counterY >= 480 && ram2video.counterY_reg >= `VERTICAL_LINES_VISIBLE - `VERTICAL_OFFSET) || (wren && `IsDrawAreaVGA(ram2video.counterX_reg, ram2video.counterY_reg) && wraddr == rdaddr)) begin
         $display("stop: y:%0d ay:%0d ay2:%0d", counterY, wraddr, rdaddr);
         $finish;
       end
-
-      // wait (counterY == 34) begin
-      //   $display("stop %0d", ram2video.counterX_reg);
-      //   $finish;
-      // end
-
-
-      // wait (counterY == 480) begin
-      //   $display("stop %0d", ram2video.counterX_reg);
-      //   $finish;
-      // end
     end
 endmodule

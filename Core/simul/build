@@ -2,4 +2,4 @@
 
 cd $(dirname $0)
 
-iverilog -D _1080p_ -I .. -o video2ram_tb.vvp video2ram_tb.v
+iverilog -D $1 -I .. -o video2ram_tb.vvp video2ram_tb.v
