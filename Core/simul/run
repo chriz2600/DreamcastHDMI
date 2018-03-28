@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd $(dirname $0)
+
+vvp video2ram_tb.vvp

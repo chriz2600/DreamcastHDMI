@@ -128,8 +128,17 @@ module ram2video(
 `else
                         ram_addrY_reg <= ram_addrY_reg + `BUFFER_LINE_LENGTH;
 `endif
+                        //$display("2: y:%0d ay:%0d", counterY_reg, ram_addrY_reg);
+
                     end else begin
+`ifdef PIXEL_REPETITION
+                        if (counterY_reg[0]) begin
+                            ram_addrY_reg <= 0;
+                        end
+`else
                         ram_addrY_reg <= 0;
+`endif
+                        //$display("2: y:%0d ay:%0d", counterY_reg, ram_addrY_reg);
                     end
                 end else begin
                     counterY_reg <= 0;
