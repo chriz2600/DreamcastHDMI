@@ -29,6 +29,7 @@ function doBuildProject {
                 mv output_files/$project.jic output_files/${project}-${version}.jic
                 mv output_files/$project.rbf output_files/${project}-${version}.rbf
 		mkdir -p /srv/${CI_COMMIT_REF_NAME}
+		chmod 777 /srv/${CI_COMMIT_REF_NAME}
                 cp output_files/${project}-${version}.jic /srv/${CI_COMMIT_REF_NAME}
                 cp output_files/${project}-${version}.rbf /srv/${CI_COMMIT_REF_NAME}
             done
