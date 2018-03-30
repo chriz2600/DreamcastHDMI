@@ -7,7 +7,8 @@ module ADV7513(
 
     inout sda,
     inout scl,
-    output reg ready
+    output reg ready,
+    output [7:0] data_out
 );
 
 wire i2c_ena;
@@ -37,13 +38,13 @@ i2c_master i2c_master(
 reg [6:0] i2c_chip_addr;
 reg [7:0] i2c_reg_addr;
 reg [7:0] i2c_value;
-wire i2c_enable;
-reg i2c_enable_reg;
+reg i2c_enable;
+reg i2c_is_read;
 
 wire [7:0] i2c_data;
 wire i2c_done;
 
-I2C_write I2C_write(
+I2C I2C(
     .clk         (clk),
     .reset       (1'b1),
 
@@ -53,13 +54,17 @@ I2C_write I2C_write(
     .enable      (i2c_enable),
     .done        (i2c_done),
 
+    .data        (i2c_data),
+
     .i2c_busy    (i2c_busy),
     .i2c_ena     (i2c_ena),
     .i2c_addr    (i2c_addr),
     .i2c_rw      (i2c_rw),
-    .i2c_data_wr (i2c_data_wr)
-);
+    .i2c_data_rd (i2c_data_rd),
+    .i2c_data_wr (i2c_data_wr),
 
+    .is_read     (i2c_is_read)
+);
 
 (* syn_encoding = "safe" *)
 reg [1:0] state;
@@ -81,7 +86,7 @@ always @ (posedge clk) begin
     if (~reset) begin
         state <= s_start;
         cmd_counter <= 0;
-        i2c_enable_reg <= 1'b0;
+        i2c_enable <= 1'b0;
         ready <= 0;
     end else begin
         case (state)
@@ -200,7 +205,7 @@ always @ (posedge clk) begin
             end
             
             s_wait_2: begin
-                i2c_enable_reg <= 1'b0;
+                i2c_enable <= 1'b0;
                 
                 if (i2c_done) begin
                     if (~i2c_ack_error) begin
@@ -226,16 +231,13 @@ task write_i2c;
     input [15:0] t_data;
 
     begin
-        i2c_chip_addr  <= t_chip_addr;
-        i2c_reg_addr   <= t_data[15:8];
-        i2c_value      <= t_data[7:0];
-        i2c_enable_reg <= 1'b1;
-        state 			<= s_wait;
+        i2c_chip_addr <= t_chip_addr;
+        i2c_reg_addr  <= t_data[15:8];
+        i2c_value     <= t_data[7:0];
+        i2c_enable    <= 1'b1;
+        i2c_is_read   <= 1'b0;
+        state         <= s_wait;
     end
 endtask
-
-
-assign i2c_enable = i2c_enable_reg;
-
 
 endmodule

@@ -1,4 +1,4 @@
-module I2C_write(
+module I2C(
 
     input clk,
     input reset,
@@ -7,9 +7,14 @@ module I2C_write(
     input [7:0] reg_addr,
     input [7:0] value,
     input enable,
+
+    input is_read,
+
+    output reg [7:0] data,
     output reg done,
 
     input i2c_busy,
+    input [7:0] i2c_data_rd,
     output reg i2c_ena,
     output reg [6:0] i2c_addr,
     output reg i2c_rw,
@@ -67,12 +72,17 @@ always @ (posedge clk) begin
                     end
                     
                     1: begin
-                        i2c_data_wr <= value_reg;
+                        if (is_read) begin
+                            i2c_rw <= 1'b1;
+                        end else begin
+                            i2c_data_wr <= value_reg;
+                        end
                     end
                     
                     2: begin
                         i2c_ena <= 1'b0;
                         if (~i2c_busy) begin
+                            data <= i2c_data_rd;
                             busy_cnt = 0;
                             done <= 1'b1;
                             state <= s_idle;

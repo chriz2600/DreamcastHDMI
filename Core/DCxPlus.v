@@ -53,6 +53,7 @@ wire add_line_mode;
 wire adv7513_reset;
 wire adv7513_ready;
 wire ram2video_ready;
+wire [7:0] i2c_data;
 
 assign clock54_out = clock54_net;
 
@@ -155,7 +156,8 @@ ADV7513 adv7513(
     .hdmi_int(HDMI_INT_N),
     .sda(SDAT),
     .scl(SCLK),
-    .ready(adv7513_ready)
+    .ready(adv7513_ready),
+    .data_out(i2c_data)
 );
 
 startup adv7513_startup_delay(
