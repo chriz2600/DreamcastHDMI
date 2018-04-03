@@ -28,7 +28,7 @@ set_input_delay -clock pll54|altpll_component|auto_generated|pll1|clk[0] -clock_
 set tSU 1.0
 set tH 0.7
 set adv_clock_delay 0
-set hdmi_outputs [get_ports {RED* GREEN* BLUE* DE HSYNC VSYNC}]
+set hdmi_outputs [get_ports {VIDEO* DE HSYNC VSYNC}]
 set_output_delay -clock {pll74|altpll_component|auto_generated|pll1|clk[0]} -reference_pin [get_ports CLOCK] -max [expr $tSU - $adv_clock_delay] $hdmi_outputs
 set_output_delay -clock {pll74|altpll_component|auto_generated|pll1|clk[0]} -reference_pin [get_ports CLOCK] -min [expr 0 - $tH - $adv_clock_delay ] $hdmi_outputs
 set_false_path -to [remove_from_collection [all_outputs] "$hdmi_outputs"]

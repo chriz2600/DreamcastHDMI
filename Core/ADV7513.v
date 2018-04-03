@@ -8,32 +8,8 @@ module ADV7513(
     inout sda,
     inout scl,
     output reg ready,
-    output [7:0] data_out
+    output reg [7:0] data_out
 );
-
-wire i2c_ena;
-wire [6:0] i2c_addr;
-wire i2c_rw;
-wire [7:0] i2c_data_wr;
-reg i2c_busy;
-reg [7:0] i2c_data_rd;
-reg i2c_ack_error;
-
-defparam i2c_master.input_clk = `PIXEL_CLK;
-defparam i2c_master.bus_clk = 20_000;
-i2c_master i2c_master(
-    .clk       (clk),
-    .reset_n   (1'b1),
-    .ena       (i2c_ena),
-    .addr      (i2c_addr),
-    .rw        (i2c_rw),
-    .data_wr   (i2c_data_wr),
-    .busy      (i2c_busy),
-    .data_rd   (i2c_data_rd),
-    .ack_error (i2c_ack_error),
-    .sda       (sda),
-    .scl       (scl)
-);	
 
 reg [6:0] i2c_chip_addr;
 reg [7:0] i2c_reg_addr;
@@ -43,27 +19,24 @@ reg i2c_is_read;
 
 wire [7:0] i2c_data;
 wire i2c_done;
+wire i2c_ack_error;
 
 I2C I2C(
-    .clk         (clk),
-    .reset       (1'b1),
+    .clk           (clk),
+    .reset         (1'b1),
 
-    .chip_addr   (i2c_chip_addr),
-    .reg_addr    (i2c_reg_addr),
-    .value       (i2c_value),
-    .enable      (i2c_enable),
-    .done        (i2c_done),
+    .chip_addr     (i2c_chip_addr),
+    .reg_addr      (i2c_reg_addr),
+    .value         (i2c_value),
+    .enable        (i2c_enable),
+    .is_read       (i2c_is_read),
 
-    .data        (i2c_data),
+    .sda           (sda),
+    .scl           (scl),
 
-    .i2c_busy    (i2c_busy),
-    .i2c_ena     (i2c_ena),
-    .i2c_addr    (i2c_addr),
-    .i2c_rw      (i2c_rw),
-    .i2c_data_rd (i2c_data_rd),
-    .i2c_data_wr (i2c_data_wr),
-
-    .is_read     (i2c_is_read)
+    .data          (i2c_data),
+    .done          (i2c_done),
+    .i2c_ack_error (i2c_ack_error)
 );
 
 (* syn_encoding = "safe" *)
@@ -189,11 +162,16 @@ always @ (posedge clk) begin
                                               | `VIC_MANUAL); // [5:0]: VIC Manual = 010000, VIC#16: 1080p-60, 16:9
                                                               //                     000000, VIC#0: VIC Unavailable
 `endif
+                        26: read_i2c(CHIP_ADDR, 8'h_9E);
                         default: begin
                             // todo monitor PLL locked state bef
-                            cmd_counter <= 0;
-                            state <= s_idle;
-                            ready <= 1;
+                            if (i2c_data[4]) begin
+                                cmd_counter <= 0;
+                                state <= s_idle;
+                                ready <= 1;
+                            end else begin
+                                cmd_counter <= 26;
+                            end
                         end
                     
                     endcase
@@ -210,11 +188,12 @@ always @ (posedge clk) begin
                 if (i2c_done) begin
                     if (~i2c_ack_error) begin
                         cmd_counter <= cmd_counter + 1'b1;
+                        data_out <= i2c_data;
                     end 
                     state <= s_start;
                 end
             end
-            
+
             s_idle: begin
                 if (~hdmi_int) begin
                     state <= s_start;
@@ -236,6 +215,19 @@ task write_i2c;
         i2c_value     <= t_data[7:0];
         i2c_enable    <= 1'b1;
         i2c_is_read   <= 1'b0;
+        state         <= s_wait;
+    end
+endtask
+
+task read_i2c;
+    input [6:0] t_chip_addr;
+    input [7:0] t_addr;
+
+    begin
+        i2c_chip_addr <= t_chip_addr;
+        i2c_reg_addr  <= t_addr;
+        i2c_enable    <= 1'b1;
+        i2c_is_read   <= 1'b1;
         state         <= s_wait;
     end
 endtask

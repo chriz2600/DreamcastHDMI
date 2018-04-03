@@ -19,9 +19,7 @@ module DCxPlus(
     output wire VSYNC,
     output wire DE,
     output wire CLOCK,
-    output wire [7:0] RED,
-    output wire [7:0] GREEN,
-    output wire [7:0] BLUE,
+    output wire [23:0] VIDEO,
     output wire [3:0] S
 );
 
@@ -139,15 +137,14 @@ ram2video ram2video(
     .reset(ram2video_ready),
     .line_doubler(_240p_480i_mode),
     .add_line(add_line_mode),
+    .i2c_data(i2c_data),
     .rddata(ram_rddata),
     .hsync(HSYNC),
     .vsync(VSYNC),
     .DrawArea(DE),
     .videoClock(CLOCK),
     .rdaddr(ram_rdaddress),
-    .red(RED),
-    .green(GREEN),
-    .blue(BLUE)
+    .video_out(VIDEO)
 );
 
 ADV7513 adv7513(

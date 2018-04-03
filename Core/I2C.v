@@ -1,31 +1,52 @@
 module I2C(
-
+    // clock and reset
     input clk,
     input reset,
 
+    // inputs
     input [6:0] chip_addr,
     input [7:0] reg_addr,
     input [7:0] value,
     input enable,
-
     input is_read,
 
+    // I2C pins
+    inout sda,
+    inout scl,
+
+    // outputs
     output reg [7:0] data,
     output reg done,
+    output i2c_ack_error
+);
 
-    input i2c_busy,
-    input [7:0] i2c_data_rd,
-    output reg i2c_ena,
-    output reg [6:0] i2c_addr,
-    output reg i2c_rw,
-    output reg [7:0] i2c_data_wr
+reg i2c_ena;
+reg [6:0] i2c_addr;
+reg i2c_rw;
+reg [7:0] i2c_data_wr;
+reg i2c_busy;
+reg [7:0] i2c_data_rd;
+
+defparam i2c_master.input_clk = `PIXEL_CLK;
+defparam i2c_master.bus_clk = 20_000;
+i2c_master i2c_master(
+    .clk       (clk),
+    .reset_n   (1'b1),
+    .ena       (i2c_ena),
+    .addr      (i2c_addr),
+    .rw        (i2c_rw),
+    .data_wr   (i2c_data_wr),
+    .busy      (i2c_busy),
+    .data_rd   (i2c_data_rd),
+    .ack_error (i2c_ack_error),
+    .sda       (sda),
+    .scl       (scl)
 );
 
 (* syn_encoding = "safe" *)
 reg [1:0] state;
 reg [5:0] busy_cnt;
 reg busy_prev;
-
 
 reg [6:0] chip_addr_reg;
 reg [7:0] reg_addr_reg;

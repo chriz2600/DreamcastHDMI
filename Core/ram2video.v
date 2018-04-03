@@ -10,11 +10,11 @@ module ram2video(
     input line_doubler,
     input add_line,
 
+    input[7:0] i2c_data,
+
     output [`RAM_ADDRESS_BITS-1:0] rdaddr,
     
-    output [7:0] red,
-    output [7:0] green,
-    output [7:0] blue,
+    output [23:0] video_out,
     
     output hsync,
     output vsync,
@@ -182,12 +182,16 @@ module ram2video(
 
     `define GetAddr(x, y) (`IsDrawAreaVGA(x, y) ? ram_addrY_reg + ram_addrX_reg : `RAM_ADDRESS_BITS'd0)
     //`define GetAddr(x, y) (ram_addrY_reg + ram_addrX_reg)
-    `define GetData(t,b) (`IsDrawAreaVGA(counterX_reg_q_q, counterY_reg_q_q) ? rddata[t:b] : 8'h00)
+    `ifdef DEBUG
+        `define GetData(x,y) (`IsDrawAreaVGA(x, y) ? \
+            (x >=5 && x < 10 && y >= 5 && y < 10 ? (i2c_data[4] ? 24'h00_00_00 : 24'hFF_FF_FF) : rddata) \
+            : 24'h00)
+    `else
+        `define GetData(t,b) (`IsDrawAreaVGA(x, y) ? rddata : 24'h00)
+    `endif
 
     assign rdaddr = `GetAddr(counterX_reg, counterY_reg);
-    assign red = `GetData(23, 16);
-    assign green = `GetData(15, 8);
-    assign blue = `GetData(7, 0);
+    assign video_out = `GetData(counterX_reg_q_q, counterY_reg_q_q);
     assign hsync = hsync_reg_q;
     assign vsync = vsync_reg_q;
     assign DrawArea = `IsDrawAreaHDMI(counterX_reg_q_q, counterY_reg_q_q);
