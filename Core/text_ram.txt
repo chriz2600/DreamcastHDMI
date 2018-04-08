@@ -1,0 +1,24 @@
+        Dreamcast HDMI / DCHDMI         
+                                        
+            @citrus3000psi              
+              @chriz2600                
+                                        
+Chip revision        00010011 /         
+Chip ID high byte    01110101 /         
+Chip ID low byte     00010001 /         
+PLL Lock Status [4]                     
+PLL no lock count (binary)              
+                                        
+CTS value [19:16]                       
+CTS value [19:16] variation*            
+CTS value [15:8]                        
+CTS value [15:8] variation*             
+CTS value [7:0]                         
+CTS value [7:0] variation*              
+CTS value [7:0] previous var.*          
+                                        
+VIC detected / to RX            /       
+HPD / Mon. sens / I2S-32bit      /   /  
+                                        
+* bits differnt within cycle count      
+  period (1024 frames)                  

@@ -4,11 +4,16 @@ module ADV7513(
     input clk,
     input reset,
     input hdmi_int,
+    input VSYNC,
 
     inout sda,
     inout scl,
-    output reg ready,
-    output reg [7:0] data_out
+`ifdef DEBUG
+    output reg text_wren,
+    output reg [9:0] text_wraddr,
+    output reg [7:0] text_wrdata,
+`endif
+    output reg ready
 );
 
 reg [6:0] i2c_chip_addr;
@@ -42,6 +47,38 @@ I2C I2C(
 (* syn_encoding = "safe" *)
 reg [1:0] state;
 reg [5:0] cmd_counter;
+reg [7:0] pll_errors = 0;
+
+`ifdef DEBUG
+reg VSYNC_reg = 0;
+reg trigger = 0;
+reg [7:0] test = 0;
+
+reg [9:0] frame_counter = 0;
+reg [7:0] counter = 0;
+reg [7:0] print_field = 0;
+
+reg [7:0] pll_status = 0;
+reg [7:0] id_check_high = 0;
+reg [7:0] id_check_low = 0;
+reg [7:0] chip_revision = 0;
+reg [7:0] vic_detected = 0;
+reg [7:0] vic_to_rx = 0;
+reg [7:0] misc_data = 0;
+
+reg [7:0] cts1_status = 0;
+reg [7:0] cts2_status = 0;
+reg [7:0] cts3_status = 0;
+
+reg [7:0] prev_cts1_status = 0;
+reg [7:0] prev_cts2_status = 0;
+reg [7:0] prev_cts3_status = 0;
+
+reg [7:0] summary_cts1_status = 0;
+reg [7:0] summary_cts2_status = 0;
+reg [7:0] summary_cts3_status = 0;
+reg [7:0] summary_summary_cts3_status = 0;
+`endif 
 
 localparam CHIP_ADDR = 7'h39;
 
@@ -50,10 +87,26 @@ localparam  s_start  = 0,
             s_wait_2 = 2,
             s_idle   = 3;
 
+localparam INIT_START    = 6'd0;
+localparam PLL_CHECK_1   = 6'd32;
+`ifdef DEBUG
+localparam CHIP_REVISION = 6'd42;
+localparam ID_CHECK_H    = 6'd44;
+localparam ID_CHECK_L    = 6'd46;
+localparam PLL_CHECK_2   = 6'd48;
+localparam CTS_CHECK_1   = 6'd50;
+localparam CTS_CHECK_2   = 6'd52;
+localparam CTS_CHECK_3   = 6'd54;
+localparam VIC_CHECK_1   = 6'd56;
+localparam VIC_CHECK_2   = 6'd58;
+localparam MISC_CHECK    = 6'd60;
+`endif
+localparam GOTO_READY    = 6'b111111;
+
 initial begin
     ready <= 0;
 end
-              
+
 always @ (posedge clk) begin
 
     if (~reset) begin
@@ -62,6 +115,9 @@ always @ (posedge clk) begin
         i2c_enable <= 1'b0;
         ready <= 0;
     end else begin
+`ifdef DEBUG
+        VSYNC_reg <= VSYNC;
+`endif
         case (state)
             
             s_start: begin
@@ -161,19 +217,95 @@ always @ (posedge clk) begin
                         25: write_i2c(CHIP_ADDR, 16'h_3C_00
                                               | `VIC_MANUAL); // [5:0]: VIC Manual = 010000, VIC#16: 1080p-60, 16:9
                                                               //                     000000, VIC#0: VIC Unavailable
+                        26: cmd_counter <= PLL_CHECK_1;
+`else
+                        24: cmd_counter <= PLL_CHECK_1;
 `endif
-                        26: read_i2c(CHIP_ADDR, 8'h_9E);
-                        default: begin
-                            // todo monitor PLL locked state bef
+                        PLL_CHECK_1: read_i2c(CHIP_ADDR, 8'h_9E);
+                        (PLL_CHECK_1+1): begin
                             if (i2c_data[4]) begin
-                                cmd_counter <= 0;
-                                state <= s_idle;
-                                ready <= 1;
+                                cmd_counter <= GOTO_READY;
                             end else begin
-                                cmd_counter <= 26;
+                                pll_errors <= pll_errors + 1'b1;
+                                cmd_counter <= INIT_START;
                             end
                         end
-                    
+
+`ifdef DEBUG
+                        CHIP_REVISION: read_i2c(CHIP_ADDR, 8'h_00);
+                        (CHIP_REVISION+1): begin
+                            chip_revision <= i2c_data;
+                            cmd_counter <= ID_CHECK_H;
+                        end
+
+                        ID_CHECK_H: read_i2c(CHIP_ADDR, 8'h_F5);
+                        (ID_CHECK_H+1): begin
+                            id_check_high <= i2c_data;
+                            cmd_counter <= ID_CHECK_L;
+                        end
+
+                        ID_CHECK_L: read_i2c(CHIP_ADDR, 8'h_F6);
+                        (ID_CHECK_L+1): begin
+                            id_check_low <= i2c_data;
+                            cmd_counter <= PLL_CHECK_2;
+                        end
+
+                        PLL_CHECK_2: read_i2c(CHIP_ADDR, 8'h_9E);
+                        (PLL_CHECK_2+1): begin
+                            pll_status <= i2c_data;
+                            cmd_counter <= CTS_CHECK_1;
+                             if (!i2c_data[4]) begin
+                                pll_errors <= pll_errors + 1'b1;
+                             end
+                        end
+
+                        CTS_CHECK_1: read_i2c(CHIP_ADDR, 8'h_04);
+                        (CTS_CHECK_1+1): begin
+                            prev_cts1_status <= cts1_status;
+                            cts1_status <= i2c_data;
+                            cmd_counter <= CTS_CHECK_2;
+                            summary_cts1_status <= summary_cts1_status | (prev_cts1_status ^ cts1_status);
+                        end
+
+                        CTS_CHECK_2: read_i2c(CHIP_ADDR, 8'h_05);
+                        (CTS_CHECK_2+1): begin
+                            prev_cts2_status <= cts2_status;
+                            cts2_status <= i2c_data;
+                            cmd_counter <= CTS_CHECK_3;
+                            summary_cts2_status <= summary_cts2_status | (prev_cts2_status ^ cts2_status);
+                        end
+
+                        CTS_CHECK_3: read_i2c(CHIP_ADDR, 8'h_06);
+                        (CTS_CHECK_3+1): begin
+                            prev_cts3_status <= cts3_status;
+                            cts3_status <= i2c_data;
+                            cmd_counter <= VIC_CHECK_1;
+                            summary_cts3_status <= summary_cts3_status | (prev_cts3_status ^ cts3_status);
+                        end
+
+                        VIC_CHECK_1: read_i2c(CHIP_ADDR, 8'h_3E);
+                        (VIC_CHECK_1+1): begin
+                            vic_detected <= i2c_data;
+                            cmd_counter <= VIC_CHECK_2;
+                        end
+
+                        VIC_CHECK_2: read_i2c(CHIP_ADDR, 8'h_3D);
+                        (VIC_CHECK_2+1): begin
+                            vic_to_rx <= i2c_data;
+                            cmd_counter <= MISC_CHECK;
+                        end
+
+                        MISC_CHECK: read_i2c(CHIP_ADDR, 8'h_42);
+                        (MISC_CHECK+1): begin
+                            misc_data <= i2c_data;
+                            cmd_counter <= GOTO_READY;
+                        end
+`endif
+                        default: begin
+                            cmd_counter <= INIT_START;
+                            state <= s_idle;
+                            ready <= 1;
+                        end
                     endcase
                 end
             end
@@ -188,7 +320,6 @@ always @ (posedge clk) begin
                 if (i2c_done) begin
                     if (~i2c_ack_error) begin
                         cmd_counter <= cmd_counter + 1'b1;
-                        data_out <= i2c_data;
                     end 
                     state <= s_start;
                 end
@@ -198,12 +329,83 @@ always @ (posedge clk) begin
                 if (~hdmi_int) begin
                     state <= s_start;
                     ready <= 0;
+`ifdef DEBUG
+                    trigger <= 0;
+                end else if (~VSYNC_reg && VSYNC) begin
+                    cmd_counter <= CHIP_REVISION;
+                    state <= s_start;
+                    trigger <= 0;
+                    frame_counter <= frame_counter + 1'b1;
+                end else if (VSYNC_reg && ~VSYNC) begin
+                    trigger <= 1;
+                    print_field <= 1;
+                    counter <= 0;
+                end
+
+                if (frame_counter == 1023) begin
+                    summary_cts1_status <= 0;
+                    summary_cts2_status <= 0;
+                    summary_cts3_status <= 0;
+                    summary_summary_cts3_status <= summary_cts3_status;
+                    frame_counter <= 0;
+                    test <= test + 1'b1;
+                end
+
+                if (trigger && print_field > 0) begin
+                    text_wren <= 1;
+                    case (print_field)
+                        1: print_status(272 -  40, chip_revision, 7, 0);
+                        2: print_status(272 +   0, id_check_high, 7, 0);
+                        3: print_status(272 +  40, id_check_low, 7, 0);
+                        4: print_status(272 +  80 + 7, pll_status, 4, 4);
+                        5: print_status(272 + 120, pll_errors, 7, 0);
+                        6: print_status(272 + 200 + 4, cts1_status, 3, 0);
+                        7: print_status(272 + 240 + 4, summary_cts1_status, 3, 0);
+                        8: print_status(272 + 280, cts2_status, 7, 0);
+                        9: print_status(272 + 320, summary_cts2_status, 7, 0);
+                        10: print_status(272 + 360, cts3_status, 7, 0);
+                        11: print_status(272 + 400, summary_cts3_status, 7, 0);
+                        12: print_status(272 + 440, summary_summary_cts3_status, 7, 0);
+                        13: print_status(272 + 520 - 7, vic_detected[7:2], 5, 0);
+                        14: print_status(272 + 520 + 2, vic_to_rx[5:0], 5, 0);
+                        15: print_status(272 + 560 - 1, misc_data, 6, 6);
+                        16: print_status(272 + 560 + 3, misc_data, 5, 5);
+                        17: print_status(272 + 560 + 7, misc_data, 3, 3);
+                        18: print_status(272 + 680, test, 7, 0);
+
+                        default: begin
+                            print_field <= 0;
+                        end
+                    endcase
+                end else begin
+                    text_wren <= 0;
+`endif
                 end
             end
             
         endcase
     end
 end
+
+`ifdef DEBUG
+task print_status;
+    input [9:0] addr;
+    input [7:0] data;
+    input [4:0] high;
+    input [4:0] low;
+
+    begin
+        if (counter < (high - low + 1)) begin
+            text_wraddr <= addr + counter;
+            text_wrdata <= data[high - counter] ? "1" : "0";
+            counter <= counter + 1'b1;
+        end else begin
+            print_field <= print_field + 1'b1;
+            counter <= 0;
+        end
+    end
+endtask
+`endif
 
 task write_i2c;
     input [6:0] t_chip_addr;

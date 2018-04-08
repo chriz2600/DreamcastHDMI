@@ -34,6 +34,8 @@ set_global_assignment -name VERILOG_FILE edge_detect.v
 set_global_assignment -name QIP_FILE pll54.qip
 set_global_assignment -name QIP_FILE pll74.qip
 set_global_assignment -name QIP_FILE ram.qip
+set_global_assignment -name QIP_FILE char_rom.qip
+set_global_assignment -name QIP_FILE text_ram.qip
 set_global_assignment -name VERILOG_FILE video2ram.v
 set_global_assignment -name VERILOG_FILE ram2video.v
 set_global_assignment -name SDC_FILE DCxPlus.sdc

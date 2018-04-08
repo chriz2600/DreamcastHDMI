@@ -51,7 +51,14 @@ wire add_line_mode;
 wire adv7513_reset;
 wire adv7513_ready;
 wire ram2video_ready;
-wire [7:0] i2c_data;
+
+`ifdef DEBUG
+wire [9:0] text_rdaddr;
+wire [7:0] text_rddata;
+wire [9:0] text_wraddr;
+wire [7:0] text_wrdata;
+wire text_wren;
+`endif
 
 assign clock54_out = clock54_net;
 
@@ -137,13 +144,16 @@ ram2video ram2video(
     .reset(ram2video_ready),
     .line_doubler(_240p_480i_mode),
     .add_line(add_line_mode),
-    .i2c_data(i2c_data),
     .rddata(ram_rddata),
     .hsync(HSYNC),
     .vsync(VSYNC),
     .DrawArea(DE),
     .videoClock(CLOCK),
     .rdaddr(ram_rdaddress),
+`ifdef DEBUG
+    .text_rddata(text_rddata),
+    .text_rdaddr(text_rdaddr),
+`endif
     .video_out(VIDEO)
 );
 
@@ -151,10 +161,15 @@ ADV7513 adv7513(
     .clk(hdmi_clock),
     .reset(adv7513_reset),
     .hdmi_int(HDMI_INT_N),
+    .VSYNC(VSYNC),
     .sda(SDAT),
     .scl(SCLK),
-    .ready(adv7513_ready),
-    .data_out(i2c_data)
+`ifdef DEBUG
+    .text_wren(text_wren),
+    .text_wraddr(text_wraddr),
+    .text_wrdata(text_wrdata),
+`endif
+    .ready(adv7513_ready)
 );
 
 startup adv7513_startup_delay(
@@ -168,5 +183,16 @@ startup ram2video_startup_delay(
     .reset(adv7513_ready),
     .ready(ram2video_ready)
 );
+
+`ifdef DEBUG
+text_ram text_ram_inst(
+    .clock(hdmi_clock),
+    .data(text_wrdata),
+    .rdaddress(text_rdaddr),
+    .wraddress(text_wraddr),
+    .wren(text_wren),
+    .q(text_rddata)
+);
+`endif
 
 endmodule

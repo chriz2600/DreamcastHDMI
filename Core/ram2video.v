@@ -10,10 +10,11 @@ module ram2video(
     input line_doubler,
     input add_line,
 
-    input[7:0] i2c_data,
-
     output [`RAM_ADDRESS_BITS-1:0] rdaddr,
-    
+`ifdef DEBUG
+    input [7:0] text_rddata,
+    output [9:0] text_rdaddr,
+`endif    
     output [23:0] video_out,
     
     output hsync,
@@ -66,6 +67,16 @@ module ram2video(
         .rise(al_rise),
         .fall(al_fall)
     );
+
+`ifdef DEBUG
+    wire [10:0] char_addr;
+    wire [7:0] char_data;
+    char_rom char_rom_inst(
+        .address(char_addr),
+        .clock(clock),
+        .q(char_data)
+    );
+`endif
 
     initial begin
         doReset(1'b0);
@@ -172,6 +183,41 @@ module ram2video(
         end
     end
 
+`ifdef DEBUG
+    `define TEXT_OFFSET_COUNTER_X 160
+    `define TEXT_OFFSET_COUNTER_Y 48
+
+    localparam DARKEN_AMT = 8'd128;
+    localparam TEXT_OFFSET_CHARACTER_X = `TEXT_OFFSET_COUNTER_X / 8;
+    localparam TEXT_OFFSET_CHARACTER_Y = `TEXT_OFFSET_COUNTER_Y / 16;
+
+    reg [7:0] char_data_req;
+    reg [31:0] text_rddata_reg;
+    reg [9:0] text_rdaddr_x;
+    reg [11:0] text_rdaddr_y;
+    always @(posedge clock) begin
+        if (counterX_reg == 0) begin
+            text_rdaddr_y <= (counterY_reg[11:4] - TEXT_OFFSET_CHARACTER_Y) * 40;
+            text_rdaddr_x <= 0;
+        end else if (counterX_reg[11:3] >= TEXT_OFFSET_CHARACTER_X) begin
+            text_rdaddr_x <= (counterX_reg[11:3] - TEXT_OFFSET_CHARACTER_X + 1'b1);
+        end
+        text_rddata_reg[7:0] <= text_rddata;
+        text_rddata_reg[15:8] <= text_rddata_reg[7:0];
+        text_rddata_reg[23:16] <= text_rddata_reg[15:8];
+        text_rddata_reg[31:24] <= text_rddata_reg[23:16];
+        char_data_req <= char_data;
+    end
+
+    assign text_rdaddr = text_rdaddr_x + text_rdaddr_y;
+    assign char_addr = (text_rddata_reg[31:24] << 4) + counterY_reg[3:0];
+
+    `define IsDrawAreaText(x, y, paddingX, paddingY)  (x >= `HORIZONTAL_OFFSET + `TEXT_OFFSET_COUNTER_X - paddingX \
+                                && x < `HORIZONTAL_PIXELS_VISIBLE - `HORIZONTAL_OFFSET - `TEXT_OFFSET_COUNTER_X + paddingX \
+                                && y >= `VERTICAL_OFFSET + `TEXT_OFFSET_COUNTER_Y - paddingY \
+                                && y < `VERTICAL_LINES_VISIBLE - `VERTICAL_OFFSET - `TEXT_OFFSET_COUNTER_Y + paddingY)
+`endif
+
     `define IsDrawAreaHDMI(x, y)   (x >= 0 && x < `HORIZONTAL_PIXELS_VISIBLE \
                                  && y >= 0 && y < `VERTICAL_LINES_VISIBLE)
 
@@ -181,13 +227,17 @@ module ram2video(
                                 && y < `VERTICAL_LINES_VISIBLE - `VERTICAL_OFFSET)
 
     `define GetAddr(x, y) (`IsDrawAreaVGA(x, y) ? ram_addrY_reg + ram_addrX_reg : `RAM_ADDRESS_BITS'd0)
-    //`define GetAddr(x, y) (ram_addrY_reg + ram_addrX_reg)
     `ifdef DEBUG
-        `define GetData(x,y) (`IsDrawAreaVGA(x, y) ? \
-            (x >=5 && x < 10 && y >= 5 && y < 10 ? (i2c_data[4] ? 24'h00_00_00 : 24'hFF_FF_FF) : rddata) \
+        `define GetData(x, y) (`IsDrawAreaVGA(x, y) ? \
+            (`IsDrawAreaText(x, y, 10, 6) ? \
+                (`IsDrawAreaText(x, y, 0, 0) && char_data_req[7-counterX_reg_q_q[2:0]] ? {24{1'b1}} \
+                    : { rddata[23:16] > DARKEN_AMT ? rddata[23:16] - DARKEN_AMT : 8'd0, \
+                        rddata[15:8] > DARKEN_AMT ? rddata[15:8] - DARKEN_AMT : 8'd0, \
+                        rddata[7:0] > DARKEN_AMT ? rddata[7:0] - DARKEN_AMT : 8'd0 }) \
+                : rddata) \
             : 24'h00)
     `else
-        `define GetData(t,b) (`IsDrawAreaVGA(x, y) ? rddata : 24'h00)
+        `define GetData(x, y) (`IsDrawAreaVGA(x, y) ? rddata : 24'h00)
     `endif
 
     assign rdaddr = `GetAddr(counterX_reg, counterY_reg);
