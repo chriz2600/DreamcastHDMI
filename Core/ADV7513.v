@@ -5,6 +5,7 @@ module ADV7513(
     input reset,
     input hdmi_int,
     input VSYNC,
+    input DE,
 
     inout sda,
     inout scl,
@@ -51,6 +52,7 @@ reg [7:0] pll_errors = 0;
 
 `ifdef DEBUG
 reg VSYNC_reg = 0;
+reg DE_reg = 0;
 reg trigger = 0;
 reg [7:0] test = 0;
 
@@ -90,16 +92,17 @@ localparam  s_start  = 0,
 localparam INIT_START    = 6'd0;
 localparam PLL_CHECK_1   = 6'd32;
 `ifdef DEBUG
-localparam CHIP_REVISION = 6'd42;
-localparam ID_CHECK_H    = 6'd44;
-localparam ID_CHECK_L    = 6'd46;
-localparam PLL_CHECK_2   = 6'd48;
-localparam CTS_CHECK_1   = 6'd50;
-localparam CTS_CHECK_2   = 6'd52;
-localparam CTS_CHECK_3   = 6'd54;
-localparam VIC_CHECK_1   = 6'd56;
-localparam VIC_CHECK_2   = 6'd58;
-localparam MISC_CHECK    = 6'd60;
+localparam CHIP_REVISION = 6'd40;
+localparam ID_CHECK_H    = 6'd42;
+localparam ID_CHECK_L    = 6'd44;
+localparam PLL_CHECK_2   = 6'd46;
+localparam CTS_CHECK_1   = 6'd48;
+localparam CTS_CHECK_2   = 6'd50;
+localparam CTS_CHECK_3   = 6'd52;
+localparam VIC_CHECK_1   = 6'd54;
+localparam VIC_CHECK_2   = 6'd56;
+localparam MISC_CHECK    = 6'd58;
+localparam CTS_CHECK_3_2 = 6'd60;
 `endif
 localparam GOTO_READY    = 6'b111111;
 
@@ -117,6 +120,7 @@ always @ (posedge clk) begin
     end else begin
 `ifdef DEBUG
         VSYNC_reg <= VSYNC;
+        DE_reg <= DE;
 `endif
         case (state)
             
@@ -283,6 +287,14 @@ always @ (posedge clk) begin
                             summary_cts3_status <= summary_cts3_status | (prev_cts3_status ^ cts3_status);
                         end
 
+                        CTS_CHECK_3_2: read_i2c(CHIP_ADDR, 8'h_06);
+                        (CTS_CHECK_3_2+1): begin
+                            prev_cts3_status <= cts3_status;
+                            cts3_status <= i2c_data;
+                            cmd_counter <= GOTO_READY;
+                            summary_cts3_status <= summary_cts3_status | (prev_cts3_status ^ cts3_status);
+                        end
+
                         VIC_CHECK_1: read_i2c(CHIP_ADDR, 8'h_3E);
                         (VIC_CHECK_1+1): begin
                             vic_detected <= i2c_data;
@@ -330,6 +342,10 @@ always @ (posedge clk) begin
                     state <= s_start;
                     ready <= 0;
 `ifdef DEBUG
+                    trigger <= 0;
+                end else if (~DE_reg && DE) begin
+                    cmd_counter <= CTS_CHECK_3_2;
+                    state <= s_start;
                     trigger <= 0;
                 end else if (~VSYNC_reg && VSYNC) begin
                     cmd_counter <= CHIP_REVISION;

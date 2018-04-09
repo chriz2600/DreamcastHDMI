@@ -162,6 +162,7 @@ ADV7513 adv7513(
     .reset(adv7513_reset),
     .hdmi_int(HDMI_INT_N),
     .VSYNC(VSYNC),
+    .DE(DE),
     .sda(SDAT),
     .scl(SCLK),
 `ifdef DEBUG
