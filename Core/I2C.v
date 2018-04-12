@@ -28,7 +28,7 @@ reg i2c_busy;
 reg [7:0] i2c_data_rd;
 
 defparam i2c_master.input_clk = `PIXEL_CLK;
-defparam i2c_master.bus_clk = 100_000;
+defparam i2c_master.bus_clk = 400_000;
 i2c_master i2c_master(
     .clk       (clk),
     .reset_n   (1'b1),
