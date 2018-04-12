@@ -183,7 +183,16 @@ module ram2video(
         end
     end
 
-    localparam ALPHA = `SCANLINES_INTENSITY;
+`ifdef OSD_BACKGROUND_ALPHA
+    localparam OSD_BACKGROUND_ALPHA = `OSD_BACKGROUND_ALPHA;
+`else
+    localparam OSD_BACKGROUND_ALPHA = 1;
+`endif
+`ifdef SCANLINES_INTENSITY
+    localparam SCANLINES_INTENSITY = `SCANLINES_INTENSITY;
+`else
+    localparam SCANLINES_INTENSITY = 1;
+`endif
 `ifdef DEBUG
     `define TEXT_OFFSET_COUNTER_X 160
     `define TEXT_OFFSET_COUNTER_Y 48
@@ -248,21 +257,21 @@ module ram2video(
         truncate_rddata = value[7:0];
     endfunction
 
-    `define GetRdData(y) (`IsScanline(y) ? { \
-            truncate_rddata(((rddata[23:16] << 4) / ALPHA)), \
-            truncate_rddata(((rddata[15:8] << 4) / ALPHA)), \
-            truncate_rddata(((rddata[7:0] << 4) / ALPHA)) \
+    `define GetRdData(y, a) (`IsScanline(y) ? { \
+            truncate_rddata(((rddata[23:16] << 4) / a)), \
+            truncate_rddata(((rddata[15:8] << 4) / a)), \
+            truncate_rddata(((rddata[7:0] << 4) / a)) \
         } : rddata)
 
     `ifdef DEBUG
         `define GetData(x, y) (`IsDrawAreaVGA(x, y) ? \
             (`IsDrawAreaText(x, y, 10, 6) ? \
                 (`IsDrawAreaText(x, y, 0, 0) && char_data_req[7-counterX_reg_q_q[2:0]] ? {24{1'b1}} \
-                    : `GetRdData(y)) \
-                : `GetRdData(y)) \
+                    : `GetRdData(y, OSD_BACKGROUND_ALPHA)) \
+                : `GetRdData(y, OSD_BACKGROUND_ALPHA)) \
             : 24'h00)
     `else
-        `define GetData(x, y) (`IsDrawAreaVGA(x, y) ? `GetRdData(y) : 24'h00)
+        `define GetData(x, y) (`IsDrawAreaVGA(x, y) ? `GetRdData(y, SCANLINES_INTENSITY) : 24'h00)
     `endif
 
     assign rdaddr = `GetAddr(counterX_reg, counterY_reg);
