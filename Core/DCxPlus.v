@@ -58,6 +58,7 @@ wire [7:0] text_rddata;
 wire [9:0] text_wraddr;
 wire [7:0] text_wrdata;
 wire text_wren;
+wire restart;
 `endif
 
 assign clock54_out = clock54_net;
@@ -153,6 +154,7 @@ ram2video ram2video(
 `ifdef DEBUG
     .text_rddata(text_rddata),
     .text_rdaddr(text_rdaddr),
+    .restart(restart),
 `endif
     .video_out(VIDEO)
 );
@@ -169,6 +171,7 @@ ADV7513 adv7513(
     .text_wren(text_wren),
     .text_wraddr(text_wraddr),
     .text_wrdata(text_wrdata),
+    .restart(restart),
 `endif
     .ready(adv7513_ready)
 );

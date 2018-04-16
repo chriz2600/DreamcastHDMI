@@ -32,15 +32,15 @@ module video2ram(
 
     always @(*) begin
         if (line_doubler) begin
-            H_CAPTURE_START = 10'd1;
-            H_CAPTURE_END   = 10'd641;
-            V_CAPTURE_START = 10'd0;
-            V_CAPTURE_END   = 10'd504;
+            H_CAPTURE_START = `H_CAPTURE_START_P_I;
+            H_CAPTURE_END   = `H_CAPTURE_END_I;
+            V_CAPTURE_START = `V_CAPTURE_START_I;
+            V_CAPTURE_END   = `V_CAPTURE_END_I;
         end else begin
-            H_CAPTURE_START = 10'd44;
-            H_CAPTURE_END   = 10'd684;
-            V_CAPTURE_START = 10'd0;
-            V_CAPTURE_END   = 10'd480;
+            H_CAPTURE_START = `H_CAPTURE_START_P;
+            H_CAPTURE_END   = `H_CAPTURE_END_P;
+            V_CAPTURE_START = `V_CAPTURE_START_P;
+            V_CAPTURE_END   = `V_CAPTURE_END_P;
         end
     end
     

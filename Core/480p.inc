@@ -6,7 +6,7 @@
 // VGA
 //
 `define ASPECT_R                      2'b0
-`define PIXEL_CLK               25_200_000
+`define PIXEL_CLK               27_000_000
 
 `define HORIZONTAL_PIXELS_PER_LINE   12'd800
 `define HORIZONTAL_PIXELS_VISIBLE    12'd640
@@ -24,8 +24,8 @@
 `define HORIZONTAL_OFFSET            10'd0
 `define VERTICAL_OFFSET              10'd0
 
-`define ICS664_CLK_DIVIDE_BY           165
-`define ICS664_CLK_MULTIPLY_BY          56
+`define ICS664_CLK_DIVIDE_BY            11
+`define ICS664_CLK_MULTIPLY_BY           4
 
 `define INVERT_VIDEO_CLOCK            1'b0
 
@@ -33,18 +33,5 @@
 `define BUFFER_SIZE                   8'd1
 `define RAM_NUMWORDS                   640
 `define TRIGGER_ADDR               15'd320
-
-// special capture for 480p/480i
-`define H_CAPTURE_START_P            10'd0
-`define H_CAPTURE_END_P            10'd720
-`define V_CAPTURE_START_P            10'd0
-`define V_CAPTURE_END_P            10'd480
-
-`define H_CAPTURE_START_I            10'd0
-`define H_CAPTURE_END_I            10'd720
-`define V_CAPTURE_START_I            10'd0
-`define V_CAPTURE_END_I            10'd504
-
-`define VERTICAL_LINE_WIDTH            720
 
 `endif

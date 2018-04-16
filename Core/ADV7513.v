@@ -13,6 +13,7 @@ module ADV7513(
     output reg text_wren,
     output reg [9:0] text_wraddr,
     output reg [7:0] text_wrdata,
+    input restart,
 `endif
     output reg ready
 );
@@ -80,6 +81,8 @@ reg [7:0] summary_cts1_status = 0;
 reg [7:0] summary_cts2_status = 0;
 reg [7:0] summary_cts3_status = 0;
 reg [7:0] summary_summary_cts3_status = 0;
+
+reg [7:0] restart_count = 0;
 `endif 
 
 localparam CHIP_ADDR = 7'h39;
@@ -111,6 +114,12 @@ initial begin
 end
 
 always @ (posedge clk) begin
+
+`ifdef DEBUG
+    if (restart) begin
+        restart_count <= restart_count + 1;
+    end
+`endif
 
     if (~reset) begin
         state <= s_start;
@@ -370,24 +379,25 @@ always @ (posedge clk) begin
                 if (trigger && print_field > 0) begin
                     text_wren <= 1;
                     case (print_field)
-                        1: print_status(272 -  40, chip_revision, 7, 0);
-                        2: print_status(272 +   0, id_check_high, 7, 0);
-                        3: print_status(272 +  40, id_check_low, 7, 0);
-                        4: print_status(272 +  80 + 7, pll_status, 4, 4);
-                        5: print_status(272 + 120, pll_errors, 7, 0);
-                        6: print_status(272 + 200 + 4, cts1_status, 3, 0);
-                        7: print_status(272 + 240 + 4, summary_cts1_status, 3, 0);
-                        8: print_status(272 + 280, cts2_status, 7, 0);
-                        9: print_status(272 + 320, summary_cts2_status, 7, 0);
-                        10: print_status(272 + 360, cts3_status, 7, 0);
-                        11: print_status(272 + 400, summary_cts3_status, 7, 0);
-                        12: print_status(272 + 440, summary_summary_cts3_status, 7, 0);
-                        13: print_status(272 + 520 - 7, vic_detected[7:2], 5, 0);
-                        14: print_status(272 + 520 + 2, vic_to_rx[5:0], 5, 0);
-                        15: print_status(272 + 560 - 1, misc_data, 6, 6);
-                        16: print_status(272 + 560 + 3, misc_data, 5, 5);
-                        17: print_status(272 + 560 + 7, misc_data, 3, 3);
-                        18: print_status(272 + 680, test, 7, 0);
+                        1: print_status(272 -  80, chip_revision, 7, 0);
+                        2: print_status(272 -  40, id_check_high, 7, 0);
+                        3: print_status(272 +   0, id_check_low, 7, 0);
+                        4: print_status(272 +  40 + 7, pll_status, 4, 4);
+                        5: print_status(272 +  80, pll_errors, 7, 0);
+                        6: print_status(272 + 120, restart_count, 7, 0);
+                        7: print_status(272 + 200 + 4, cts1_status, 3, 0);
+                        8: print_status(272 + 240 + 4, summary_cts1_status, 3, 0);
+                        9: print_status(272 + 280, cts2_status, 7, 0);
+                        10: print_status(272 + 320, summary_cts2_status, 7, 0);
+                        11: print_status(272 + 360, cts3_status, 7, 0);
+                        12: print_status(272 + 400, summary_cts3_status, 7, 0);
+                        13: print_status(272 + 440, summary_summary_cts3_status, 7, 0);
+                        14: print_status(272 + 520 - 7, vic_detected[7:2], 5, 0);
+                        15: print_status(272 + 520 + 2, vic_to_rx[5:0], 5, 0);
+                        16: print_status(272 + 560 - 1, misc_data, 6, 6);
+                        17: print_status(272 + 560 + 3, misc_data, 5, 5);
+                        18: print_status(272 + 560 + 7, misc_data, 3, 3);
+                        19: print_status(272 + 680, test, 7, 0);
 
                         default: begin
                             print_field <= 0;

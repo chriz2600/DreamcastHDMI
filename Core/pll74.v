@@ -105,9 +105,9 @@ module pll74 (
 				.vcounderrange ());
 	defparam
 		altpll_component.bandwidth_type = "AUTO",
-		altpll_component.clk0_divide_by = `PLL_CLK0_DIVIDE_BY,
+		altpll_component.clk0_divide_by = `ICS664_CLK_DIVIDE_BY,
 		altpll_component.clk0_duty_cycle = 50,
-		altpll_component.clk0_multiply_by = `PLL_CLK0_MULTIPLY_BY,
+		altpll_component.clk0_multiply_by = `ICS664_CLK_MULTIPLY_BY,
 		altpll_component.clk0_phase_shift = "0",
 		altpll_component.compensate_clock = "CLK0",
 		altpll_component.inclk0_input_frequency = 13468,

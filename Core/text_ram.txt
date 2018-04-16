@@ -1,5 +1,4 @@
         Dreamcast HDMI / DCHDMI         
-                                        
             @citrus3000psi              
               @chriz2600                
                                         
@@ -8,6 +7,7 @@ Chip ID high byte    01110101 /
 Chip ID low byte     00010001 /         
 PLL Lock Status [4]                     
 PLL no lock count (binary)              
+ram2video restart count                 
                                         
 CTS value [19:16]                       
 CTS value [19:16] variation*            

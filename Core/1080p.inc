@@ -31,8 +31,8 @@
 `define VIC_MANUAL                    6'b010000
 `define PIXEL_REPETITION
 
-`define PLL_CLK0_DIVIDE_BY               1
-`define PLL_CLK0_MULTIPLY_BY             1
+`define ICS664_CLK_DIVIDE_BY             1
+`define ICS664_CLK_MULTIPLY_BY           1
 
 `define INVERT_VIDEO_CLOCK            1'b0
 
