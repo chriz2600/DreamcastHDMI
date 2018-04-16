@@ -198,9 +198,6 @@ module ram2video(
     localparam SCANLINES_INTENSITY = 16;
 `endif
 `ifdef DEBUG
-    `define TEXT_OFFSET_COUNTER_X 160
-    `define TEXT_OFFSET_COUNTER_Y 48
-
     localparam TEXT_OFFSET_CHARACTER_X = `TEXT_OFFSET_COUNTER_X / 8;
     localparam TEXT_OFFSET_CHARACTER_Y = `TEXT_OFFSET_COUNTER_Y / 16;
 

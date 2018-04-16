@@ -2,6 +2,7 @@
 `ifndef _config_inc_
 `define _config_inc_
 
+// defaults for video2ram
 `define H_CAPTURE_START_P     10'd44
 `define H_CAPTURE_END_P      10'd684
 `define V_CAPTURE_START_P      10'd0
@@ -13,6 +14,13 @@
 `define V_CAPTURE_END_I      10'd504
 
 `define VERTICAL_LINE_WIDTH      640
+
+`define ICS664_SETTINGS_P    4'b1101
+`define ICS664_SETTINGS_I    4'b0011
+
+// debug: text overlay position
+`define TEXT_OFFSET_COUNTER_X 160
+`define TEXT_OFFSET_COUNTER_Y 48
 
 `ifdef _VGA_
 `include "VGA.inc"

@@ -34,17 +34,4 @@
 `define RAM_NUMWORDS                   640
 `define TRIGGER_ADDR               15'd320
 
-// special capture for 480p/480i
-`define H_CAPTURE_START_P            10'd0
-`define H_CAPTURE_END_P            10'd720
-`define V_CAPTURE_START_P            10'd0
-`define V_CAPTURE_END_P            10'd480
-
-`define H_CAPTURE_START_I            10'd0
-`define H_CAPTURE_END_I            10'd720
-`define V_CAPTURE_START_I            10'd0
-`define V_CAPTURE_END_I            10'd504
-
-`define VERTICAL_LINE_WIDTH            720
-
 `endif
