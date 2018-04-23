@@ -2,26 +2,6 @@
 `ifndef _config_inc_
 `define _config_inc_
 
-// defaults for video2ram
-`define H_CAPTURE_START_P     10'd44
-`define H_CAPTURE_END_P      10'd684
-`define V_CAPTURE_START_P      10'd0
-`define V_CAPTURE_END_P      10'd480
-
-`define H_CAPTURE_START_I      10'd1
-`define H_CAPTURE_END_I      10'd641
-`define V_CAPTURE_START_I      10'd0
-`define V_CAPTURE_END_I      10'd504
-
-`define VERTICAL_LINE_WIDTH      640
-
-`define ICS664_SETTINGS_P    4'b1101
-`define ICS664_SETTINGS_I    4'b0011
-
-// debug: text overlay position
-`define TEXT_OFFSET_COUNTER_X 160
-`define TEXT_OFFSET_COUNTER_Y 48
-
 `ifdef _VGA_
 `include "VGA.inc"
 `endif
@@ -36,6 +16,52 @@
 
 `ifdef _1080p_
 `include "1080p.inc"
+`endif
+
+// defaults:
+`ifndef ICS664_SETTINGS_P
+    `define ICS664_SETTINGS_P    4'b1101
+`endif
+`ifndef ICS664_SETTINGS_I
+    `define ICS664_SETTINGS_I    4'b0011
+`endif
+
+`ifndef TEXT_OFFSET_COUNTER_X
+    `define TEXT_OFFSET_COUNTER_X 160
+`endif
+`ifndef TEXT_OFFSET_COUNTER_Y
+    `define TEXT_OFFSET_COUNTER_Y 48
+`endif
+
+// defaults for video2ram
+`ifndef H_CAPTURE_START_P
+    `define H_CAPTURE_START_P     10'd44
+`endif
+`ifndef H_CAPTURE_END_P
+    `define H_CAPTURE_END_P      10'd684
+`endif
+`ifndef V_CAPTURE_START_P
+    `define V_CAPTURE_START_P      10'd0
+`endif
+`ifndef V_CAPTURE_END_P
+    `define V_CAPTURE_END_P      10'd480
+`endif
+
+`ifndef H_CAPTURE_START_I
+    `define H_CAPTURE_START_I      10'd1
+`endif
+`ifndef H_CAPTURE_END_I
+    `define H_CAPTURE_END_I      10'd641
+`endif
+`ifndef V_CAPTURE_START_I
+    `define V_CAPTURE_START_I      10'd0
+`endif
+`ifndef V_CAPTURE_END_I
+    `define V_CAPTURE_END_I      10'd504
+`endif
+
+`ifndef VERTICAL_LINE_WIDTH
+    `define VERTICAL_LINE_WIDTH      640
 `endif
 
 // common variables

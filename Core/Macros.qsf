@@ -1,5 +1,4 @@
 set_global_assignment -name VERILOG_MACRO _1080p_
-#set_global_assignment -name VERILOG_MACRO FORCE_480p
 #set_global_assignment -name VERILOG_MACRO DEBUG
 #set_global_assignment -name VERILOG_MACRO SCANLINES_EVEN
 #set_global_assignment -name VERILOG_MACRO SCANLINES_THICK
