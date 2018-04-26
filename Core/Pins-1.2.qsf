@@ -21,6 +21,7 @@ set_location_assignment PIN_141 -to data[11]
 # Dreamcast VGA / 480i/240p select
 ####################################################
 set_location_assignment PIN_142 -to video_mode_480p_n
+set_location_assignment PIN_33 -to status_led
 
 ####################################################
 # ICS 664-03 configuration

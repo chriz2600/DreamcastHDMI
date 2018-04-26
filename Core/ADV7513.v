@@ -232,7 +232,14 @@ always @ (posedge clk) begin
                                                               //                     000000, VIC#0: VIC Unavailable
                         26: cmd_counter <= PLL_CHECK_1;
 `else
-                        24: cmd_counter <= PLL_CHECK_1;
+                        24: write_i2c(CHIP_ADDR, 16'h_3B_80); // [7]:   fixed = 0b1
+                                                              // [6:5]: PR Mode = 0b10, manual mode
+                                                              // [4:3]: PR PLL Manual = 0b01, x2
+                                                              // [2:1]: PR Value Manual = 0b00, x1 to rx
+                                                              // [0]:   fixed = 0b0
+                        25: write_i2c(CHIP_ADDR, 16'h_3C_00); // [5:0]: VIC Manual = 010000 VIC#16: 1080p-60, 16:9
+                                                              //                     000000, VIC#0: VIC Unavailable
+                        26: cmd_counter <= PLL_CHECK_1;
 `endif
                         PLL_CHECK_1: read_i2c(CHIP_ADDR, 8'h_9E);
                         (PLL_CHECK_1+1): begin

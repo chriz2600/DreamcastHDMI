@@ -26,11 +26,19 @@
     `define ICS664_SETTINGS_I    4'b0011
 `endif
 
+`ifdef  PIXEL_REPETITION
+    `define TEXT_OFFSET_COUNTER_X_PR    320
+    `define TEXT_OFFSET_COUNTER_Y_PR     96
+`else
+    `define TEXT_OFFSET_COUNTER_X_PR    160
+    `define TEXT_OFFSET_COUNTER_Y_PR     48
+`endif
+
 `ifndef TEXT_OFFSET_COUNTER_X
-    `define TEXT_OFFSET_COUNTER_X 160
+    `define TEXT_OFFSET_COUNTER_X (`HORIZONTAL_OFFSET + `TEXT_OFFSET_COUNTER_X_PR)
 `endif
 `ifndef TEXT_OFFSET_COUNTER_Y
-    `define TEXT_OFFSET_COUNTER_Y 48
+    `define TEXT_OFFSET_COUNTER_Y (`VERTICAL_OFFSET + `TEXT_OFFSET_COUNTER_Y_PR)
 `endif
 
 // defaults for video2ram

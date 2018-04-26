@@ -20,7 +20,9 @@ module DCxPlus(
     output wire DE,
     output wire CLOCK,
     output wire [23:0] VIDEO,
-    output wire [3:0] S
+    output wire [3:0] S,
+
+    output wire status_led
 );
 
 wire clock54_net;
@@ -62,6 +64,7 @@ wire restart;
 `endif
 
 assign clock54_out = clock54_net;
+assign status_led = ~adv7513_ready;
 
 // DC config in, ics config out
 configuration configurator(
