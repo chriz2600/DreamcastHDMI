@@ -6,6 +6,7 @@ firmware:
     paths:
     - Core/output_files/*.jic
     - Core/output_files/*.rbf
+    - Core/output_files/*.dc
   tags:
     - dreamcast-hdmi
 
