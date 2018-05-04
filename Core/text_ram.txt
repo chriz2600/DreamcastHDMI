@@ -10,12 +10,12 @@ PLL no lock count (binary)
 ram2video restart count                 
                                         
 CTS value [19:16]                       
-CTS value [19:16] variation*            
+CTS value [19:16] max diff*             
 CTS value [15:8]                        
-CTS value [15:8] variation*             
+CTS value [15:8] max diff*              
 CTS value [7:0]                         
-CTS value [7:0] variation*              
-CTS value [7:0] previous var.*          
+CTS value [7:0] max diff*               
+CTS value [7:0] prev max diff*          
                                         
 VIC detected / to RX            /       
 HPD / Mon. sens / I2S-32bit      /   /  

@@ -73,9 +73,9 @@ reg [7:0] cts1_status = 0;
 reg [7:0] cts2_status = 0;
 reg [7:0] cts3_status = 0;
 
-reg [7:0] prev_cts1_status = 0;
-reg [7:0] prev_cts2_status = 0;
-reg [7:0] prev_cts3_status = 0;
+reg [7:0] max_cts1_status = 0;
+reg [7:0] max_cts2_status = 0;
+reg [7:0] max_cts3_status = 0;
 
 reg [7:0] summary_cts1_status = 0;
 reg [7:0] summary_cts2_status = 0;
@@ -117,7 +117,7 @@ always @ (posedge clk) begin
 
 `ifdef DEBUG
     if (restart) begin
-        restart_count <= restart_count + 1;
+        restart_count <= restart_count + 1'b1;
     end
 `endif
 
@@ -281,34 +281,22 @@ always @ (posedge clk) begin
 
                         CTS_CHECK_1: read_i2c(CHIP_ADDR, 8'h_04);
                         (CTS_CHECK_1+1): begin
-                            prev_cts1_status <= cts1_status;
-                            cts1_status <= i2c_data;
-                            cmd_counter <= CTS_CHECK_2;
-                            summary_cts1_status <= summary_cts1_status | (prev_cts1_status ^ cts1_status);
+                            do_cts(CTS_CHECK_2, cts1_status, max_cts1_status, max_cts1_status, summary_cts1_status, summary_cts1_status);
                         end
 
                         CTS_CHECK_2: read_i2c(CHIP_ADDR, 8'h_05);
                         (CTS_CHECK_2+1): begin
-                            prev_cts2_status <= cts2_status;
-                            cts2_status <= i2c_data;
-                            cmd_counter <= CTS_CHECK_3;
-                            summary_cts2_status <= summary_cts2_status | (prev_cts2_status ^ cts2_status);
+                            do_cts(CTS_CHECK_3, cts2_status, max_cts2_status, max_cts2_status, summary_cts2_status, summary_cts2_status);
                         end
 
                         CTS_CHECK_3: read_i2c(CHIP_ADDR, 8'h_06);
                         (CTS_CHECK_3+1): begin
-                            prev_cts3_status <= cts3_status;
-                            cts3_status <= i2c_data;
-                            cmd_counter <= VIC_CHECK_1;
-                            summary_cts3_status <= summary_cts3_status | (prev_cts3_status ^ cts3_status);
+                            do_cts(VIC_CHECK_1, cts3_status, max_cts3_status, max_cts3_status, summary_cts3_status, summary_cts3_status);
                         end
 
                         CTS_CHECK_3_2: read_i2c(CHIP_ADDR, 8'h_06);
                         (CTS_CHECK_3_2+1): begin
-                            prev_cts3_status <= cts3_status;
-                            cts3_status <= i2c_data;
-                            cmd_counter <= GOTO_READY;
-                            summary_cts3_status <= summary_cts3_status | (prev_cts3_status ^ cts3_status);
+                            do_cts(GOTO_READY, cts3_status, max_cts3_status, max_cts3_status, summary_cts3_status, summary_cts3_status);
                         end
 
                         VIC_CHECK_1: read_i2c(CHIP_ADDR, 8'h_3E);
@@ -375,6 +363,9 @@ always @ (posedge clk) begin
                 end
 
                 if (frame_counter == 1023) begin
+                    max_cts1_status <= 0;
+                    max_cts2_status <= 0;
+                    max_cts3_status <= 0;
                     summary_cts1_status <= 0;
                     summary_cts2_status <= 0;
                     summary_cts3_status <= 0;
@@ -421,6 +412,45 @@ always @ (posedge clk) begin
 end
 
 `ifdef DEBUG
+
+task do_cts;
+    input [5:0] next_cmd;
+    
+    output [7:0] cts_out;
+
+    input [7:0] max_cts_in;
+    output [7:0] max_cts_out;
+
+    input [7:0] offset_cts_in;
+    output [7:0] offset_cts_out;
+
+    begin
+        cmd_counter <= next_cmd;
+        cts_out <= i2c_data;
+        if (i2c_data >= max_cts_in) begin
+            max_cts_out <= i2c_data;
+        end else begin
+            max_cts_out <= max_cts_in;
+        end
+        calculate_offset(i2c_data, max_cts_in, offset_cts_in, offset_cts_out);
+    end
+endtask
+
+task calculate_offset;
+    input [7:0] cur;
+    input [7:0] max;
+    input [7:0] offset_cts_in;
+    output [7:0] offset_cts_out;
+
+    begin
+        if (max > cur && (max - cur) > offset_cts_in) begin
+            offset_cts_out <= max - cur;
+        end else begin
+            offset_cts_out <= offset_cts_in;
+        end
+    end
+endtask
+
 task print_status;
     input [9:0] addr;
     input [7:0] data;
