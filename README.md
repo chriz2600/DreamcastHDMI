@@ -24,10 +24,10 @@ We switched to a bigger FPGA to support more video output modes, 10CL016 and EP4
 
 | Output | Resolution | Notes | 10CL025 | 10CL016 | EP4CE6 |
 |:-:| -:| - |:-:|:-:|:-:|
-| VGA | 640x480 | *with correct pixel/aspect ratio* | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| 480p | 720x480 | *original output: usually only 640px of the available 720px are used*<br>***Incorrect** pixel/aspect ratio!* | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| 960p | 1280x960 |   | :white_check_mark: | :white_check_mark: | :x: |
-| 1080p | 1280x960 | *framed in 1920x1080* | :white_check_mark: | :x: | :x: |
+| VGA | 640x480 | **Correct** pixel/aspect ratio! | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| 480p | 720x480 | Original output: usually only 640px of the available 720px are used.<br>**Incorrect** pixel/aspect ratio! | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| 960p | 1280x960 | x2 VGA | :white_check_mark: | :white_check_mark: | :x: |
+| 1080p | 1280x960 | x2 VGA, framed in 1920x1080 | :white_check_mark: | :x: | :x: |
 
 ##### Other firmware features
 
