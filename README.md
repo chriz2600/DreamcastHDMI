@@ -1,10 +1,43 @@
-# DreamcastHDMI
+# DreamcastHDMI / DCHDMI
 
-#### [Main documentation][maindoc] (original version)
+#### [Original documentation][maindoc]
 
 ---
 
 ### News
+
+#### 2018-05-09
+
+##### Mainboard 1.2d *[Link](https://github.com/citrus3000psi/DCHDMI-Hardware)*
+
+Close to final FPGA mainboard by [citrus3000psi](https://twitter.com/citrus3000psi).
+
+Some features are currently unused (e.g. pads for maple bus integration).<br>They will allow some cool firmware extensions in the future (e.g. OSD)
+
+##### Flat flex 1.2a
+
+[citrus3000psi](https://twitter.com/citrus3000psi) designed a flat flex cable, which connects the Mainboard to the audio and video dacs.
+
+##### Cylcone 10 LP (10CL025):
+
+We switched to a bigger FPGA to support more video output modes, 10CL016 and EP4CE6 are also supported.
+
+| Output | Resolution | Notes | 10CL025 | 10CL016 | EP4CE6 |
+|:-:| -:| - |:-:|:-:|:-:|
+| VGA | 640x480 | *with correct pixel/aspect ratio* | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| 480p | 720x480 | *original output: usually only 640px of the available 720px are used*<br>***Incorrect** pixel/aspect ratio!* | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| 960p | 1280x960 |   | :white_check_mark: | :white_check_mark: | :x: |
+| 1080p | 1280x960 | *framed in 1920x1080* | :white_check_mark: | :x: | :x: |
+
+##### Other firmware features
+
+- basic 480i line doubling
+
+- 240p support
+
+- Scanlines. <br>Available by rebuilding the firmware and defining `SCANLINES_EVEN/SCANLINES_ODD`, `SCANLINES_THICK/SCANLINES_THIN` and `SCANLINES_INTENSITY` in `Macros.qsf`
+
+- *Upcoming:* OSD. Maple bus connection is already on the 1.2d mainboard. Will be used in a later firmware.
 
 #### 2018-03-05
 
@@ -86,9 +119,9 @@ Some details about the Dreamcast scaling issue on modern HDTVs: [Video details l
 
 0. ~~Create cheaper solution based on simple FPGA development board.~~
 0. ~~Use FPGA to enable 480p mode. Currently I have to plug in a VGA cable ;)~~
-0. Design FPGA board with Cyclone IV FPGA and ADV7513 transmitter. ~~I'm planning to include some RAM to be able to implement 480i as well as basic upscaling later.~~
-    Edit: I don't need external RAM for line doubling.
-0. Design flat flex circuit to connect Dreamcast video DAC and audio DAC to FPGA board.
+0. ~~Design FPGA board with Cyclone IV FPGA and ADV7513 transmitter. I'm planning to include some RAM to be able to implement 480i as well as basic upscaling later.
+    Edit: I don't need external RAM for line doubling.~~
+0. ~~Design flat flex circuit to connect Dreamcast video DAC and audio DAC to FPGA board.~~
 0. Detailed HOWTOs.
 
 ---
