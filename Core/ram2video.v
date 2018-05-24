@@ -137,11 +137,13 @@ module ram2video(
                     if (counterY_reg >= `VERTICAL_OFFSET
                      && ram_addrY_reg < `RAM_NUMWORDS - `BUFFER_LINE_LENGTH) begin
 `ifdef PIXEL_REPETITION
-                        if (counterY_reg[0]) begin
+                        if (counterY_reg[0] && (!line_doubler || counterY_reg[1])) begin
                             ram_addrY_reg <= ram_addrY_reg + `BUFFER_LINE_LENGTH;
                         end
 `else
-                        ram_addrY_reg <= ram_addrY_reg + `BUFFER_LINE_LENGTH;
+                        if (!line_doubler || counterY_reg[0]) begin
+                            ram_addrY_reg <= ram_addrY_reg + `BUFFER_LINE_LENGTH;
+                        end
 `endif
                         //$display("2: y:%0d ay:%0d", counterY_reg, ram_addrY_reg);
 

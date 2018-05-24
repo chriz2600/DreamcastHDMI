@@ -50,8 +50,8 @@
     `define TEXT_HEIGHT_DIVIDER          16
     `define TEXT_RD_ADDR_LOWER_BIT_Y      4
     `define TEXT_CHAR_ADDR_LOWER_BIT_Y    0
-    `define TEXT_PADDING_Y                6
     `define TEXT_PADDING_Y               32
+    `define TEXT_PADDING_Y2               6
 `endif
 
 // defaults for video2ram
@@ -83,6 +83,12 @@
 
 `ifndef VERTICAL_LINE_WIDTH
     `define VERTICAL_LINE_WIDTH      640
+`endif
+
+`ifdef OUTPUT_4_2_2
+    `define OUTPUT_FMT       8'b10000001
+`else
+    `define OUTPUT_FMT       8'b00000000
 `endif
 
 // common variables
