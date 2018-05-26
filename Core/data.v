@@ -62,7 +62,7 @@ module data(
         end
     end
 
-    always @(negedge clock) begin
+    always @(posedge clock) begin
         hsync_reg <= _hsync;
         vsync_reg <= _vsync;
         
