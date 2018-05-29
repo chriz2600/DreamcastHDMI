@@ -27,7 +27,6 @@ module DCxPlus(
 
 wire clock54_net;
 wire pll54_locked;
-wire clock27;
 wire hdmi_clock;
 wire pll74_locked;
 
@@ -98,7 +97,6 @@ data video_input(
     ._vsync(_vsync),
     .line_doubler(_240p_480i_mode),
     .indata(data),
-    .clock_out(clock27),
     .add_line(add_line_mode),
     .blue(dc_blue),
     .counterX(data_in_counter_x),
@@ -108,7 +106,7 @@ data video_input(
 );
 
 video2ram video2ram(
-    .clock(clock27),
+    .clock(clock54_net),
     .line_doubler(_240p_480i_mode),
     .B(dc_blue),
     .counterX(data_in_counter_x),

@@ -5,8 +5,6 @@ module data(
     input _hsync,
     input _vsync,
     input line_doubler,
-
-    output clock_out,
     
     output [7:0] red,
     output [7:0] green,
@@ -128,7 +126,6 @@ module data(
     assign red = red_reg;
     assign green = green_reg;
     assign blue = blue_reg;
-    assign clock_out = ~raw_counterX_reg[0];
     assign add_line = add_line_reg;
 
 endmodule

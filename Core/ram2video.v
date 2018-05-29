@@ -233,7 +233,7 @@ module ram2video(
     `define GetData(x, y) (`IsDrawAreaVGA(x, y) ? \
         (`IsDrawAreaText(x, y, `TEXT_PADDING_X, `TEXT_PADDING_Y) ? \
             (`IsDrawAreaText(x, y, `TEXT_PADDING_X2, `TEXT_PADDING_Y2) && char_data_req[7-counterX_reg_q_q[2:0]] ? {24{1'b1}} \
-                : 24'h00FF00 /*`GetRdData(y, OSD_BACKGROUND_ALPHA)*/) \
+                : `GetRdData(y, OSD_BACKGROUND_ALPHA)) \
             : `GetRdData(y, 16)) \
         : 24'h00)
 `else 

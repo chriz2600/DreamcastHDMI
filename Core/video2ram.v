@@ -29,6 +29,7 @@ module video2ram(
     reg [`RAM_ADDRESS_BITS-1:0] wraddr_reg;
     reg [`RAM_ADDRESS_BITS-1:0] ram_addrY_reg;
     reg trigger;
+    reg [11:0] counterX_prev;
 
     always @(*) begin
         if (line_doubler) begin
@@ -67,8 +68,9 @@ module video2ram(
     end
 
     always @ (posedge clock) begin
+        counterX_prev <= counterX;
 
-        if (counterX == H_CAPTURE_END) begin // calculate ram_addrY_reg once per line
+        if (counterX_prev == H_CAPTURE_END && counterX == H_CAPTURE_END) begin // calculate ram_addrY_reg once per line
             if (`IsVerticalCaptureTime(counterY)
              && ram_addrY_reg < `RAM_NUMWORDS - `BUFFER_LINE_LENGTH) begin
                 ram_addrY_reg <= ram_addrY_reg + `BUFFER_LINE_LENGTH;
