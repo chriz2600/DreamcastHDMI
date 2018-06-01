@@ -1,4 +1,4 @@
-FROM chriz2600/quartus-lite
+FROM chriz2600/quartus-lite:latest
 
 RUN apt-get update && apt-get install -y curl
 ADD files/51-usbblaster.rules /etc/udev/rules.d/51-usbblaster.rules

@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------- #
 #
-# Copyright (C) 2017  Intel Corporation. All rights reserved.
+# Copyright (C) 2018  Intel Corporation. All rights reserved.
 # Your use of Intel Corporation's design tools, logic functions 
 # and other software and tools, and its AMPP partner logic 
 # functions, and any output files from any of the foregoing 
@@ -8,18 +8,17 @@
 # associated documentation or information are expressly subject 
 # to the terms and conditions of the Intel Program License 
 # Subscription Agreement, the Intel Quartus Prime License Agreement,
-# the Intel MegaCore Function License Agreement, or other 
-# applicable license agreement, including, without limitation, 
-# that your use is for the sole purpose of programming logic 
-# devices manufactured by Intel and sold by Intel or its 
-# authorized distributors.  Please refer to the applicable 
-# agreement for further details.
+# the Intel FPGA IP License Agreement, or other applicable license
+# agreement, including, without limitation, that your use is for
+# the sole purpose of programming logic devices manufactured by
+# Intel and sold by Intel or its authorized distributors.  Please
+# refer to the applicable agreement for further details.
 #
 # -------------------------------------------------------------------------- #
 #
 # Quartus Prime
-# Version 17.0.0 Build 595 04/25/2017 SJ Lite Edition
-# Date created = 18:51:47  May 22, 2017
+# Version 18.0.0 Build 614 04/24/2018 SJ Lite Edition
+# Date created = 15:49:03  June 01, 2018
 #
 # -------------------------------------------------------------------------- #
 #
@@ -64,73 +63,73 @@ set_global_assignment -name ENABLE_HPS_INTERNAL_TIMING Off
 set_global_assignment -name EMIF_SOC_PHYCLK_ADVANCE_MODELING Off
 set_global_assignment -name USE_DLL_FREQUENCY_FOR_DQS_DELAY_CHAIN Off
 set_global_assignment -name ANALYZE_LATCHES_AS_SYNCHRONOUS_ELEMENTS On
-set_global_assignment -name TIMEQUEST_REPORT_SCRIPT_INCLUDE_DEFAULT_ANALYSIS On
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS On -family "Arria V"
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS On -family "Cyclone 10 LP"
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS On -family "MAX 10"
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS On -family "Stratix IV"
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS On -family "Cyclone IV E"
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS On -family "Arria 10"
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS Off -family "MAX V"
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS On -family "Stratix V"
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS On -family "Arria V GZ"
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS Off -family "MAX II"
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS On -family "Arria II GX"
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS On -family "Arria II GZ"
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS On -family "Cyclone IV GX"
-set_global_assignment -name TIMEQUEST_MULTICORNER_ANALYSIS On -family "Cyclone V"
-set_global_assignment -name TIMEQUEST_DO_REPORT_TIMING Off
-set_global_assignment -name TIMEQUEST_REPORT_WORST_CASE_TIMING_PATHS Off -family "Arria V"
-set_global_assignment -name TIMEQUEST_REPORT_WORST_CASE_TIMING_PATHS On -family "Cyclone 10 LP"
-set_global_assignment -name TIMEQUEST_REPORT_WORST_CASE_TIMING_PATHS Off -family "MAX 10"
-set_global_assignment -name TIMEQUEST_REPORT_WORST_CASE_TIMING_PATHS Off -family "Stratix IV"
-set_global_assignment -name TIMEQUEST_REPORT_WORST_CASE_TIMING_PATHS On -family "Cyclone IV E"
-set_global_assignment -name TIMEQUEST_REPORT_WORST_CASE_TIMING_PATHS Off -family "Arria 10"
-set_global_assignment -name TIMEQUEST_REPORT_WORST_CASE_TIMING_PATHS On -family "MAX V"
-set_global_assignment -name TIMEQUEST_REPORT_WORST_CASE_TIMING_PATHS Off -family "Stratix V"
-set_global_assignment -name TIMEQUEST_REPORT_WORST_CASE_TIMING_PATHS Off -family "Arria V GZ"
-set_global_assignment -name TIMEQUEST_REPORT_WORST_CASE_TIMING_PATHS On -family "MAX II"
-set_global_assignment -name TIMEQUEST_REPORT_WORST_CASE_TIMING_PATHS Off -family "Arria II GX"
-set_global_assignment -name TIMEQUEST_REPORT_WORST_CASE_TIMING_PATHS Off -family "Arria II GZ"
-set_global_assignment -name TIMEQUEST_REPORT_WORST_CASE_TIMING_PATHS On -family "Cyclone IV GX"
-set_global_assignment -name TIMEQUEST_REPORT_WORST_CASE_TIMING_PATHS Off -family "Cyclone V"
-set_global_assignment -name TIMEQUEST_REPORT_NUM_WORST_CASE_TIMING_PATHS 100
-set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL On -family "Arria V"
-set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL On -family "Cyclone 10 LP"
-set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL On -family "MAX 10"
-set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL On -family "Cyclone IV E"
-set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL On -family "Stratix IV"
-set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL On -family "Arria 10"
-set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL Off -family "MAX V"
-set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL On -family "Stratix V"
-set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL On -family "Arria V GZ"
-set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL Off -family "MAX II"
-set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL On -family "Arria II GX"
-set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL On -family "Arria II GZ"
-set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL On -family "Cyclone IV GX"
-set_global_assignment -name TIMEQUEST_DO_CCPP_REMOVAL On -family "Cyclone V"
+set_global_assignment -name TIMING_ANALYZER_REPORT_SCRIPT_INCLUDE_DEFAULT_ANALYSIS On
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS On -family "Arria V"
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS On -family "Cyclone 10 LP"
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS On -family "MAX 10"
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS On -family "Stratix IV"
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS On -family "Cyclone IV E"
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS On -family "Arria 10"
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS Off -family "MAX V"
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS On -family "Stratix V"
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS On -family "Arria V GZ"
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS Off -family "MAX II"
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS On -family "Arria II GX"
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS On -family "Arria II GZ"
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS On -family "Cyclone IV GX"
+set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS On -family "Cyclone V"
+set_global_assignment -name TIMING_ANALYZER_DO_REPORT_TIMING Off
+set_global_assignment -name TIMING_ANALYZER_REPORT_WORST_CASE_TIMING_PATHS Off -family "Arria V"
+set_global_assignment -name TIMING_ANALYZER_REPORT_WORST_CASE_TIMING_PATHS On -family "Cyclone 10 LP"
+set_global_assignment -name TIMING_ANALYZER_REPORT_WORST_CASE_TIMING_PATHS Off -family "MAX 10"
+set_global_assignment -name TIMING_ANALYZER_REPORT_WORST_CASE_TIMING_PATHS Off -family "Stratix IV"
+set_global_assignment -name TIMING_ANALYZER_REPORT_WORST_CASE_TIMING_PATHS On -family "Cyclone IV E"
+set_global_assignment -name TIMING_ANALYZER_REPORT_WORST_CASE_TIMING_PATHS Off -family "Arria 10"
+set_global_assignment -name TIMING_ANALYZER_REPORT_WORST_CASE_TIMING_PATHS On -family "MAX V"
+set_global_assignment -name TIMING_ANALYZER_REPORT_WORST_CASE_TIMING_PATHS Off -family "Stratix V"
+set_global_assignment -name TIMING_ANALYZER_REPORT_WORST_CASE_TIMING_PATHS Off -family "Arria V GZ"
+set_global_assignment -name TIMING_ANALYZER_REPORT_WORST_CASE_TIMING_PATHS On -family "MAX II"
+set_global_assignment -name TIMING_ANALYZER_REPORT_WORST_CASE_TIMING_PATHS Off -family "Arria II GX"
+set_global_assignment -name TIMING_ANALYZER_REPORT_WORST_CASE_TIMING_PATHS Off -family "Arria II GZ"
+set_global_assignment -name TIMING_ANALYZER_REPORT_WORST_CASE_TIMING_PATHS On -family "Cyclone IV GX"
+set_global_assignment -name TIMING_ANALYZER_REPORT_WORST_CASE_TIMING_PATHS Off -family "Cyclone V"
+set_global_assignment -name TIMING_ANALYZER_REPORT_NUM_WORST_CASE_TIMING_PATHS 100
+set_global_assignment -name TIMING_ANALYZER_DO_CCPP_REMOVAL On -family "Arria V"
+set_global_assignment -name TIMING_ANALYZER_DO_CCPP_REMOVAL On -family "Cyclone 10 LP"
+set_global_assignment -name TIMING_ANALYZER_DO_CCPP_REMOVAL On -family "MAX 10"
+set_global_assignment -name TIMING_ANALYZER_DO_CCPP_REMOVAL On -family "Cyclone IV E"
+set_global_assignment -name TIMING_ANALYZER_DO_CCPP_REMOVAL On -family "Stratix IV"
+set_global_assignment -name TIMING_ANALYZER_DO_CCPP_REMOVAL On -family "Arria 10"
+set_global_assignment -name TIMING_ANALYZER_DO_CCPP_REMOVAL Off -family "MAX V"
+set_global_assignment -name TIMING_ANALYZER_DO_CCPP_REMOVAL On -family "Stratix V"
+set_global_assignment -name TIMING_ANALYZER_DO_CCPP_REMOVAL On -family "Arria V GZ"
+set_global_assignment -name TIMING_ANALYZER_DO_CCPP_REMOVAL Off -family "MAX II"
+set_global_assignment -name TIMING_ANALYZER_DO_CCPP_REMOVAL On -family "Arria II GX"
+set_global_assignment -name TIMING_ANALYZER_DO_CCPP_REMOVAL On -family "Arria II GZ"
+set_global_assignment -name TIMING_ANALYZER_DO_CCPP_REMOVAL On -family "Cyclone IV GX"
+set_global_assignment -name TIMING_ANALYZER_DO_CCPP_REMOVAL On -family "Cyclone V"
 set_global_assignment -name OPTIMIZATION_MODE Balanced
 set_global_assignment -name ALLOW_REGISTER_MERGING On
 set_global_assignment -name ALLOW_REGISTER_DUPLICATION On
-set_global_assignment -name TIMEQUEST_SPECTRA_Q OFF -family "Arria V"
-set_global_assignment -name TIMEQUEST_SPECTRA_Q ON -family "Cyclone 10 LP"
-set_global_assignment -name TIMEQUEST_SPECTRA_Q OFF -family "MAX 10"
-set_global_assignment -name TIMEQUEST_SPECTRA_Q OFF -family "Stratix IV"
-set_global_assignment -name TIMEQUEST_SPECTRA_Q OFF -family "Cyclone IV E"
-set_global_assignment -name TIMEQUEST_SPECTRA_Q ON -family "Arria 10"
-set_global_assignment -name TIMEQUEST_SPECTRA_Q OFF -family "MAX V"
-set_global_assignment -name TIMEQUEST_SPECTRA_Q OFF -family "Stratix V"
-set_global_assignment -name TIMEQUEST_SPECTRA_Q OFF -family "Arria V GZ"
-set_global_assignment -name TIMEQUEST_SPECTRA_Q OFF -family "MAX II"
-set_global_assignment -name TIMEQUEST_SPECTRA_Q OFF -family "Arria II GX"
-set_global_assignment -name TIMEQUEST_SPECTRA_Q OFF -family "Arria II GZ"
-set_global_assignment -name TIMEQUEST_SPECTRA_Q OFF -family "Cyclone IV GX"
-set_global_assignment -name TIMEQUEST_SPECTRA_Q OFF -family "Cyclone V"
+set_global_assignment -name DISABLE_LEGACY_TIMING_ANALYZER OFF -family "Arria V"
+set_global_assignment -name DISABLE_LEGACY_TIMING_ANALYZER ON -family "Cyclone 10 LP"
+set_global_assignment -name DISABLE_LEGACY_TIMING_ANALYZER OFF -family "MAX 10"
+set_global_assignment -name DISABLE_LEGACY_TIMING_ANALYZER OFF -family "Stratix IV"
+set_global_assignment -name DISABLE_LEGACY_TIMING_ANALYZER OFF -family "Cyclone IV E"
+set_global_assignment -name DISABLE_LEGACY_TIMING_ANALYZER ON -family "Arria 10"
+set_global_assignment -name DISABLE_LEGACY_TIMING_ANALYZER OFF -family "MAX V"
+set_global_assignment -name DISABLE_LEGACY_TIMING_ANALYZER OFF -family "Stratix V"
+set_global_assignment -name DISABLE_LEGACY_TIMING_ANALYZER OFF -family "Arria V GZ"
+set_global_assignment -name DISABLE_LEGACY_TIMING_ANALYZER OFF -family "MAX II"
+set_global_assignment -name DISABLE_LEGACY_TIMING_ANALYZER OFF -family "Arria II GX"
+set_global_assignment -name DISABLE_LEGACY_TIMING_ANALYZER OFF -family "Arria II GZ"
+set_global_assignment -name DISABLE_LEGACY_TIMING_ANALYZER OFF -family "Cyclone IV GX"
+set_global_assignment -name DISABLE_LEGACY_TIMING_ANALYZER OFF -family "Cyclone V"
 set_global_assignment -name MUX_RESTRUCTURE Auto
 set_global_assignment -name MLAB_ADD_TIMING_CONSTRAINTS_FOR_MIXED_PORT_FEED_THROUGH_MODE_SETTING_DONT_CARE Off
 set_global_assignment -name ENABLE_IP_DEBUG Off
 set_global_assignment -name SAVE_DISK_SPACE On
-set_global_assignment -name OCP_HW_EVAL -value ENABLE
+set_global_assignment -name OCP_HW_EVAL Enable
 set_global_assignment -name DEVICE_FILTER_PACKAGE Any
 set_global_assignment -name DEVICE_FILTER_PIN_COUNT Any
 set_global_assignment -name DEVICE_FILTER_SPEED_GRADE Any
@@ -297,7 +296,7 @@ set_global_assignment -name ROUTER_CLOCKING_TOPOLOGY_ANALYSIS Off
 set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 1.0
 set_global_assignment -name ROUTER_EFFORT_MULTIPLIER 1.0
 set_global_assignment -name FIT_ATTEMPTS_TO_SKIP 0.0
-set_global_assignment -name SPECTRAQ_PHYSICAL_SYNTHESIS Off
+set_global_assignment -name PHYSICAL_SYNTHESIS Off
 set_global_assignment -name ECO_ALLOW_ROUTING_CHANGES Off
 set_global_assignment -name DEVICE AUTO
 set_global_assignment -name BASE_PIN_OUT_FILE_ON_SAMEFRAME_DEVICE Off

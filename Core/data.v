@@ -24,11 +24,11 @@ module data(
     reg [7:0] green_reg;
     reg [7:0] blue_reg;
 
-    reg [11:0] raw_counterX_reg;
+    reg [11:0] raw_counterX_reg = 0;
     reg [11:0] counterX_reg;
     reg [11:0] counterX_reg_q;
 
-    reg [11:0] raw_counterY_reg;
+    reg [11:0] raw_counterY_reg = 0;
     reg [11:0] counterY_reg;
     reg [11:0] counterY_reg_q;
 
@@ -37,8 +37,14 @@ module data(
     reg [9:0] VISIBLE_AREA_WIDTH;
     reg [9:0] VISIBLE_AREA_HEIGHT;
     
-    reg add_line_reg;
+    reg add_line_reg = 0;
     
+    initial begin
+        raw_counterX_reg <= 0;
+        raw_counterY_reg <= 0;
+        add_line_reg <= 0;
+    end
+
     always @(*) begin
         if (line_doubler) begin
             if (add_line) begin
@@ -61,6 +67,19 @@ module data(
     end
 
     always @(posedge clock) begin
+`ifdef GENERATED_SYNC_TIMING
+        if (raw_counterX_reg < 857) begin
+            raw_counterX_reg <= raw_counterX_reg + 1'b1;
+        end else begin
+            raw_counterX_reg <= 0;
+
+            if (raw_counterY_reg < 524) begin
+                raw_counterY_reg <= raw_counterY_reg + 1'b1;
+            end else begin
+                raw_counterY_reg <= 0;
+            end
+        end
+`else
         hsync_reg <= _hsync;
         vsync_reg <= _vsync;
         
@@ -84,7 +103,8 @@ module data(
         end else begin
             raw_counterX_reg <= raw_counterX_reg + 1'b1;
         end
-        
+`endif
+
         // recalculate counterX and counterY to match visible area
         if (raw_counterX_reg == VISIBLE_AREA_HSTART) begin
             counterX_reg <= 0;
@@ -101,6 +121,27 @@ module data(
         // store red and first half of green
         if (counterX_reg >= 0 && counterX_reg < VISIBLE_AREA_WIDTH 
          && counterY_reg >= 0 && counterY_reg < VISIBLE_AREA_HEIGHT) begin
+`ifdef GENERATED_INPUT_VIDEO
+            // store values on even clock
+            if (raw_counterX_reg[0]) begin
+                // red_reg_buf <= indata[11:4];
+                // green_reg_buf[7:4] <= indata[3:0];
+            end else begin
+                // apply combined values of red, green, blue simultanesly
+                // red_reg <= red_reg_buf;
+                // green_reg <= { green_reg_buf[7:4], indata[11:8] };
+                // blue_reg <= indata[7:0];
+                if (counterX_reg[5] ^ counterY_reg[5]) begin
+                    red_reg <= 8'd255;
+                    green_reg <= 8'd255;
+                    blue_reg <= 8'd255;
+                end else begin
+                    red_reg <= 8'd0;
+                    green_reg <= 8'd0;
+                    blue_reg <= 8'd0;
+                end
+            end
+`else
             // store values on even clock
             if (raw_counterX_reg[0]) begin
                 red_reg_buf <= indata[11:4];
@@ -111,6 +152,7 @@ module data(
                 green_reg <= { green_reg_buf[7:4], indata[11:8] };
                 blue_reg <= indata[7:0];
             end
+`endif
         end else begin
             red_reg <= 8'd0;
             green_reg <= 8'd0;
