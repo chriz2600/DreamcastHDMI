@@ -1,5 +1,10 @@
 #!/usr/bin/perl -w
 
+use strict;
+use File::Basename;
+
+chdir dirname($0);
+
 sub dec2bin {
     my $str = unpack("B32", pack("N", shift));
     $str =~ s/^0+(?=\d)(........)$/$1/;
@@ -20,11 +25,29 @@ BEGIN
 EOF
 ;
 
-my $x=0;
+my $version = $ENV{'CI_COMMIT_REF_NAME'};
+
+unless (defined($version)) {
+    $version = "";
+}
+
+if ($version eq "master") {
+    $version = $ENV{'CI_COMMIT_SHA'};
+}
+
+if ($version eq "") {
+    $version = `date +"%Y%m%d%H%M%S"`
+}
+
+chomp($version);
+$version = sprintf("%13s", $version);
+
+my $x = 0;
 my $data="";
 open(TXT, "< text_ram.txt");
 while (<TXT>) {
     chomp($_);
+    $_ =~ s/__FW_VERSION__/$version/g;
     $data .= $_;
 }
 

@@ -19,6 +19,6 @@ CTS value [7:0] prev max diff*
                                         
 VIC detected / to RX            /       
 HPD / Mon. sens / I2S-32bit      /   /  
+Firmware version          __FW_VERSION__
                                         
-* bits differnt within cycle count      
-  period (1024 frames)                  
+* cycle count (1024 frames)             
