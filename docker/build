@@ -10,10 +10,15 @@ if [ -z "$SRV" ] ; then
     exit 1
 fi
 
-SRCVOLUME=""
+if [ "$SRV" ] ; then SRV=$(realpath $SRV) ; fi
 
-if [ ! -z "$SOURCE" ] ; then
+SRCVOLUME=""
+SKIP_PULL="false"
+
+if [ "$SOURCE" ] ; then
+    SOURCE=$(realpath $SOURCE)
     SRCVOLUME="-v $SOURCE:/root/DreamcastHDMI"
+    SKIP_PULL="true"
 fi
 
-docker run --rm -it -v $SRV:/srv/ $SRCVOLUME chriz2600/dreamcast-hdmi:latest /root/build
+docker run --rm -it -e "SKIP_PULL=$SKIP_PULL" -v $SRV:/srv/ $SRCVOLUME chriz2600/dreamcast-hdmi:latest /root/build

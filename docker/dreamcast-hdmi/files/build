@@ -7,5 +7,7 @@ source $(dirname $0)/build.projects
 cd /root/DreamcastHDMI/
 CWD=$(pwd)
 
-git pull
+if [ "$SKIP_PULL" != "true" ] ; then 
+    git pull
+fi
 doBuildProjects
