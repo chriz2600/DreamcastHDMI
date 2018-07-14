@@ -71,12 +71,12 @@ module data(
         `define RAW_WIDTH 1716
         `define RAW_HEIGHT 525
 
-        if (raw_counterX_reg < RAW_WIDTH - 1) begin
+        if (raw_counterX_reg < `RAW_WIDTH - 1) begin
             raw_counterX_reg <= raw_counterX_reg + 1'b1;
         end else begin
             raw_counterX_reg <= 0;
 
-            if (raw_counterY_reg < RAW_HEIGHT - 1) begin
+            if (raw_counterY_reg < `RAW_HEIGHT - 1) begin
                 raw_counterY_reg <= raw_counterY_reg + 1'b1;
             end else begin
                 raw_counterY_reg <= 0;
