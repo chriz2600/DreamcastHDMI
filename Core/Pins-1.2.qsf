@@ -87,3 +87,9 @@ set_location_assignment PIN_51 -to VIDEO[3]
 set_location_assignment PIN_50 -to VIDEO[2]
 set_location_assignment PIN_49 -to VIDEO[1]
 set_location_assignment PIN_46 -to VIDEO[0]
+
+####################################################
+# I2C slave connection to ESP8266
+####################################################
+set_location_assignment PIN_28 -to ESP_SDA
+set_location_assignment PIN_11 -to ESP_SCL

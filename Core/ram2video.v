@@ -11,10 +11,8 @@ module ram2video(
     input add_line,
 
     output [`RAM_ADDRESS_BITS-1:0] rdaddr,
-`ifdef DEBUG
     input [7:0] text_rddata,
     output [9:0] text_rdaddr,
-`endif    
     output [23:0] video_out,
     
     output hsync,
@@ -22,7 +20,9 @@ module ram2video(
     
     output DrawArea,
     output videoClock,
-    output reg restart
+    output reg restart,
+
+    input enable_osd
 );
 
     reg [10:0] vlines; // vertical lines per frame
@@ -69,7 +69,6 @@ module ram2video(
         .fall(al_fall)
     );
 
-`ifdef DEBUG
     wire [10:0] char_addr;
     wire [7:0] char_data;
     char_rom char_rom_inst(
@@ -77,7 +76,6 @@ module ram2video(
         .clock(clock),
         .q(char_data)
     );
-`endif
 
     initial begin
         doReset(1'b0);
@@ -199,7 +197,7 @@ module ram2video(
 `else
     localparam SCANLINES_INTENSITY = 16;
 `endif
-`ifdef DEBUG
+//`ifdef DEBUG
     localparam TEXT_OFFSET_CHARACTER_X = (`TEXT_OFFSET_COUNTER_X + `HORIZONTAL_OFFSET) / `TEXT_WIDTH_DIVIDER;
     localparam TEXT_OFFSET_CHARACTER_Y = (`TEXT_OFFSET_COUNTER_Y + `VERTICAL_OFFSET) / `TEXT_HEIGHT_DIVIDER;
 
@@ -225,7 +223,8 @@ module ram2video(
     assign char_addr = (text_rddata_reg[31:24] << 4) + counterY_reg[`TEXT_RD_ADDR_LOWER_BIT_Y-1:`TEXT_CHAR_ADDR_LOWER_BIT_Y];
 
     `define IsDrawAreaText(x, y, paddingX, paddingY)  ( \
-        x >= `HORIZONTAL_OFFSET + `TEXT_OFFSET_COUNTER_X - paddingX \
+        enable_osd \
+        && x >= `HORIZONTAL_OFFSET + `TEXT_OFFSET_COUNTER_X - paddingX \
         && x < `HORIZONTAL_PIXELS_VISIBLE - `HORIZONTAL_OFFSET - `TEXT_OFFSET_COUNTER_X + paddingX \
         && y >= `VERTICAL_OFFSET + `TEXT_OFFSET_COUNTER_Y - paddingY \
         && y < `VERTICAL_LINES_VISIBLE - `VERTICAL_OFFSET - `TEXT_OFFSET_COUNTER_Y + paddingY)
@@ -236,9 +235,9 @@ module ram2video(
                 : `GetRdData(y, OSD_BACKGROUND_ALPHA)) \
             : `GetRdData(y, 16)) \
         : 24'h00)
-`else 
-    `define GetData(x, y) (`IsDrawAreaVGA(x, y) ? (`IsScanline(y) ? `GetRdData(y, SCANLINES_INTENSITY) : rddata) : 24'h00)
-`endif
+// `else 
+//     `define GetData(x, y) (`IsDrawAreaVGA(x, y) ? (`IsScanline(y) ? `GetRdData(y, SCANLINES_INTENSITY) : rddata) : 24'h00)
+// `endif
 
     `define IsDrawAreaHDMI(x, y)   (x >= 0 && x < `HORIZONTAL_PIXELS_VISIBLE \
                                  && y >= 0 && y < `VERTICAL_LINES_VISIBLE)

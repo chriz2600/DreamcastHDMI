@@ -38,6 +38,11 @@ set_global_assignment -name QIP_FILE char_rom.qip
 set_global_assignment -name QIP_FILE text_ram.qip
 set_global_assignment -name VERILOG_FILE video2ram.v
 set_global_assignment -name VERILOG_FILE ram2video.v
+set_global_assignment -name VERILOG_FILE i2c_slave/timescale.v
+set_global_assignment -name VERILOG_FILE i2c_slave/serialInterface.v
+set_global_assignment -name VERILOG_FILE i2c_slave/i2cSlave_define.v
+set_global_assignment -name VERILOG_FILE i2c_slave/i2cSlave.v
+set_global_assignment -name VERILOG_FILE i2c_slave/registerInterface.v
 set_global_assignment -name SDC_FILE DCxPlus.sdc
 set_global_assignment -name SIGNALTAP_FILE stp1.stp
 set_global_assignment -name CDF_FILE "DCxPlus-10CL025.cdf"

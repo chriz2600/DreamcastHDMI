@@ -9,12 +9,7 @@ module ADV7513(
 
     inout sda,
     inout scl,
-`ifdef DEBUG
-    output reg text_wren,
-    output reg [9:0] text_wraddr,
-    output reg [7:0] text_wrdata,
     input restart,
-`endif
     output reg ready
 );
 
@@ -51,16 +46,11 @@ reg [1:0] state;
 reg [7:0] cmd_counter;
 reg [7:0] pll_errors = 0;
 
-`ifdef DEBUG
 reg VSYNC_reg = 0;
 reg DE_reg = 0;
-reg trigger = 0;
 reg [7:0] test = 0;
 
 reg [9:0] frame_counter = 0;
-reg [7:0] counter = 0;
-reg [7:0] print_field = 0;
-
 reg [7:0] pll_status = 0;
 reg [7:0] id_check_high = 0;
 reg [7:0] id_check_low = 0;
@@ -83,7 +73,6 @@ reg [7:0] summary_cts3_status = 0;
 reg [7:0] summary_summary_cts3_status = 0;
 
 reg [7:0] restart_count = 0;
-`endif 
 
 localparam CHIP_ADDR = 7'h39;
 
@@ -95,7 +84,6 @@ localparam  s_start  = 0,
 localparam INIT_START    = 8'd0;
 localparam PLL_CHECK_1   = 8'd32;
 localparam INIT_NEXT     = 8'd15;
-`ifdef DEBUG
 localparam CHIP_REVISION = 8'd40;
 localparam ID_CHECK_H    = 8'd42;
 localparam ID_CHECK_L    = 8'd44;
@@ -107,7 +95,6 @@ localparam VIC_CHECK_1   = 8'd54;
 localparam VIC_CHECK_2   = 8'd56;
 localparam MISC_CHECK    = 8'd58;
 localparam CTS_CHECK_3_2 = 8'd60;
-`endif
 // CSC
 localparam CSC = 8'd127;
 
@@ -119,11 +106,9 @@ end
 
 always @ (posedge clk) begin
 
-`ifdef DEBUG
     if (restart) begin
         restart_count <= restart_count + 1'b1;
     end
-`endif
 
     if (~reset) begin
         state <= s_start;
@@ -131,10 +116,8 @@ always @ (posedge clk) begin
         i2c_enable <= 1'b0;
         ready <= 0;
     end else begin
-`ifdef DEBUG
         VSYNC_reg <= VSYNC;
         DE_reg <= DE;
-`endif
         case (state)
             
             s_start: begin
@@ -262,7 +245,6 @@ always @ (posedge clk) begin
                             end
                         end
 
-`ifdef DEBUG
                         CHIP_REVISION: read_i2c(CHIP_ADDR, 8'h_00);
                         (CHIP_REVISION+1): begin
                             chip_revision <= i2c_data;
@@ -327,7 +309,6 @@ always @ (posedge clk) begin
                             misc_data <= i2c_data;
                             cmd_counter <= GOTO_READY;
                         end
-`endif
 `ifdef OUTPUT_4_2_2
                         // ADV Programmer's Handbook, page 54
                         // Table 37 RGB (Full Range) to HDTV YCbCr (Limited Range)
@@ -386,21 +367,13 @@ always @ (posedge clk) begin
                 if (~hdmi_int) begin
                     state <= s_start;
                     ready <= 0;
-`ifdef DEBUG
-                    trigger <= 0;
                 end else if (~DE_reg && DE) begin
                     cmd_counter <= CTS_CHECK_3_2;
                     state <= s_start;
-                    trigger <= 0;
                 end else if (~VSYNC_reg && VSYNC) begin
                     cmd_counter <= CHIP_REVISION;
                     state <= s_start;
-                    trigger <= 0;
                     frame_counter <= frame_counter + 1'b1;
-                end else if (VSYNC_reg && ~VSYNC) begin
-                    trigger <= 1;
-                    print_field <= 1;
-                    counter <= 0;
                 end
 
                 if (frame_counter == 1023) begin
@@ -414,45 +387,11 @@ always @ (posedge clk) begin
                     frame_counter <= 0;
                     test <= test + 1'b1;
                 end
-
-                if (trigger && print_field > 0) begin
-                    text_wren <= 1;
-                    case (print_field)
-                        1: print_status(272 -  80, chip_revision, 7, 0);
-                        2: print_status(272 -  40, id_check_high, 7, 0);
-                        3: print_status(272 +   0, id_check_low, 7, 0);
-                        4: print_status(272 +  40 + 7, pll_status, 4, 4);
-                        5: print_status(272 +  80, pll_errors, 7, 0);
-                        6: print_status(272 + 120, restart_count, 7, 0);
-                        7: print_status(272 + 200 + 4, cts1_status, 3, 0);
-                        8: print_status(272 + 240 + 4, summary_cts1_status, 3, 0);
-                        9: print_status(272 + 280, cts2_status, 7, 0);
-                        10: print_status(272 + 320, summary_cts2_status, 7, 0);
-                        11: print_status(272 + 360, cts3_status, 7, 0);
-                        12: print_status(272 + 400, summary_cts3_status, 7, 0);
-                        13: print_status(272 + 440, summary_summary_cts3_status, 7, 0);
-                        14: print_status(272 + 520 - 7, vic_detected[7:2], 5, 0);
-                        15: print_status(272 + 520 + 2, vic_to_rx[5:0], 5, 0);
-                        16: print_status(272 + 560 - 1, misc_data, 6, 6);
-                        17: print_status(272 + 560 + 3, misc_data, 5, 5);
-                        18: print_status(272 + 560 + 7, misc_data, 3, 3);
-                        19: print_status(272 + 680, test, 7, 0);
-
-                        default: begin
-                            print_field <= 0;
-                        end
-                    endcase
-                end else begin
-                    text_wren <= 0;
-`endif
-                end
             end
             
         endcase
     end
 end
-
-`ifdef DEBUG
 
 task do_cts;
     input [5:0] next_cmd;
@@ -491,25 +430,6 @@ task calculate_offset;
         end
     end
 endtask
-
-task print_status;
-    input [9:0] addr;
-    input [7:0] data;
-    input [4:0] high;
-    input [4:0] low;
-
-    begin
-        if (counter < (high - low + 1)) begin
-            text_wraddr <= addr + counter;
-            text_wrdata <= data[high - counter] ? "1" : "0";
-            counter <= counter + 1'b1;
-        end else begin
-            print_field <= print_field + 1'b1;
-            counter <= 0;
-        end
-    end
-endtask
-`endif
 
 task write_i2c;
     input [6:0] t_chip_addr;

@@ -22,6 +22,9 @@ module DCxPlus(
     output wire [23:0] VIDEO,
     output wire [3:0] S,
 
+    inout ESP_SDA,
+    input ESP_SCL,
+
     output wire status_led
 );
 
@@ -53,17 +56,17 @@ wire adv7513_reset;
 wire adv7513_ready;
 wire ram2video_ready;
 
-`ifdef DEBUG
 wire [9:0] text_rdaddr;
 wire [7:0] text_rddata;
 wire [9:0] text_wraddr;
 wire [7:0] text_wrdata;
 wire text_wren;
 wire restart;
-`endif
+wire enable_osd;
 
 assign clock54_out = clock54_net;
 assign status_led = ~adv7513_ready;
+assign enable_osd = 1'b1;
 
 // DC config in, ics config out
 configuration configurator(
@@ -152,12 +155,11 @@ ram2video ram2video(
     .DrawArea(DE),
     .videoClock(CLOCK),
     .rdaddr(ram_rdaddress),
-`ifdef DEBUG
     .text_rddata(text_rddata),
     .text_rdaddr(text_rdaddr),
     .restart(restart),
-`endif
-    .video_out(VIDEO)
+    .video_out(VIDEO),
+    .enable_osd(enable_osd)
 );
 
 ADV7513 adv7513(
@@ -168,12 +170,7 @@ ADV7513 adv7513(
     .DE(DE),
     .sda(SDAT),
     .scl(SCLK),
-`ifdef DEBUG
-    .text_wren(text_wren),
-    .text_wraddr(text_wraddr),
-    .text_wrdata(text_wrdata),
     .restart(restart),
-`endif
     .ready(adv7513_ready)
 );
 
@@ -189,7 +186,6 @@ startup ram2video_startup_delay(
     .ready(ram2video_ready)
 );
 
-`ifdef DEBUG
 text_ram text_ram_inst(
     .clock(hdmi_clock),
     .data(text_wrdata),
@@ -198,6 +194,16 @@ text_ram text_ram_inst(
     .wren(text_wren),
     .q(text_rddata)
 );
-`endif
+
+i2cSlave i2cSlave(
+    .clk(hdmi_clock),
+    .rst(1'b0),
+    .sda(ESP_SDA),
+    .scl(ESP_SCL),
+    .ram_dataIn(text_wrdata),
+    .ram_wraddress(text_wraddr),
+    .ram_wren(text_wren),
+    .enable_osd(enable_osd)
+);
 
 endmodule
