@@ -6,6 +6,27 @@
 
 ### News
 
+#### 2018-07-17
+
+##### Mainboard 1.2e *[Link](https://github.com/citrus3000psi/DCHDMI-Hardware)*
+
+Finally finalized hardware 🎉 All interference issues are solved, we're now entering beta phase!
+
+##### Rolling releases
+
+The `master` branch will now contain the latest stable release. Development version moved to `develop`.
+
+Firmware updates are easily downloaded and installed via WiFi [FirmwareManager](https://github.com/chriz2600/FirmwareManager).
+
+Currently the following features are planned:
+
+- OSD
+- Output resolution switchable via OSD
+- Dreamcast video mode control (pin6)
+- 480p trick
+- 240p x2 and x3 modes
+- Disc based firmware updates
+
 #### 2018-05-09
 
 ##### Mainboard 1.2d *[Link](https://github.com/citrus3000psi/DCHDMI-Hardware)*

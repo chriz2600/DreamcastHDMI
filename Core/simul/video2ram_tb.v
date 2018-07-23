@@ -27,9 +27,7 @@ module video2ram_tb;
   wire DE;
   wire CLOCK;
   
-  wire [7:0] RED;
-  wire [7:0] GREEN;
-  wire [7:0] BLUE;
+  wire [23:0] video_out;
 
   video2ram video2ram(
     .clock(clkIn),
@@ -65,9 +63,7 @@ module video2ram_tb;
     .DrawArea(DE),
     .videoClock(CLOCK),
     .rdaddr(rdaddr),
-    .red(RED),
-    .green(GREEN),
-    .blue(BLUE)
+    .video_out(video_out)
   );
 
 `ifdef _1080p_
@@ -113,6 +109,7 @@ module video2ram_tb;
 
   initial 
     begin
+      
       counterX <= 0;
       counterY <= 0;
       $monitor("%0d - %0d: %0dx%0d %0d(%0d) %0dx%0d %0d", $time, starttriggerOut, counterX, counterY, wraddr, wren, ram2video.counterX_reg, ram2video.counterY_reg, rdaddr);
