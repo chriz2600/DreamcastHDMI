@@ -82,7 +82,7 @@ Usage: ./docker/program <path_to_file_to_program>
 
 #### Windows
 
-If 
+You need to have [Quartus Prime Lite](http://dl.altera.com/?edition=lite) installed.
 
 ```
 ```

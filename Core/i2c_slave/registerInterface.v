@@ -64,16 +64,20 @@ reg [2:0] addr_offset = 3'b000;
 reg [7:0] dataOut_reg;
 reg [9:0] wraddress_reg;
 reg wren;
+reg enable_osd_reg = 1'b0;
 
 assign dataOut = dataOut_reg;
 assign ram_wraddress = wraddress_reg;
 assign ram_dataIn = dataIn;
 assign ram_wren = wren;
+assign enable_osd = enable_osd_reg;
 
 // --- I2C Read
 always @(posedge clk) begin
   if (addr == 8'h80) begin
     dataOut_reg <= addr_offset;
+  end else if (addr == 8'h81) begin
+    dataOut_reg <= enable_osd_reg;
   end
 end
 
@@ -82,7 +86,9 @@ always @(posedge clk) begin
   if (writeEn == 1'b1) begin
     if (addr == 8'h80) begin
       addr_offset <= dataIn[2:0];
-    end else begin
+    end else if (addr == 8'h81) begin
+      enable_osd_reg <= dataIn[0];
+    end else if (addr < 8'h80) begin
       wraddress_reg <= { addr_offset, addr[6:0] };
       wren <= 1'b1;
     end

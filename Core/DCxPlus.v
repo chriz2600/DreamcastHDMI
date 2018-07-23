@@ -66,7 +66,6 @@ wire enable_osd;
 
 assign clock54_out = clock54_net;
 assign status_led = ~adv7513_ready;
-assign enable_osd = 1'b1;
 
 // DC config in, ics config out
 configuration configurator(
