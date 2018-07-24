@@ -4,4 +4,9 @@ cd $(dirname $0)
 
 source .setup
 
+if [ -z "$1" ] ; then
+    echo "usage: $0 <.cof>"
+    exit 1
+fi
+
 docker_run quartus_cpf -c "$@"

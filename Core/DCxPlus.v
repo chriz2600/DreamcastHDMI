@@ -63,6 +63,7 @@ wire [7:0] text_wrdata;
 wire text_wren;
 wire restart;
 wire enable_osd;
+DebugData debugData;
 
 assign clock54_out = clock54_net;
 assign status_led = ~adv7513_ready;
@@ -170,7 +171,8 @@ ADV7513 adv7513(
     .sda(SDAT),
     .scl(SCLK),
     .restart(restart),
-    .ready(adv7513_ready)
+    .ready(adv7513_ready),
+    .debugData_out(debugData)
 );
 
 startup adv7513_startup_delay(
@@ -202,7 +204,8 @@ i2cSlave i2cSlave(
     .ram_dataIn(text_wrdata),
     .ram_wraddress(text_wraddr),
     .ram_wren(text_wren),
-    .enable_osd(enable_osd)
+    .enable_osd(enable_osd),
+    .debugData(debugData)
 );
 
 endmodule

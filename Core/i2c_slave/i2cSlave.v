@@ -54,7 +54,8 @@ module i2cSlave (
   output[7:0] ram_dataIn,
   output[9:0] ram_wraddress,
   output ram_wren,
-  output enable_osd
+  output enable_osd,
+  input DebugData debugData
 );
 
 // local wires and regs
@@ -162,7 +163,8 @@ registerInterface u_registerInterface(
   .ram_dataIn(ram_dataIn),
   .ram_wraddress(ram_wraddress),
   .ram_wren(ram_wren),
-  .enable_osd(enable_osd)
+  .enable_osd(enable_osd),
+  .debugData(debugData)
 );
 
 serialInterface u_serialInterface (
