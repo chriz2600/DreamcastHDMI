@@ -190,7 +190,7 @@ module ram2video(
 `ifdef OSD_BACKGROUND_ALPHA
     localparam OSD_BACKGROUND_ALPHA = `OSD_BACKGROUND_ALPHA;
 `else
-    localparam OSD_BACKGROUND_ALPHA = 16;
+    localparam OSD_BACKGROUND_ALPHA = 64;
 `endif
 `ifdef SCANLINES_INTENSITY
     localparam SCANLINES_INTENSITY = `SCANLINES_INTENSITY;
