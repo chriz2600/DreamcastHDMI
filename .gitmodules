@@ -1,3 +1,4 @@
 [submodule "FirmwareManager"]
 	path = FirmwareManager
 	url = https://github.com/chriz2600/FirmwareManager.git
+	branch = develop
