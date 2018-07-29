@@ -6,6 +6,17 @@
 
 ### News
 
+#### 2018-07-29
+
+- Maple bus integration to read controller data
+
+    Uses code by Marcus Comstedt (zeldin) from his [MapleMojo](https://github.com/zeldin/MapleMojo) project.
+    <br>This enables leeching controller data directly from the maple bus to control the OSD.
+
+- Added [I2C slave](https://opencores.org/project/i2cslave) implementation by Steve Fielding.
+
+    Enables ESP to write to OSD RAM and get the controller data aquired from the maple bus to control OSD.
+
 #### 2018-07-17
 
 ##### Mainboard 1.2e *[Link](https://github.com/citrus3000psi/DCHDMI-Hardware)*

@@ -220,6 +220,7 @@ module ram2video(
     end
 
     assign text_rdaddr = text_rdaddr_x + text_rdaddr_y;
+    // bit 7 of text_rddata_reg[31:24] is currently ignored, as we only have a 7 bit charset, maybe this could be used as invert character indicator later
     assign char_addr = (text_rddata_reg[31:24] << 4) + counterY_reg[`TEXT_RD_ADDR_LOWER_BIT_Y-1:`TEXT_CHAR_ADDR_LOWER_BIT_Y];
 
     `define IsDrawAreaText(x, y, paddingX, paddingY)  ( \
