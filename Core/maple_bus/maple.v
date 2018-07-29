@@ -66,9 +66,7 @@ always @(posedge clk) begin
         // check for controller packet, to assign output data
         if (controller_packet_check == 4'b1111) begin
             cdata_out[11:1] <= cdata_in[11:1];
-            if (/*cdata_out.trigger_osd ||*/ pullup_osd == 4'b1111) begin
-                cdata_out.trigger_osd <= 1'b1;
-            end
+            cdata_out.trigger_osd <= (pullup_osd == 4'b1111);
         end
     end
     // get maple bus data
