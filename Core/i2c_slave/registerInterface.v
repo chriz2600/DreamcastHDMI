@@ -58,7 +58,8 @@ module registerInterface (
     output[9:0] ram_wraddress,
     output ram_wren,
     output enable_osd,
-    input DebugData debugData
+    input DebugData debugData,
+    input ControllerData controller_data
 );
 
 reg [2:0] addr_offset = 3'b000;
@@ -79,6 +80,25 @@ always @(posedge clk) begin
         // ...
         8'h80: dataOut_reg <= addr_offset;
         8'h81: dataOut_reg <= enable_osd_reg;
+        // controller data, int16
+        /*
+            15: a
+            14: b
+            13: x
+            12: y
+            11: up
+            10: down
+            09: left
+            08: right
+        */
+        8'h85: dataOut_reg <= controller_data[11:4];
+        /*
+            07: start
+            06: ltrigger
+            05: rtrigger
+            04: trigger_osd
+        */
+        8'h86: dataOut_reg <= { controller_data[3:0], 4'b0000 };
         // general debug data
         8'h90: dataOut_reg <= debugData.pll_errors;
         8'h91: dataOut_reg <= debugData.test;

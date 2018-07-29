@@ -25,6 +25,9 @@ module DCxPlus(
     inout ESP_SDA,
     input ESP_SCL,
 
+    input MAPLE_PIN1,
+    input MAPLE_PIN5,
+
     output wire status_led
 );
 
@@ -64,6 +67,7 @@ wire text_wren;
 wire restart;
 wire enable_osd;
 DebugData debugData;
+ControllerData controller_data;
 
 assign clock54_out = clock54_net;
 assign status_led = ~adv7513_ready;
@@ -205,7 +209,15 @@ i2cSlave i2cSlave(
     .ram_wraddress(text_wraddr),
     .ram_wren(text_wren),
     .enable_osd(enable_osd),
-    .debugData(debugData)
+    .debugData(debugData),
+    .controller_data(controller_data)
+);
+
+maple mapleBus(
+    .clk(hdmi_clock),
+    .pin1(MAPLE_PIN1),
+    .pin5(MAPLE_PIN5),
+    .controller_data(controller_data)
 );
 
 endmodule

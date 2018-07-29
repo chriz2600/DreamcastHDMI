@@ -28,3 +28,22 @@ typedef struct packed {
     reg [7:0] restart_count;
 } DebugData;
 
+// Maple Controller Data
+typedef struct packed {
+    reg a;           // 11
+    reg b;           // 10
+    reg x;           // 09
+    reg y;           // 08
+
+    reg up;          // 07
+    reg down;        // 06
+    reg left;        // 05
+    reg right;       // 04
+
+    reg start;       // 03
+    reg ltrigger;    // 02
+    reg rtrigger;    // 01
+
+    // meta
+    reg trigger_osd; // 00
+} ControllerData;

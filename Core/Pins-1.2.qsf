@@ -93,3 +93,10 @@ set_location_assignment PIN_46 -to VIDEO[0]
 ####################################################
 set_location_assignment PIN_28 -to ESP_SDA
 set_location_assignment PIN_11 -to ESP_SCL
+
+####################################################
+# Maple Bus connection
+# PAD1 is MAPLE_PIN1, PAD2 is MAPLE_PIN5
+####################################################
+set_location_assignment PIN_31 -to MAPLE_PIN1
+set_location_assignment PIN_32 -to MAPLE_PIN5
