@@ -1,24 +1,24 @@
-        Dreamcast HDMI / DCHDMI         
-            @citrus3000psi              
-              @chriz2600                
+
+                                      
+                 
+                      
+                   
+          
                                         
-Chip revision        00010011 /         
-Chip ID high byte    01110101 /         
-Chip ID low byte     00010001 /         
-PLL Lock Status [4]                     
-PLL no lock count (binary)              
-ram2video restart count                 
+ @citrus3000psi  @chriz2600 
                                         
-CTS value [19:16]                       
-CTS value [19:16] max diff*             
-CTS value [15:8]                        
-CTS value [15:8] max diff*              
-CTS value [7:0]                         
-CTS value [7:0] max diff*               
-CTS value [7:0] prev max diff*          
                                         
-VIC detected / to RX            /       
-HPD / Mon. sens / I2S-32bit      /   /  
-Firmware version          __FW_VERSION__
                                         
-* cycle count (1024 frames)             
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+                                        
+

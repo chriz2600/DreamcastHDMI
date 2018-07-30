@@ -66,6 +66,7 @@ wire [7:0] text_wrdata;
 wire text_wren;
 wire restart;
 wire enable_osd;
+wire [7:0] highlight_line;
 DebugData debugData;
 ControllerData controller_data;
 
@@ -163,7 +164,8 @@ ram2video ram2video(
     .text_rdaddr(text_rdaddr),
     .restart(restart),
     .video_out(VIDEO),
-    .enable_osd(enable_osd)
+    .enable_osd(enable_osd),
+    .highlight_line(highlight_line)
 );
 
 ADV7513 adv7513(
@@ -210,7 +212,8 @@ i2cSlave i2cSlave(
     .ram_wren(text_wren),
     .enable_osd(enable_osd),
     .debugData(debugData),
-    .controller_data(controller_data)
+    .controller_data(controller_data),
+    .highlight_line(highlight_line)
 );
 
 maple mapleBus(

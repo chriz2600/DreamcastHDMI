@@ -58,6 +58,7 @@ module registerInterface (
     output[9:0] ram_wraddress,
     output ram_wren,
     output enable_osd,
+    output[7:0] highlight_line,
     input DebugData debugData,
     input ControllerData controller_data
 );
@@ -67,12 +68,14 @@ reg [7:0] dataOut_reg;
 reg [9:0] wraddress_reg;
 reg wren;
 reg enable_osd_reg = 1'b0;
+reg [7:0] highlight_line_reg = 7;
 
 assign dataOut = dataOut_reg;
 assign ram_wraddress = wraddress_reg;
 assign ram_dataIn = dataIn;
 assign ram_wren = wren;
 assign enable_osd = enable_osd_reg;
+assign highlight_line = highlight_line_reg;
 
 // --- I2C Read
 always @(posedge clk) begin
@@ -134,6 +137,8 @@ always @(posedge clk) begin
             addr_offset <= dataIn[2:0];
         end else if (addr == 8'h81) begin
             enable_osd_reg <= dataIn[0];
+        end else if (addr == 8'h82) begin 
+            highlight_line_reg <= dataIn;
         end else if (addr < 8'h80) begin
             wraddress_reg <= { addr_offset, addr[6:0] };
             wren <= 1'b1;

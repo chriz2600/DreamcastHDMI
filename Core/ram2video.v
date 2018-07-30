@@ -22,7 +22,8 @@ module ram2video(
     output videoClock,
     output reg restart,
 
-    input enable_osd
+    input enable_osd,
+    input [7:0] highlight_line
 );
 
     reg [10:0] vlines; // vertical lines per frame
@@ -232,7 +233,14 @@ module ram2video(
 
     `define GetData(x, y) (`IsDrawAreaVGA(x, y) ? \
         (`IsDrawAreaText(x, y, `TEXT_PADDING_X, `TEXT_PADDING_Y) ? \
-            (`IsDrawAreaText(x, y, `TEXT_PADDING_X2, `TEXT_PADDING_Y2) && char_data_req[7-counterX_reg_q_q[2:0]] ? {24{1'b1}} \
+            (`IsDrawAreaText(x, y, `TEXT_PADDING_X2, `TEXT_PADDING_Y2) ? \
+                (((y[11:`TEXT_RD_ADDR_LOWER_BIT_Y] - TEXT_OFFSET_CHARACTER_Y) == highlight_line) ? \
+                    (~(char_data_req[7-counterX_reg_q_q[2:0]]) ? \
+                        {24{1'b1}} \
+                        : `GetRdData(y, OSD_BACKGROUND_ALPHA)) \
+                    : ((char_data_req[7-counterX_reg_q_q[2:0]]) ? \
+                        {24{1'b1}} \
+                        : `GetRdData(y, OSD_BACKGROUND_ALPHA))) \
                 : `GetRdData(y, OSD_BACKGROUND_ALPHA)) \
             : `GetRdData(y, 16)) \
         : 24'h00)
