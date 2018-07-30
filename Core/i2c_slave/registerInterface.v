@@ -68,7 +68,7 @@ reg [7:0] dataOut_reg;
 reg [9:0] wraddress_reg;
 reg wren;
 reg enable_osd_reg = 1'b0;
-reg [7:0] highlight_line_reg = 7;
+reg [7:0] highlight_line_reg = 255;
 
 assign dataOut = dataOut_reg;
 assign ram_wraddress = wraddress_reg;
