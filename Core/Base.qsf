@@ -28,6 +28,7 @@ set_global_assignment -name VERILOG_FILE DCxPlus.v
 set_global_assignment -name VERILOG_FILE Flag_CrossDomain.v
 set_global_assignment -name VERILOG_FILE startup.v
 set_global_assignment -name VERILOG_FILE I2C.v
+set_global_assignment -name VERILOG_FILE char_rom.v
 set_global_assignment -name VHDL_FILE i2c_master.vhd
 set_global_assignment -name VERILOG_FILE data.v
 set_global_assignment -name VERILOG_FILE ADV7513.v
@@ -36,7 +37,7 @@ set_global_assignment -name VERILOG_FILE typedef.v
 set_global_assignment -name QIP_FILE pll54.qip
 set_global_assignment -name QIP_FILE pll74.qip
 set_global_assignment -name QIP_FILE ram.qip
-set_global_assignment -name QIP_FILE char_rom.qip
+#set_global_assignment -name QIP_FILE char_rom.qip
 set_global_assignment -name QIP_FILE text_ram.qip
 set_global_assignment -name VERILOG_FILE video2ram.v
 set_global_assignment -name VERILOG_FILE ram2video.v
@@ -81,5 +82,7 @@ set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_
 set_instance_assignment -name PLL_COMPENSATE ON -to data
 set_instance_assignment -name PLL_COMPENSATE ON -to _hsync
 set_instance_assignment -name PLL_COMPENSATE ON -to _vsync
+
+set_global_assignment -name AUTO_ROM_RECOGNITION Off
 
 source Macros.qsf

@@ -6,6 +6,12 @@
 
 ### News
 
+#### 2018-08-05
+
+Updated the old 2017 block diagram to reflect some of the changes introduced since then:
+
+![Block diagram 2018][DCblockNew]
+
 #### 2018-07-29
 
 - Maple bus integration to read controller data
@@ -181,6 +187,7 @@ Some details about the Dreamcast scaling issue on modern HDTVs: [Video details l
 [IC401solderPoints]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/VideoDACSolderingPoints.png
 [DCvideo]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/dc-video.png
 [DCblock]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/DC-Block.png
+[DCblockNew]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/DC-Block-new.png
 [dc-hso]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Dreamcast_Hardware_Specification_Outline.pdf
 [ADV7513]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Datasheets/ADV7513.pdf
 [PCM1725]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Datasheets/pcm1725.pdf

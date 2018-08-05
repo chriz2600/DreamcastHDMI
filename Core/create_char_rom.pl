@@ -2,42 +2,45 @@
 
 my $x=0;
 
-open(MIF_OUT, "> char_rom.mif");
+open(MIF_OUT, "> char_rom.v");
 
 print MIF_OUT <<EOF
--- character ROM
---   - 8-by-16 (8-by-2^4) font
---   - 128 (2^7) characters
---   - ROM size: 512-by-8 (2^11-by-8) bits
---               16K bits
--- created by create_char_rom.pl from char_rom.mif.in
+module char_rom (
+    input [10:0] address,
+    input clock,
+    output [7:0] q
+);
 
-DEPTH = 2048;
-WIDTH = 8;
-ADDRESS_RADIX = DEC;
-DATA_RADIX = BIN;
+reg[7:0] q_reg;
+reg[7:0] q_reg_2;
 
-CONTENT
-BEGIN
+assign q = q_reg_2;
+
+always @(posedge clock) begin
+    case (address)
 EOF
 ;
 
 open(MIF_IN, "< char_rom.mif.in");
 while(<MIF_IN>){
     chomp($_);
+    $_ =~ s:^([0-9]{8};) -- (.*)$:$1 // $2:g;
     if ($_ =~ /^\s*--/) { 
-        print MIF_OUT $_ . "\n"; 
+        print MIF_OUT "        // " . $_ . "\n";
     } elsif ($_ =~ /^\s*$/) { 
         ; 
     } else { 
-        print MIF_OUT sprintf("%04d", $x) . " : " . $_ . "\n";
+        print MIF_OUT sprintf("        %04d", $x) . ": q_reg <= 8'b" . $_ . "\n";
         $x++;
     }
 }
 close(MIF_IN);
 
 print MIF_OUT <<EOF
-END;
+    endcase
+    q_reg_2 <= q_reg;
+end
+endmodule
 EOF
 ;
 
