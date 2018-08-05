@@ -187,7 +187,7 @@ Some details about the Dreamcast scaling issue on modern HDTVs: [Video details l
 [IC401solderPoints]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/VideoDACSolderingPoints.png
 [DCvideo]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/dc-video.png
 [DCblock]: https://github.com/chriz2600/DreamcastHDMI/raw/master/assets/DC-Block.png
-[DCblockNew]: https://github.com/chriz2600/DreamcastHDMI/raw/develop/assets/DC-Block-201808.png
+[DCblockNew]: https://gitlab.com/chriz2600/DreamcastHDMI/raw/develop/assets/DC-Block-201808.png
 [dc-hso]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Dreamcast_Hardware_Specification_Outline.pdf
 [ADV7513]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Datasheets/ADV7513.pdf
 [PCM1725]: https://github.com/chriz2600/DreamcastHDMI/raw/master/Documents/Datasheets/pcm1725.pdf
