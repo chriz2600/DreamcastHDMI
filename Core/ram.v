@@ -48,9 +48,9 @@ module ram (
 	q);
 
 	input	[23:0]  data;
-	input	[`RAM_ADDRESS_BITS-1:0]  rdaddress;
+	input	[14:0]  rdaddress;
 	input	  rdclock;
-	input	[`RAM_ADDRESS_BITS-1:0]  wraddress;
+	input	[14:0]  wraddress;
 	input	  wrclock;
 	input	  wren;
 	output	[23:0]  q;
@@ -99,14 +99,14 @@ module ram (
 		altsyncram_component.intended_device_family = "Cyclone IV E",
 		altsyncram_component.lpm_type = "altsyncram",
 		altsyncram_component.maximum_depth = 4096,
-		altsyncram_component.numwords_a = `RAM_NUMWORDS,
-		altsyncram_component.numwords_b = `RAM_NUMWORDS,
+		altsyncram_component.numwords_a = 21120,
+		altsyncram_component.numwords_b = 21120,
 		altsyncram_component.operation_mode = "DUAL_PORT",
 		altsyncram_component.outdata_aclr_b = "NONE",
 		altsyncram_component.outdata_reg_b = "CLOCK1",
 		altsyncram_component.power_up_uninitialized = "FALSE",
-		altsyncram_component.widthad_a = `RAM_ADDRESS_BITS,
-		altsyncram_component.widthad_b = `RAM_ADDRESS_BITS,
+		altsyncram_component.widthad_a = 15,
+		altsyncram_component.widthad_b = 15,
 		altsyncram_component.width_a = 24,
 		altsyncram_component.width_b = 24,
 		altsyncram_component.width_byteena_a = 1;

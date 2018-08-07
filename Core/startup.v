@@ -1,6 +1,11 @@
 `include "config.inc"
 
-module startup (input clock, input reset, output reg ready);
+module startup(
+    input clock,
+    input nreset,
+    output reg ready,
+    input [31:0] startup_delay
+);
 
     reg [31:0] counter;
 
@@ -9,18 +14,18 @@ module startup (input clock, input reset, output reg ready);
         counter <= 0;
     end
 
-    always @ (posedge clock) // on positive clock edge
+    always @ (posedge clock or negedge nreset)
     begin
-        if (~reset) begin
+        if (~nreset) begin
             ready <= 0;
             counter <= 0;
         end else begin
-            counter <= #1 counter + 1; // increment counter
+            counter <= #1 counter + 1;
             
-            if (counter == `PIXEL_CLK * `STARTUP_TIME_IN_MILLIS / 1000) begin
+            if (counter == startup_delay) begin
                 ready <= 1;
             end
         end
     end
     
-endmodule // end of module counter
+endmodule

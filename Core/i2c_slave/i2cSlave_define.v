@@ -28,7 +28,7 @@
 // If you are using a clock frequency below 24MHz, then the macro
 // for SDA_DEL_LEN will result in compile errors for i2cSlave.v
 // you will need to hand tweak the SDA_DEL_LEN constant definition
-`define CLK_FREQ `PIXEL_CLK / 1000 / 1000
+`define CLK_FREQ `I2C_BASE_FREQ_FOR_CALCULATIONS / 1000 / 1000
 
 // Debounce SCL and SDA over this many clock ticks
 // The rise time of SCL and SDA can be up to 1000nS (in standard mode)

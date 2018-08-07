@@ -12,11 +12,13 @@ module video2ram(
     input line_doubler,
     
     output [23:0] wrdata,
-    output [`RAM_ADDRESS_BITS-1:0] wraddr,
+    output [14:0] wraddr,
     output wren,
     output wrclock,
     
-    output starttrigger
+    output starttrigger,
+
+    input DCVideoConfig dcVideoConfig
 );
 
     reg [9:0] H_CAPTURE_START;
@@ -26,29 +28,28 @@ module video2ram(
 
     reg wren_reg;
     reg [23:0] wrdata_reg;
-    reg [`RAM_ADDRESS_BITS-1:0] wraddr_reg;
-    reg [`RAM_ADDRESS_BITS-1:0] ram_addrY_reg;
+    reg [14:0] wraddr_reg;
+    reg [14:0] ram_addrY_reg;
     reg trigger;
     reg [11:0] counterX_prev;
 
     always @(*) begin
         if (line_doubler) begin
-            H_CAPTURE_START = `H_CAPTURE_START_I;
-            H_CAPTURE_END   = `H_CAPTURE_END_I;
-            V_CAPTURE_START = `V_CAPTURE_START_I;
-            V_CAPTURE_END   = `V_CAPTURE_END_I;
+            H_CAPTURE_START = dcVideoConfig.i_horizontal_capture_start;
+            H_CAPTURE_END   = dcVideoConfig.i_horizontal_capture_end;
+            V_CAPTURE_START = dcVideoConfig.i_vertical_capture_start;
+            V_CAPTURE_END   = dcVideoConfig.i_vertical_capture_end;
         end else begin
-            H_CAPTURE_START = `H_CAPTURE_START_P;
-            H_CAPTURE_END   = `H_CAPTURE_END_P;
-            V_CAPTURE_START = `V_CAPTURE_START_P;
-            V_CAPTURE_END   = `V_CAPTURE_END_P;
+            H_CAPTURE_START = dcVideoConfig.p_horizontal_capture_start;
+            H_CAPTURE_END   = dcVideoConfig.p_horizontal_capture_end;
+            V_CAPTURE_START = dcVideoConfig.p_vertical_capture_start;
+            V_CAPTURE_END   = dcVideoConfig.p_vertical_capture_end;
         end
     end
     
-    //`define GetWriteAddr(x, y) ((`BUFFER_LINE_LENGTH * ((y - V_CAPTURE_START) % `BUFFER_SIZE)) + (x - H_CAPTURE_START))
     `define GetWriteAddr(x) (ram_addrY_reg + (x - H_CAPTURE_START))
-    `define IsFirstBuffer(y)   ((y - V_CAPTURE_START) < `BUFFER_SIZE)
-    `define IsTriggerPoint(y) (`IsFirstBuffer(y) && wraddr_reg == `TRIGGER_ADDR)
+    `define IsFirstBuffer(y)   ((y - V_CAPTURE_START) < dcVideoConfig.buffer_size)
+    `define IsTriggerPoint(y) (`IsFirstBuffer(y) && wraddr_reg == dcVideoConfig.trigger_address)
 
     `define IsVerticalCaptureTime(y) ( \
         line_doubler \
@@ -72,8 +73,8 @@ module video2ram(
 
         if (counterX_prev == H_CAPTURE_END && counterX == H_CAPTURE_END) begin // calculate ram_addrY_reg once per line
             if (`IsVerticalCaptureTime(counterY)
-             && ram_addrY_reg < `RAM_NUMWORDS - `BUFFER_LINE_LENGTH) begin
-                ram_addrY_reg <= ram_addrY_reg + `BUFFER_LINE_LENGTH;
+             && ram_addrY_reg < dcVideoConfig.ram_numwords - dcVideoConfig.buffer_line_length) begin
+                ram_addrY_reg <= ram_addrY_reg + dcVideoConfig.buffer_line_length;
             end else begin
                 ram_addrY_reg <= 0;
             end

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+cd $(dirname $0)
+
+source .setup
+
+docker_run quartus_sta -t report-timing.tcl

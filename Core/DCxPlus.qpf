@@ -22,25 +22,10 @@
 # Date created = 17:09:42  April 02, 2017
 #
 # -------------------------------------------------------------------------- #
-#
-# Notes:
-#
-# 1) The default values for assignments are stored in the file:
-#		DCxPlus_assignment_defaults.qdf
-#    If this file doesn't exist, see file:
-#		assignment_defaults.qdf
-#
-# 2) Altera recommends that you do not modify this file. This
-#    file is updated automatically by the Quartus Prime software
-#    and any changes you make may be lost or overwritten.
-#
-# -------------------------------------------------------------------------- #
 
+QUARTUS_VERSION = "16.1"
+DATE = "17:09:42  April 02, 2017"
 
-set_global_assignment -name FAMILY "Cyclone IV E"
-set_global_assignment -name DEVICE EP4CE6E22C8
+# Revisions
 
-# -------------------------------------------------
-source Base.qsf
-source Pins-1.2.qsf
-# -------------------------------------------------
+PROJECT_REVISION = "DCxPlus"

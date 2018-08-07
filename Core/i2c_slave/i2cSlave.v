@@ -56,6 +56,8 @@ module i2cSlave (
   output ram_wren,
   output enable_osd,
   output[7:0] highlight_line,
+  output[7:0] reconf_data,
+  output HDMIVideoConfig hdmiVideoConfig,
   input DebugData debugData,
   input ControllerData controller_data
 );
@@ -168,7 +170,9 @@ registerInterface u_registerInterface(
   .enable_osd(enable_osd),
   .debugData(debugData),
   .controller_data(controller_data),
-  .highlight_line(highlight_line)
+  .highlight_line(highlight_line),
+  .reconf_data(reconf_data),
+  .hdmiVideoConfig(hdmiVideoConfig)
 );
 
 serialInterface u_serialInterface (

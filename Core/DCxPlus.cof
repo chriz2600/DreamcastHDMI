@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="US-ASCII" standalone="yes"?>
 <cof>
 	<eprom_name>EPCS16</eprom_name>
-	<output_filename>output_files/DCxPlus-EP4CE6.rbf</output_filename>
+	<flash_loader_device>10CL025Y</flash_loader_device>
+	<output_filename>output_files/DCxPlus.jic</output_filename>
 	<n_pages>1</n_pages>
 	<width>1</width>
-	<mode>0</mode>
+	<mode>7</mode>
 	<sof_data>
 		<user_name>Page_0</user_name>
 		<page_flags>1</page_flags>
 		<bit0>
-			<sof_filename>output_files/DCxPlus-EP4CE6.sof</sof_filename>
+			<sof_filename>output_files/DCxPlus.sof</sof_filename> 
 		</bit0>
 	</sof_data>
 	<version>10</version>
@@ -18,7 +19,7 @@
 	<auto_create_rpd>0</auto_create_rpd>
 	<rpd_little_endian>1</rpd_little_endian>
 	<options>
-		<map_file>0</map_file>
+		<map_file>1</map_file>
 	</options>
 	<advanced_options>
 		<ignore_epcs_id_check>2</ignore_epcs_id_check>

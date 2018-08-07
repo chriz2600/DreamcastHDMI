@@ -4,14 +4,14 @@ create_clock -period 74.25Mhz -name clk74_175824 [get_ports clock74_175824]
 create_clock -period 54Mhz -name clk54 [get_ports clock54]
 
 create_generated_clock -name data_clock -source {pll54|altpll_component|auto_generated|pll1|inclk[0]} -phase 90 {pll54|altpll_component|auto_generated|pll1|clk[0]}
-#create_generated_clock -name output_clock -source {pll74|altpll_component|auto_generated|pll1|inclk[0]} {pll74|altpll_component|auto_generated|pll1|clk[0]}
+#create_generated_clock -name output_clock -source {pll_hdmi|altpll_component|auto_generated|pll1|inclk[0]} {pll_hdmi|altpll_component|auto_generated|pll1|clk[0]}
 
 set_false_path -from [get_ports {HDMI_INT_N}]
 set_false_path -from [get_ports {video_mode_480p_n}]
 
 derive_pll_clocks -create_base_clocks
 
-set output_clock "pll74|altpll_component|auto_generated|pll1|clk[0]"
+set output_clock "pll_hdmi|altpll_component|auto_generated|pll1|clk[0]"
 
 
 set_clock_groups -exclusive -group data_clock -group $output_clock

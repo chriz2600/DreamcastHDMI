@@ -11,7 +11,9 @@ module ADV7513(
     inout scl,
     input restart,
     output reg ready,
-    output DebugData debugData_out
+    output DebugData debugData_out,
+
+    input HDMIVideoConfig hdmiVideoConfig
 );
 
 reg [6:0] i2c_chip_addr;
@@ -39,7 +41,9 @@ I2C I2C(
 
     .data          (i2c_data),
     .done          (i2c_done),
-    .i2c_ack_error (i2c_ack_error)
+    .i2c_ack_error (i2c_ack_error),
+
+    .divider       (hdmiVideoConfig.divider)
 );
 
 (* syn_encoding = "safe" *)
@@ -119,22 +123,21 @@ always @ (posedge clk) begin
                          8: write_i2c(CHIP_ADDR, 16'h_F9_00); // Fixed register	
                          9: write_i2c(CHIP_ADDR, 16'h_15_00); // [7:4]: I2S Sampling Frequency = 0b0000, 44.1kHz
                                                               // [3:0]: Video Input ID = 0b0000, 24 bit RGB 4:4:4 (separate syncs)
-                        10: write_i2c(CHIP_ADDR, 16'h_17_00
-                                                | `ASPECT_R); // [7]:   fixed = 0b0
-                                                              // [6]:   vsync polarity = 0b0, sync polarity pass through (sync adjust is off in 0x41)
-                                                              // [5]:   hsync polarity = 0b0, sync polarity pass through 
-                                                              // [4:3]: reserved = 0b00
-                                                              // [2]:   4:2:2 to 4:4:4 interpolation style = 0b0, use zero order interpolation
-                                                              // [1]:   input video aspect ratio = 0b0, 4:3; 0b10 for 16:9
-                                                              // [0]:   DE generator = 0b0, disabled
-                        11: write_i2c(CHIP_ADDR, 16'h_16_30
-                                                | `OUTPUT_FMT); // [7]:   output format = 0b0, 4:4:4, (4:2:2, if OUTPUT_4_2_2 is set)
-                                                              // [6]:   reserved = 0b0
-                                                              // [5:4]: color depth = 0b11, 8bit
-                                                              // [3:2]: input style = 0b0, not valid
-                                                              // [1]:   ddr input edge = 0b0, falling edge
-                                                              // [0]:   output colorspace for blackimage = 0b0, RGB (YCbCr, if OUTPUT_4_2_2 is set)
-
+                        10: write_i2c(CHIP_ADDR, { 8'h_17, hdmiVideoConfig.adv_reg_17 });
+                                                            // [7]:   fixed = 0b0
+                                                            // [6]:   vsync polarity = 0b0, sync polarity pass through (sync adjust is off in 0x41)
+                                                            // [5]:   hsync polarity = 0b0, sync polarity pass through
+                                                            // [4:3]: reserved = 0b00
+                                                            // [2]:   4:2:2 to 4:4:4 interpolation style = 0b0, use zero order interpolation
+                                                            // [1]:   input video aspect ratio = 0b0, 4:3; 0b10 for 16:9
+                                                            // [0]:   DE generator = 0b0, disabled
+                        11: write_i2c(CHIP_ADDR, 16'h_16_30 | `OUTPUT_FMT);
+                                                            // [7]:   output format = 0b0, 4:4:4, (4:2:2, if OUTPUT_4_2_2 is set)
+                                                            // [6]:   reserved = 0b0
+                                                            // [5:4]: color depth = 0b11, 8bit
+                                                            // [3:2]: input style = 0b0, not valid
+                                                            // [1]:   ddr input edge = 0b0, falling edge
+                                                            // [0]:   output colorspace for blackimage = 0b0, RGB (YCbCr, if OUTPUT_4_2_2 is set)
 `ifdef OUTPUT_4_2_2
                         12: write_i2c(CHIP_ADDR, 16'h_56_A8); // Colorimetry ITU709, aspect ratio 16:9, active format aspect ratio same as aspect ratio
                         13: write_i2c(CHIP_ADDR, 16'h_55_30); // YCbCr 4:2:2 in AVI InfoFrame, active format information valid
@@ -193,26 +196,16 @@ always @ (posedge clk) begin
                                                               // [1]:   HDCP authenticated interrupt = 0b0, no interrupt detected
                                                               // [0]:   fixed = 0b0
                                                               // -> clears interrupt state
-`ifdef PIXEL_REPETITION
-                        INIT_NEXT+11: write_i2c(CHIP_ADDR, 16'h_3B_C8); // [7]:   fixed = 0b1
-                                                              // [6:5]: PR Mode = 0b10, manual mode
-                                                              // [4:3]: PR PLL Manual = 0b01, x2
-                                                              // [2:1]: PR Value Manual = 0b00, x1 to rx
-                                                              // [0]:   fixed = 0b0
-                        INIT_NEXT+12: write_i2c(CHIP_ADDR, 16'h_3C_00
-                                              | `VIC_MANUAL); // [5:0]: VIC Manual = 010000, VIC#16: 1080p-60, 16:9
-                                                              //                     000000, VIC#0: VIC Unavailable
+                        INIT_NEXT+11: write_i2c(CHIP_ADDR, { 8'h_3B, hdmiVideoConfig.adv_reg_3b });
+                                                            // [7]:   fixed = 0b1
+                                                            // [6:5]: PR Mode = 0b10, manual mode
+                                                            // [4:3]: PR PLL Manual = 0b01, x2
+                                                            // [2:1]: PR Value Manual = 0b00, x1 to rx
+                                                            // [0]:   fixed = 0b0
+                        INIT_NEXT+12: write_i2c(CHIP_ADDR, { 8'h_3C, hdmiVideoConfig.adv_reg_3c });
+                                                            // [5:0]: VIC Manual = 010000, VIC#16: 1080p-60, 16:9
+                                                            //                     000000, VIC#0: VIC Unavailable
                         INIT_NEXT+13: cmd_counter <= PLL_CHECK_1;
-`else
-                        INIT_NEXT+11: write_i2c(CHIP_ADDR, 16'h_3B_80); // [7]:   fixed = 0b1
-                                                              // [6:5]: PR Mode = 0b10, manual mode
-                                                              // [4:3]: PR PLL Manual = 0b01, x2
-                                                              // [2:1]: PR Value Manual = 0b00, x1 to rx
-                                                              // [0]:   fixed = 0b0
-                        INIT_NEXT+12: write_i2c(CHIP_ADDR, 16'h_3C_00); // [5:0]: VIC Manual = 010000 VIC#16: 1080p-60, 16:9
-                                                              //                     000000, VIC#0: VIC Unavailable
-                        INIT_NEXT+13: cmd_counter <= PLL_CHECK_1;
-`endif
                         PLL_CHECK_1: read_i2c(CHIP_ADDR, 8'h_9E);
                         (PLL_CHECK_1+1): begin
                             if (i2c_data[4]) begin

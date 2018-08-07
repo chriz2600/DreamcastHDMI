@@ -17,7 +17,8 @@ module I2C(
     // outputs
     output reg [7:0] data,
     output reg done,
-    output i2c_ack_error
+    output i2c_ack_error,
+    input [31:0] divider
 );
 
 reg i2c_ena;
@@ -27,8 +28,6 @@ reg [7:0] i2c_data_wr;
 reg i2c_busy;
 reg [7:0] i2c_data_rd;
 
-defparam i2c_master.input_clk = `PIXEL_CLK;
-defparam i2c_master.bus_clk = 400_000;
 i2c_master i2c_master(
     .clk       (clk),
     .reset_n   (1'b1),
@@ -40,7 +39,8 @@ i2c_master i2c_master(
     .data_rd   (i2c_data_rd),
     .ack_error (i2c_ack_error),
     .sda       (sda),
-    .scl       (scl)
+    .scl       (scl),
+    .divider   (divider)
 );
 
 (* syn_encoding = "safe" *)

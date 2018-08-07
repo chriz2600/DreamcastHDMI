@@ -59,6 +59,8 @@ module registerInterface (
     output ram_wren,
     output enable_osd,
     output[7:0] highlight_line,
+    output[7:0] reconf_data,
+    output HDMIVideoConfig hdmiVideoConfig,
     input DebugData debugData,
     input ControllerData controller_data
 );
@@ -69,6 +71,15 @@ reg [9:0] wraddress_reg;
 reg wren;
 reg enable_osd_reg = 1'b0;
 reg [7:0] highlight_line_reg = 255;
+reg [7:0] reconf_data_reg;
+
+`include "../config/hdmi_config.v"
+
+HDMIVideoConfig hdmiVideoConfig_reg;
+
+initial begin
+    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_1080P;
+end
 
 assign dataOut = dataOut_reg;
 assign ram_wraddress = wraddress_reg;
@@ -76,6 +87,8 @@ assign ram_dataIn = dataIn;
 assign ram_wren = wren;
 assign enable_osd = enable_osd_reg;
 assign highlight_line = highlight_line_reg;
+assign hdmiVideoConfig = hdmiVideoConfig_reg;
+assign reconf_data = reconf_data_reg;
 
 // --- I2C Read
 always @(posedge clk) begin
@@ -83,6 +96,8 @@ always @(posedge clk) begin
         // ...
         8'h80: dataOut_reg <= addr_offset;
         8'h81: dataOut_reg <= enable_osd_reg;
+        8'h82: dataOut_reg <= highlight_line_reg;
+        8'h83: dataOut_reg <= reconf_data_reg;
         // controller data, int16
         /*
             15: a
@@ -133,12 +148,33 @@ end
 // --- I2C Write
 always @(posedge clk) begin
     if (writeEn == 1'b1) begin
+        // address offset for OSD data
         if (addr == 8'h80) begin
             addr_offset <= dataIn[2:0];
+        // enable/disable OSD
         end else if (addr == 8'h81) begin
             enable_osd_reg <= dataIn[0];
+        // highlight line setting
         end else if (addr == 8'h82) begin 
             highlight_line_reg <= dataIn;
+        // output mode reconfiguration
+        end else if (addr == 8'h83) begin
+            reconf_data_reg <= dataIn;
+            case (dataIn)
+                0: begin
+                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_1080P;
+                end
+                1: begin // 960
+                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_960P;
+                end
+                2: begin // 480
+                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_480P;
+                end
+                3: begin // VGA
+                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_VGA;
+                end
+            endcase
+        // OSD data
         end else if (addr < 8'h80) begin
             wraddress_reg <= { addr_offset, addr[6:0] };
             wren <= 1'b1;

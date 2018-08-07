@@ -22,10 +22,30 @@
 # Date created = 17:09:42  April 02, 2017
 #
 # -------------------------------------------------------------------------- #
+#
+# Notes:
+#
+# 1) The default values for assignments are stored in the file:
+#		DCxPlus_assignment_defaults.qdf
+#    If this file doesn't exist, see file:
+#		assignment_defaults.qdf
+#
+# 2) Altera recommends that you do not modify this file. This
+#    file is updated automatically by the Quartus Prime software
+#    and any changes you make may be lost or overwritten.
+#
+# -------------------------------------------------------------------------- #
 
-QUARTUS_VERSION = "16.1"
-DATE = "17:09:42  April 02, 2017"
+set_global_assignment -name FAMILY "Cyclone 10 LP"
+set_global_assignment -name DEVICE 10CL025YE144C8G
 
-# Revisions
+# -------------------------------------------------
+source Base.qsf
+source Pins-1.2.qsf
+# -------------------------------------------------
 
-PROJECT_REVISION = "DCxPlus-EP4CE6"
+####################################################
+# PLL placement for pinout
+####################################################
+set_location_assignment PLL_1 -to "pll54:pll54|altpll:altpll_component"
+#set_location_assignment PLL_4 -to "pll_hdmi:pll_hdmi|altpll:altpll_component"

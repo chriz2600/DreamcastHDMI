@@ -14,12 +14,12 @@ module video2ram_tb;
 
   wire [23:0] wrdata;
   wire [23:0] rddata;
-  wire [`RAM_ADDRESS_BITS-1:0] wraddr;
+  wire [14:0] wraddr;
   wire wren;
   wire wrclock;
   wire starttriggerIn;
 
-  wire [`RAM_ADDRESS_BITS-1:0] rdaddr;
+  wire [14:0] rdaddr;
   wire starttriggerOut;
 
   wire HSYNC;

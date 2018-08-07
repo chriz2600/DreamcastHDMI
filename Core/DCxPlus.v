@@ -33,9 +33,36 @@ module DCxPlus(
 
 wire clock54_net;
 wire pll54_locked;
-wire hdmi_clock;
-wire pll74_locked;
 
+// hdmi pll
+wire hdmi_clock;
+wire pll_hdmi_areset;
+wire pll_hdmi_scanclk;
+wire pll_hdmi_scandata;
+wire pll_hdmi_scanclkena;
+wire pll_hdmi_configupdate;
+wire pll_hdmi_locked;
+wire pll_hdmi_scandataout;
+wire pll_hdmi_scandone;
+
+// hdmi pll reconfig
+wire pll_hdmi_reconfig;
+wire pll_hdmi_write_from_rom;
+wire pll_hdmi_rom_data_in;
+wire [7:0] pll_hdmi_rom_address_out;
+wire pll_hdmi_write_rom_ena;
+
+// hdmi pll_reconf rom
+wire reconf_fifo_rdempty;
+wire [7:0] reconf_fifo_q;
+wire reconf_fifo_rdreq;
+wire [7:0] reconf_fifo_data;
+wire reconf_fifo_wrreq;
+wire reconf_fifo_wrfull;
+
+wire [7:0] reconf_data;
+
+// ---------------------------
 wire [11:0] data_in_counter_x;
 wire [11:0] data_in_counter_y;
 wire [7:0] dc_blue;
@@ -44,9 +71,9 @@ wire [7:0] dc_red;
 
 wire ram_wren;
 wire ram_wrclock;
-wire [`RAM_ADDRESS_BITS-1:0] ram_wraddress;
+wire [14:0] ram_wraddress;
 wire [23:0] ram_wrdata;
-wire [`RAM_ADDRESS_BITS-1:0] ram_rdaddress;
+wire [14:0] ram_rdaddress;
 wire [23:0] ram_rddata;
 
 wire buffer_ready_trigger;
@@ -69,6 +96,8 @@ wire enable_osd;
 wire [7:0] highlight_line;
 DebugData debugData;
 ControllerData controller_data;
+HDMIVideoConfig hdmiVideoConfig;
+DCVideoConfig dcVideoConfig;
 
 assign clock54_out = clock54_net;
 assign status_led = ~adv7513_ready;
@@ -76,6 +105,7 @@ assign status_led = ~adv7513_ready;
 // DC config in, ics config out
 configuration configurator(
     ._480p_active_n(video_mode_480p_n),
+    .dcVideoConfig(dcVideoConfig),
     .line_doubler(_240p_480i_mode),
     .clock_config_S(S)
 );
@@ -89,11 +119,84 @@ pll54 pll54(
     .locked(pll54_locked)
 );
 
-pll74 pll74(
+pll_hdmi pll_hdmi(
     .inclk0(clock74_175824),
-    .areset(1'b0),
     .c0(hdmi_clock),
-    .locked(pll74_locked)
+    .locked (pll_hdmi_locked),
+
+    .areset(pll_hdmi_areset),
+    .scanclk(pll_hdmi_scanclk),
+    .scandata(pll_hdmi_scandata),
+    .scanclkena(pll_hdmi_scanclkena),
+    .configupdate(pll_hdmi_configupdate),
+
+    .scandataout(pll_hdmi_scandataout),
+    .scandone(pll_hdmi_scandone)
+);
+
+pll_hdmi_reconf	pll_hdmi_reconf(
+    .clock(clock54_net),
+
+    .reconfig(pll_hdmi_reconfig),
+
+    // not connected
+    //.read_param(read_param_sig),
+    //.write_param(write_param_sig),
+    //.reset(reset_sig),
+    //.reset_rom_address(reset_rom_address_sig),
+    //.busy(busy_sig),
+    //.data_out(data_out_sig),
+
+    .data_in(9'b0),
+    .counter_type(4'b0),
+    .counter_param(3'b0),
+
+    .pll_areset_in(1'b0),
+    .pll_scandataout(pll_hdmi_scandataout),
+    .pll_scandone(pll_hdmi_scandone),
+    .pll_areset(pll_hdmi_areset),
+    .pll_configupdate(pll_hdmi_configupdate),
+    .pll_scanclk(pll_hdmi_scanclk),
+    .pll_scanclkena(pll_hdmi_scanclkena),
+    .pll_scandata(pll_hdmi_scandata),
+
+    .write_from_rom(pll_hdmi_write_from_rom),
+    .rom_data_in(pll_hdmi_rom_data_in),
+    .rom_address_out(pll_hdmi_rom_address_out),
+    .write_rom_ena(pll_hdmi_write_rom_ena)
+);
+
+reconf_rom reconf_rom(
+    .clock(clock54_net),
+    .address(pll_hdmi_rom_address_out),
+    .read_ena(pll_hdmi_write_rom_ena),
+    .q(pll_hdmi_rom_data_in),
+    .reconfig(pll_hdmi_reconfig),
+    .rdempty(reconf_fifo_rdempty),
+    .fdata(reconf_fifo_q),
+    .rdreq(reconf_fifo_rdreq),
+    .trigger_read(pll_hdmi_write_from_rom),
+    .dcVideoConfig(dcVideoConfig)
+);
+
+reconf_fifo	reconf_fifo(
+    .rdclk(clock54_net),
+    .rdreq(reconf_fifo_rdreq),
+    .rdempty(reconf_fifo_rdempty),
+    .q(reconf_fifo_q),
+
+    .wrclk(hdmi_clock),
+    .data(reconf_fifo_data),
+    .wrreq(reconf_fifo_wrreq),
+    .wrfull(reconf_fifo_wrfull)
+);
+
+trigger_reconf trigger_reconf(
+    .clock(hdmi_clock),
+    .wrfull(reconf_fifo_wrfull),
+    .data_in(reconf_data),
+    .data(reconf_fifo_data),
+    .wrreq(reconf_fifo_wrreq)
 );
 
 /////////////////////////////////
@@ -125,7 +228,8 @@ video2ram video2ram(
     .wrclock(ram_wrclock),
     .starttrigger(buffer_ready_trigger),
     .wraddr(ram_wraddress),
-    .wrdata(ram_wrdata)
+    .wrdata(ram_wrdata),
+    .dcVideoConfig(dcVideoConfig)
 );
 
 /////////////////////////////////
@@ -165,7 +269,8 @@ ram2video ram2video(
     .restart(restart),
     .video_out(VIDEO),
     .enable_osd(enable_osd),
-    .highlight_line(highlight_line)
+    .highlight_line(highlight_line),
+    .hdmiVideoConfig(hdmiVideoConfig)
 );
 
 ADV7513 adv7513(
@@ -178,19 +283,22 @@ ADV7513 adv7513(
     .scl(SCLK),
     .restart(restart),
     .ready(adv7513_ready),
-    .debugData_out(debugData)
+    .debugData_out(debugData),
+    .hdmiVideoConfig(hdmiVideoConfig)
 );
 
 startup adv7513_startup_delay(
     .clock(hdmi_clock),
-    .reset(pll74_locked),
-    .ready(adv7513_reset)
+    .nreset(pll_hdmi_locked),
+    .ready(adv7513_reset),
+    .startup_delay(hdmiVideoConfig.startup_delay)
 );
 
 startup ram2video_startup_delay(
     .clock(hdmi_clock),
-    .reset(adv7513_ready),
-    .ready(ram2video_ready)
+    .nreset(adv7513_ready),
+    .ready(ram2video_ready),
+    .startup_delay(hdmiVideoConfig.startup_delay)
 );
 
 text_ram text_ram_inst(
@@ -213,7 +321,9 @@ i2cSlave i2cSlave(
     .enable_osd(enable_osd),
     .debugData(debugData),
     .controller_data(controller_data),
-    .highlight_line(highlight_line)
+    .highlight_line(highlight_line),
+    .reconf_data(reconf_data),
+    .hdmiVideoConfig(hdmiVideoConfig)
 );
 
 maple mapleBus(
