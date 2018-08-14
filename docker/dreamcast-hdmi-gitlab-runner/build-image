@@ -5,7 +5,7 @@ set -e
 cd $(dirname $0)
 
 echo building chriz2600/dreamcast-hdmi-gitlab-runner
-docker build -t chriz2600/dreamcast-hdmi-gitlab-runner .
+docker build --no-cache -t chriz2600/dreamcast-hdmi-gitlab-runner .
 echo
 echo "to add to docker hub: "
 echo "docker push chriz2600/dreamcast-hdmi-gitlab-runner"
