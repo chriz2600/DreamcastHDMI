@@ -4,12 +4,16 @@ All versions are available on the [firmware site][firmware].
 
 The firmware files come in two variants:
 - `.jic` Active serial configuration file for use with programmer (e.g. USBBlaster).
-- `.rbf` Raw binary configuration file for use with firmware manager.
+- `.rbf` Raw binary configuration file.
+- `.dc` Binary configuration file for use with firmware manager.
 
-### master [:link:](https://dc.i74.de/fw/master)
+### develop [:link:](https://dc.i74.de/fw/develop)
 
 This is the current development branch with support for DCHDMI 1.2
 
+### master [:link:](https://dc.i74.de/fw/master)
+
+This is the current stable branch with support for DCHDMI 1.2
 
 ### v1.1.x [:link:](https://dc.i74.de/fw/v1.1.x)
 

@@ -7,7 +7,7 @@ DCHDMI is an internal HDMI output solution for the Dreamcast.
 ## Why do we need this, there are already the Behar Bros Akura DC HDMI Box and the Pound HD Link Cable for Dreamcast?
 
 - DCHDMI is a full digital to digital solution. It takes the signals directly off the GPU (Holly) and the audio processor (AICA) before entering video and audio DACs.
-- DCHDMI fixes the Dreamcast's aspect/pixel ratio issue, by converting the weird Dreamcast 480p signal and converts it to a fully HDMI compliant 640x480 signal.
+- DCHDMI fixes the Dreamcast's aspect/pixel ratio issue, by converting the weird Dreamcast 480p signal and converts it to a fully HDMI compliant 640x480 (CEA-861-D format 1) signal including accurate pixel clock/sync timing.
 - DCHDMI supports pixel doubling to 960p and 960p in a 1080p frame.
 - DCHDMI also handles 480i and 240p content.
 
@@ -31,7 +31,9 @@ If you are not familiar with fine pitch soldering, no.
 
 ## Do I have to cut holes?
 
-...
+Yes, one hole is located here: https://i.imgur.com/jWIlyiM.jpg
+
+There is a 3d printed jig to aid in drilling hole so you can't mistakenly mess up.
 
 ## Where can I buy it?
 

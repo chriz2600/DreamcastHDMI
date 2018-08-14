@@ -6,6 +6,14 @@
 
 ### News
 
+#### 2018-08-14
+
+- Dynamic reconfiguration of the output resolution.
+
+    Output resolution is now configurable via WiFi webinterface, OSD integration will follow soon.
+
+- Removed 10CL016 and EP4CE6 support.
+
 #### 2018-08-05
 
 Updated the old 2017 block diagram to reflect some of the changes introduced since then:
