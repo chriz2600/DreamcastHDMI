@@ -69,7 +69,7 @@ set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE SPEED
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
 set_global_assignment -name FITTER_EFFORT "AUTO FIT"
 set_global_assignment -name SEED 74
-set_global_assignment -name SLD_FILE db/stp1_auto_stripped.stp
+#set_global_assignment -name SLD_FILE db/stp1_auto_stripped.stp
 
 set_global_assignment -name DEVICE_FILTER_PACKAGE "ANY QFP"
 set_global_assignment -name DEVICE_FILTER_PIN_COUNT 144

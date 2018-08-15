@@ -106,3 +106,44 @@ set_location_assignment PIN_32 -to MAPLE_PIN5
 ####################################################
 set_location_assignment PLL_1 -to "pll54:pll54|altpll:altpll_component"
 set_location_assignment PLL_4 -to "pll_hdmi:pll_hdmi|altpll:altpll_component|pll_hdmi_altpll:auto_generated|pll1"
+
+####################################################
+# drive strength
+####################################################
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to clock54_out
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to HSYNC
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VSYNC
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to DE
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to CLOCK
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[0]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[2]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[3]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[4]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[5]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[6]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[7]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[8]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[9]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[10]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[11]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[12]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[13]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[14]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[15]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[16]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[17]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[18]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[19]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[20]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[21]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[22]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to VIDEO[23]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to S[0]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to S[1]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to S[2]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to S[3]
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to status_led
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to SDAT
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to SCLK
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to ESP_SDA
