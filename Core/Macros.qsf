@@ -1,4 +1,4 @@
-set_global_assignment -name VERILOG_MACRO _1080p_
+#set_global_assignment -name VERILOG_MACRO _1080p_
 #set_global_assignment -name VERILOG_MACRO GENERATED_SYNC_TIMING
 #set_global_assignment -name VERILOG_MACRO GENERATED_INPUT_VIDEO
 #set_global_assignment -name VERILOG_MACRO SCANLINES_EVEN

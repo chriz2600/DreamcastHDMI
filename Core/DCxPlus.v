@@ -104,8 +104,8 @@ assign status_led = ~adv7513_ready;
 
 // DC config in, ics config out
 configuration configurator(
-    ._480p_active_n(video_mode_480p_n),
     .dcVideoConfig(dcVideoConfig),
+    ._480p_active_n(video_mode_480p_n),
     .line_doubler(_240p_480i_mode),
     .clock_config_S(S)
 );
