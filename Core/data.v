@@ -92,6 +92,13 @@ module data(
             
             // reset vertical raw counter on vsync
             if (vsync_reg && !_vsync) begin
+	        /* 
+		    Check, if actual line is the same as before,
+		    as we have to send a resync to the hdmi output side
+		    if not, to keep the vertical alignment :)
+		*/
+		//if (raw_counterY_reg != 262 || raw_counterY_reg != 524)
+
                 // 240p has only 263 lines per frame
                 if (raw_counterY_reg == 262) begin
                     add_line_reg <= 1'b1;

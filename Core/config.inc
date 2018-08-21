@@ -10,10 +10,6 @@
 // use this frequency to calculate i2c slave debounce/delay values
 `define I2C_BASE_FREQ_FOR_CALCULATIONS 24_000_000
 
-`ifdef OUTPUT_4_2_2
-    `define OUTPUT_FMT       8'b10000001
-`else
-    `define OUTPUT_FMT       8'b00000000
-`endif
+`define OUTPUT_FMT 8'b00000000
 
 `endif

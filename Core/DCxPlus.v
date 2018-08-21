@@ -8,7 +8,7 @@ module DCxPlus(
     input wire _vsync,
     input wire [11:0] data,
     input wire HDMI_INT_N,
-    input wire video_mode_480p_n,
+    inout wire video_mode_480p_n,
 
     output wire clock54_out,
 
@@ -98,14 +98,19 @@ DebugData debugData;
 ControllerData controller_data;
 HDMIVideoConfig hdmiVideoConfig;
 DCVideoConfig dcVideoConfig;
+wire forceVGAMode;
+wire pll54_lockloss;
+wire pll_hdmi_lockloss;
 
 assign clock54_out = clock54_net;
 assign status_led = ~adv7513_ready;
 
 // DC config in, ics config out
 configuration configurator(
+    .clock(clock54_net),
     .dcVideoConfig(dcVideoConfig),
     ._480p_active_n(video_mode_480p_n),
+    .forceVGAMode(forceVGAMode),
     .line_doubler(_240p_480i_mode),
     .clock_config_S(S)
 );
@@ -115,8 +120,21 @@ configuration configurator(
 pll54 pll54(
     .inclk0(clock54),
     .areset(1'b0),
+    //.areset(pll54_lockloss),
     .c0(clock54_net),
     .locked(pll54_locked)
+);
+
+edge_detect pll54_lockloss_check(
+    .async_sig(pll54_locked),
+    .clk(clock54),
+    .fall(pll54_lockloss)
+);
+
+edge_detect pll_hdmi_lockloss_check(
+    .async_sig(pll_hdmi_locked),
+    .clk(clock54),
+    .fall(pll_hdmi_lockloss)
 );
 
 pll_hdmi pll_hdmi(
@@ -152,6 +170,8 @@ pll_hdmi_reconf	pll_hdmi_reconf(
     .counter_param(3'b0),
 
     .pll_areset_in(1'b0),
+    //.pll_areset_in(pll_hdmi_lockloss),
+
     .pll_scandataout(pll_hdmi_scandataout),
     .pll_scandone(pll_hdmi_scandone),
     .pll_areset(pll_hdmi_areset),
@@ -176,6 +196,7 @@ reconf_rom reconf_rom(
     .fdata(reconf_fifo_q),
     .rdreq(reconf_fifo_rdreq),
     .trigger_read(pll_hdmi_write_from_rom),
+    .forceVGAMode(forceVGAMode),
     .dcVideoConfig(dcVideoConfig)
 );
 

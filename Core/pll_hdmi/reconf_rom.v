@@ -9,6 +9,7 @@ module reconf_rom (
     input [7:0] fdata,
     output reg rdreq,
     output reg trigger_read,
+    output reg forceVGAMode,
     output DCVideoConfig dcVideoConfig
 );
 
@@ -48,7 +49,8 @@ always @(posedge clock) begin
     if (rdreq) begin
         fdata_req <= fdata;
         trigger_read <= 1'b1;
-        case (fdata)
+        forceVGAMode <= fdata[7];
+        case (fdata[3:0])
             0: begin
                 dcVideoConfig <= DC_VIDEO_CONFIG_1080P;
             end
@@ -66,7 +68,7 @@ always @(posedge clock) begin
         trigger_read <= 1'b0;
     end
 
-    case (fdata_req)
+    case (fdata_req[3:0])
         0: begin
             `include "config/1080p.v"
         end

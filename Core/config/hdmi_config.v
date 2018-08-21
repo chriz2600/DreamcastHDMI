@@ -45,7 +45,7 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_1080P = {
     32'd14_850_000, // startup_delay
     32'd74_250_000, // pixel_clock
 
-    32'h_B8_8A_5C_2E // 46
+    32'h_BC_8D_5E_2F // 47
 };
 
 const HDMIVideoConfig HDMI_VIDEO_CONFIG_960P = { 

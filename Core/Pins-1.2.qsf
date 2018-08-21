@@ -104,7 +104,7 @@ set_location_assignment PIN_32 -to MAPLE_PIN5
 ####################################################
 # PLL placement
 ####################################################
-set_location_assignment PLL_1 -to "pll54:pll54|altpll:altpll_component"
+set_location_assignment PLL_1 -to "pll54:pll54|altpll:altpll_component|pll54_altpll:auto_generated|pll1"
 set_location_assignment PLL_4 -to "pll_hdmi:pll_hdmi|altpll:altpll_component|pll_hdmi_altpll:auto_generated|pll1"
 
 ####################################################

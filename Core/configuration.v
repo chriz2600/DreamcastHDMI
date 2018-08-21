@@ -1,13 +1,28 @@
 `include "config.inc"
 
 module configuration(
+    input clock,
     input DCVideoConfig dcVideoConfig,
-    input _480p_active_n,
-    output line_doubler,
-    output [3:0] clock_config_S
+    inout _480p_active_n,
+    input forceVGAMode,
+    output reg line_doubler,
+    output reg [3:0] clock_config_S
 );
 
-    assign clock_config_S = !_480p_active_n ? dcVideoConfig.ICS644_settings_p : dcVideoConfig.ICS644_settings_i;
-    assign line_doubler = !_480p_active_n ? 1'b0 : 1'b1;
+    reg _480p_active_n_reg = 1'bz;
+
+    assign _480p_active_n = _480p_active_n_reg;
+
+    always @(posedge clock) begin
+        if (forceVGAMode || ~_480p_active_n) begin
+            clock_config_S <= dcVideoConfig.ICS644_settings_p;
+            line_doubler <= 1'b0;
+            _480p_active_n_reg <= 1'b0;
+        end else begin
+            clock_config_S <= dcVideoConfig.ICS644_settings_i;
+            line_doubler <= 1'b1;
+            _480p_active_n_reg <= 1'bz;
+        end
+    end
 
 endmodule

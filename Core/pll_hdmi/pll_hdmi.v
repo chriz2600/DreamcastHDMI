@@ -121,7 +121,8 @@ module pll_hdmi (
 				.vcooverrange (),
 				.vcounderrange ());
 	defparam
-		altpll_component.bandwidth_type = "AUTO",
+		//altpll_component.bandwidth_type = "AUTO",
+		altpll_component.bandwidth_type = "LOW",
 		altpll_component.clk0_divide_by = 1,
 		altpll_component.clk0_duty_cycle = 50,
 		altpll_component.clk0_multiply_by = 1,
@@ -131,6 +132,7 @@ module pll_hdmi (
 		altpll_component.lpm_hint = "CBX_MODULE_PREFIX=pll_hdmi",
 		altpll_component.lpm_type = "altpll",
 		altpll_component.operation_mode = "NO_COMPENSATION",
+		//altpll_component.operation_mode = "NORMAL",
 		altpll_component.pll_type = "AUTO",
 		altpll_component.port_activeclock = "PORT_UNUSED",
 		altpll_component.port_areset = "PORT_USED",

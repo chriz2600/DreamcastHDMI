@@ -160,8 +160,8 @@ always @(posedge clk) begin
         // output mode reconfiguration
         end else if (addr == 8'h83) begin
             reconf_data_reg <= dataIn;
-            case (dataIn)
-                0: begin
+            case (dataIn[3:0])
+                0: begin // 1080p
                     hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_1080P;
                 end
                 1: begin // 960
