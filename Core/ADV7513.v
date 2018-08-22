@@ -260,7 +260,8 @@ task adv7513_init;
                                                     // [1]:   HDMI/DVI mode select = 0b1, HDMI mode
                                                     // [0]:   fixed = 0b0
             6: write_i2c(CHIP_ADDR, 16'h_BA_60); // [7:5]: clock delay, 0b011 no delay
-                                                    // [4]:   hdcp eprom, 0b0 external
+            //6: write_i2c(CHIP_ADDR, 16'h_BA_D0); // [7:5]: clock delay, 0b011 no delay
+                                                    // [4]:   hdcp eprom, 0b1 internal
                                                     // [3]:   fixed, 0b0
                                                     // [2]:   display aksv, 0b0 don't show
                                                     // [1]:   Ri two point check, 0b0 hdcp Ri standard
@@ -392,7 +393,8 @@ task adv7513_pllcheck;
                     subcmd_counter <= scs_start;
                 end else begin // loop until pll locks
                     debugData.pll_errors <= debugData.pll_errors + 1'b1;
-                    cmd_counter <= cs_pllcheck;
+                    //cmd_counter <= cs_pllcheck;
+                    cmd_counter <= cs_init;
                     subcmd_counter <= scs_start;
                 end
             end

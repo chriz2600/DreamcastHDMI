@@ -174,6 +174,9 @@ always @(posedge clk) begin
                     hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_VGA;
                 end
             endcase
+        // reset pll request
+        end else if (addr == 8'h84) begin
+            reconf_data_reg <= reconf_data_reg | dataIn[6];
         // OSD data
         end else if (addr < 8'h80) begin
             wraddress_reg <= { addr_offset, addr[6:0] };

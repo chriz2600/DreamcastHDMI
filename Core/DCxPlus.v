@@ -101,6 +101,7 @@ DCVideoConfig dcVideoConfig;
 wire forceVGAMode;
 wire pll54_lockloss;
 wire pll_hdmi_lockloss;
+wire resetPLL;
 
 assign clock54_out = clock54_net;
 assign status_led = ~adv7513_ready;
@@ -169,8 +170,8 @@ pll_hdmi_reconf	pll_hdmi_reconf(
     .counter_type(4'b0),
     .counter_param(3'b0),
 
-    .pll_areset_in(1'b0),
-    //.pll_areset_in(pll_hdmi_lockloss),
+    //.pll_areset_in(1'b0),
+    .pll_areset_in(resetPLL || ~pll54_locked),
 
     .pll_scandataout(pll_hdmi_scandataout),
     .pll_scandone(pll_hdmi_scandone),
@@ -197,6 +198,7 @@ reconf_rom reconf_rom(
     .rdreq(reconf_fifo_rdreq),
     .trigger_read(pll_hdmi_write_from_rom),
     .forceVGAMode(forceVGAMode),
+    .resetPLL(resetPLL),
     .dcVideoConfig(dcVideoConfig)
 );
 
