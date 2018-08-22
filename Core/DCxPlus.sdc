@@ -3,7 +3,7 @@ create_clock -name virtual54 -period 54Mhz
 create_clock -period 74.25Mhz -name clk74_175824 [get_ports clock74_175824]
 create_clock -period 54Mhz -name clk54 [get_ports clock54]
 
-create_generated_clock -name data_clock -source {pll54|altpll_component|auto_generated|pll1|inclk[0]} -phase 90 {pll54|altpll_component|auto_generated|pll1|clk[0]}
+create_generated_clock -name data_clock -source {pll54|altpll_component|auto_generated|pll1|inclk[0]} -phase 180 {pll54|altpll_component|auto_generated|pll1|clk[0]}
 #create_generated_clock -name output_clock -source {pll_hdmi|altpll_component|auto_generated|pll1|inclk[0]} {pll_hdmi|altpll_component|auto_generated|pll1|clk[0]}
 
 set_false_path -from [get_ports {HDMI_INT_N}]
@@ -26,8 +26,8 @@ set dcinputs [get_ports {data* _hsync _vsync}]
 #set_input_delay -clock virtual54 -clock_fall -min -$tH $dcinputs -add_delay
 set_input_delay -max -clock virtual54 $tSU $dcinputs
 set_input_delay -min -clock virtual54 -$tH $dcinputs
-set_input_delay -max -clock virtual54 -clock_fall $tSU $dcinputs -add
-set_input_delay -min -clock virtual54 -clock_fall -$tH $dcinputs -add
+#set_input_delay -max -clock virtual54 -clock_fall $tSU $dcinputs -add
+#set_input_delay -min -clock virtual54 -clock_fall -$tH $dcinputs -add
 set_false_path -setup -rise_from [get_clocks virtual54] -fall_to [get_clocks data_clock]
 set_false_path -setup -fall_from [get_clocks virtual54] -rise_to [get_clocks data_clock]
 set_false_path -hold -rise_from [get_clocks virtual54] -rise_to [get_clocks data_clock]
