@@ -12,8 +12,6 @@ set_false_path -from [get_ports {video_mode_480p_n}]
 derive_pll_clocks -create_base_clocks
 
 set output_clock "pll_hdmi|altpll_component|auto_generated|pll1|clk[0]"
-
-
 set_clock_groups -exclusive -group data_clock -group $output_clock
 
 derive_clock_uncertainty
@@ -22,12 +20,8 @@ derive_clock_uncertainty
 set tSU 1.0
 set tH 0.7
 set dcinputs [get_ports {data* _hsync _vsync}]
-#set_input_delay -clock virtual54 -clock_fall -max $tSU $dcinputs -add_delay
-#set_input_delay -clock virtual54 -clock_fall -min -$tH $dcinputs -add_delay
 set_input_delay -max -clock virtual54 $tSU $dcinputs
 set_input_delay -min -clock virtual54 -$tH $dcinputs
-#set_input_delay -max -clock virtual54 -clock_fall $tSU $dcinputs -add
-#set_input_delay -min -clock virtual54 -clock_fall -$tH $dcinputs -add
 set_false_path -setup -rise_from [get_clocks virtual54] -fall_to [get_clocks data_clock]
 set_false_path -setup -fall_from [get_clocks virtual54] -rise_to [get_clocks data_clock]
 set_false_path -hold -rise_from [get_clocks virtual54] -rise_to [get_clocks data_clock]

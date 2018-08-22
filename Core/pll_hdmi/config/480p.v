@@ -3,11 +3,11 @@
         1: q_reg <= 1'b0; //  -- Reserved Bits = 0 (1 bit(s))
         2: q_reg <= 1'b0; //  -- Loop Filter Capacitance = 0 (2 bit(s)) (Setting 0)
         3: q_reg <= 1'b0; // 
-        4: q_reg <= 1'b1; //  -- Loop Filter Resistance = 27 (5 bit(s)) (Setting 27)
+        4: q_reg <= 1'b0; //  -- Loop Filter Resistance = 8 (5 bit(s)) (Setting 8)
         5: q_reg <= 1'b1; // 
         6: q_reg <= 1'b0; // 
-        7: q_reg <= 1'b1; // 
-        8: q_reg <= 1'b1; // 
+        7: q_reg <= 1'b0; // 
+        8: q_reg <= 1'b0; // 
         9: q_reg <= 1'b0; //  -- VCO Post Scale = 0 (1 bit(s)) (VCO post-scale divider counter value = 2)
         10: q_reg <= 1'b0; //  -- Reserved Bits = 0 (5 bit(s))
         11: q_reg <= 1'b0; // 
@@ -17,38 +17,38 @@
         15: q_reg <= 1'b0; //  -- Charge Pump Current = 1 (3 bit(s)) (Setting 1)
         16: q_reg <= 1'b0; // 
         17: q_reg <= 1'b1; // 
-        18: q_reg <= 1'b1; //  -- N counter: Bypass = 1 (1 bit(s))
-        19: q_reg <= 1'b0; //  -- N counter: High Count = 0 (8 bit(s))
+        18: q_reg <= 1'b0; //  -- N counter: Bypass = 0 (1 bit(s))
+        19: q_reg <= 1'b0; //  -- N counter: High Count = 7 (8 bit(s))
         20: q_reg <= 1'b0; // 
         21: q_reg <= 1'b0; // 
         22: q_reg <= 1'b0; // 
         23: q_reg <= 1'b0; // 
-        24: q_reg <= 1'b0; // 
-        25: q_reg <= 1'b0; // 
-        26: q_reg <= 1'b0; // 
-        27: q_reg <= 1'b0; //  -- N counter: Odd Division = 0 (1 bit(s))
-        28: q_reg <= 1'b0; //  -- N counter: Low Count = 0 (8 bit(s))
+        24: q_reg <= 1'b1; // 
+        25: q_reg <= 1'b1; // 
+        26: q_reg <= 1'b1; // 
+        27: q_reg <= 1'b1; //  -- N counter: Odd Division = 1 (1 bit(s))
+        28: q_reg <= 1'b0; //  -- N counter: Low Count = 6 (8 bit(s))
         29: q_reg <= 1'b0; // 
         30: q_reg <= 1'b0; // 
         31: q_reg <= 1'b0; // 
         32: q_reg <= 1'b0; // 
-        33: q_reg <= 1'b0; // 
-        34: q_reg <= 1'b0; // 
+        33: q_reg <= 1'b1; // 
+        34: q_reg <= 1'b1; // 
         35: q_reg <= 1'b0; // 
         36: q_reg <= 1'b0; //  -- M counter: Bypass = 0 (1 bit(s))
-        37: q_reg <= 1'b0; //  -- M counter: High Count = 4 (8 bit(s))
+        37: q_reg <= 1'b0; //  -- M counter: High Count = 52 (8 bit(s))
         38: q_reg <= 1'b0; // 
-        39: q_reg <= 1'b0; // 
-        40: q_reg <= 1'b0; // 
+        39: q_reg <= 1'b1; // 
+        40: q_reg <= 1'b1; // 
         41: q_reg <= 1'b0; // 
         42: q_reg <= 1'b1; // 
         43: q_reg <= 1'b0; // 
         44: q_reg <= 1'b0; // 
         45: q_reg <= 1'b0; //  -- M counter: Odd Division = 0 (1 bit(s))
-        46: q_reg <= 1'b0; //  -- M counter: Low Count = 4 (8 bit(s))
+        46: q_reg <= 1'b0; //  -- M counter: Low Count = 52 (8 bit(s))
         47: q_reg <= 1'b0; // 
-        48: q_reg <= 1'b0; // 
-        49: q_reg <= 1'b0; // 
+        48: q_reg <= 1'b1; // 
+        49: q_reg <= 1'b1; // 
         50: q_reg <= 1'b0; // 
         51: q_reg <= 1'b1; // 
         52: q_reg <= 1'b0; // 
@@ -71,24 +71,24 @@
         69: q_reg <= 1'b0; // 
         70: q_reg <= 1'b1; // 
         71: q_reg <= 1'b1; // 
-        72: q_reg <= 1'b1; //  -- clk1 counter: Bypass = 1 (1 bit(s))
-        73: q_reg <= 1'b0; //  -- clk1 counter: High Count = 0 (8 bit(s))
+        72: q_reg <= 1'b0; //  -- clk1 counter: Bypass = 0 (1 bit(s))
+        73: q_reg <= 1'b0; //  -- clk1 counter: High Count = 11 (8 bit(s))
         74: q_reg <= 1'b0; // 
         75: q_reg <= 1'b0; // 
         76: q_reg <= 1'b0; // 
-        77: q_reg <= 1'b0; // 
+        77: q_reg <= 1'b1; // 
         78: q_reg <= 1'b0; // 
-        79: q_reg <= 1'b0; // 
-        80: q_reg <= 1'b0; // 
+        79: q_reg <= 1'b1; // 
+        80: q_reg <= 1'b1; // 
         81: q_reg <= 1'b0; //  -- clk1 counter: Odd Division = 0 (1 bit(s))
-        82: q_reg <= 1'b0; //  -- clk1 counter: Low Count = 0 (8 bit(s))
+        82: q_reg <= 1'b0; //  -- clk1 counter: Low Count = 11 (8 bit(s))
         83: q_reg <= 1'b0; // 
         84: q_reg <= 1'b0; // 
         85: q_reg <= 1'b0; // 
-        86: q_reg <= 1'b0; // 
+        86: q_reg <= 1'b1; // 
         87: q_reg <= 1'b0; // 
-        88: q_reg <= 1'b0; // 
-        89: q_reg <= 1'b0; // 
+        88: q_reg <= 1'b1; // 
+        89: q_reg <= 1'b1; // 
         90: q_reg <= 1'b1; //  -- clk2 counter: Bypass = 1 (1 bit(s))
         91: q_reg <= 1'b0; //  -- clk2 counter: High Count = 0 (8 bit(s))
         92: q_reg <= 1'b0; // 
