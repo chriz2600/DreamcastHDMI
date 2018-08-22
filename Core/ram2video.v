@@ -19,7 +19,6 @@ module ram2video(
     output vsync,
     
     output DrawArea,
-    output videoClock,
     output reg restart,
 
     input enable_osd,
@@ -307,6 +306,5 @@ module ram2video(
     assign hsync = hsync_reg_q;
     assign vsync = vsync_reg_q;
     assign DrawArea = `IsDrawAreaHDMI(counterX_reg_q_q, counterY_reg_q_q);
-    assign videoClock = clock; 
 
 endmodule

@@ -141,6 +141,7 @@ edge_detect pll_hdmi_lockloss_check(
 pll_hdmi pll_hdmi(
     .inclk0(clock74_175824),
     .c0(hdmi_clock),
+    .c1(CLOCK),
     .locked (pll_hdmi_locked),
 
     .areset(pll_hdmi_areset),
@@ -285,7 +286,6 @@ ram2video ram2video(
     .hsync(HSYNC),
     .vsync(VSYNC),
     .DrawArea(DE),
-    .videoClock(CLOCK),
     .rdaddr(ram_rdaddress),
     .text_rddata(text_rddata),
     .text_rdaddr(text_rdaddr),
