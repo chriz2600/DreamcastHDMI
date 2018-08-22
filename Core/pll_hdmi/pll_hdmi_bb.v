@@ -129,7 +129,7 @@ endmodule
 // Retrieval info: PRIVATE: PHASE_RECONFIG_FEATURE_ENABLED STRING "1"
 // Retrieval info: PRIVATE: PHASE_RECONFIG_INPUTS_CHECK STRING "0"
 // Retrieval info: PRIVATE: PHASE_SHIFT0 STRING "0.00000000"
-// Retrieval info: PRIVATE: PHASE_SHIFT1 STRING "180.00000000"
+// Retrieval info: PRIVATE: PHASE_SHIFT1 STRING "0.00000000"
 // Retrieval info: PRIVATE: PHASE_SHIFT_STEP_ENABLED_CHECK STRING "0"
 // Retrieval info: PRIVATE: PHASE_SHIFT_UNIT0 STRING "deg"
 // Retrieval info: PRIVATE: PHASE_SHIFT_UNIT1 STRING "deg"
@@ -174,7 +174,7 @@ endmodule
 // Retrieval info: CONSTANT: CLK1_DIVIDE_BY NUMERIC "1"
 // Retrieval info: CONSTANT: CLK1_DUTY_CYCLE NUMERIC "50"
 // Retrieval info: CONSTANT: CLK1_MULTIPLY_BY NUMERIC "1"
-// Retrieval info: CONSTANT: CLK1_PHASE_SHIFT STRING "6734"
+// Retrieval info: CONSTANT: CLK1_PHASE_SHIFT STRING "0"
 // Retrieval info: CONSTANT: INCLK0_INPUT_FREQUENCY NUMERIC "13468"
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Cyclone 10 LP"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "altpll"
@@ -255,8 +255,8 @@ endmodule
 // Retrieval info: GEN_FILE: TYPE_NORMAL pll_hdmi.bsf FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL pll_hdmi_inst.v FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL pll_hdmi_bb.v TRUE
-// Retrieval info: GEN_FILE: TYPE_NORMAL pll_hdmi.mif TRUE
-// Retrieval info: GEN_FILE: TYPE_NORMAL pll_hdmi_1080.mif TRUE
+// Retrieval info: GEN_FILE: TYPE_NORMAL pll_hdmi.mif FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL pll_hdmi_1080.mif FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL 1080p.mif TRUE
 // Retrieval info: LIB_FILE: altera_mf
 // Retrieval info: CBX_MODULE_PREFIX: ON

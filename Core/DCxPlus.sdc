@@ -7,7 +7,7 @@ create_generated_clock -name datain_clock -source {pll54|altpll_component|auto_g
 # output clocks
 create_clock -period 74.25Mhz -name clk74_175824 [get_ports clock74_175824]
 create_generated_clock -name data_clock -source {pll_hdmi|altpll_component|auto_generated|pll1|inclk[0]} {pll_hdmi|altpll_component|auto_generated|pll1|clk[0]}
-create_generated_clock -name clock_clock -source {pll_hdmi|altpll_component|auto_generated|pll1|inclk[0]} -phase 180 {pll_hdmi|altpll_component|auto_generated|pll1|clk[1]}
+create_generated_clock -name clock_clock -source {pll_hdmi|altpll_component|auto_generated|pll1|inclk[0]} -phase 0 {pll_hdmi|altpll_component|auto_generated|pll1|clk[1]}
 create_generated_clock -name output_clock -source {pll_hdmi|altpll_component|auto_generated|pll1|clk[1]} [get_ports CLOCK]
 
 set_false_path -from [get_ports {HDMI_INT_N}]

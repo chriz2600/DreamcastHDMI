@@ -18,7 +18,7 @@
 --    Device Speed Grade: -
 --    PLL Scan Chain: Fast PLL (144 bits)
 --    File Name: /build/Core/pll_hdmi/config/960p.mif
---    Generated: Wed Aug 22 17:36:56 2018
+--    Generated: Wed Aug 22 20:41:33 2018
 
 WIDTH=1;
 DEPTH=144;

@@ -18,7 +18,7 @@
 --    Device Speed Grade: -
 --    PLL Scan Chain: Fast PLL (144 bits)
 --    File Name: /build/Core/pll_hdmi/config/VGA.mif
---    Generated: Wed Aug 22 17:41:37 2018
+--    Generated: Wed Aug 22 20:44:07 2018
 
 WIDTH=1;
 DEPTH=144;
