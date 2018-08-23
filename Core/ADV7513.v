@@ -13,6 +13,7 @@ module ADV7513(
     output reg ready,
     output DebugData debugData_out,
 
+    input power_down,
     input HDMIVideoConfig hdmiVideoConfig
 );
 
@@ -135,6 +136,9 @@ always @ (posedge clk) begin
             s_idle: begin
                 if (~hdmi_int) begin
                     ready <= 0;
+                    state <= s_start;
+                end else if (power_down) begin
+                    cmd_counter <= cs_pwrdown;
                     state <= s_start;
                 end else if (~DE_reg && DE) begin
                     cmd_counter <= cs_ctsdebug;

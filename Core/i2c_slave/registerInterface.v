@@ -61,6 +61,8 @@ module registerInterface (
     output[7:0] highlight_line,
     output[7:0] reconf_data,
     output HDMIVideoConfig hdmiVideoConfig,
+    //output wrreq,
+    output power_down,
     input DebugData debugData,
     input ControllerData controller_data
 );
@@ -72,6 +74,8 @@ reg wren;
 reg enable_osd_reg = 1'b0;
 reg [7:0] highlight_line_reg = 255;
 reg [7:0] reconf_data_reg;
+reg power_down_reg;
+//reg wrreq_reg;
 
 `include "../config/hdmi_config.v"
 
@@ -89,6 +93,8 @@ assign enable_osd = enable_osd_reg;
 assign highlight_line = highlight_line_reg;
 assign hdmiVideoConfig = hdmiVideoConfig_reg;
 assign reconf_data = reconf_data_reg;
+assign power_down = power_down_reg;
+//assign wrreq = wrreq_reg;
 
 // --- I2C Read
 always @(posedge clk) begin
@@ -160,6 +166,7 @@ always @(posedge clk) begin
         // output mode reconfiguration
         end else if (addr == 8'h83) begin
             reconf_data_reg <= dataIn;
+            //wrreq_reg <= 1'b1;
             case (dataIn[3:0])
                 0: begin // 1080p
                     hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_1080P;
@@ -174,9 +181,9 @@ always @(posedge clk) begin
                     hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_VGA;
                 end
             endcase
-        // reset pll request
+        // power down hdmi
         end else if (addr == 8'h84) begin
-            reconf_data_reg <= reconf_data_reg | dataIn[6];
+            power_down_reg <= dataIn[5];
         // OSD data
         end else if (addr < 8'h80) begin
             wraddress_reg <= { addr_offset, addr[6:0] };
@@ -184,6 +191,8 @@ always @(posedge clk) begin
         end
     end else begin
         wren <= 1'b0;
+        //wrreq_reg <= 1'b0;
+        power_down_reg <= 1'b0;
     end
 end
 

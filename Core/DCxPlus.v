@@ -102,6 +102,7 @@ wire forceVGAMode;
 wire pll54_lockloss;
 wire pll_hdmi_lockloss;
 wire resetPLL;
+wire power_down;
 
 assign clock54_out = clock54_net;
 assign status_led = ~adv7513_ready;
@@ -307,6 +308,7 @@ ADV7513 adv7513(
     .restart(restart),
     .ready(adv7513_ready),
     .debugData_out(debugData),
+    .power_down(power_down),
     .hdmiVideoConfig(hdmiVideoConfig)
 );
 
@@ -335,7 +337,8 @@ text_ram text_ram_inst(
 
 i2cSlave i2cSlave(
     .clk(hdmi_clock),
-    .rst(1'b0),
+    //.rst(1'b0),
+    .rst(~ram2video_ready),
     .sda(ESP_SDA),
     .scl(ESP_SCL),
     .ram_dataIn(text_wrdata),
@@ -346,6 +349,8 @@ i2cSlave i2cSlave(
     .controller_data(controller_data),
     .highlight_line(highlight_line),
     .reconf_data(reconf_data),
+    //.wrreq(reconf_fifo_wrreq),
+    .power_down(power_down),
     .hdmiVideoConfig(hdmiVideoConfig)
 );
 
