@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+
+from PIL import Image
+from math import floor
+
+im = Image.open('8x16-font.png')
+pix = im.load()
+(width, height) = im.size
+offset = 0x20 * 16
+out = ""
+addr = 0
+max_addr = 1536
+pxl = 0
+charWidth = 8
+charHeight = 16
+charsPerLine = im.width / charWidth
+charsPerColumn = im.height / charHeight
+
+x = 0
+y = 0
+for addr in range(max_addr):
+    xbase = (floor(addr / charsPerLine) * charWidth) % im.width
+    y = (addr % charHeight) + (floor(addr / floor(charHeight * charsPerLine)) * charHeight)
+    if addr % charHeight == 0:
+        print("// -- code x%x" % (floor(addr / charHeight) + floor(offset / 16)))
+    for pxl in range(charWidth):
+        x = xbase + pxl
+        #print("%d: %d/%d" % (addr, x, y))
+        if pix[x,y] == 1:
+            out = out + "0"
+        else:
+            out = out + "1"
+    print("%04d: q_reg <= 8'b%s;" % (addr + offset, out))
+    out = ""
