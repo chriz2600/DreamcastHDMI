@@ -123,7 +123,7 @@ always @(posedge clk) begin
             04: trigger_osd
         */
         8'h86: dataOut_reg <= { controller_data[3:0], 4'b0000 };
-        // general debug data
+        // debug data
         8'h90: dataOut_reg <= debugData.pll_errors;
         8'h91: dataOut_reg <= debugData.test;
         8'h92: dataOut_reg <= debugData.frame_counter[7:0];
@@ -136,17 +136,18 @@ always @(posedge clk) begin
         8'h99: dataOut_reg <= debugData.vic_to_rx;
         8'h9A: dataOut_reg <= debugData.misc_data;
         8'h9B: dataOut_reg <= debugData.restart_count;
-        // CTS debug data
-        8'hA0: dataOut_reg <= debugData.cts1_status;
-        8'hA1: dataOut_reg <= debugData.cts2_status;
-        8'hA2: dataOut_reg <= debugData.cts3_status;
-        8'hA3: dataOut_reg <= debugData.max_cts1_status;
-        8'hA4: dataOut_reg <= debugData.max_cts2_status;
-        8'hA5: dataOut_reg <= debugData.max_cts3_status;
-        8'hA6: dataOut_reg <= debugData.summary_cts1_status;
-        8'hA7: dataOut_reg <= debugData.summary_cts2_status;
-        8'hA8: dataOut_reg <= debugData.summary_cts3_status;
-        8'hA9: dataOut_reg <= debugData.summary_summary_cts3_status;
+        8'h9C: dataOut_reg <= debugData.cts1_status;
+        8'h9D: dataOut_reg <= debugData.cts2_status;
+        8'h9E: dataOut_reg <= debugData.cts3_status;
+        8'h9F: dataOut_reg <= debugData.max_cts1_status;
+        8'hA0: dataOut_reg <= debugData.max_cts2_status;
+        8'hA1: dataOut_reg <= debugData.max_cts3_status;
+        8'hA2: dataOut_reg <= debugData.summary_cts1_status;
+        8'hA3: dataOut_reg <= debugData.summary_cts2_status;
+        8'hA4: dataOut_reg <= debugData.summary_cts3_status;
+        8'hA5: dataOut_reg <= debugData.summary_summary_cts3_status;
+        8'hA6: dataOut_reg <= debugData.hdmi_int_count;
+        8'hA7: dataOut_reg <= debugData.not_ready_count;
         default: dataOut_reg <= 0;
     endcase
 end

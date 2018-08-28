@@ -84,6 +84,14 @@ always @ (posedge clk) begin
         debugData.restart_count <= debugData.restart_count + 1'b1;
     end
 
+    if (~hdmi_int) begin
+        debugData.hdmi_int_count <= debugData.hdmi_int_count + 1'b1;
+    end
+
+    if (~ready) begin
+        debugData.not_ready_count <= debugData.not_ready_count + 1'b1;
+    end
+
     if (~reset) begin
         state <= s_start;
         cmd_counter <= cs_init;
@@ -105,7 +113,7 @@ always @ (posedge clk) begin
                         cs_pllcheck: adv7513_pllcheck(cs_pwrup);
                         cs_pwrup: adv7513_link_powerup(cs_ready);
 
-                        cs_debug: adv7513_debug(cs_ready);
+                        cs_debug: adv7513_debug(cs_ctsdebug);
                         cs_ctsdebug: adv7513_ctscheck(cs_ready);
 
                         default: begin
@@ -137,15 +145,16 @@ always @ (posedge clk) begin
                 if (~hdmi_int) begin
                     ready <= 0;
                     state <= s_start;
-                end else if (power_down) begin
-                    cmd_counter <= cs_pwrdown;
+                    cmd_counter <= cs_init;
+                // end else if (power_down) begin
+                //     cmd_counter <= cs_pwrdown;
+                //     state <= s_start;
+                // end else if (DE_reg != DE) begin
+                //     cmd_counter <= cs_ctsdebug;
+                //     state <= s_start;
+                end else if (VSYNC_reg != VSYNC) begin
                     state <= s_start;
-                end else if (~DE_reg && DE) begin
-                    cmd_counter <= cs_ctsdebug;
-                    state <= s_start;
-                end else if (~VSYNC_reg && VSYNC) begin
                     cmd_counter <= cs_debug;
-                    state <= s_start;
                     debugData.frame_counter <= debugData.frame_counter + 1'b1;
                 end
 

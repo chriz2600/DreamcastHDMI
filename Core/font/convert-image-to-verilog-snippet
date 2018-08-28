@@ -2,8 +2,13 @@
 
 from PIL import Image
 from math import floor
+import sys
 
-im = Image.open('8x16-font.png')
+if len(sys.argv) < 2:
+    print("usage: %s <image-to-convert>" % sys.argv[0])
+    exit(0)
+
+im = Image.open(sys.argv[1])
 pix = im.load()
 (width, height) = im.size
 offset = 0x20 * 16
@@ -26,9 +31,9 @@ for addr in range(max_addr):
     for pxl in range(charWidth):
         x = xbase + pxl
         #print("%d: %d/%d" % (addr, x, y))
-        if pix[x,y] == 1:
-            out = out + "0"
-        else:
+        if pix[x,y] == 0:
             out = out + "1"
+        else:
+            out = out + "0"
     print("%04d: q_reg <= 8'b%s;" % (addr + offset, out))
     out = ""

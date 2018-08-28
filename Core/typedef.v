@@ -26,6 +26,8 @@ typedef struct packed {
     reg [7:0] summary_summary_cts3_status;
 
     reg [7:0] restart_count;
+    reg [7:0] hdmi_int_count;
+    reg [7:0] not_ready_count;
 } DebugData;
 
 // Maple Controller Data
