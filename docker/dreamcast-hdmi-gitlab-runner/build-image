@@ -15,4 +15,3 @@ echo
 echo "to add to docker hub: "
 echo "docker push chriz2600/dreamcast-hdmi-gitlab-runner"
 echo
-
