@@ -51,6 +51,7 @@ module ram2video(
     reg [14:0] ram_addrY_reg;
 
     reg trigger = 1'b0;
+    reg fullcycle = 1'b0;
 
     wire ld_rise;
     wire ld_fall;
@@ -118,6 +119,7 @@ module ram2video(
         if (combined_reset) begin
             doReset(1'b0);
             restart <= 0;
+            fullcycle <= 0;
         end else if (!trigger) begin
             // wait for trigger to start
             if (starttrigger) begin
@@ -126,6 +128,9 @@ module ram2video(
             end
         end else begin
             restart <= 0;
+            if (counterX_reg_q == 0 && counterY_reg_q == 0) begin
+                fullcycle <= 1;
+            end
             // trigger is set, output data
             if (counterX_reg < hdmiVideoConfig.horizontal_pixels_per_line - 1) begin
                 counterX_reg <= counterX_reg + 1'b1;
@@ -197,15 +202,17 @@ module ram2video(
         end
     end
 
+    localparam ONE_TO_ONE = 4;
+
 `ifdef OSD_BACKGROUND_ALPHA
     localparam OSD_BACKGROUND_ALPHA = `OSD_BACKGROUND_ALPHA;
 `else
-    localparam OSD_BACKGROUND_ALPHA = 64;
+    localparam OSD_BACKGROUND_ALPHA = 6; // shift by 6 right
 `endif
 `ifdef SCANLINES_INTENSITY
     localparam SCANLINES_INTENSITY = `SCANLINES_INTENSITY;
 `else
-    localparam SCANLINES_INTENSITY = 16;
+    localparam SCANLINES_INTENSITY = 5; // shift by 4 right
 `endif
 
     reg [7:0] char_data_req;
@@ -258,10 +265,10 @@ module ram2video(
         ?   `IsOsdTextArea(x, y) \
             ?   (char_data_req[7-counterX_reg_q_q[2:0]]) ^ (currentLine_reg_q == highlight_line) \
                 ?   {24{1'b1}} \
-                :   `GetRdData(y, OSD_BACKGROUND_ALPHA) \
+                :   `GetRdData(y, (`IsScanline(y) ? OSD_BACKGROUND_ALPHA + (OSD_BACKGROUND_ALPHA - SCANLINES_INTENSITY) : OSD_BACKGROUND_ALPHA)) \
             :   `IsOsdBgArea(x, y) \
-                ?   `GetRdData(y, OSD_BACKGROUND_ALPHA) \
-                :   `GetRdData(y, 16) \
+                ?   `GetRdData(y, (`IsScanline(y) ? OSD_BACKGROUND_ALPHA + (OSD_BACKGROUND_ALPHA - SCANLINES_INTENSITY) : OSD_BACKGROUND_ALPHA)) \
+                :   `GetRdData(y, (`IsScanline(y) ? SCANLINES_INTENSITY : ONE_TO_ONE)) \
         :   24'h00 \
         )
 
@@ -296,15 +303,15 @@ module ram2video(
     endfunction
 
     `define GetRdData(y, a) ({ \
-                truncate_rddata(((rddata[23:16] << 4) / a)), \
-                truncate_rddata(((rddata[15:8] << 4) / a)), \
-                truncate_rddata(((rddata[7:0] << 4) / a)) \
+                truncate_rddata(((rddata[23:16] << 4) >> a)), \
+                truncate_rddata(((rddata[15:8] << 4) >> a)), \
+                truncate_rddata(((rddata[7:0] << 4) >> a)) \
             })
 
     assign rdaddr = `GetAddr(counterX_reg, counterY_reg);
-    assign video_out = `GetData(counterX_reg_q_q, counterY_reg_q_q);
-    assign hsync = hsync_reg_q;
-    assign vsync = vsync_reg_q;
-    assign DrawArea = `IsDrawAreaHDMI(counterX_reg_q_q, counterY_reg_q_q);
+    assign video_out = fullcycle ? `GetData(counterX_reg_q_q, counterY_reg_q_q) : 24'd0;
+    assign hsync = fullcycle ? hsync_reg_q : ~hdmiVideoConfig.horizontal_sync_on_polarity;
+    assign vsync = fullcycle ? vsync_reg_q : ~hdmiVideoConfig.vertical_sync_on_polarity;
+    assign DrawArea = fullcycle ? `IsDrawAreaHDMI(counterX_reg_q_q, counterY_reg_q_q) : 1'b0;
 
 endmodule

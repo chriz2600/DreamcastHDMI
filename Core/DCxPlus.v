@@ -323,7 +323,7 @@ startup ram2video_startup_delay(
     .clock(hdmi_clock),
     .nreset(adv7513_ready),
     .ready(ram2video_ready),
-    .startup_delay(hdmiVideoConfig.startup_delay)
+    .startup_delay(/*hdmiVideoConfig.startup_delay*/32'd0)
 );
 
 text_ram text_ram_inst(

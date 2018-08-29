@@ -116,11 +116,14 @@ always @ (posedge clk) begin
                 if (i2c_done) begin
                     
                     case (cmd_counter)
-                        cs_init: adv7513_bootstrap(cs_pwrdown);
-                        cs_pwrdown: adv7513_link_powerdown(cs_init2);
+                        // cs_init: adv7513_bootstrap(cs_pwrdown);
+                        // cs_pwrdown: adv7513_link_powerdown(cs_init2);
+                        // cs_init2: adv7513_init(cs_pllcheck);
+                        // cs_pllcheck: adv7513_pllcheck(cs_pwrup);
+                        // cs_pwrup: adv7513_link_powerup(cs_ready);
+                        cs_init: adv7513_bootstrap(cs_init2);
                         cs_init2: adv7513_init(cs_pllcheck);
-                        cs_pllcheck: adv7513_pllcheck(cs_pwrup);
-                        cs_pwrup: adv7513_link_powerup(cs_ready);
+                        cs_pllcheck: adv7513_pllcheck(cs_ready);
 
                         cs_debug: adv7513_debug(cs_ctsdebug);
                         cs_ctsdebug: adv7513_ctscheck(cs_ready);
@@ -156,12 +159,6 @@ always @ (posedge clk) begin
                     ready <= 0;
                     state <= s_start;
                     cmd_counter <= cs_init;
-                // end else if (power_down) begin
-                //     cmd_counter <= cs_pwrdown;
-                //     state <= s_start;
-                // end else if (DE_reg != DE) begin
-                //     cmd_counter <= cs_ctsdebug;
-                //     state <= s_start;
                 end else if (trigger_debug) begin
                     trigger_debug <= 0;
                     state <= s_start;
@@ -374,14 +371,8 @@ task adv7513_link_powerdown;
 
     begin
         case (subcmd_counter)
-            0: write_i2c(CHIP_ADDR, 16'h_41_10); // [6]:   power down = 0b0, all circuits powered up
-                                                 // [5]:   fixed = 0b0
-                                                 // [4]:   reserved = 0b1
-                                                 // [3:2]: fixed = 0b00
-                                                 // [1]:   sync adjustment enable = 0b0, disabled
-                                                 // [0]:   fixed = 0b0
-            1: write_i2c(CHIP_ADDR, 16'h_D6_10);
-            2: write_i2c(CHIP_ADDR, 16'h_A1_3C);
+            0: write_i2c(CHIP_ADDR, 16'h_D6_10);
+            1: write_i2c(CHIP_ADDR, 16'h_A1_3C);
             default: begin
                 cmd_counter <= next_cmd;
                 subcmd_counter <= scs_start;
