@@ -2,10 +2,15 @@
 
 set -e
 
+AARGS=""
+if [ "$1" == "-n" ] ; then
+    AARGS="--no-cache"
+fi
+
 cd $(dirname $0)
 
 echo building chriz2600/dreamcast-hdmi-gitlab-runner
-docker build --no-cache -t chriz2600/dreamcast-hdmi-gitlab-runner .
+docker build $AARGS -t chriz2600/dreamcast-hdmi-gitlab-runner .
 echo
 echo "to add to docker hub: "
 echo "docker push chriz2600/dreamcast-hdmi-gitlab-runner"

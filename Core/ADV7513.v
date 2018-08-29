@@ -72,6 +72,9 @@ localparam  cs_init     = 3'd0,
             cs_ready    = 3'd7;
 localparam  scs_start = 6'd0;
 
+reg hdmi_int_reg = 0;
+reg trigger_debug = 0;
+
 initial begin
     ready <= 0;
 end
@@ -83,13 +86,19 @@ always @ (posedge clk) begin
     if (restart) begin
         debugData.restart_count <= debugData.restart_count + 1'b1;
     end
+    if (~ready) begin
+        debugData.not_ready_count <= debugData.not_ready_count + 1'b1;
+    end
 
     if (~hdmi_int) begin
+        hdmi_int_reg <= 1;
         debugData.hdmi_int_count <= debugData.hdmi_int_count + 1'b1;
     end
 
-    if (~ready) begin
-        debugData.not_ready_count <= debugData.not_ready_count + 1'b1;
+    if (VSYNC_reg == hdmiVideoConfig.vertical_sync_on_polarity
+     && VSYNC != hdmiVideoConfig.vertical_sync_on_polarity)
+    begin
+        trigger_debug <= 1;
     end
 
     if (~reset) begin
@@ -142,7 +151,8 @@ always @ (posedge clk) begin
             end
 
             s_idle: begin
-                if (~hdmi_int) begin
+                if (hdmi_int_reg) begin
+                    hdmi_int_reg <= 0;
                     ready <= 0;
                     state <= s_start;
                     cmd_counter <= cs_init;
@@ -152,7 +162,8 @@ always @ (posedge clk) begin
                 // end else if (DE_reg != DE) begin
                 //     cmd_counter <= cs_ctsdebug;
                 //     state <= s_start;
-                end else if (VSYNC_reg != VSYNC) begin
+                end else if (trigger_debug) begin
+                    trigger_debug <= 0;
                     state <= s_start;
                     cmd_counter <= cs_debug;
                     debugData.frame_counter <= debugData.frame_counter + 1'b1;
