@@ -3,7 +3,7 @@ firmware:
   stage: build
   script: 
     - ./Core/create_test_text_ram.pl
-    - /root/build
+    - script -qfc "$(printf "%q " "/root/build")" /dev/null
   artifacts:
     paths:
     - Core/output_files/*.jic
