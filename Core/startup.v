@@ -6,7 +6,7 @@ module startup(
     output reg ready,
     input [31:0] startup_delay
 );
-
+    reg startup_done = 0;
     reg [31:0] counter;
 
     initial begin
@@ -22,8 +22,9 @@ module startup(
         end else begin
             counter <= #1 counter + 1;
             
-            if (counter == startup_delay) begin
+            if (startup_done || counter == startup_delay) begin
                 ready <= 1;
+                startup_done <= 1;
             end
         end
     end
