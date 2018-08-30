@@ -23,7 +23,8 @@ module ram2video(
 
     input enable_osd,
     input [7:0] highlight_line,
-    input HDMIVideoConfig hdmiVideoConfig
+    input HDMIVideoConfig hdmiVideoConfig,
+    input Scanline scanline
 );
     reg [10:0] vlines; // vertical lines per frame
     
@@ -33,14 +34,18 @@ module ram2video(
 
     reg hsync_reg_q = 1'b1;
     reg vsync_reg_q = 1'b1;
+    reg hsync_reg_q_q = 1'b1;
+    reg vsync_reg_q_q = 1'b1;
 
     reg [11:0] counterX_reg;
     reg [11:0] counterX_reg_q;
     reg [11:0] counterX_reg_q_q;
+    reg [11:0] counterX_reg_q_q_q;
     
     reg [11:0] counterY_reg;
     reg [11:0] counterY_reg_q;
     reg [11:0] counterY_reg_q_q;
+    reg [11:0] counterY_reg_q_q_q;
     
     reg [7:0] currentLine_reg;
     reg [7:0] currentLine_reg_q;
@@ -199,21 +204,20 @@ module ram2video(
             counterY_reg_q <= counterY_reg;
             counterX_reg_q_q <= counterX_reg_q;
             counterY_reg_q_q <= counterY_reg_q;
+            counterX_reg_q_q_q <= counterX_reg_q_q;
+            counterY_reg_q_q_q <= counterY_reg_q_q;
+            hsync_reg_q_q <= hsync_reg_q;
+            vsync_reg_q_q <= vsync_reg_q;
         end
     end
 
-    localparam ONE_TO_ONE = 4;
+    localparam ONE_TO_ONE = 256;
 
-`ifdef OSD_BACKGROUND_ALPHA
-    localparam OSD_BACKGROUND_ALPHA = `OSD_BACKGROUND_ALPHA;
-`else
-    localparam OSD_BACKGROUND_ALPHA = 6; // shift by 6 right
-`endif
-`ifdef SCANLINES_INTENSITY
-    localparam SCANLINES_INTENSITY = `SCANLINES_INTENSITY;
-`else
-    localparam SCANLINES_INTENSITY = 5; // shift by 4 right
-`endif
+    `ifdef OSD_BACKGROUND_ALPHA
+        localparam OSD_BACKGROUND_ALPHA = `OSD_BACKGROUND_ALPHA;
+    `else
+        localparam OSD_BACKGROUND_ALPHA = 64;
+    `endif
 
     reg [7:0] char_data_req;
     reg [31:0] text_rddata_reg;
@@ -265,10 +269,10 @@ module ram2video(
         ?   `IsOsdTextArea(x, y) \
             ?   (char_data_req[7-counterX_reg_q_q[2:0]]) ^ (currentLine_reg_q == highlight_line) \
                 ?   {24{1'b1}} \
-                :   `GetRdData(y, (`IsScanline(y) ? OSD_BACKGROUND_ALPHA + (OSD_BACKGROUND_ALPHA - SCANLINES_INTENSITY) : OSD_BACKGROUND_ALPHA)) \
+                :   `GetRdData(y, (isScanline ? truncate_osdbg(OSD_BACKGROUND_ALPHA * scanline.intensity) : OSD_BACKGROUND_ALPHA)) \
             :   `IsOsdBgArea(x, y) \
-                ?   `GetRdData(y, (`IsScanline(y) ? OSD_BACKGROUND_ALPHA + (OSD_BACKGROUND_ALPHA - SCANLINES_INTENSITY) : OSD_BACKGROUND_ALPHA)) \
-                :   `GetRdData(y, (`IsScanline(y) ? SCANLINES_INTENSITY : ONE_TO_ONE)) \
+                ?   `GetRdData(y, (isScanline ? truncate_osdbg(OSD_BACKGROUND_ALPHA * scanline.intensity) : OSD_BACKGROUND_ALPHA)) \
+                :   `GetRdData(y, (isScanline ? scanline.intensity : ONE_TO_ONE)) \
         :   24'h00 \
         )
 
@@ -279,39 +283,71 @@ module ram2video(
                                 && x < hdmiVideoConfig.horizontal_capture_end \
                                 && y >= hdmiVideoConfig.vertical_capture_start \
                                 && y < hdmiVideoConfig.vertical_capture_end)
-    `ifdef SCANLINES_EVEN
-        `ifdef SCANLINES_THICK
-            `define IsScanline(y) (y[1])
-        `else
-            `define IsScanline(y) (y[0])
-        `endif
-    `elsif SCANLINES_ODD
-        `ifdef SCANLINES_THICK
-            `define IsScanline(y) (~y[1])
-        `else
-            `define IsScanline(y) (~y[0])
-        `endif
-    `else
-        `define IsScanline(y) (0)
-    `endif
+
+    reg isScanline = 0;
+    always @(posedge clock) begin
+        if (scanline.active) begin
+            if (hdmiVideoConfig.pixel_repetition) begin
+                isScanline <= counterY_reg[2:1] >> scanline.thickness ^ scanline.oddeven;
+            end else begin
+                isScanline <= counterY_reg[1:0] >> scanline.thickness ^ scanline.oddeven;
+            end
+        end else begin
+            isScanline <= 1'b0;
+        end
+    end
+
     `define GetAddr(x, y) (`IsDrawAreaVGA(x, y) ? ram_addrY_reg + ram_addrX_reg : 15'd0)
 
     function [7:0] truncate_rddata(
-        input[11:0] value
+        input[15:0] value
     );
-        truncate_rddata = value[7:0];
+        truncate_rddata = value[15:8];
+    endfunction
+
+    function [8:0] truncate_osdbg(
+        input[16:0] value
+    );
+        truncate_osdbg = value[16:8];
     endfunction
 
     `define GetRdData(y, a) ({ \
-                truncate_rddata(((rddata[23:16] << 4) >> a)), \
-                truncate_rddata(((rddata[15:8] << 4) >> a)), \
-                truncate_rddata(((rddata[7:0] << 4) >> a)) \
+                truncate_rddata({ 8'b0, rddata[23:16] } * a), \
+                truncate_rddata({ 8'b0, rddata[15:8] } * a), \
+                truncate_rddata({ 8'b0, rddata[7:0] } * a) \
             })
 
-    assign rdaddr = `GetAddr(counterX_reg, counterY_reg);
-    assign video_out = fullcycle ? `GetData(counterX_reg_q_q, counterY_reg_q_q) : 24'd0;
-    assign hsync = fullcycle ? hsync_reg_q : ~hdmiVideoConfig.horizontal_sync_on_polarity;
-    assign vsync = fullcycle ? vsync_reg_q : ~hdmiVideoConfig.vertical_sync_on_polarity;
-    assign DrawArea = fullcycle ? `IsDrawAreaHDMI(counterX_reg_q_q, counterY_reg_q_q) : 1'b0;
+    reg [14:0] d_rdaddr;
+    reg [23:0] d_video_out;
+    reg d_hsync;
+    reg d_vsync;
+    reg d_DrawArea;
+    
+    always @(posedge clock) begin
+        d_rdaddr <= `GetAddr(counterX_reg, counterY_reg);
+        if (fullcycle) begin
+            d_video_out <= `GetData(counterX_reg_q_q_q, counterY_reg_q_q_q);
+            d_DrawArea <= `IsDrawAreaHDMI(counterX_reg_q_q_q, counterY_reg_q_q_q);
+            d_hsync <= hsync_reg_q_q;
+            d_vsync <= vsync_reg_q_q;
+        end else begin
+            d_video_out <= 24'd0;
+            d_DrawArea <= 1'b0;
+            d_hsync <= ~hdmiVideoConfig.horizontal_sync_on_polarity;
+            d_vsync <= ~hdmiVideoConfig.vertical_sync_on_polarity;
+        end
+    end
+
+    assign rdaddr = d_rdaddr;
+    assign video_out = d_video_out;
+    assign DrawArea = d_DrawArea;
+    assign hsync = d_hsync;
+    assign vsync = d_vsync;
+
+    // assign rdaddr = `GetAddr(counterX_reg, counterY_reg);
+    // assign video_out = fullcycle ? `GetData(counterX_reg_q_q, counterY_reg_q_q) : 24'd0;
+    // assign hsync = fullcycle ? hsync_reg_q : ~hdmiVideoConfig.horizontal_sync_on_polarity;
+    // assign vsync = fullcycle ? vsync_reg_q : ~hdmiVideoConfig.vertical_sync_on_polarity;
+    // assign DrawArea = fullcycle ? `IsDrawAreaHDMI(counterX_reg_q_q, counterY_reg_q_q) : 1'b0;
 
 endmodule

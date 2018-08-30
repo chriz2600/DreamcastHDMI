@@ -13,7 +13,6 @@ module ADV7513(
     output reg ready,
     output DebugData debugData_out,
 
-    input power_down,
     input HDMIVideoConfig hdmiVideoConfig
 );
 
@@ -53,7 +52,6 @@ reg [2:0] cmd_counter;
 reg [5:0] subcmd_counter;
 
 reg VSYNC_reg = 0;
-reg DE_reg = 0;
 
 DebugData debugData = { 8'h00, 8'h00, 10'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00 };
 
@@ -109,7 +107,6 @@ always @ (posedge clk) begin
         ready <= 0;
     end else begin
         VSYNC_reg <= VSYNC;
-        DE_reg <= DE;
         case (state)
             
             s_start: begin

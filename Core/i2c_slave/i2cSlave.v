@@ -58,8 +58,7 @@ module i2cSlave (
   output[7:0] highlight_line,
   output[7:0] reconf_data,
   output HDMIVideoConfig hdmiVideoConfig,
-  //output wrreq,
-  output power_down,
+  output Scanline scanline,
   input DebugData debugData,
   input ControllerData controller_data
 );
@@ -174,9 +173,8 @@ registerInterface u_registerInterface(
   .controller_data(controller_data),
   .highlight_line(highlight_line),
   .reconf_data(reconf_data),
-  //.wrreq(wrreq),
-  .power_down(power_down),
-  .hdmiVideoConfig(hdmiVideoConfig)
+  .hdmiVideoConfig(hdmiVideoConfig),
+  .scanline(scanline)
 );
 
 serialInterface u_serialInterface (

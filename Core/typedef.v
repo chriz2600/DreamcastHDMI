@@ -128,3 +128,11 @@ typedef struct packed {
     reg [14:0] trigger_address;             // ram address where to trigger output start
     reg [14:0] buffer_line_length;          // 720 for 480p, 640 for others
 } DCVideoConfig;
+
+typedef struct packed {
+    reg[8:0] intensity; // 03-10 256=100% brightness, 0=complete black
+    reg thickness;      // 02: 1 thick, 0 thin
+    reg oddeven;        // 01: 1 odd, 0 even
+    reg active;         // 00
+} Scanline;
+

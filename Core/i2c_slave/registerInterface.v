@@ -61,8 +61,7 @@ module registerInterface (
     output[7:0] highlight_line,
     output[7:0] reconf_data,
     output HDMIVideoConfig hdmiVideoConfig,
-    //output wrreq,
-    output power_down,
+    output Scanline scanline,
     input DebugData debugData,
     input ControllerData controller_data
 );
@@ -74,12 +73,11 @@ reg wren;
 reg enable_osd_reg = 1'b0;
 reg [7:0] highlight_line_reg = 255;
 reg [7:0] reconf_data_reg;
-reg power_down_reg;
-//reg wrreq_reg;
 
 `include "../config/hdmi_config.v"
 
 HDMIVideoConfig hdmiVideoConfig_reg;
+Scanline scanline_reg = { 9'h100, 1'b0, 1'b0, 1'b0 };
 
 initial begin
     hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_1080P;
@@ -92,9 +90,8 @@ assign ram_wren = wren;
 assign enable_osd = enable_osd_reg;
 assign highlight_line = highlight_line_reg;
 assign hdmiVideoConfig = hdmiVideoConfig_reg;
+assign scanline = scanline_reg;
 assign reconf_data = reconf_data_reg;
-assign power_down = power_down_reg;
-//assign wrreq = wrreq_reg;
 
 // --- I2C Read
 always @(posedge clk) begin
@@ -123,6 +120,11 @@ always @(posedge clk) begin
             04: trigger_osd
         */
         8'h86: dataOut_reg <= { controller_data[3:0], 4'b0000 };
+
+        // scanline data
+        8'h87: dataOut_reg <= scanline_reg.intensity[8:1];
+        8'h88: dataOut_reg <= { scanline_reg.intensity[0], scanline_reg.thickness, scanline_reg.oddeven, scanline_reg.active, 4'b0000 };
+
         // debug data
         8'h90: dataOut_reg <= debugData.pll_errors;
         8'h91: dataOut_reg <= debugData.test;
@@ -182,9 +184,14 @@ always @(posedge clk) begin
                     hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_VGA;
                 end
             endcase
-        // power down hdmi
-        end else if (addr == 8'h84) begin
-            power_down_reg <= dataIn[5];
+        // scanline data
+        end else if (addr == 8'h87) begin
+            scanline_reg.intensity[8:1] <= dataIn;
+        end else if (addr == 8'h88) begin
+            scanline_reg.intensity[0] <= dataIn[7];
+            scanline_reg.thickness <= dataIn[6];
+            scanline_reg.oddeven <= dataIn[5];
+            scanline_reg.active <= dataIn[4];
         // OSD data
         end else if (addr < 8'h80) begin
             wraddress_reg <= { addr_offset, addr[6:0] };
@@ -192,8 +199,6 @@ always @(posedge clk) begin
         end
     end else begin
         wren <= 1'b0;
-        //wrreq_reg <= 1'b0;
-        power_down_reg <= 1'b0;
     end
 end
 

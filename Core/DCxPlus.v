@@ -98,11 +98,11 @@ DebugData debugData;
 ControllerData controller_data;
 HDMIVideoConfig hdmiVideoConfig;
 DCVideoConfig dcVideoConfig;
+Scanline scanline;
 wire forceVGAMode;
 wire pll54_lockloss;
 wire pll_hdmi_lockloss;
 wire resetPLL;
-wire power_down;
 
 assign clock54_out = clock54_net;
 assign status_led = ~adv7513_ready;
@@ -294,7 +294,8 @@ ram2video ram2video(
     .video_out(VIDEO),
     .enable_osd(enable_osd),
     .highlight_line(highlight_line),
-    .hdmiVideoConfig(hdmiVideoConfig)
+    .hdmiVideoConfig(hdmiVideoConfig),
+    .scanline(scanline)
 );
 
 ADV7513 adv7513(
@@ -308,7 +309,6 @@ ADV7513 adv7513(
     .restart(restart),
     .ready(adv7513_ready),
     .debugData_out(debugData),
-    .power_down(power_down),
     .hdmiVideoConfig(hdmiVideoConfig)
 );
 
@@ -337,7 +337,6 @@ text_ram text_ram_inst(
 
 i2cSlave i2cSlave(
     .clk(hdmi_clock),
-    //.rst(1'b0),
     .rst(~ram2video_ready),
     .sda(ESP_SDA),
     .scl(ESP_SCL),
@@ -349,9 +348,8 @@ i2cSlave i2cSlave(
     .controller_data(controller_data),
     .highlight_line(highlight_line),
     .reconf_data(reconf_data),
-    //.wrreq(reconf_fifo_wrreq),
-    .power_down(power_down),
-    .hdmiVideoConfig(hdmiVideoConfig)
+    .hdmiVideoConfig(hdmiVideoConfig),
+    .scanline(scanline)
 );
 
 maple mapleBus(
