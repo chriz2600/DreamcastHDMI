@@ -6,6 +6,34 @@
 
 ### News
 
+#### 2018-08-31
+
+- Implemented OSD with the following features:
+
+    - **Output Resolution selection.**
+        
+        Select *VGA*, *480p*, *960p* and *1080p* from the OSD and save a default for startup.
+    
+    - **Video Mode Setup.**
+
+        Select *ForceVGA*, *CableSelect* and *SwitchTrick* for startup.
+
+    - **Scanlines.**
+
+        *On/Off*, *Intensity*, *Odd/Even* and *Thick/Thin*
+
+    - **Firmware Upgrade.**
+
+        Let's you *check*, *download* and *flash* new firmware from OSD, and also *reset* DCHDMI. 
+
+    - **Debug Info.**
+
+        Debug information.
+
+- Integrated **FirmwareManager** into this project, as the coupling between ESP and FPGA is very tight now.
+
+- Improved re-sync after resolution change and improved static timing analysis results by improving FPGA design.
+
 #### 2018-08-14
 
 - Dynamic reconfiguration of the output resolution.
