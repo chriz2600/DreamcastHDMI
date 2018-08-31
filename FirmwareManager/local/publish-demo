@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd $(dirname $0)
+
+scp ../data/index.html.gz ../demo/*.php root@dc.i74.de:/srv/incoming/dc-fw-manager/

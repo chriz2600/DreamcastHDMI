@@ -1,0 +1,8 @@
+#!/bin/bash
+
+esptool.py \
+    -b 921600 \
+    -p /dev/tty.SLAB_USBtoUART \
+    write_flash \
+    0x00000000 .pioenvs/esp07s/firmware.bin \
+    0x00100000 .pioenvs/esp07s/spiffs.bin

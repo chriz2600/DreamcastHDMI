@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cd $(dirname $0)/..
+
+source local/.upload.sh
+
+if [ -z "$1" ] ; then
+    echo "usage: $0 <path_to_dc_file>"
+    exit 1
+fi
+
+doUpload "fpga" $1
+doFlash "fpga"

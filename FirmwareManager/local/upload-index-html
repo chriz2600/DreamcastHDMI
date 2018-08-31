@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cd $(dirname $0)/..
+
+source local/.upload.sh
+
+doUpload "index" "$PWD/data/index.html.gz"
+doFlash "index"

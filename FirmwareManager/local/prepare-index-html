@@ -1,0 +1,16 @@
+#!/bin/bash
+
+set -e
+
+faketty() {
+    if [ "$(uname)" == "Darwin" ] ; then
+	"$@"
+    else
+	script -qfc "$(printf "%q " "$@")" /dev/null
+    fi
+}
+
+cd $(dirname $0)/..
+
+faketty inliner -m data.in/index.html > data/index.html
+gzip -n -f -9 data/index.html

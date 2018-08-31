@@ -1,0 +1,19 @@
+#!/bin/bash
+
+cd $(dirname $0)/..
+
+curl -s --basic --user Test:testtest \
+     -o /dev/null "http://dc-firmware-manager.local/flash/index"
+
+while (true) ; do
+    res=$(curl -s --basic --user Test:testtest "http://dc-firmware-manager.local/progress")
+    if [ "$res" == "100" ] ; then
+        echo "done."
+        exit 0
+    fi
+    if [[ $res == ERROR* ]] ; then
+        echo "$res"
+        exit 1
+    fi
+    sleep 1
+done

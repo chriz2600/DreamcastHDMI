@@ -1,0 +1,15 @@
+#!/bin/bash
+
+cd $(dirname $0)/..
+
+VERSION=${CI_COMMIT_REF_NAME}
+
+if [ "$VERSION" == "master" ] ; then
+    VERSION=$(echo $CI_COMMIT_SHA | cut -c -8)
+fi
+
+if [ "$VERSION" == "" ] ; then
+    VERSION=$(date +"%Y%m%d%H%M%S")
+fi
+
+sed -i -e 's:__FW_VERSION__:'${VERSION}':g' src/global.h

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cd $(dirname $0)/..
+
+source local/.upload.sh
+
+doUpload "esp" "$(pwd)/.pioenvs/esp07s/firmware.bin"
+doFlash "esp"
