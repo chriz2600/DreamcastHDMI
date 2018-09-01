@@ -55,6 +55,7 @@ char OSD_OUTPUT_RES_MENU[521] = (
     "          A: Apply   B: Back            "
 );
 
+#define MENU_SS_RESULT_LINE 4
 char OSD_OUTPUT_RES_SAVE_MENU[521] = (
     "Output Resolution                       "
     "                                        "

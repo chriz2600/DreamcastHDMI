@@ -20,6 +20,7 @@
 #include "FlashESPIndexTask.h"
 #include "FPGATask.h"
 #include "DebugTask.h"
+#include "TimeoutTask.h"
 #include "Menu.h"
 
 #define DEFAULT_SSID ""
@@ -74,6 +75,7 @@ std::string responseData("");
 
 bool OSDOpen = false;
 uint8_t CurrentResolution = RESOLUTION_1080p;
+uint8_t PrevCurrentResolution;
 uint8_t ForceVGA = VGA_ON;
 bool DelayVGA = false;
 
@@ -99,6 +101,7 @@ FlashTask flashTask(1);
 FlashESPTask flashESPTask(1);
 FlashESPIndexTask flashESPIndexTask(1);
 DebugTask debugTask(8);
+TimeoutTask timeoutTask(MsToTaskTime(100)); 
 
 extern Menu mainMenu;
 extern Menu outputResMenu;
@@ -154,17 +157,36 @@ void setScanlines(uint8_t upper, uint8_t lower, WriteCallbackHandlerFunction han
 
 Menu outputResSaveMenu("OutputResSaveMenu", (uint8_t*) OSD_OUTPUT_RES_SAVE_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine) {
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+        taskManager.StopTask(&timeoutTask);
         currentMenu = &outputResMenu;
         currentMenu->Display();
         return;
     }
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+        taskManager.StopTask(&timeoutTask);
         writeCurrentResolution();
         currentMenu = &outputResMenu;
         currentMenu->Display();
         return;
     }
-}, NULL, NULL);
+}, NULL, [](uint8_t Address, uint8_t Value) {
+    timeoutTask.setTimeout(15000);
+    timeoutTask.setTimeoutCallback([](uint32_t timedone, bool done) {
+        if (done) {
+            taskManager.StopTask(&timeoutTask);
+            safeSwitchResolution(PrevCurrentResolution, [](uint8_t Address, uint8_t Value){
+                currentMenu = &outputResMenu;
+                currentMenu->Display();
+            });
+            return;
+        }
+
+        char result[MENU_WIDTH] = "";
+        snprintf(result, MENU_WIDTH, "             Reset in %02ds.             ", (int)(timedone / 1000));
+        fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_SS_RESULT_LINE, (uint8_t*) result);
+    });
+    taskManager.StartTask(&timeoutTask);
+});
 
 ///////////////////////////////////////////////////////////////////
 
@@ -192,17 +214,7 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
                 break;
         }
 
-        bool valueChanged = (value != CurrentResolution);
-        CurrentResolution = value;
-        DBG_OUTPUT_PORT.printf("setting output resolution: %u\n", (ForceVGA | CurrentResolution));
-        currentMenu->startTransaction();
-        fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, [valueChanged](uint8_t Address, uint8_t Value) {
-            DBG_OUTPUT_PORT.printf("switch resolution callback: %u\n", Value);
-            if (valueChanged) {
-                waitForI2CRecover();
-            }
-            DBG_OUTPUT_PORT.printf("Turn FOLLOWUP save menu on!\n");
-            currentMenu->endTransaction();
+        safeSwitchResolution(value, [](uint8_t Address, uint8_t Value) {
             currentMenu = &outputResSaveMenu;
             currentMenu->Display();
         });
@@ -216,6 +228,24 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
     menu_text[(MENU_OR_LAST_SELECT_LINE - cfgRes2Int(configuredResolution)) * MENU_WIDTH] = '>';
     return (MENU_OR_LAST_SELECT_LINE - CurrentResolution);
 }, NULL);
+
+void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler) {
+    bool valueChanged = (value != CurrentResolution);
+    PrevCurrentResolution = CurrentResolution;
+    CurrentResolution = value;
+    DBG_OUTPUT_PORT.printf("setting output resolution: %u\n", (ForceVGA | CurrentResolution));
+    currentMenu->startTransaction();
+    fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, [ handler, valueChanged ](uint8_t Address, uint8_t Value) {
+        DBG_OUTPUT_PORT.printf("safe switch resolution callback: %u\n", Value);
+        if (valueChanged) {
+            waitForI2CRecover();
+        }
+        DBG_OUTPUT_PORT.printf("Turn FOLLOWUP save menu on!\n");
+        currentMenu->endTransaction();
+        handler(Address, Value);
+    });
+}
+
 
 ///////////////////////////////////////////////////////////////////
 
