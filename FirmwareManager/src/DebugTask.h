@@ -43,7 +43,8 @@ class DebugTask : public Task {
                         "CTS3:  %03d %03d %03d %03d                  "
                         "CID:   %03d %03d %03d                      "
                         "VIC:   %03d %03d                          "
-                        "MISC:  %x",
+                        "MISC:  %x                               "
+                        "RSNC:  %03d",
                         (buffer[DBG_DATA_FRAMECOUNTER_HIGH] << 8) | buffer[DBG_DATA_FRAMECOUNTER_LOW], buffer[DBG_DATA_RESTART_COUNT], buffer[DBG_DATA_HDMI_INT_COUNT], buffer[DBG_DATA_NOT_READY_COUNT], 
                         buffer[DBG_DATA_PLL_ERRORS],
                         buffer[DBG_DATA_CTS1_STATUS], buffer[DBG_DATA_MAX_CTS1_STATUS], buffer[DBG_DATA_SUMMARY_CTS1_STATUS],
@@ -51,7 +52,8 @@ class DebugTask : public Task {
                         buffer[DBG_DATA_CTS3_STATUS], buffer[DBG_DATA_MAX_CTS3_STATUS], buffer[DBG_DATA_SUMMARY_CTS3_STATUS], buffer[DBG_DATA_SUMMARY_SUMMARY_CTS3_STATUS],
                         buffer[DBG_DATA_ID_CHECK_HIGH], buffer[DBG_DATA_ID_CHECK_LOW], buffer[DBG_DATA_CHIP_REVISION],
                         buffer[DBG_DATA_VIC_DETECTED] >> 2, buffer[DBG_DATA_VIC_TO_RX],
-                        buffer[DBG_DATA_MISC_DATA]
+                        buffer[DBG_DATA_MISC_DATA],
+                        buffer[DBG_DATA_RESYNC_COUNT]
                     );
 
                     fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_INF_RESULT_LINE, (uint8_t*) result);

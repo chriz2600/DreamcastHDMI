@@ -24,7 +24,8 @@ module ram2video(
     input enable_osd,
     input [7:0] highlight_line,
     input HDMIVideoConfig hdmiVideoConfig,
-    input Scanline scanline
+    input Scanline scanline,
+    output reg fullcycle
 );
     reg [10:0] vlines; // vertical lines per frame
     
@@ -56,7 +57,7 @@ module ram2video(
     reg [14:0] ram_addrY_reg;
 
     reg trigger = 1'b0;
-    reg fullcycle = 1'b0;
+    //reg fullcycle = 1'b0;
 
     wire ld_rise;
     wire ld_fall;

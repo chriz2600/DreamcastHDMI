@@ -11,6 +11,8 @@ module reconf_rom (
     output reg trigger_read,
     output reg forceVGAMode,
     output reg resetPLL,
+    output reg generate_video,
+    output reg generate_timing,
     output DCVideoConfig dcVideoConfig
 );
 
@@ -51,7 +53,9 @@ always @(posedge clock) begin
         fdata_req <= fdata;
         trigger_read <= 1'b1;
         forceVGAMode <= fdata[7];
-        resetPLL <= fdata[6];
+        resetPLL <= fdata[6]; // this value is only a trigger and is being reset immediately in next cycle
+        generate_video <= fdata[5];
+        generate_timing <= fdata[4];
         case (fdata[3:0])
             0: begin
                 dcVideoConfig <= DC_VIDEO_CONFIG_1080P;

@@ -1,11 +1,3 @@
-#set_global_assignment -name VERILOG_MACRO _1080p_
-#set_global_assignment -name VERILOG_MACRO GENERATED_SYNC_TIMING
-#set_global_assignment -name VERILOG_MACRO GENERATED_INPUT_VIDEO
-#set_global_assignment -name VERILOG_MACRO SCANLINES_EVEN
-#set_global_assignment -name VERILOG_MACRO SCANLINES_THICK
-# 160 0.1 opacity, 40 0.4 opacity, 32 0.5 opacity
-# 80 0.2 opacity, 48 0.3333 opacity, 36 0.44 opacity, 24 0.66666 opacity 20 0.8 opacity
-# set_global_assignment -name VERILOG_MACRO SCANLINES_INTENSITY=24
+# possible defines are:
+# - OSD_BACKGROUND_ALPHA (default: 64, 1/4 of the brightness in osd area)
 #set_global_assignment -name VERILOG_MACRO OSD_BACKGROUND_ALPHA=64
-#set_global_assignment -name VERILOG_MACRO OUTPUT_4_2_2
-#set_global_assignment -name VERILOG_MACRO FORCE_480i

@@ -111,7 +111,7 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 #define REMOTE_ESP_INDEX_MD5 ("/" + String(firmwareVersion) + "/esp.index.html.gz.md5")
 
 #define DEBUG_BASE_ADDRESS 0x90
-#define DEBUG_DATA_LEN 24
+#define DEBUG_DATA_LEN 25
 
 #define DBG_DATA_PLL_ERRORS 0
 #define DBG_DATA_TEST 1
@@ -137,6 +137,7 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 #define DBG_DATA_SUMMARY_SUMMARY_CTS3_STATUS 21
 #define DBG_DATA_HDMI_INT_COUNT 22
 #define DBG_DATA_NOT_READY_COUNT 23
+#define DBG_DATA_RESYNC_COUNT 24
 
 #define SCANLINES_ENABLED "on"
 #define SCANLINES_DISABLED "off"

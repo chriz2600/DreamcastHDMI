@@ -103,9 +103,16 @@ wire forceVGAMode;
 wire pll54_lockloss;
 wire pll_hdmi_lockloss;
 wire resetPLL;
+wire resync;
+wire resync_rise;
+
+wire generate_video;
+wire generate_timing;
+wire fullcycle;
 
 assign clock54_out = clock54_net;
-assign status_led = ~adv7513_ready;
+//assign status_led = ~adv7513_ready;
+assign status_led = ~fullcycle;
 
 // DC config in, ics config out
 configuration configurator(
@@ -201,7 +208,9 @@ reconf_rom reconf_rom(
     .trigger_read(pll_hdmi_write_from_rom),
     .forceVGAMode(forceVGAMode),
     .resetPLL(resetPLL),
-    .dcVideoConfig(dcVideoConfig)
+    .dcVideoConfig(dcVideoConfig),
+    .generate_video(generate_video),
+    .generate_timing(generate_timing)
 );
 
 reconf_fifo	reconf_fifo(
@@ -232,8 +241,11 @@ data video_input(
     ._hsync(_hsync),
     ._vsync(_vsync),
     .line_doubler(_240p_480i_mode),
+    .generate_video(generate_video),
+    .generate_timing(generate_timing),
     .indata(data),
     .add_line(add_line_mode),
+    .resync(resync),
     .blue(dc_blue),
     .counterX(data_in_counter_x),
     .counterY(data_in_counter_y),
@@ -277,10 +289,16 @@ Flag_CrossDomain trigger(
 
 /////////////////////////////////
 // HDMI clock area
+edge_detect resync_detect(
+    .async_sig(resync),
+    .clk(hdmi_clock),
+    .rise(resync_rise)
+);
+
 ram2video ram2video(
     .starttrigger(output_trigger),
     .clock(hdmi_clock),
-    .reset(ram2video_ready),
+    .reset(ram2video_ready && ~resync_rise),
     .line_doubler(_240p_480i_mode),
     .add_line(add_line_mode),
     .rddata(ram_rddata),
@@ -295,7 +313,8 @@ ram2video ram2video(
     .enable_osd(enable_osd),
     .highlight_line(highlight_line),
     .hdmiVideoConfig(hdmiVideoConfig),
-    .scanline(scanline)
+    .scanline(scanline),
+    .fullcycle(fullcycle)
 );
 
 ADV7513 adv7513(
@@ -307,6 +326,7 @@ ADV7513 adv7513(
     .sda(SDAT),
     .scl(SCLK),
     .restart(restart),
+    .resync_rise(resync_rise),
     .ready(adv7513_ready),
     .debugData_out(debugData),
     .hdmiVideoConfig(hdmiVideoConfig)

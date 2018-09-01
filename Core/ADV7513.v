@@ -10,6 +10,7 @@ module ADV7513(
     inout sda,
     inout scl,
     input restart,
+    input resync_rise,
     output reg ready,
     output DebugData debugData_out,
 
@@ -53,7 +54,7 @@ reg [5:0] subcmd_counter;
 
 reg VSYNC_reg = 0;
 
-DebugData debugData = { 8'h00, 8'h00, 10'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00 };
+DebugData debugData = { 8'h00, 8'h00, 10'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00, 8'h00 };
 
 localparam CHIP_ADDR = 7'h39;
 localparam  s_start  = 0,
@@ -86,6 +87,9 @@ always @ (posedge clk) begin
     end
     if (~ready) begin
         debugData.not_ready_count <= debugData.not_ready_count + 1'b1;
+    end
+    if (resync_rise) begin
+        debugData.resync_count <= debugData.resync_count + 1'b1;
     end
 
     if (~hdmi_int) begin
