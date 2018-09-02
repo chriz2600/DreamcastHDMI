@@ -168,7 +168,7 @@ module ram2video(
                         //$display("2: y:%0d ay:%0d", counterY_reg, ram_addrY_reg);
                     end else begin
                         if (hdmiVideoConfig.pixel_repetition) begin
-                            if (counterY_reg[0]) begin
+                            if (counterY_reg[0] && (!line_doubler || counterY_reg[1])) begin
                                 ram_addrY_reg <= 0;
                             end
                         end else begin
