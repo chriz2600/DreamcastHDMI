@@ -1927,6 +1927,7 @@ void readScanlinesActive() {
     _readFile("/etc/scanlines/active", buffer, 32, DEFAULT_SCANLINES_ACTIVE);
     if (strcmp(buffer, SCANLINES_ENABLED) == 0) {
         scanlinesActive = true;
+        return;
     }
     scanlinesActive = false;
 }
@@ -1961,6 +1962,7 @@ void readScanlinesOddeven() {
     _readFile("/etc/scanlines/oddeven", buffer, 32, DEFAULT_SCANLINES_ODDEVEN);
     if (strcmp(buffer, SCANLINES_ODD) == 0) {
         scanlinesOddeven = true;
+        return;
     }
     scanlinesOddeven = false;
 }
@@ -1976,6 +1978,7 @@ void readScanlinesThickness() {
     _readFile("/etc/scanlines/thickness", buffer, 32, DEFAULT_SCANLINES_THICKNESS);
     if (strcmp(buffer, SCANLINES_THICK) == 0) {
         scanlinesThickness = true;
+        return;
     }
     scanlinesThickness = false;
 }
