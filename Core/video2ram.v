@@ -2,6 +2,7 @@
 
 module video2ram(
     input clock,
+    input nreset,
     
     input [7:0] R,
     input [7:0] G,
@@ -46,10 +47,10 @@ module video2ram(
             V_CAPTURE_END   = dcVideoConfig.p_vertical_capture_end;
         end
     end
-    
+
     `define GetWriteAddr(x) (ram_addrY_reg + (x - H_CAPTURE_START))
     `define IsFirstBuffer(y)   ((y - V_CAPTURE_START) < dcVideoConfig.buffer_size)
-    `define IsTriggerPoint(y) (`IsFirstBuffer(y) && wraddr_reg == dcVideoConfig.trigger_address)
+    `define IsTriggerPoint(y) (`IsFirstBuffer(y) && wraddr_reg == (line_doubler ? dcVideoConfig.trigger_address_i : dcVideoConfig.trigger_address_p))
 
     `define IsVerticalCaptureTime(y) ( \
         line_doubler \
@@ -69,30 +70,38 @@ module video2ram(
     end
 
     always @ (posedge clock) begin
-        counterX_prev <= counterX;
+        if (~nreset) begin
+            wren_reg <= 0;
+            wrdata_reg <= 24'd0;
+            wraddr_reg <= 0;
+            ram_addrY_reg <= 0;
+            trigger <= 0;
+        end else begin
+            counterX_prev <= counterX;
 
-        if (counterX_prev == H_CAPTURE_END && counterX == H_CAPTURE_END) begin // calculate ram_addrY_reg once per line
-            if (`IsVerticalCaptureTime(counterY)
-             && ram_addrY_reg < dcVideoConfig.ram_numwords - dcVideoConfig.buffer_line_length) begin
-                ram_addrY_reg <= ram_addrY_reg + dcVideoConfig.buffer_line_length;
-            end else begin
-                ram_addrY_reg <= 0;
+            if (counterX_prev == H_CAPTURE_END && counterX == H_CAPTURE_END) begin // calculate ram_addrY_reg once per line
+                if (`IsVerticalCaptureTime(counterY)
+                && ram_addrY_reg < dcVideoConfig.ram_numwords - dcVideoConfig.buffer_line_length) begin
+                    ram_addrY_reg <= ram_addrY_reg + dcVideoConfig.buffer_line_length;
+                end else begin
+                    ram_addrY_reg <= 0;
+                end
             end
-        end
 
-        if (`IsCaptureTime(counterX, counterY)) begin
-            wren_reg <= 1;
-            wraddr_reg <= `GetWriteAddr(counterX);
-            wrdata_reg <= { R, G, B };
+            if (`IsCaptureTime(counterX, counterY)) begin
+                wren_reg <= 1;
+                wraddr_reg <= `GetWriteAddr(counterX);
+                wrdata_reg <= { R, G, B };
 
-            if (`IsTriggerPoint(counterY)) begin
-                trigger <= 1'b1;
+                if (`IsTriggerPoint(counterY)) begin
+                    trigger <= 1'b1;
+                end else begin
+                    trigger <= 1'b0;
+                end
             end else begin
+                wren_reg <= 0;
                 trigger <= 1'b0;
             end
-        end else begin
-            wren_reg <= 0;
-            trigger <= 1'b0;
         end
     end
 

@@ -125,10 +125,11 @@ typedef struct packed {
     reg [9:0] i_vertical_capture_start;
     reg [9:0] i_vertical_capture_end;
 
-    reg [7:0] buffer_size;                  // lines of video buffer
-    reg [14:0] ram_numwords;                // size of video buffer, 21120 for 1080p
-    reg [14:0] trigger_address;             // ram address where to trigger output start
-    reg [14:0] buffer_line_length;          // 720 for 480p, 640 for others
+    reg [7:0] buffer_size;         // lines of video buffer
+    reg [14:0] ram_numwords;       // size of video buffer, 21120 for 1080p
+    reg [14:0] trigger_address_p;  // ram address where to trigger output start (VGA mode)
+    reg [14:0] trigger_address_i;  // ram address where to trigger output start (15kHz mode)
+    reg [14:0] buffer_line_length; // 720 for 480p, 640 for others
 } DCVideoConfig;
 
 typedef struct packed {

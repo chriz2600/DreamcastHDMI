@@ -255,6 +255,7 @@ data video_input(
 
 video2ram video2ram(
     .clock(clock54_net),
+    .nreset(~resync),
     .line_doubler(_240p_480i_mode),
     .B(dc_blue),
     .counterX(data_in_counter_x),
