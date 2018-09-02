@@ -217,10 +217,12 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
                 break;
         }
 
-        safeSwitchResolution(value, [](uint8_t Address, uint8_t Value) {
-            currentMenu = &outputResSaveMenu;
-            currentMenu->Display();
-        });
+        if (value != CurrentResolution) {
+            safeSwitchResolution(value, [](uint8_t Address, uint8_t Value) {
+                currentMenu = &outputResSaveMenu;
+                currentMenu->Display();
+            });
+        }
         return;
     }
 }, [](uint8_t* menu_text) {
@@ -273,14 +275,16 @@ Menu videoModeMenu("VideoModeMenu", (uint8_t*) OSD_VIDEO_MODE_MENU, MENU_VM_FIRS
                 break;
         }
 
-        writeVideoMode2(vidMode);
-        currentMenu = &videoModeSaveMenu;
-        currentMenu->Display();
+        if (vidMode != String(videoMode)) {
+            writeVideoMode2(vidMode);
+            currentMenu = &videoModeSaveMenu;
+            currentMenu->Display();
+        }
         return;
     }
 }, [](uint8_t* menu_text) {
     // restore original menu text
-    for (int i = MENU_VM_FIRST_SELECT_LINE ; i <= MENU_OR_LAST_SELECT_LINE ; i++) {
+    for (int i = MENU_VM_FIRST_SELECT_LINE ; i < MENU_OR_LAST_SELECT_LINE ; i++) {
         menu_text[i * MENU_WIDTH] = '-';
     }
     String vidMode = String(videoMode);
