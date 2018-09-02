@@ -59,7 +59,7 @@ char OSD_OUTPUT_RES_MENU[521] = (
 char OSD_OUTPUT_RES_SAVE_MENU[521] = (
     "Output Resolution                       "
     "                                        "
-    "     Save this setting as default?      "
+    "         Keep this resolution?          "
     "                                        "
     "                                        "
     "                                        "
@@ -69,7 +69,7 @@ char OSD_OUTPUT_RES_SAVE_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "          A: Ok    B: Cancel            "
+    "          A: Keep  B: Revert            "
 );
 
 #define MENU_VM_FORCE_VGA_LINE 2
@@ -91,6 +91,22 @@ char OSD_VIDEO_MODE_MENU[521] = (
     "                                        "
     "                                        "
     "          A: Save  B: Cancel            "
+);
+
+char OSD_VIDEO_MODE_SAVE_MENU[521] = (
+    "Video Mode Settings                     "
+    "                                        "
+    "   You have to restart your dreamcast   "
+    "        to apply these changes!         "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "               B: Not now               "
 );
 
 #define MENU_FW_CHECK_LINE 2

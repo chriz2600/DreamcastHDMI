@@ -107,6 +107,7 @@ extern Menu mainMenu;
 extern Menu outputResMenu;
 extern Menu outputResSaveMenu;
 extern Menu videoModeMenu;
+extern Menu videoModeSaveMenu;
 extern Menu firmwareMenu;
 extern Menu firmwareCheckMenu;
 extern Menu firmwareDownloadMenu;
@@ -158,8 +159,10 @@ void setScanlines(uint8_t upper, uint8_t lower, WriteCallbackHandlerFunction han
 Menu outputResSaveMenu("OutputResSaveMenu", (uint8_t*) OSD_OUTPUT_RES_SAVE_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine) {
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         taskManager.StopTask(&timeoutTask);
-        currentMenu = &outputResMenu;
-        currentMenu->Display();
+        safeSwitchResolution(PrevCurrentResolution, [](uint8_t Address, uint8_t Value){
+            currentMenu = &outputResMenu;
+            currentMenu->Display();
+        });
         return;
     }
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
@@ -182,7 +185,7 @@ Menu outputResSaveMenu("OutputResSaveMenu", (uint8_t*) OSD_OUTPUT_RES_SAVE_MENU,
         }
 
         char result[MENU_WIDTH] = "";
-        snprintf(result, MENU_WIDTH, "             Reset in %02ds.             ", (int)(timedone / 1000));
+        snprintf(result, MENU_WIDTH, "           Reverting in %02ds.           ", (int)(timedone / 1000));
         fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_SS_RESULT_LINE, (uint8_t*) result);
     });
     taskManager.StartTask(&timeoutTask);
@@ -271,19 +274,38 @@ Menu videoModeMenu("VideoModeMenu", (uint8_t*) OSD_VIDEO_MODE_MENU, MENU_VM_FIRS
         }
 
         writeVideoMode2(vidMode);
-        currentMenu = &mainMenu;
+        currentMenu = &videoModeSaveMenu;
         currentMenu->Display();
         return;
     }
 }, [](uint8_t* menu_text) {
-    String vidMode = String(videoMode);
-    if (vidMode == VIDEO_MODE_STR_FORCE_VGA) {
-        return MENU_VM_FORCE_VGA_LINE;
-    } else if (vidMode == VIDEO_MODE_STR_SWITCH_TRICK) {
-        return MENU_VM_SWITCH_TRICK_LINE;
+    // restore original menu text
+    for (int i = MENU_VM_FIRST_SELECT_LINE ; i <= MENU_OR_LAST_SELECT_LINE ; i++) {
+        menu_text[i * MENU_WIDTH] = '-';
     }
-    return MENU_VM_CABLE_DETECT_LINE;
+    String vidMode = String(videoMode);
+    uint8_t line = MENU_VM_CABLE_DETECT_LINE;
+    if (vidMode == VIDEO_MODE_STR_FORCE_VGA) {
+        line = MENU_VM_FORCE_VGA_LINE;
+    } else if (vidMode == VIDEO_MODE_STR_SWITCH_TRICK) {
+        line = MENU_VM_SWITCH_TRICK_LINE;
+    }
+
+    menu_text[line * MENU_WIDTH] = '>';
+    return line;
 }, NULL);
+
+///////////////////////////////////////////////////////////////////
+
+Menu videoModeSaveMenu("VideoModeSaveMenu", (uint8_t*) OSD_VIDEO_MODE_SAVE_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine) {
+    if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+        currentMenu = &videoModeMenu;
+        currentMenu->Display();
+        return;
+    }
+}, NULL, NULL);
+
+///////////////////////////////////////////////////////////////////
 
 Menu firmwareMenu("FirmwareMenu", (uint8_t*) OSD_FIRMWARE_MENU, MENU_FW_FIRST_SELECT_LINE, MENU_FW_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine) {
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
