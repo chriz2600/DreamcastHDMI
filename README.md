@@ -1,18 +1,12 @@
 # DreamcastHDMI / DCHDMI
 
-#### [Original documentation][maindoc]
+#### 2018-09-03
 
----
-
-### News
-
-#### 2018-08-31
-
-- Implemented OSD with the following features:
+- Finished OSD with the following features:
 
     - **Output Resolution selection.**
         
-        Select *VGA*, *480p*, *960p* and *1080p* from the OSD and save a default for startup.
+        Select *VGA*, *480p*, *960p* and *1080p* from the OSD.
     
     - **Video Mode Setup.**
 
@@ -24,7 +18,7 @@
 
     - **Firmware Upgrade.**
 
-        Let's you *check*, *download* and *flash* new firmware from OSD, and also *reset* DCHDMI. 
+        *Download* and *flash* new firmware from OSD, and also *reset* DCHDMI.
 
     - **Debug Info.**
 
@@ -32,7 +26,7 @@
 
 - Integrated **FirmwareManager** into this project, as the coupling between ESP and FPGA is very tight now.
 
-- Improved re-sync after resolution change and improved static timing analysis results by improving FPGA design.
+- Added upscaling of 480i content to 960p/1080p.
 
 #### 2018-08-14
 
@@ -197,6 +191,8 @@ Some details about the Dreamcast scaling issue on modern HDTVs: [Video details l
     Edit: I don't need external RAM for line doubling.~~
 0. ~~Design flat flex circuit to connect Dreamcast video DAC and audio DAC to FPGA board.~~
 0. Detailed HOWTOs.
+
+#### [Original documentation][maindoc]
 
 ---
 
