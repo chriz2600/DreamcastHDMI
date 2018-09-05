@@ -1,0 +1,41 @@
+set_global_assignment -entity "osc" -library "osc" -name IP_TOOL_NAME "Qsys"
+set_global_assignment -entity "osc" -library "osc" -name IP_TOOL_VERSION "18.0"
+set_global_assignment -entity "osc" -library "osc" -name IP_TOOL_ENV "Qsys"
+set_global_assignment -library "osc" -name SOPCINFO_FILE [file join $::quartus(qip_path) "../../osc.sopcinfo"]
+set_global_assignment -entity "osc" -library "osc" -name SLD_INFO "QSYS_NAME osc HAS_SOPCINFO 1 GENERATION_ID 1536146088"
+set_global_assignment -library "osc" -name MISC_FILE [file join $::quartus(qip_path) "../osc.cmp"]
+set_global_assignment -library "osc" -name SLD_FILE [file join $::quartus(qip_path) "osc.debuginfo"]
+set_global_assignment -entity "osc" -library "osc" -name IP_TARGETED_DEVICE_FAMILY "Cyclone 10 LP"
+set_global_assignment -entity "osc" -library "osc" -name IP_GENERATED_DEVICE_FAMILY "{Cyclone 10 LP}"
+set_global_assignment -entity "osc" -library "osc" -name IP_QSYS_MODE "STANDALONE"
+set_global_assignment -name SYNTHESIS_ONLY_QIP ON
+set_global_assignment -library "osc" -name MISC_FILE [file join $::quartus(qip_path) "../../osc.qsys"]
+set_global_assignment -entity "osc" -library "osc" -name IP_COMPONENT_NAME "b3Nj"
+set_global_assignment -entity "osc" -library "osc" -name IP_COMPONENT_DISPLAY_NAME "b3Nj"
+set_global_assignment -entity "osc" -library "osc" -name IP_COMPONENT_REPORT_HIERARCHY "On"
+set_global_assignment -entity "osc" -library "osc" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "osc" -library "osc" -name IP_COMPONENT_VERSION "MS4w"
+set_global_assignment -entity "osc" -library "osc" -name IP_COMPONENT_PARAMETER "QVVUT19HRU5FUkFUSU9OX0lE::MTUzNjE0NjA4OA==::QXV0byBHRU5FUkFUSU9OX0lE"
+set_global_assignment -entity "osc" -library "osc" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfRkFNSUxZ::Q3ljbG9uZSAxMCBMUA==::QXV0byBERVZJQ0VfRkFNSUxZ"
+set_global_assignment -entity "osc" -library "osc" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0U=::MTBDTDAyNVlFMTQ0QzhH::QXV0byBERVZJQ0U="
+set_global_assignment -entity "osc" -library "osc" -name IP_COMPONENT_PARAMETER "QVVUT19ERVZJQ0VfU1BFRURHUkFERQ==::OA==::QXV0byBERVZJQ0VfU1BFRURHUkFERQ=="
+set_global_assignment -entity "altera_int_osc" -library "osc" -name IP_COMPONENT_NAME "YWx0ZXJhX2ludF9vc2M="
+set_global_assignment -entity "altera_int_osc" -library "osc" -name IP_COMPONENT_DISPLAY_NAME "SW50ZXJuYWwgT3NjaWxsYXRvcg=="
+set_global_assignment -entity "altera_int_osc" -library "osc" -name IP_COMPONENT_REPORT_HIERARCHY "Off"
+set_global_assignment -entity "altera_int_osc" -library "osc" -name IP_COMPONENT_INTERNAL "Off"
+set_global_assignment -entity "altera_int_osc" -library "osc" -name IP_COMPONENT_AUTHOR "QWx0ZXJhIENvcnBvcmF0aW9u"
+set_global_assignment -entity "altera_int_osc" -library "osc" -name IP_COMPONENT_VERSION "MTguMA=="
+set_global_assignment -entity "altera_int_osc" -library "osc" -name IP_COMPONENT_DESCRIPTION "SW50ZXJuYWwgT3NjaWxsYXRvciBwcm92aWRlcyBpbnRlcm5hbCBjbG9jayBzb3VyY2UgZm9yIGRlYnVnZ2luZyBwdXJwb3NlLg=="
+set_global_assignment -entity "altera_int_osc" -library "osc" -name IP_COMPONENT_PARAMETER "SU5GT1JNQVRJT04=::VGhlIG1heGltdW0gb3V0cHV0IGZyZXF1ZW5jeSBpcyA4ME1Ieg==::SU5GT1JNQVRJT04="
+set_global_assignment -entity "altera_int_osc" -library "osc" -name IP_COMPONENT_PARAMETER "REVWSUNFX0ZBTUlMWQ==::Q3ljbG9uZSAxMCBMUA==::RGV2aWNlIGZhbWlseQ=="
+set_global_assignment -entity "altera_int_osc" -library "osc" -name IP_COMPONENT_PARAMETER "UEFSVF9OQU1F::MTBDTDAyNVlFMTQ0QzhH::RGV2aWNl"
+set_global_assignment -entity "altera_int_osc" -library "osc" -name IP_COMPONENT_PARAMETER "REVWSUNFX0lE::VU5LTk9XTg==::REVWSUNFX0lE"
+set_global_assignment -entity "altera_int_osc" -library "osc" -name IP_COMPONENT_PARAMETER "Q0xPQ0tfRlJFUVVFTkNZ::VU5LTk9XTg==::Q0xPQ0tfRlJFUVVFTkNZ"
+set_global_assignment -entity "altera_int_osc" -library "osc" -name IP_COMPONENT_PARAMETER "Q0JYX0FVVE9fQkxBQ0tCT1g=::QUxM::Q0JYX0FVVE9fQkxBQ0tCT1g="
+
+set_global_assignment -library "osc" -name VERILOG_FILE [file join $::quartus(qip_path) "osc.v"]
+set_global_assignment -library "osc" -name VERILOG_FILE [file join $::quartus(qip_path) "submodules/altera_int_osc.v"]
+
+set_global_assignment -entity "altera_int_osc" -library "osc" -name IP_TOOL_NAME "altera_int_osc"
+set_global_assignment -entity "altera_int_osc" -library "osc" -name IP_TOOL_VERSION "18.0"
+set_global_assignment -entity "altera_int_osc" -library "osc" -name IP_TOOL_ENV "Qsys"

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pinplan
+ variation_name="int_osc_0"
+ megafunction_name="ALTERA_INT_OSC"
+ intended_family="Cyclone 10 LP"
+ specifies="all_ports">
+ <global>
+  <pin name="oscena" direction="input" scope="external" />
+  <pin name="clkout" direction="output" scope="external" />
+ </global>
+</pinplan>

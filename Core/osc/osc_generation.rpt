@@ -1,0 +1,16 @@
+Info: Starting: Create HDL design files for synthesis
+Info: qsys-generate /build/Core/osc.qsys --synthesis=VERILOG --output-directory=/build/Core/osc/synthesis --family="Cyclone 10 LP" --part=10CL025YE144C8G
+Progress: Loading Core/osc.qsys
+Progress: Reading input file
+Progress: Adding int_osc_0 [altera_int_osc 18.0]
+Progress: Parameterizing module int_osc_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: osc: Generating osc "osc" for QUARTUS_SYNTH
+Info: int_osc_0: Generating top-level entity altera_int_osc.
+Info: int_osc_0: "osc" instantiated altera_int_osc "int_osc_0"
+Info: osc: Done "osc" with 2 modules, 2 files
+Info: qsys-generate succeeded.
+Info: Finished: Create HDL design files for synthesis

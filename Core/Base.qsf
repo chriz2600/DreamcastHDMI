@@ -24,6 +24,7 @@ set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
+set_global_assignment -name QSYS_FILE osc.qsys
 set_global_assignment -name VERILOG_FILE DCxPlus.v
 set_global_assignment -name VERILOG_FILE Flag_CrossDomain.v
 set_global_assignment -name VERILOG_FILE startup.v

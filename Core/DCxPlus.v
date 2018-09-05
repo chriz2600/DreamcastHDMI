@@ -109,6 +109,7 @@ wire resync_rise;
 wire generate_video;
 wire generate_timing;
 wire fullcycle;
+wire reset_clock;
 
 assign clock54_out = clock54_net;
 //assign status_led = ~adv7513_ready;
@@ -378,6 +379,12 @@ maple mapleBus(
     .pin1(MAPLE_PIN1),
     .pin5(MAPLE_PIN5),
     .controller_data(controller_data)
+);
+
+// reset clock circuit
+osc reset_clock_gen(
+    .oscena(1'b1),
+    .clkout(reset_clock)
 );
 
 endmodule

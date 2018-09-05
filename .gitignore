@@ -39,3 +39,4 @@ docker/dreamcast-hdmi/files/JIC.tgz
 .vscode/
 *.vvp
 Core/pll_hdmi/greybox_tmp/
+Core/.qsys_edit/

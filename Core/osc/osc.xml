@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<deploy date="2018.09.05.11:14:49" outputDirectory="/build/Core/osc/">
+ <perimeter>
+  <parameter
+     name="AUTO_GENERATION_ID"
+     type="Integer"
+     defaultValue="0"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_UNIQUE_ID"
+     type="String"
+     defaultValue=""
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_DEVICE_FAMILY"
+     type="String"
+     defaultValue="Cyclone 10 LP"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_DEVICE"
+     type="String"
+     defaultValue="10CL025YE144C8G"
+     onHdl="0"
+     affectsHdl="1" />
+  <parameter
+     name="AUTO_DEVICE_SPEEDGRADE"
+     type="String"
+     defaultValue="8"
+     onHdl="0"
+     affectsHdl="1" />
+  <interface name="clkout" kind="clock" start="1">
+   <property name="associatedDirectClock" value="" />
+   <property name="clockRate" value="0" />
+   <property name="clockRateKnown" value="false" />
+   <property name="externallyDriven" value="false" />
+   <property name="ptfSchematicName" value="" />
+   <port name="clkout" direction="output" role="clk" width="1" />
+  </interface>
+  <interface name="oscena" kind="conduit" start="0">
+   <property name="associatedClock" value="" />
+   <property name="associatedReset" value="" />
+   <port name="oscena" direction="input" role="oscena" width="1" />
+  </interface>
+ </perimeter>
+ <entity
+   path=""
+   parameterizationKey="osc:1.0:AUTO_DEVICE=10CL025YE144C8G,AUTO_DEVICE_FAMILY=Cyclone 10 LP,AUTO_DEVICE_SPEEDGRADE=8,AUTO_GENERATION_ID=1536146088,AUTO_UNIQUE_ID=(altera_int_osc:18.0:CBX_AUTO_BLACKBOX=ALL,CLOCK_FREQUENCY=UNKNOWN,CLOCK_FREQUENCY_1=116,CLOCK_FREQUENCY_2=77,DEVICE_FAMILY=Cyclone 10 LP,DEVICE_ID=UNKNOWN,INFORMATION=The maximum output frequency is 80MHz,PART_NAME=10CL025YE144C8G)"
+   instancePathKey="osc"
+   kind="osc"
+   version="1.0"
+   name="osc">
+  <parameter name="AUTO_GENERATION_ID" value="1536146088" />
+  <parameter name="AUTO_DEVICE" value="10CL025YE144C8G" />
+  <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone 10 LP" />
+  <parameter name="AUTO_UNIQUE_ID" value="" />
+  <parameter name="AUTO_DEVICE_SPEEDGRADE" value="8" />
+  <generatedFiles>
+   <file path="/build/Core/osc/synthesis/osc.v" type="VERILOG" />
+  </generatedFiles>
+  <childGeneratedFiles>
+   <file
+       path="/build/Core/osc/synthesis/submodules/altera_int_osc.v"
+       type="VERILOG"
+       attributes="" />
+  </childGeneratedFiles>
+  <sourceFiles>
+   <file path="/build/Core/osc.qsys" />
+  </sourceFiles>
+  <childSourceFiles>
+   <file
+       path="/opt/intelFPGA_lite/18.0/ip/altera/altera_int_osc/altera_int_osc_hw.tcl" />
+  </childSourceFiles>
+  <messages>
+   <message level="Debug" culprit="osc">queue size: 0 starting:osc "osc"</message>
+   <message level="Progress" culprit="min"></message>
+   <message level="Progress" culprit="max"></message>
+   <message level="Progress" culprit="current"></message>
+   <message level="Debug">Transform: CustomInstructionTransform</message>
+   <message level="Debug">No custom instruction connections, skipping transform </message>
+   <message level="Debug" culprit="merlin_custom_instruction_transform"><![CDATA[After transform: <b>1</b> modules, <b>0</b> connections]]></message>
+   <message level="Debug">Transform: MMTransform</message>
+   <message level="Debug">Transform: InterruptMapperTransform</message>
+   <message level="Debug">Transform: InterruptSyncTransform</message>
+   <message level="Debug">Transform: InterruptFanoutTransform</message>
+   <message level="Debug">Transform: AvalonStreamingTransform</message>
+   <message level="Debug">Transform: ResetAdaptation</message>
+   <message level="Debug" culprit="osc"><![CDATA["<b>osc</b>" reuses <b>altera_int_osc</b> "<b>submodules/altera_int_osc</b>"]]></message>
+   <message level="Debug" culprit="osc">queue size: 0 starting:altera_int_osc "submodules/altera_int_osc"</message>
+   <message level="Info" culprit="int_osc_0">Generating top-level entity altera_int_osc.</message>
+   <message level="Info" culprit="int_osc_0"><![CDATA["<b>osc</b>" instantiated <b>altera_int_osc</b> "<b>int_osc_0</b>"]]></message>
+  </messages>
+ </entity>
+ <entity
+   path="submodules/"
+   parameterizationKey="altera_int_osc:18.0:CBX_AUTO_BLACKBOX=ALL,CLOCK_FREQUENCY=UNKNOWN,CLOCK_FREQUENCY_1=116,CLOCK_FREQUENCY_2=77,DEVICE_FAMILY=Cyclone 10 LP,DEVICE_ID=UNKNOWN,INFORMATION=The maximum output frequency is 80MHz,PART_NAME=10CL025YE144C8G"
+   instancePathKey="osc:.:int_osc_0"
+   kind="altera_int_osc"
+   version="18.0"
+   name="altera_int_osc">
+  <parameter name="CLOCK_FREQUENCY_2" value="77" />
+  <parameter name="CLOCK_FREQUENCY_1" value="116" />
+  <parameter name="PART_NAME" value="10CL025YE144C8G" />
+  <parameter name="CLOCK_FREQUENCY" value="UNKNOWN" />
+  <parameter name="INFORMATION" value="The maximum output frequency is 80MHz" />
+  <parameter name="DEVICE_FAMILY" value="Cyclone 10 LP" />
+  <parameter name="CBX_AUTO_BLACKBOX" value="ALL" />
+  <parameter name="DEVICE_ID" value="UNKNOWN" />
+  <generatedFiles>
+   <file
+       path="/build/Core/osc/synthesis/submodules/altera_int_osc.v"
+       type="VERILOG"
+       attributes="" />
+  </generatedFiles>
+  <childGeneratedFiles/>
+  <sourceFiles>
+   <file
+       path="/opt/intelFPGA_lite/18.0/ip/altera/altera_int_osc/altera_int_osc_hw.tcl" />
+  </sourceFiles>
+  <childSourceFiles/>
+  <instantiator instantiator="osc" as="int_osc_0" />
+  <messages>
+   <message level="Debug" culprit="osc">queue size: 0 starting:altera_int_osc "submodules/altera_int_osc"</message>
+   <message level="Info" culprit="int_osc_0">Generating top-level entity altera_int_osc.</message>
+   <message level="Info" culprit="int_osc_0"><![CDATA["<b>osc</b>" instantiated <b>altera_int_osc</b> "<b>int_osc_0</b>"]]></message>
+  </messages>
+ </entity>
+</deploy>
