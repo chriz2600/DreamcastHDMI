@@ -11,6 +11,9 @@ fpga-firmware:
     - Core/output_files/*.dc
   tags:
     - dreamcast-hdmi
+  only:
+    - develop
+    - master
 
 esp-firmware:
   stage: build
@@ -33,6 +36,9 @@ esp-firmware:
     - FirmwareManager/data/index.html.gz
   tags:
     - platformio
+  only:
+    - develop
+    - master
 
 fpga-publish:
   stage: deploy
@@ -43,6 +49,9 @@ fpga-publish:
     - fpga-firmware
   tags:
     - index-gen
+  only:
+    - develop
+    - master
 
 esp-publish:
   stage: deploy
@@ -53,3 +62,6 @@ esp-publish:
     - esp-firmware
   tags:
     - index-gen
+  only:
+    - develop
+    - master
