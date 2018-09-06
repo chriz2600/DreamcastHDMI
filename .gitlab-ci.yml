@@ -1,6 +1,10 @@
+stages:
+  - build-fpga
+  - build-esp
+  - deploy
 
 fpga-firmware:
-  stage: build
+  stage: build-fpga
   script: 
     - ./Core/create_test_text_ram.pl
     - script -qfc "$(printf "%q " "/root/build")" /dev/null
@@ -13,7 +17,7 @@ fpga-firmware:
     - dreamcast-hdmi
 
 esp-firmware:
-  stage: build
+  stage: build-esp
   script:
     - "cd FirmwareManager"
     - "./local/prepare-index-html"
