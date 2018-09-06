@@ -79,10 +79,10 @@
             /* ================================ */
 
             .dc_orig2x {
-                width:720px;
+                width:640px;
                 height:480px;
                 margin-top:-240px;
-                margin-left:-360px;
+                margin-left:-320px;
                 background-color:black;
                 border: 2px solid red;
             }
@@ -106,7 +106,7 @@
                 top:50%;
                 left:50%;
                 margin-top:-260px;
-                margin-left:-360px;
+                margin-left:-320px;
                 color:white;
             }
 
@@ -223,16 +223,17 @@
             }
         </script>
     </head>
-    <body onload="showme('#orig');">
-        <button onclick="showme('#orig');">1. Dreamcast 480p 1:1 on 1080p</button>
-        <br><br>
-        <!--<button onclick="showme('#o2x');">2. Dreamcast 480p 2:2 on 1080p</button>
+    <body onload="showme('#o4_3');">
+        <!--<button onclick="showme('#orig');">1. Dreamcast 480p 1:1 on 1080p</button>
         <br><br>-->
-        <button onclick="showme('#o4_3');">3. Dreamcast 480p scaled 4:3</button>
+        <button onclick="showme('#o4_3');">1. Dreamcast 480p scaled 4:3</button>
         <br><br>
-        <button onclick="showme('#o16_9');">4. Dreamcast 480p scaled 16:9</button>
-	<br><br>
-	<button onclick="showme('#vga');">5. Real VGA scaled 4:3</button>
+        <button onclick="showme('#o16_9');">2. Dreamcast 480p scaled 16:9</button>
+        <br><br>
+        <button onclick="showme('#vga');">3. VGA on 1080p scaled 4:3</button>
+        <br><br>        
+        <button onclick="showme('#o2x');">4. 960p on 1080p</button>
+        <br><br>        
 
         <div class="demo canvas">
             <div class="demo dc_2x">
@@ -259,11 +260,11 @@
                     <div class="content">
                         Best approach for pixel perfect display: <br>Dreamcast image is pixel doubled to 1280x960 pixels.
                         <br><br>The pixel ratio remains 1:1.
-                        <br><br>As most HDTVs do not support this, you have to either use a Framemeister or implement it on the FPGA.
+                        <br><br>This is the output in DCHDMI 1080p mode.
                     </div>
                 </div>
             </div>
-            <div class="text2x">1440x960 1:1</div>
+            <div class="text2x">1280x960 2:2</div>
         </div>
 
         <div id="o4_3" class="hideme" hidden>
