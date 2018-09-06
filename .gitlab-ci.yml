@@ -19,12 +19,16 @@ esp-firmware:
     - "./local/prepare-index-html"
     - "./local/prepare-fw-version"
     - "pio run"
+    - "cp ../Core/output_files/DCxPlus-default.dc data/firmware.dc"
+    - "md5sum data/firmware.dc | awk '{print $1;}' > data/firmware.dc.md5"
     - "pio run -t buildfs"
   artifacts:
     paths:
     - FirmwareManager/.pioenvs/esp07s/firmware.bin
     - FirmwareManager/.pioenvs/esp07s/spiffs.bin
     - FirmwareManager/data/index.html.gz
+  dependencies:
+    - fpga-firmware
   tags:
     - platformio
 
