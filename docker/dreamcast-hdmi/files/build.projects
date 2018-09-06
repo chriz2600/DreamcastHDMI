@@ -18,9 +18,6 @@ function doBuildProject {
     $GREP "$project " build.config | cut -f 2- -d' ' | while read _version ; do 
         echo $_version | tr ' ' '\n' | while read version ; do
             echo "------ creating $version --------------------"
-
-            #quartus_sh --set -remove VERILOG_MACRO $project
-            #quartus_sh --set VERILOG_MACRO=_${version}_ $project
             echo "set_global_assignment -name VERILOG_MACRO _${version}_" > Macros.qsf
             quartus_sh --flow compile $project.qpf
 
@@ -28,11 +25,6 @@ function doBuildProject {
             mv output_files/$project.jic output_files/${project}-${version}.jic
             mv output_files/$project.rbf output_files/${project}-${version}.rbf
             /root/firmware-packer output_files/${project}-${version}.rbf output_files/${project}-${version}.dc
-            mkdir -p /srv/${CI_COMMIT_REF_NAME}
-            chmod 777 /srv/${CI_COMMIT_REF_NAME}
-            cp output_files/${project}-${version}.jic /srv/${CI_COMMIT_REF_NAME}
-            cp output_files/${project}-${version}.rbf /srv/${CI_COMMIT_REF_NAME}
-            cp output_files/${project}-${version}.dc /srv/${CI_COMMIT_REF_NAME}
         done
     done
     echo "...done"

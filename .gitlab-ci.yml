@@ -20,12 +20,6 @@ esp-firmware:
     - "./local/prepare-fw-version"
     - "pio run"
     - "pio run -t buildfs"
-    - "mkdir -p /srv/esp/${CI_COMMIT_REF_NAME}"
-    - "chmod 777 /srv/esp/${CI_COMMIT_REF_NAME}"
-    - "cp .pioenvs/esp07s/firmware.bin /srv/esp/${CI_COMMIT_REF_NAME}/4MB-firmware.bin"
-    - "cp .pioenvs/esp07s/spiffs.bin /srv/esp/${CI_COMMIT_REF_NAME}/4MB-spiffs.bin"
-    - "cp data/index.html.gz /srv/esp/${CI_COMMIT_REF_NAME}/esp.index.html.gz"
-    - "ls -alF /srv/esp/${CI_COMMIT_REF_NAME}/"
   artifacts:
     paths:
     - FirmwareManager/.pioenvs/esp07s/firmware.bin
