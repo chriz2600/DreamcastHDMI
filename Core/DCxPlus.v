@@ -28,7 +28,8 @@ module DCxPlus(
     input MAPLE_PIN1,
     input MAPLE_PIN5,
 
-    output wire status_led
+    inout wire status_led_nreset,
+    inout wire DC_NRESET
 );
 
 wire clock54_net;
@@ -109,11 +110,11 @@ wire resync_rise;
 wire generate_video;
 wire generate_timing;
 wire fullcycle;
+wire reset_dc;
 wire reset_clock;
 
 assign clock54_out = clock54_net;
-//assign status_led = ~adv7513_ready;
-assign status_led = ~fullcycle;
+assign status_led_nreset = ~fullcycle;
 
 // DC config in, ics config out
 configuration configurator(
@@ -371,7 +372,8 @@ i2cSlave i2cSlave(
     .highlight_line(highlight_line),
     .reconf_data(reconf_data),
     .hdmiVideoConfig(hdmiVideoConfig),
-    .scanline(scanline)
+    .scanline(scanline),
+    .reset_dc(reset_dc)
 );
 
 maple mapleBus(
@@ -386,5 +388,26 @@ osc reset_clock_gen(
     .oscena(1'b1),
     .clkout(reset_clock)
 );
+
+////////////////////////////////////////////////////////////////////////
+// dreamcast reset
+////////////////////////////////////////////////////////////////////////
+reg[31:0] counter = 0;
+reg dc_nreset_reg = 1'bz;
+
+assign DC_NRESET = dc_nreset_reg;
+
+always @(posedge reset_clock or posedge reset_dc) begin
+    if (reset_dc) begin
+        counter <= 0;
+        dc_nreset_reg <= 1'b0;
+    end else begin
+        counter <= counter + 1;
+        if (counter == 16_000_000) begin /* 200ms@80MHz, 266ms@60MHz, ... */
+            dc_nreset_reg <= 1'bz;
+        end
+    end
+end
+////////////////////////////////////////////////////////////////////////
 
 endmodule

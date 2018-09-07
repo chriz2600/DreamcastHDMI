@@ -21,7 +21,7 @@ set_location_assignment PIN_141 -to data[11]
 # Dreamcast VGA / 480i/240p select
 ####################################################
 set_location_assignment PIN_142 -to video_mode_480p_n
-set_location_assignment PIN_33 -to status_led
+set_location_assignment PIN_33 -to status_led_nreset
 
 ####################################################
 # ICS 664-03 configuration
@@ -102,6 +102,11 @@ set_location_assignment PIN_31 -to MAPLE_PIN1
 set_location_assignment PIN_32 -to MAPLE_PIN5
 
 ####################################################
+# reset dreamcast
+####################################################
+set_location_assignment PIN_125 -to DC_NRESET
+
+####################################################
 # PLL placement
 ####################################################
 set_location_assignment PLL_1 -to "pll54:pll54|altpll:altpll_component|pll54_altpll:auto_generated|pll1"
@@ -143,7 +148,9 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to S[0]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to S[1]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to S[2]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to S[3]
-set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to status_led
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to status_led_nreset
 set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to SDAT
 set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to SCLK
 set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to ESP_SDA
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to DC_NRESET
+set_instance_assignment -name AUTO_OPEN_DRAIN_PINS ON -to DC_NRESET

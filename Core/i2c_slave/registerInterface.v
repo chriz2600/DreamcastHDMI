@@ -62,6 +62,7 @@ module registerInterface (
     output[7:0] reconf_data,
     output HDMIVideoConfig hdmiVideoConfig,
     output Scanline scanline,
+    output reset_dc,
     input DebugData debugData,
     input ControllerData controller_data
 );
@@ -73,6 +74,7 @@ reg wren;
 reg enable_osd_reg = 1'b0;
 reg [7:0] highlight_line_reg = 255;
 reg [7:0] reconf_data_reg;
+reg reset_dc_reg = 1'b0;
 
 `include "../config/hdmi_config.v"
 
@@ -92,6 +94,7 @@ assign highlight_line = highlight_line_reg;
 assign hdmiVideoConfig = hdmiVideoConfig_reg;
 assign scanline = scanline_reg;
 assign reconf_data = reconf_data_reg;
+assign reset_dc = reset_dc_reg;
 
 // --- I2C Read
 always @(posedge clk) begin
@@ -193,6 +196,9 @@ always @(posedge clk) begin
             scanline_reg.thickness <= dataIn[6];
             scanline_reg.oddeven <= dataIn[5];
             scanline_reg.active <= dataIn[4];
+        // reset dreamcast
+        end else if (addr == 8'hF0) begin
+            reset_dc_reg <= 1'b1;
         // OSD data
         end else if (addr < 8'h80) begin
             wraddress_reg <= { addr_offset, addr[6:0] };
@@ -200,6 +206,7 @@ always @(posedge clk) begin
         end
     end else begin
         wren <= 1'b0;
+        reset_dc_reg <= 1'b0;
     end
 end
 
