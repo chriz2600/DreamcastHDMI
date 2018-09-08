@@ -405,12 +405,6 @@ Flag_CrossDomain reset_trigger(
     .FlagOut_clkB(reset_dc_out)
 );
 
-// edge_detect reset_trigger(
-//     .async_sig(reset_dc),
-//     .clk(reset_clock),
-//     .fall(reset_dc_out)
-// );
-
 always @(posedge reset_clock) begin
     if (reset_dc_out) begin
         counter <= 0;
