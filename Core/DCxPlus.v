@@ -288,7 +288,8 @@ Flag_CrossDomain trigger(
     .clkA(ram_wrclock),
     .FlagIn_clkA(buffer_ready_trigger),
     .clkB(hdmi_clock),
-    .FlagOut_clkB(output_trigger));
+    .FlagOut_clkB(output_trigger)
+);
 
 /////////////////////////////////
 // HDMI clock area
