@@ -156,7 +156,7 @@ void setScanlines(uint8_t upper, uint8_t lower, WriteCallbackHandlerFunction han
 // Menus start -->
 ///////////////////////////////////////////////////////////////////
 
-Menu outputResSaveMenu("OutputResSaveMenu", (uint8_t*) OSD_OUTPUT_RES_SAVE_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine) {
+Menu outputResSaveMenu("OutputResSaveMenu", (uint8_t*) OSD_OUTPUT_RES_SAVE_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         taskManager.StopTask(&timeoutTask);
         safeSwitchResolution(PrevCurrentResolution, [](uint8_t Address, uint8_t Value){
@@ -193,7 +193,7 @@ Menu outputResSaveMenu("OutputResSaveMenu", (uint8_t*) OSD_OUTPUT_RES_SAVE_MENU,
 
 ///////////////////////////////////////////////////////////////////
 
-Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRST_SELECT_LINE, MENU_OR_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine) {
+Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRST_SELECT_LINE, MENU_OR_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu = &mainMenu;
         currentMenu->Display();
@@ -254,7 +254,7 @@ void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler) {
 
 ///////////////////////////////////////////////////////////////////
 
-Menu videoModeMenu("VideoModeMenu", (uint8_t*) OSD_VIDEO_MODE_MENU, MENU_VM_FIRST_SELECT_LINE, MENU_VM_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine) {
+Menu videoModeMenu("VideoModeMenu", (uint8_t*) OSD_VIDEO_MODE_MENU, MENU_VM_FIRST_SELECT_LINE, MENU_VM_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu = &mainMenu;
         currentMenu->Display();
@@ -301,7 +301,7 @@ Menu videoModeMenu("VideoModeMenu", (uint8_t*) OSD_VIDEO_MODE_MENU, MENU_VM_FIRS
 
 ///////////////////////////////////////////////////////////////////
 
-Menu videoModeSaveMenu("VideoModeSaveMenu", (uint8_t*) OSD_VIDEO_MODE_SAVE_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine) {
+Menu videoModeSaveMenu("VideoModeSaveMenu", (uint8_t*) OSD_VIDEO_MODE_SAVE_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu = &videoModeMenu;
         currentMenu->Display();
@@ -311,7 +311,7 @@ Menu videoModeSaveMenu("VideoModeSaveMenu", (uint8_t*) OSD_VIDEO_MODE_SAVE_MENU,
 
 ///////////////////////////////////////////////////////////////////
 
-Menu firmwareMenu("FirmwareMenu", (uint8_t*) OSD_FIRMWARE_MENU, MENU_FW_FIRST_SELECT_LINE, MENU_FW_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine) {
+Menu firmwareMenu("FirmwareMenu", (uint8_t*) OSD_FIRMWARE_MENU, MENU_FW_FIRST_SELECT_LINE, MENU_FW_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu->StoreMenuActiveLine(MENU_FW_FIRST_SELECT_LINE);
         currentMenu = &mainMenu;
@@ -343,7 +343,7 @@ Menu firmwareMenu("FirmwareMenu", (uint8_t*) OSD_FIRMWARE_MENU, MENU_FW_FIRST_SE
 
 ///////////////////////////////////////////////////////////////////
 
-Menu firmwareCheckMenu("FirmwareCheckMenu", (uint8_t*) OSD_FIRMWARE_CHECK_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine) {
+Menu firmwareCheckMenu("FirmwareCheckMenu", (uint8_t*) OSD_FIRMWARE_CHECK_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu = &firmwareMenu;
         currentMenu->Display();
@@ -447,7 +447,7 @@ ContentCallback createMD5Callback(int pos, int line, char* storedMD5Sum) {
 
 ///////////////////////////////////////////////////////////////////
 
-Menu firmwareDownloadMenu("FirmwareDownloadMenu", (uint8_t*) OSD_FIRMWARE_DOWNLOAD_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine) {
+Menu firmwareDownloadMenu("FirmwareDownloadMenu", (uint8_t*) OSD_FIRMWARE_DOWNLOAD_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu = &firmwareMenu;
         currentMenu->Display();
@@ -600,7 +600,7 @@ ContentCallback createMD5DownloadCallback(int pos, bool forceDownload, int line,
 
 ///////////////////////////////////////////////////////////////////
 
-Menu firmwareFlashMenu("FirmwareFlashMenu", (uint8_t*) OSD_FIRMWARE_FLASH_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine) {
+Menu firmwareFlashMenu("FirmwareFlashMenu", (uint8_t*) OSD_FIRMWARE_FLASH_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu = &firmwareMenu;
         currentMenu->Display();
@@ -760,7 +760,7 @@ ProgressCallback createFlashProgressCallback(int pos, bool force, int line) {
 
 ///////////////////////////////////////////////////////////////////
 
-Menu firmwareResetMenu("FirmwareResetMenu", (uint8_t*) OSD_FIRMWARE_RESET_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine) {
+Menu firmwareResetMenu("FirmwareResetMenu", (uint8_t*) OSD_FIRMWARE_RESET_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu = &firmwareMenu;
         currentMenu->Display();
@@ -795,7 +795,7 @@ void displayProgress(int read, int total, int line) {
 
 ///////////////////////////////////////////////////////////////////
 
-Menu scanlinesMenu("ScanlinesMenu", (uint8_t*) OSD_SCANLINES_MENU, MENU_SL_FIRST_SELECT_LINE, MENU_SL_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine) {
+Menu scanlinesMenu("ScanlinesMenu", (uint8_t*) OSD_SCANLINES_MENU, MENU_SL_FIRST_SELECT_LINE, MENU_SL_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         // restoreScanlines
         readScanlinesActive();
@@ -885,7 +885,7 @@ Menu scanlinesMenu("ScanlinesMenu", (uint8_t*) OSD_SCANLINES_MENU, MENU_SL_FIRST
 
 ///////////////////////////////////////////////////////////////////
 
-Menu infoMenu("InfoMenu", (uint8_t*) OSD_INFO_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine) {
+Menu infoMenu("InfoMenu", (uint8_t*) OSD_INFO_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         taskManager.StopTask(&debugTask);
         currentMenu = &mainMenu;
@@ -897,8 +897,7 @@ Menu infoMenu("InfoMenu", (uint8_t*) OSD_INFO_MENU, NO_SELECT_LINE, NO_SELECT_LI
 });
 
 ///////////////////////////////////////////////////////////////////
-
-Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, MENU_M_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine) {
+Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, MENU_M_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu->StoreMenuActiveLine(MENU_M_FIRST_SELECT_LINE);
         closeOSD();
@@ -929,20 +928,31 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
         }
         return;
     }
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_X)) {
+        DBG_OUTPUT_PORT.printf("reset dreamcast!!!!! %x\n", controller_data);
+        currentMenu->startTransaction();
+        fpgaTask.Write(I2C_DC_RESET, 0, [](uint8_t Address, uint8_t Value) {
+            DBG_OUTPUT_PORT.printf("reset dreamcast callback: %u\n", Value);
+            waitForI2CRecover();
+            DBG_OUTPUT_PORT.printf("reset dreamcast recover!\n");
+            currentMenu->endTransaction();
+        });
+        return;
+    }
 }, NULL, NULL);
 
 ///////////////////////////////////////////////////////////////////
 // <-- Menus end
 ///////////////////////////////////////////////////////////////////
 
-FPGATask fpgaTask(1, [](uint16_t controller_data) {
+FPGATask fpgaTask(1, [](uint16_t controller_data, bool isRepeat) {
     if (!OSDOpen && CHECK_BIT(controller_data, CTRLR_TRIGGER_OSD)) {
         openOSD();
         return;
     }
     if (OSDOpen) {
         //DBG_OUTPUT_PORT.printf("Menu: %s %x\n", currentMenu->Name(), controller_data);
-        currentMenu->HandleClick(controller_data);
+        currentMenu->HandleClick(controller_data, isRepeat);
     }
 });
 

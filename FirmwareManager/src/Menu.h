@@ -247,7 +247,7 @@ char OSD_INFO_MENU[521] = (
     "                B: Back                 "
 );
 
-typedef std::function<void(uint16_t controller_data, uint8_t menu_activeLine)> ClickHandler;
+typedef std::function<void(uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat)> ClickHandler;
 typedef std::function<uint8_t(uint8_t* menu_text)> PreDisplayHook;
 
 extern FPGATask fpgaTask;
@@ -293,7 +293,7 @@ class Menu
         });
     }
 
-    void HandleClick(uint16_t controller_data) {
+    void HandleClick(uint16_t controller_data, bool isRepeat) {
         if (inTransaction) {
             DBG_OUTPUT_PORT.printf("%s in transaction!\n", name);
             return;
@@ -311,7 +311,7 @@ class Menu
             return;
         }
         // pass all other pads to handler
-        handler(controller_data, menu_activeLine);
+        handler(controller_data, menu_activeLine, isRepeat);
     }
 
     uint8_t* GetMenuText() {

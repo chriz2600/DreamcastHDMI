@@ -11,7 +11,7 @@
 #define REPEAT_DELAY 250
 #define REPEAT_RATE 100
 
-typedef std::function<void(uint16_t controller_data)> FPGAEventHandlerFunction;
+typedef std::function<void(uint16_t controller_data, bool isRepeat)> FPGAEventHandlerFunction;
 typedef std::function<void(uint8_t Address, uint8_t Value)> WriteCallbackHandlerFunction;
 typedef std::function<void(uint8_t address, uint8_t* buffer, uint8_t len)> ReadCallbackHandlerFunction;
 typedef std::function<void()> WriteOSDCallbackHandlerFunction;
@@ -159,8 +159,9 @@ class FPGATask : public Task {
                 if (buffer2[0] != data_out[0]
                  || buffer2[1] != data_out[1])
                 {
+                    //DBG_OUTPUT_PORT.printf("new data: %x %x %x %x\n", data_out[0], data_out[1], buffer2[0], buffer2[1]);
                     // reset repeat
-                    controller_handler(buffer2[0] << 8 | buffer2[1]);
+                    controller_handler(buffer2[0] << 8 | buffer2[1], false);
                     eTime = millis();
                     repeatCount = 0;
                 } else {
@@ -168,7 +169,8 @@ class FPGATask : public Task {
                     if (buffer2[0] != 0x00 || buffer2[1] != 0x00) {
                         unsigned long duration = (repeatCount == 0 ? REPEAT_DELAY : REPEAT_RATE);
                         if (millis() - eTime > duration) {
-                            controller_handler(buffer2[0] << 8 | buffer2[1]);
+                            //DBG_OUTPUT_PORT.printf("repeat: %x %x %x %x\n", data_out[0], data_out[1], buffer2[0], buffer2[1]);
+                            controller_handler(buffer2[0] << 8 | buffer2[1], true);
                             eTime = millis();
                             repeatCount++;
                         }
