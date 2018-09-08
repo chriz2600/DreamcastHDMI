@@ -21,6 +21,7 @@
 #include "FPGATask.h"
 #include "DebugTask.h"
 #include "TimeoutTask.h"
+#include "FlashBlankCheckTask.h"
 #include "Menu.h"
 
 #define DEFAULT_SSID ""
@@ -101,7 +102,8 @@ FlashTask flashTask(1);
 FlashESPTask flashESPTask(1);
 FlashESPIndexTask flashESPIndexTask(1);
 DebugTask debugTask(8);
-TimeoutTask timeoutTask(MsToTaskTime(100)); 
+TimeoutTask timeoutTask(MsToTaskTime(100));
+FlashBlankCheckTask flashBlankCheck(1, NULL);
 
 extern Menu mainMenu;
 extern Menu outputResMenu;
@@ -2069,7 +2071,7 @@ void setup(void) {
     DBG_OUTPUT_PORT.printf("\n>> FirmwareManager starting...\n");
     DBG_OUTPUT_PORT.setDebugOutput(DEBUG);
 
-    pinMode(NCE, INPUT);    
+    pinMode(NCE, INPUT);
     pinMode(NCONFIG, INPUT);
 
     setupI2C();
@@ -2088,6 +2090,9 @@ void setup(void) {
 
     setOSD(false, NULL); fpgaTask.ForceLoop();
     DBG_OUTPUT_PORT.println(">> Ready.");
+
+    DBG_OUTPUT_PORT.println(">> Starting blank check.");
+    taskManager.StartTask(&flashBlankCheck);
 }
 
 void loop(void){
