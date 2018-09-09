@@ -1128,6 +1128,7 @@ int writeProgress(uint8_t *buffer, size_t maxLen, int progress) {
 
 void resetall() {
     DBG_OUTPUT_PORT.printf("all reset requested...\n");
+    taskManager.StopTask(&fpgaTask);
     enableFPGA();
     resetFPGAConfiguration();
     //ESP.eraseConfig();

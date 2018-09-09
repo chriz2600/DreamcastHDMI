@@ -97,6 +97,7 @@ module ram2video(
         vsync_reg_q <= ~`INITIAL_VERTICAL_SYNC_ON_POLARITY;
         ram_addrX_reg <= 0;
         ram_addrY_reg <= 0;
+        fullcycle <= 0;
     end
     
     task doReset;
@@ -134,9 +135,6 @@ module ram2video(
             end
         end else begin
             restart <= 0;
-            if (counterX_reg_q == 0 && counterY_reg_q == 0) begin
-                fullcycle <= 1;
-            end
             // trigger is set, output data
             if (counterX_reg < hdmiVideoConfig.horizontal_pixels_per_line - 1) begin
                 counterX_reg <= counterX_reg + 1'b1;
@@ -196,6 +194,7 @@ module ram2video(
                     vsync_reg_q <= ~hdmiVideoConfig.vertical_sync_on_polarity; // OFF
                 end else begin
                     vsync_reg_q <= hdmiVideoConfig.vertical_sync_on_polarity; // ON
+                    fullcycle <= 1;
                 end
             end else begin
                 vsync_reg_q <= ~hdmiVideoConfig.vertical_sync_on_polarity; // OFF
