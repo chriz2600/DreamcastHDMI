@@ -71,6 +71,7 @@ localparam  cs_init     = 3'd0,
             cs_ready    = 3'd7;
 localparam  scs_start = 6'd0;
 
+reg hdmi_int_prev = 1;
 reg hdmi_int_reg = 0;
 reg trigger_debug = 0;
 
@@ -92,10 +93,11 @@ always @ (posedge clk) begin
         debugData.resync_count <= debugData.resync_count + 1'b1;
     end
 
-    if (~hdmi_int) begin
+    if (hdmi_int_prev && ~hdmi_int) begin
         hdmi_int_reg <= 1;
         debugData.hdmi_int_count <= debugData.hdmi_int_count + 1'b1;
     end
+    hdmi_int_prev <= hdmi_int;
 
     if (VSYNC_reg == hdmiVideoConfig.vertical_sync_on_polarity
      && VSYNC != hdmiVideoConfig.vertical_sync_on_polarity)

@@ -96,7 +96,7 @@ void SPIFlash::enable(void) {
     SPI.begin();
     SPI.setDataMode(0);
     SPI.setBitOrder(MSBFIRST);
-    SPI.setFrequency(80000000L);
+    SPI.setFrequency(40000000L);
     // initialze to not bother with _cs
     pinMode(_cs, OUTPUT);
 }

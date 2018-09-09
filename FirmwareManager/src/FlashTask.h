@@ -13,9 +13,7 @@ extern int totalLength;
 extern int readLength;
 extern int last_error;
 
-void reverseBitOrder(uint8_t *buffer);
 void _writeFile(const char *filename, const char *towrite, unsigned int len);
-void _readFile(const char *filename, char *target, unsigned int len);
 
 extern TaskManager taskManager;
 
@@ -49,6 +47,7 @@ class FlashTask : public Task {
         int chunk_size = 0;
         unsigned int page;
         int prevPercentComplete;
+        MD5Builder spiMD5;
 
         virtual bool OnStart() {
             page = 0;
@@ -61,6 +60,7 @@ class FlashTask : public Task {
             bytes_in_result = 0;
 
             md5.begin();
+            spiMD5.begin();
             flashFile = SPIFFS.open(FIRMWARE_FILE, "r");
 
             if (flashFile) {
@@ -166,6 +166,10 @@ class FlashTask : public Task {
                 even it's called async, it actually writes 256 bytes over SPI bus, it's just not calling the blocking "busy wait"
             */
             flash.page_write_async(page, result);
+            spiMD5.add(result, 256);
+            if (page == 0 || page == totalLength) {
+                DBG_OUTPUT_PORT.printf("%4u: %2x %2x %2x %2x %2x %2x %2x %2x\n", page, result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7]);
+            }
             /* 
                 cleanup last 256 byte area afterwards, as spi flash memory is always written in chunks of 256 byte
             */
@@ -177,11 +181,19 @@ class FlashTask : public Task {
         }
 
         virtual void OnStop() {
+            DBG_OUTPUT_PORT.printf("wrote %u pages.\n", page);
             flash.disable();
             flashFile.close();
+            // store md5 sum of last flashed firmware file
             md5.calculate();
             String md5sum = md5.toString();
             _writeFile("/etc/last_flash_md5", md5sum.c_str(), md5sum.length());
+            // store md5 sum and page count of actual data written to flash, for check later
+            spiMD5.calculate();
+            String spiMD5sum = spiMD5.toString();
+            _writeFile("/etc/last_flash_spi_md5", spiMD5sum.c_str(), spiMD5sum.length());
+            _writeFile("/etc/last_flash_spi_pages", (String(totalLength)).c_str(), 8);
+            // cleanup
             if (buffer != NULL)
                 free(buffer);
             // make sure pointer is reset to original start

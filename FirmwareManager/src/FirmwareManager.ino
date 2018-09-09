@@ -21,7 +21,7 @@
 #include "FPGATask.h"
 #include "DebugTask.h"
 #include "TimeoutTask.h"
-#include "FlashBlankCheckTask.h"
+#include "FlashCheckTask.h"
 #include "Menu.h"
 
 #define DEFAULT_SSID ""
@@ -96,6 +96,9 @@ int scanlinesIntensity;
 bool scanlinesOddeven;
 bool scanlinesThickness;
 
+bool reflashNeccessary;
+bool reflashNeccessary2;
+
 MD5Builder md5;
 TaskManager taskManager;
 FlashTask flashTask(1);
@@ -103,7 +106,7 @@ FlashESPTask flashESPTask(1);
 FlashESPIndexTask flashESPIndexTask(1);
 DebugTask debugTask(8);
 TimeoutTask timeoutTask(MsToTaskTime(100));
-FlashBlankCheckTask flashBlankCheck(1, NULL);
+FlashCheckTask flashCheckTask(1, NULL);
 
 extern Menu mainMenu;
 extern Menu outputResMenu;
@@ -2010,6 +2013,8 @@ void setupOutputResolution() {
     int retryCount = 5000;
     int retries = 0;
 
+    reflashNeccessary = true;
+
     readVideoMode();
     readCurrentResolution();
 
@@ -2020,6 +2025,7 @@ void setupOutputResolution() {
         fpgaTask.ForceLoop();
         retryCount--;
         if (last_error == NO_ERROR) {
+            reflashNeccessary = false;
             break;
         }
         delayMicroseconds(500);
@@ -2040,6 +2046,8 @@ void setupScanlines() {
     int retryCount = 5000;
     int retries = 0;
 
+    reflashNeccessary2 = true;
+
     readScanlinesActive();
     readScanlinesIntensity();
     readScanlinesOddeven();
@@ -2057,6 +2065,7 @@ void setupScanlines() {
         fpgaTask.Write(I2C_SCANLINE_LOWER, lower, NULL); fpgaTask.ForceLoop();
         retryCount--;
         if (saved_error == NO_ERROR && last_error == NO_ERROR) {
+            reflashNeccessary2 = false;
             break;
         }
         delayMicroseconds(500);
@@ -2092,7 +2101,8 @@ void setup(void) {
     DBG_OUTPUT_PORT.println(">> Ready.");
 
     DBG_OUTPUT_PORT.println(">> Starting blank check.");
-    taskManager.StartTask(&flashBlankCheck);
+    taskManager.StartTask(&flashCheckTask);
+    DBG_OUTPUT_PORT.printf("reflashNeccessary: %s %s\n", reflashNeccessary ? "true" : "false", reflashNeccessary2 ? "true": "false");
 }
 
 void loop(void){
