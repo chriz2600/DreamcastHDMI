@@ -2011,28 +2011,14 @@ void writeScanlinesThickness() {
 /////////
 
 void setupOutputResolution() {
-    int retryCount = 5000;
-    int retries = 0;
-
-    reflashNeccessary = true;
-
     readVideoMode();
     readCurrentResolution();
 
     DBG_OUTPUT_PORT.printf(">> Setting up output resolution: %x\n", ForceVGA | CurrentResolution);
-    while (retryCount >= 0) {
-        retries++;
-        fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
-        fpgaTask.ForceLoop();
-        retryCount--;
-        if (last_error == NO_ERROR) {
-            reflashNeccessary = false;
-            break;
-        }
-        delayMicroseconds(500);
-        yield();
-    }
-    DBG_OUTPUT_PORT.printf("   retry loops needed: %i\n", retries);
+    reflashNeccessary = !forceI2CWrite(
+        I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, 
+        I2C_DC_RESET, 0
+    );
 }
 
 uint8_t getScanlinesUpperPart() {
@@ -2044,11 +2030,6 @@ uint8_t getScanlinesLowerPart() {
 }
 
 void setupScanlines() {
-    int retryCount = 5000;
-    int retries = 0;
-
-    reflashNeccessary2 = true;
-
     readScanlinesActive();
     readScanlinesIntensity();
     readScanlinesOddeven();
@@ -2058,21 +2039,35 @@ void setupScanlines() {
     uint8_t lower = getScanlinesLowerPart();
 
     DBG_OUTPUT_PORT.printf(">> Setting up scanlines:\n");
+    reflashNeccessary2 = !forceI2CWrite(
+        I2C_SCANLINE_UPPER, upper, 
+        I2C_SCANLINE_LOWER, lower
+    );
+}
+
+bool forceI2CWrite(uint8_t addr1, uint8_t val1, uint8_t addr2, uint8_t val2) {
+    int retryCount = 5000;
+    int retries = 0;
+    bool success = false;
+
     while (retryCount >= 0) {
-        bool saved_error = NO_ERROR;
         retries++;
-        fpgaTask.Write(I2C_SCANLINE_UPPER, upper, NULL); fpgaTask.ForceLoop();
-        saved_error = last_error;
-        fpgaTask.Write(I2C_SCANLINE_LOWER, lower, NULL); fpgaTask.ForceLoop();
+        fpgaTask.Write(addr1, val1, NULL); fpgaTask.ForceLoop();
+        if (last_error == NO_ERROR) { // only try second command, if first was successful
+            DBG_OUTPUT_PORT.printf("   success 1st command: %u %u %i\n", addr1, val1, retries);
+            fpgaTask.Write(addr2, val2, NULL); fpgaTask.ForceLoop();
+        }
         retryCount--;
-        if (saved_error == NO_ERROR && last_error == NO_ERROR) {
-            reflashNeccessary2 = false;
+        if (last_error == NO_ERROR) {
+            DBG_OUTPUT_PORT.printf("   success 2nd command: %u %u %i\n", addr2, val2, retries);
+            success = true;
             break;
         }
         delayMicroseconds(500);
         yield();
     }
     DBG_OUTPUT_PORT.printf("   retry loops needed: %i\n", retries);
+    return success;
 }
 
 void setup(void) {
@@ -2099,11 +2094,8 @@ void setup(void) {
     }
 
     setOSD(false, NULL); fpgaTask.ForceLoop();
-    DBG_OUTPUT_PORT.println(">> Ready.");
-
-    DBG_OUTPUT_PORT.println(">> Starting blank check.");
-    taskManager.StartTask(&flashCheckTask);
     DBG_OUTPUT_PORT.printf("reflashNeccessary: %s %s\n", reflashNeccessary ? "true" : "false", reflashNeccessary2 ? "true": "false");
+    DBG_OUTPUT_PORT.println(">> Ready.");
 }
 
 void loop(void){

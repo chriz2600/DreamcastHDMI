@@ -48,9 +48,6 @@ class FlashCheckTask : public Task {
                 } else {
                     flash.page_read_async(page, buffer);
                     spiMD5.add(buffer, 256);
-                    if (page == 0 || page == pages) {
-                        DBG_OUTPUT_PORT.printf("%4u: %2x %2x %2x %2x %2x %2x %2x %2x\n", page, buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7]);
-                    }
                     page++;
                 }
             }

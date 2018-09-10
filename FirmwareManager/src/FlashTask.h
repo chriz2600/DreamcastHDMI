@@ -167,9 +167,6 @@ class FlashTask : public Task {
             */
             flash.page_write_async(page, result);
             spiMD5.add(result, 256);
-            if (page == 0 || page == totalLength) {
-                DBG_OUTPUT_PORT.printf("%4u: %2x %2x %2x %2x %2x %2x %2x %2x\n", page, result[0], result[1], result[2], result[3], result[4], result[5], result[6], result[7]);
-            }
             /* 
                 cleanup last 256 byte area afterwards, as spi flash memory is always written in chunks of 256 byte
             */

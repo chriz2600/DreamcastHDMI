@@ -393,12 +393,6 @@ osc reset_clock_gen(
 ////////////////////////////////////////////////////////////////////////
 // dreamcast reset
 ////////////////////////////////////////////////////////////////////////
-reg[31:0] counter = 0;
-reg dc_nreset_reg = 1'b1;
-wire reset_dc_out;
-
-assign DC_NRESET = dc_nreset_reg ? 1'bz : 1'b0;
-
 Flag_CrossDomain reset_trigger(
     .clkA(hdmi_clock),
     .FlagIn_clkA(reset_dc),
@@ -406,13 +400,19 @@ Flag_CrossDomain reset_trigger(
     .FlagOut_clkB(reset_dc_out)
 );
 
+reg[31:0] counter = 0;
+reg dc_nreset_reg = 1'b1;
+wire reset_dc_out;
+
+assign DC_NRESET = dc_nreset_reg ? 1'bz : 1'b0;
+
 always @(posedge reset_clock) begin
     if (reset_dc_out) begin
         counter <= 0;
         dc_nreset_reg <= 1'b0;
     end else begin
         counter <= counter + 1;
-        if (counter == 16_000_000) begin /* 200ms@80MHz, 266ms@60MHz, ... */
+        if (counter == 800_000) begin /* 10ms@80MHz, 13ms@60MHz, ... */
             dc_nreset_reg <= 1'b1;
         end
     end
