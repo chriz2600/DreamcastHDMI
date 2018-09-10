@@ -28,6 +28,8 @@
 #include "fastlz.h"
 #include "firmware-utils.h"
 
+size_t block_size = DEFAULT_BLOCK_SIZE; // v0 default
+
 int main(int argc, char** argv) {
     FILE* in;
     FILE* out;
@@ -35,13 +37,12 @@ int main(int argc, char** argv) {
     char* output_file = 0;
     unsigned int i = 0;
     unsigned long fsize = 0;
-    unsigned char buffer[BLOCK_SIZE];
-    unsigned char result[BLOCK_SIZE+256];
     unsigned char header[16];
     unsigned char chunk_header[2];
     unsigned long total_read = 0;
     unsigned long total_compressed = 0;
     int chunk_size = 0;
+    uint8_t block_size_set = 0;
 
     for(i = 1; i <= argc; i++) {
         char* argument = argv[i];
@@ -53,6 +54,16 @@ int main(int argc, char** argv) {
             output_file = argument;
             continue;
         }
+        if (!block_size_set && argument) {
+            block_size = atoi(argument);
+            block_size_set = 1;
+            continue;
+        }
+    }
+
+    if (!input_file || !output_file) {
+        printf("usage: firmware-packer <input.rbf> <output.dc> [<block_size>]\n");
+        return -1;
     }
 
     in = fopen(input_file, "rb");
@@ -66,6 +77,14 @@ int main(int argc, char** argv) {
         printf("Error: could not create %s. Aborted.\n\n", output_file);
         return -1;
     }
+
+    if (block_size < MIN_BLOCK_SIZE || block_size > MAX_BLOCK_SIZE) {
+        printf("Error: block size must be between %zu and %zu. Aborted.\n\n", MIN_BLOCK_SIZE, MAX_BLOCK_SIZE);
+        return -1;
+    }
+
+    unsigned char buffer[block_size];
+    unsigned char result[block_size+256];
 
     /* find size of the file */
     fseek(in, 0, SEEK_END);
@@ -82,8 +101,8 @@ int main(int argc, char** argv) {
     header[4] = 0x01;
     header[5] = 0x00;
     // block size
-    header[6] = BLOCK_SIZE & 255;
-    header[7] = (BLOCK_SIZE >> 8) & 255;
+    header[6] = block_size & 255;
+    header[7] = (block_size >> 8) & 255;
     // file size 
     header[8] = fsize & 255;
     header[9] = (fsize >> 8) & 255;
@@ -99,7 +118,7 @@ int main(int argc, char** argv) {
 
     // pack it!
     for(;;) {
-        size_t bytes_read = fread(buffer, 1, BLOCK_SIZE, in);
+        size_t bytes_read = fread(buffer, 1, block_size, in);
         if (bytes_read == 0)
             break;
         total_read += bytes_read;
@@ -125,6 +144,6 @@ int main(int argc, char** argv) {
     }
     fclose(out);
 
-    printf("%s: %lu / %lu\n", input_file, fsize, total_compressed);
+    printf("%s: %lu / %lu (%zu)\n", input_file, fsize, total_compressed, block_size);
     return 0;
 }

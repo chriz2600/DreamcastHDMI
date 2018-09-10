@@ -32,7 +32,7 @@ size_t bytes_in_result = 0;
 unsigned char *buffer = NULL;
 unsigned char *result = NULL;
 unsigned char *result_start = NULL;
-size_t block_size = BLOCK_SIZE; // v0 default
+size_t block_size = DEFAULT_BLOCK_SIZE; // v0 default
 FILE* in;
 FILE* out;
 
@@ -95,6 +95,11 @@ int main(int argc, char** argv) {
             output_file = argument;
             continue;
         }
+    }
+
+    if (!input_file || !output_file) {
+        printf("usage: firmware-unpacker <input.dc> <output.rbf>\n");
+        return -1;
     }
 
     in = fopen(input_file, "rb");
