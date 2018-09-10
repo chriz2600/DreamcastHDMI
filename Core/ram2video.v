@@ -194,10 +194,13 @@ module ram2video(
                     vsync_reg_q <= ~hdmiVideoConfig.vertical_sync_on_polarity; // OFF
                 end else begin
                     vsync_reg_q <= hdmiVideoConfig.vertical_sync_on_polarity; // ON
-                    fullcycle <= 1;
                 end
             end else begin
                 vsync_reg_q <= ~hdmiVideoConfig.vertical_sync_on_polarity; // OFF
+            end
+
+            if (vsync_reg_q == hdmiVideoConfig.vertical_sync_on_polarity) begin
+                fullcycle <= 1;
             end
 
             counterX_reg_q <= counterX_reg;
@@ -322,7 +325,7 @@ module ram2video(
     reg d_hsync;
     reg d_vsync;
     reg d_DrawArea;
-    
+
     always @(posedge clock) begin
         d_rdaddr <= `GetAddr(counterX_reg, counterY_reg);
         if (fullcycle) begin
