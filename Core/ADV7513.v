@@ -162,6 +162,7 @@ always @ (posedge clk) begin
                     ready <= 0;
                     state <= s_start;
                     cmd_counter <= cs_init;
+                    debugData.hdmi_int_processed_count <= debugData.hdmi_int_processed_count + 1'b1;
                 end else if (trigger_debug) begin
                     trigger_debug <= 0;
                     state <= s_start;

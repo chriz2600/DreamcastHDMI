@@ -27,6 +27,7 @@ typedef struct packed {
 
     reg [7:0] restart_count;
     reg [7:0] hdmi_int_count;
+    reg [7:0] hdmi_int_processed_count;
     reg [7:0] not_ready_count;
 
     reg [7:0] resync_count;

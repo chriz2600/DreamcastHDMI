@@ -152,8 +152,9 @@ always @(posedge clk) begin
         8'hA4: dataOut_reg <= debugData.summary_cts3_status;
         8'hA5: dataOut_reg <= debugData.summary_summary_cts3_status;
         8'hA6: dataOut_reg <= debugData.hdmi_int_count;
-        8'hA7: dataOut_reg <= debugData.not_ready_count;
-        8'hA8: dataOut_reg <= debugData.resync_count;
+        8'hA7: dataOut_reg <= debugData.hdmi_int_processed_count;
+        8'hA8: dataOut_reg <= debugData.not_ready_count;
+        8'hA9: dataOut_reg <= debugData.resync_count;
         default: dataOut_reg <= 0;
     endcase
 end
