@@ -3,6 +3,10 @@
 GREP="grep --line-buffered"
 
 function doBuildProjects {
+    echo -n "building firmware packer..."
+    cd $CWD/FirmwareManager/firmware-utils
+    echo "done."
+    make
     cd $CWD/Core
     for x in *.qpf ; do
         project=$(echo $x | sed -e 's:\.qpf::g')
@@ -24,7 +28,7 @@ function doBuildProject {
             doCreateConfigurationFiles
             mv output_files/$project.jic output_files/${project}-${version}.jic
             mv output_files/$project.rbf output_files/${project}-${version}.rbf
-            /root/firmware-packer output_files/${project}-${version}.rbf output_files/${project}-${version}.dc
+            $CWD/FirmwareManager/firmware-utils/firmware-packer output_files/${project}-${version}.rbf output_files/${project}-${version}.dc
         done
     done
     echo "...done"
