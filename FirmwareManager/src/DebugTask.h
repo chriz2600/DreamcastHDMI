@@ -38,7 +38,7 @@ class DebugTask : public Task {
                     /*
                         DebugInfo
                         ---------
-                        FRM:  Frame count for aggregated value
+                        FRM:  Frame count for aggregated values
                         RC:   ram2video restart counter
                         HR:   hdmi interrupts received
                         HP:   hdmi interrupts processed

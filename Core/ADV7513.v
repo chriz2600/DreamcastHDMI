@@ -72,7 +72,7 @@ localparam  cs_init     = 3'd0,
 localparam  scs_start = 6'd0;
 
 reg hdmi_int_prev = 1;
-reg hdmi_int_reg = 0;
+reg[7:0] hdmi_int_reg_count = 0;
 reg trigger_debug = 0;
 
 initial begin
@@ -93,18 +93,6 @@ always @ (posedge clk) begin
         debugData.resync_count <= debugData.resync_count + 1'b1;
     end
 
-    if (hdmi_int_prev && ~hdmi_int) begin
-        hdmi_int_reg <= 1;
-        debugData.hdmi_int_count <= debugData.hdmi_int_count + 1'b1;
-    end
-    hdmi_int_prev <= hdmi_int;
-
-    if (VSYNC_reg == hdmiVideoConfig.vertical_sync_on_polarity
-     && VSYNC != hdmiVideoConfig.vertical_sync_on_polarity)
-    begin
-        trigger_debug <= 1;
-    end
-
     if (~reset) begin
         state <= s_start;
         cmd_counter <= cs_init;
@@ -113,11 +101,22 @@ always @ (posedge clk) begin
         ready <= 0;
     end else begin
         VSYNC_reg <= VSYNC;
+
+        if (hdmi_int_prev && ~hdmi_int) begin
+            hdmi_int_reg_count = hdmi_int_reg_count + 1'b1;
+            debugData.hdmi_int_count <= debugData.hdmi_int_count + 1'b1;
+        end
+        hdmi_int_prev <= hdmi_int;
+
+        if (VSYNC_reg == hdmiVideoConfig.vertical_sync_on_polarity
+         && VSYNC != hdmiVideoConfig.vertical_sync_on_polarity)
+        begin
+            trigger_debug <= 1;
+        end
+
         case (state)
-            
             s_start: begin
                 if (i2c_done) begin
-                    
                     case (cmd_counter)
                         // cs_init: adv7513_bootstrap(cs_pwrdown);
                         // cs_pwrdown: adv7513_link_powerdown(cs_init2);
@@ -126,7 +125,7 @@ always @ (posedge clk) begin
                         // cs_pwrup: adv7513_link_powerup(cs_ready);
                         cs_init: adv7513_bootstrap(cs_init2);
                         cs_init2: adv7513_init(cs_pllcheck);
-                        cs_pllcheck: adv7513_pllcheck(cs_ready);
+                        cs_pllcheck: adv7513_pllcheck(cs_ready, cs_init);
 
                         cs_debug: adv7513_debug(cs_ctsdebug);
                         cs_ctsdebug: adv7513_ctscheck(cs_ready);
@@ -151,22 +150,28 @@ always @ (posedge clk) begin
                 if (i2c_done) begin
                     if (~i2c_ack_error) begin
                         subcmd_counter <= subcmd_counter + 1'b1;
-                    end 
+                    // end else begin
+                    //     // start over again
+                    //     cmd_counter <= cs_init;
+                    //     subcmd_counter <= scs_start;
+                    end
                     state <= s_start;
                 end
             end
 
             s_idle: begin
-                if (hdmi_int_reg) begin
-                    hdmi_int_reg <= 0;
+                if (hdmi_int_reg_count > 0) begin
+                    hdmi_int_reg_count = hdmi_int_reg_count - 1'b1;
                     ready <= 0;
                     state <= s_start;
                     cmd_counter <= cs_init;
+                    subcmd_counter <= scs_start;
                     debugData.hdmi_int_processed_count <= debugData.hdmi_int_processed_count + 1'b1;
                 end else if (trigger_debug) begin
                     trigger_debug <= 0;
                     state <= s_start;
                     cmd_counter <= cs_debug;
+                    subcmd_counter <= scs_start;
                     debugData.frame_counter <= debugData.frame_counter + 1'b1;
                 end
 
@@ -401,20 +406,20 @@ task adv7513_link_powerup;
 endtask
 
 task adv7513_pllcheck;
-    input [2:0] next_cmd;
+    input [2:0] success_cmd;
+    input [2:0] failure_cmd;
 
     begin
         case (subcmd_counter)
             0: read_i2c(CHIP_ADDR, 8'h_9E);
             1: begin
                 if (i2c_data[4]) begin
-                    cmd_counter <= next_cmd;
+                    cmd_counter <= success_cmd;
                     subcmd_counter <= scs_start;
                 end else begin // loop until pll locks
-                    debugData.pll_errors <= debugData.pll_errors + 1'b1;
-                    //cmd_counter <= cs_pllcheck;
-                    cmd_counter <= cs_init;
+                    cmd_counter <= failure_cmd;
                     subcmd_counter <= scs_start;
+                    debugData.pll_errors <= debugData.pll_errors + 1'b1;
                 end
             end
         endcase
