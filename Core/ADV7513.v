@@ -162,7 +162,7 @@ always @ (posedge clk) begin
             s_idle: begin
                 if (hdmi_int_reg_count > 0) begin
                     hdmi_int_reg_count = hdmi_int_reg_count - 1'b1;
-                    ready <= 0;
+                    //ready <= 0;
                     state <= s_start;
                     cmd_counter <= cs_init;
                     subcmd_counter <= scs_start;
