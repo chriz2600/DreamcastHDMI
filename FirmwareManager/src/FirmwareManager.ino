@@ -104,7 +104,7 @@ TaskManager taskManager;
 FlashTask flashTask(1);
 FlashESPTask flashESPTask(1);
 FlashESPIndexTask flashESPIndexTask(1);
-DebugTask debugTask(8);
+DebugTask debugTask(16);
 TimeoutTask timeoutTask(MsToTaskTime(100));
 FlashCheckTask flashCheckTask(1, NULL);
 
@@ -135,7 +135,7 @@ void closeOSD() {
     setOSD(false, NULL);
 }
 
-void waitForI2CRecover();
+void waitForI2CRecover(bool waitForError);
 void readVideoMode();
 void writeVideoMode();
 void writeVideoMode2(String vidMode);
@@ -248,7 +248,7 @@ void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler) {
     fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, [ handler, valueChanged ](uint8_t Address, uint8_t Value) {
         DBG_OUTPUT_PORT.printf("safe switch resolution callback: %u\n", Value);
         if (valueChanged) {
-            waitForI2CRecover();
+            waitForI2CRecover(false);
         }
         DBG_OUTPUT_PORT.printf("Turn FOLLOWUP save menu on!\n");
         currentMenu->endTransaction();
@@ -938,7 +938,7 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
         currentMenu->startTransaction();
         fpgaTask.Write(I2C_DC_RESET, 0, [](uint8_t Address, uint8_t Value) {
             DBG_OUTPUT_PORT.printf("reset dreamcast callback: %u\n", Value);
-            waitForI2CRecover();
+            waitForI2CRecover(true);
             DBG_OUTPUT_PORT.printf("reset dreamcast recover!\n");
             currentMenu->endTransaction();
         });
@@ -962,15 +962,17 @@ FPGATask fpgaTask(1, [](uint16_t controller_data, bool isRepeat) {
 });
 
 // poll I2C slave and wait for a no error condition with a maximum number of tries
-void waitForI2CRecover() {
+void waitForI2CRecover(bool waitForError) {
     int retryCount = I2C_RECOVER_TRIES;
     int prev_last_error = NO_ERROR;
     DBG_OUTPUT_PORT.printf("... PRE: prev_last_error/last_error %i (%u/%u)\n", retryCount, prev_last_error, last_error);
     while (retryCount >= 0) {
         fpgaTask.Read(I2C_PING, 1, NULL); 
         fpgaTask.ForceLoop();
-        if (prev_last_error != NO_ERROR && last_error == NO_ERROR) {
-            break;
+        if (waitForError) {
+            if (prev_last_error != NO_ERROR && last_error == NO_ERROR) break;
+        } else {
+            if (last_error == NO_ERROR) break;
         }
         prev_last_error = last_error;
         retryCount--;

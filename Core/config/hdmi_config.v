@@ -42,7 +42,7 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_1080P = {
     8'h_C8,         // adv_reg_3b
     8'h_10,         // adv_reg_3c
 
-    32'd14_850_000, // startup_delay
+    32'd18_562_500, // startup_delay
     32'd74_250_000, // pixel_clock
 
     32'h_BC_8D_5E_2F // 47
@@ -91,7 +91,7 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_960P = {
     8'h_C8,         // adv_reg_3b
     8'h_00,         // adv_reg_3c
 
-    32'd10_800_000, // startup_delay
+    32'd13_500_000, // startup_delay
     32'd54_000_000, // pixel_clock
 
     32'h_88_66_44_22 // 34
@@ -140,7 +140,7 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_480P = {
     8'h_80,         // adv_reg_3b
     8'h_02,         // adv_reg_3c
 
-    32'd5_400_000,  // startup_delay
+    32'd6_750_000,  // startup_delay
     32'd27_000_000, // pixel_clock
 
     32'h_44_33_22_11 // 17
@@ -189,7 +189,7 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_VGA = {
     8'h_80,         // adv_reg_3b
     8'h_01,         // adv_reg_3c
 
-    32'd5_040_000,  // startup_delay
+    32'd6_300_000,  // startup_delay
     32'd25_200_000, // pixel_clock
 
     32'h_40_30_20_10 // 16

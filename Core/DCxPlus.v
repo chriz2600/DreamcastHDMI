@@ -293,11 +293,24 @@ Flag_CrossDomain trigger(
 
 /////////////////////////////////
 // HDMI clock area
-edge_detect resync_detect(
-    .async_sig(resync),
-    .clk(hdmi_clock),
-    .rise(resync_rise)
+reg prev_resync_out = 0;
+reg resync_out = 0;
+
+Flag_CrossDomain rsync_trigger(
+    .clkA(clock54_net),
+    .FlagIn_clkA(resync),
+    .clkB(hdmi_clock),
+    .FlagOut_clkB(resync_out)
 );
+
+always @(posedge hdmi_clock) begin
+    if (~prev_resync_out && resync_out) begin
+        resync_rise <= 1'b1;
+    end else begin
+        resync_rise <= 1'b0;
+    end
+    prev_resync_out <= resync_out;
+end
 
 ram2video ram2video(
     .starttrigger(output_trigger),
@@ -345,9 +358,9 @@ startup adv7513_startup_delay(
 
 startup ram2video_startup_delay(
     .clock(hdmi_clock),
-    .nreset(adv7513_ready),
+    .nreset(pll_hdmi_locked),
     .ready(ram2video_ready),
-    .startup_delay(32'd0)
+    .startup_delay(hdmiVideoConfig.startup_delay)
 );
 
 text_ram text_ram_inst(
@@ -412,7 +425,7 @@ always @(posedge reset_clock) begin
         dc_nreset_reg <= 1'b0;
     end else begin
         counter <= counter + 1;
-        if (counter == 800_000) begin /* 10ms@80MHz, 13ms@60MHz, ... */
+        if (counter == 8_000_000) begin /* 100ms@80MHz, 133ms@60MHz, ... */
             dc_nreset_reg <= 1'b1;
         end
     end
