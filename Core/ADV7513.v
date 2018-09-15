@@ -217,7 +217,7 @@ task adv7513_monitor_hpd;
             1: read_i2c(CHIP_ADDR, 8'h_42);
             2: begin
                 if (i2c_data[6] && i2c_data[5]) begin
-                    hpd_ready_counter <= hpd_ready_counter + 1;
+                    hpd_ready_counter <= hpd_ready_counter + 1'b1;
                 end else begin
                     hpd_ready_counter <= 0;
                 end

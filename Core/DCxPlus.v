@@ -98,8 +98,6 @@ HDMIVideoConfig hdmiVideoConfig;
 DCVideoConfig dcVideoConfig;
 Scanline scanline;
 wire forceVGAMode;
-wire pll54_lockloss;
-wire pll_hdmi_lockloss;
 wire resetPLL;
 wire resync;
 
@@ -107,7 +105,7 @@ wire generate_video;
 wire generate_timing;
 wire fullcycle;
 wire reset_dc;
-wire reset_clock;
+wire control_clock;
 wire hdmi_int_reg;
 wire hpd_detected;
 
@@ -128,22 +126,10 @@ configuration configurator(
 // PLLs
 pll54 pll54(
     .inclk0(clock54),
-    .areset(1'b0),
-    //.areset(pll54_lockloss),
+    //.areset(1'b0),
+    .areset(pll54_lockloss),
     .c0(clock54_net),
     .locked(pll54_locked)
-);
-
-edge_detect pll54_lockloss_check(
-    .async_sig(pll54_locked),
-    .clk(clock54),
-    .fall(pll54_lockloss)
-);
-
-edge_detect pll_hdmi_lockloss_check(
-    .async_sig(pll_hdmi_locked),
-    .clk(clock54),
-    .fall(pll_hdmi_lockloss)
 );
 
 pll_hdmi pll_hdmi(
@@ -164,23 +150,12 @@ pll_hdmi pll_hdmi(
 
 pll_hdmi_reconf	pll_hdmi_reconf(
     .clock(clock54_net),
-
     .reconfig(pll_hdmi_reconfig),
-
-    // not connected
-    //.read_param(read_param_sig),
-    //.write_param(write_param_sig),
-    //.reset(reset_sig),
-    //.reset_rom_address(reset_rom_address_sig),
-    //.busy(busy_sig),
-    //.data_out(data_out_sig),
-
     .data_in(9'b0),
     .counter_type(4'b0),
     .counter_param(3'b0),
 
-    //.pll_areset_in(1'b0),
-    .pll_areset_in(resetPLL || ~pll54_locked),
+    .pll_areset_in(resetPLL || pll54_lockloss || pll_hdmi_lockloss),
 
     .pll_scandataout(pll_hdmi_scandataout),
     .pll_scandone(pll_hdmi_scandone),
@@ -328,7 +303,7 @@ Signal_CrossDomain addLine(
 ram2video ram2video(
     .starttrigger(output_trigger),
     .clock(hdmi_clock),
-    .reset(~ram2video_ready || resync_signal),
+    .reset(~pll_hdmi_locked || ~ram2video_ready || resync_signal),
     .line_doubler(line_doubler_sync),
     .add_line(add_line_sync),
     .rddata(ram_rddata),
@@ -388,18 +363,33 @@ maple mapleBus(
 );
 
 // reset clock circuit
-osc reset_clock_gen(
+osc control_clock_gen(
     .oscena(1'b1),
-    .clkout(reset_clock)
+    .clkout(control_clock)
 );
 
 ////////////////////////////////////////////////////////////////////////
 // dreamcast reset
 ////////////////////////////////////////////////////////////////////////
+reg pll54_lockloss;
+reg pll_hdmi_lockloss;
+
+edge_detect pll54_lockloss_check(
+    .async_sig(~pll54_locked),
+    .clk(control_clock),
+    .rise(pll54_lockloss),
+);
+
+edge_detect pll_hdmi_lockloss_check(
+    .async_sig(~pll_hdmi_locked),
+    .clk(control_clock),
+    .rise(pll_hdmi_lockloss),
+);
+
 Flag_CrossDomain reset_trigger(
     .clkA(hdmi_clock),
     .FlagIn_clkA(reset_dc),
-    .clkB(reset_clock),
+    .clkB(control_clock),
     .FlagOut_clkB(reset_dc_out)
 );
 
@@ -409,7 +399,7 @@ wire reset_dc_out;
 
 assign DC_NRESET = dc_nreset_reg ? 1'bz : 1'b0;
 
-always @(posedge reset_clock) begin
+always @(posedge control_clock) begin
     if (reset_dc_out) begin
         counter <= 0;
         dc_nreset_reg <= 1'b0;
@@ -440,25 +430,25 @@ wire ram2video_fullcycle;
 
 Signal_CrossDomain pll_hdmi_locked_check_adv(
     .SignalIn_clkA(pll_hdmi_locked),
-    .clkB(reset_clock),
+    .clkB(control_clock),
     .SignalOut_clkB(pll_hdmi_ready)
 );
 
 Signal_CrossDomain ram2video_fullcycle_check_adv(
     .SignalIn_clkA(fullcycle),
-    .clkB(reset_clock),
+    .clkB(control_clock),
     .SignalOut_clkB(ram2video_fullcycle)
 );
 
 startup adv7513_startup_delay(
-    .clock(reset_clock),
+    .clock(control_clock),
     .nreset(1'b1),
     .ready(adv7513_reset),
     .startup_delay(32'd_16_000_000)
 );
 
 reconf_fifo	reconf_fifo_adv(
-    .rdclk(reset_clock),
+    .rdclk(control_clock),
     .rdreq(reconf_fifo2_rdreq),
     .rdempty(reconf_fifo2_rdempty),
     .q(reconf_fifo2_q),
@@ -470,7 +460,7 @@ reconf_fifo	reconf_fifo_adv(
 );
 
 reconf_adv reconf_adv(
-    .clock(reset_clock),
+    .clock(control_clock),
     .rdempty(reconf_fifo2_rdempty),
     .fdata(reconf_fifo2_q),
     .rdreq(reconf_fifo2_rdreq),
@@ -478,7 +468,7 @@ reconf_adv reconf_adv(
 );
 
 ADV7513 adv7513(
-    .clk(reset_clock),
+    .clk(control_clock),
     .reset(adv7513_reset),
     .hdmi_int(HDMI_INT_N),
     .output_ready(pll_hdmi_ready && ram2video_fullcycle),
