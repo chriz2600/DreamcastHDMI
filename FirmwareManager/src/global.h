@@ -147,4 +147,6 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 #define SCANLINES_THICK "thick"
 #define SCANLINES_THIN "thin"
 
+#define RESOLUTION_SWITCH_TIMEOUT 20000
+
 #endif

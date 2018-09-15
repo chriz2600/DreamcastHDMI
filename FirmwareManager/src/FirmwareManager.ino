@@ -178,7 +178,7 @@ Menu outputResSaveMenu("OutputResSaveMenu", (uint8_t*) OSD_OUTPUT_RES_SAVE_MENU,
         return;
     }
 }, NULL, [](uint8_t Address, uint8_t Value) {
-    timeoutTask.setTimeout(15000);
+    timeoutTask.setTimeout(RESOLUTION_SWITCH_TIMEOUT);
     timeoutTask.setTimeoutCallback([](uint32_t timedone, bool done) {
         if (done) {
             taskManager.StopTask(&timeoutTask);

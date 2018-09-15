@@ -4,7 +4,7 @@ module ADV7513(
     input clk,
     input reset,
     input hdmi_int,
-    input pll_hdmi_ready,
+    input output_ready,
 
     inout sda,
     inout scl,
@@ -66,9 +66,11 @@ localparam  cs_init     = 3'd0,
 localparam  scs_start = 6'd0;
 
 reg hdmi_int_prev = 1;
+reg [7:0] hpd_ready_counter;
 
 initial begin
     ready <= 0;
+    hpd_ready_counter <= 0;
 end
 
 always @ (posedge clk) begin
@@ -83,7 +85,8 @@ always @ (posedge clk) begin
         cmd_counter <= cs_pwrdown;
         subcmd_counter <= scs_start;
         i2c_enable <= 1'b0;
-        ready <= 0;
+        ready <= 1'b0;
+        hpd_ready_counter <= 1'b0;
     end else begin
         case (state)
             s_start: begin
@@ -98,6 +101,7 @@ always @ (posedge clk) begin
                             cmd_counter <= cs_init;
                             subcmd_counter <= scs_start;
                             state <= s_idle;
+                            ready <= 1'b1;
                         end
                     endcase
                 end
@@ -124,11 +128,13 @@ always @ (posedge clk) begin
                     cmd_counter <= cs_init;
                     subcmd_counter <= scs_start;
                     hdmi_int_reg = 1'b0;
+                    hpd_ready_counter <= 1'b0;
                     ready <= 1'b0;
-                end else if (~pll_hdmi_ready) begin
+                end else if (~output_ready) begin
                     state <= s_start;
                     cmd_counter <= cs_pwrdown;
                     subcmd_counter <= scs_start;
+                    hpd_ready_counter <= 1'b0;
                     ready <= 1'b0;
                 end
             end
@@ -211,6 +217,11 @@ task adv7513_monitor_hpd;
             1: read_i2c(CHIP_ADDR, 8'h_42);
             2: begin
                 if (i2c_data[6] && i2c_data[5]) begin
+                    hpd_ready_counter <= hpd_ready_counter + 1;
+                end else begin
+                    hpd_ready_counter <= 0;
+                end
+                if (hpd_ready_counter == 255) begin
                     cmd_counter <= success_cmd;
                     subcmd_counter <= scs_start;
                     hpd_detected <= 1'b1;
@@ -374,7 +385,7 @@ task adv7513_pllcheck;
     begin
         case (subcmd_counter)
             0: begin
-                if (pll_hdmi_ready) begin
+                if (output_ready) begin
                     // proceed to next command
                     subcmd_counter <= subcmd_counter + 1'b1;
                 end else begin
@@ -386,7 +397,6 @@ task adv7513_pllcheck;
             default: begin
                 cmd_counter <= success_cmd;
                 subcmd_counter <= scs_start;
-                ready <= 1'b1;
             end
         endcase
     end

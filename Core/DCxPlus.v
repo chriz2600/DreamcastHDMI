@@ -239,7 +239,7 @@ trigger_reconf trigger_reconf(
 // 54/27 MHz area
 data video_input(
     .clock(clock54_net),
-    .reset(pll54_locked),
+    .reset(~pll54_locked),
     ._hsync(_hsync),
     ._vsync(_vsync),
     .line_doubler(_240p_480i_mode),
@@ -424,11 +424,18 @@ wire reconf_fifo2_rdempty;
 wire [7:0] reconf_fifo2_q;
 wire reconf_fifo2_rdreq;
 wire pll_hdmi_ready;
+wire ram2video_fullcycle;
 
 Signal_CrossDomain pll_hdmi_locked_check_adv(
     .SignalIn_clkA(pll_hdmi_locked),
     .clkB(reset_clock),
     .SignalOut_clkB(pll_hdmi_ready)
+);
+
+Signal_CrossDomain ram2video_fullcycle_check_adv(
+    .SignalIn_clkA(fullcycle),
+    .clkB(reset_clock),
+    .SignalOut_clkB(ram2video_fullcycle)
 );
 
 startup adv7513_startup_delay(
@@ -462,7 +469,7 @@ ADV7513 adv7513(
     .clk(reset_clock),
     .reset(adv7513_reset),
     .hdmi_int(HDMI_INT_N),
-    .pll_hdmi_ready(pll_hdmi_ready),
+    .output_ready(pll_hdmi_ready && ram2video_fullcycle),
     .sda(SDAT),
     .scl(SCLK),
     .ready(adv7513_ready),
