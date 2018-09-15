@@ -4,6 +4,7 @@ create_timing_netlist -model slow
 read_sdc
 update_timing_netlist
 
+check_timing -include {latches loops}
 report_timing \
     -setup \
     -npaths 2000 \

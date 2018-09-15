@@ -69,7 +69,7 @@ module video2ram(
         trigger <= 0;
     end
 
-    always @ (posedge clock) begin
+    always @ (posedge clock or negedge nreset) begin
         if (~nreset) begin
             wren_reg <= 0;
             wrdata_reg <= 24'd0;

@@ -90,7 +90,6 @@ wire [7:0] text_rddata;
 wire [9:0] text_wraddr;
 wire [7:0] text_wrdata;
 wire text_wren;
-wire restart;
 wire enable_osd;
 wire [7:0] highlight_line;
 //DebugData debugData;
@@ -103,7 +102,6 @@ wire pll54_lockloss;
 wire pll_hdmi_lockloss;
 wire resetPLL;
 wire resync;
-wire resync_rise;
 
 wire generate_video;
 wire generate_timing;
@@ -295,6 +293,9 @@ Flag_CrossDomain trigger(
 // HDMI clock area
 reg prev_resync_out = 0;
 reg resync_out = 0;
+reg resync_signal = 1;
+wire line_doubler_sync;
+wire add_line_sync;
 
 Flag_CrossDomain rsync_trigger(
     .clkA(clock54_net),
@@ -305,19 +306,31 @@ Flag_CrossDomain rsync_trigger(
 
 always @(posedge hdmi_clock) begin
     if (~prev_resync_out && resync_out) begin
-        resync_rise <= 1'b1;
-    end else begin
-        resync_rise <= 1'b0;
+        resync_signal <= 1'b1;
+    end else if (prev_resync_out && ~resync_out) begin
+        resync_signal <= 1'b0;
     end
     prev_resync_out <= resync_out;
 end
 
+Signal_CrossDomain lineDoubler(
+    .SignalIn_clkA(_240p_480i_mode),
+    .clkB(hdmi_clock),
+    .SignalOut_clkB(line_doubler_sync)
+);
+
+Signal_CrossDomain addLine(
+    .SignalIn_clkA(add_line_mode),
+    .clkB(hdmi_clock),
+    .SignalOut_clkB(add_line_sync)
+);
+
 ram2video ram2video(
     .starttrigger(output_trigger),
     .clock(hdmi_clock),
-    .reset(ram2video_ready && ~resync_rise),
-    .line_doubler(_240p_480i_mode),
-    .add_line(add_line_mode),
+    .reset(~ram2video_ready || resync_signal),
+    .line_doubler(line_doubler_sync),
+    .add_line(add_line_sync),
     .rddata(ram_rddata),
     .hsync(HSYNC),
     .vsync(VSYNC),
@@ -325,7 +338,6 @@ ram2video ram2video(
     .rdaddr(ram_rdaddress),
     .text_rddata(text_rddata),
     .text_rdaddr(text_rdaddr),
-    .restart(restart),
     .video_out(VIDEO),
     .enable_osd(enable_osd),
     .highlight_line(highlight_line),
