@@ -95,21 +95,7 @@ typedef struct packed {
     reg [14:0] ram_numwords;                // size of video buffer, 21120 for 1080p
     reg pixel_repetition;                   // 0: pixel repetition OFF, 1: pixel repetition ON
 
-    // ADV7513 configuration
-    reg [7:0] adv_reg_17;                   // 02: 16:9, 00: 4:3
-    reg [7:0] adv_reg_3b;                   // C8: input pll x2, 80: input pll x1
-    reg [7:0] adv_reg_3c;                   // 00 | vic_manual
-
     reg [31:0] startup_delay;               // pixel_clk * 200ms / 1000ms
-    reg [31:0] pixel_clock;                 // pixel clock
-
-    // I2C master clock divisions
-    // divider = (pixel_clock / bus_clk) / 4; bus_clk = 400_000
-    // divider[31:24] = div4
-    // divider[23:16] = div3
-    // divider[15:8]  = div2
-    // divider[7:0]   = div1
-    reg [31:0] divider;
 } HDMIVideoConfig;
 
 typedef struct packed {
@@ -140,3 +126,9 @@ typedef struct packed {
     reg active;         // 00
 } Scanline;
 
+typedef struct packed {
+    // ADV7513 configuration
+    reg [7:0] adv_reg_17; // 02: 16:9, 00: 4:3
+    reg [7:0] adv_reg_3b; // C8: input pll x2, 80: input pll x1
+    reg [7:0] adv_reg_3c; // 00 | vic_manual
+} ADV7513Config;

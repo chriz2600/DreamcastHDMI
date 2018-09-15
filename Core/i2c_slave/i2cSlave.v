@@ -60,7 +60,7 @@ module i2cSlave (
   output HDMIVideoConfig hdmiVideoConfig,
   output Scanline scanline,
   output reset_dc,
-  input DebugData debugData,
+  //input DebugData debugData,
   input ControllerData controller_data
 );
 
@@ -170,7 +170,7 @@ registerInterface u_registerInterface(
   .ram_wraddress(ram_wraddress),
   .ram_wren(ram_wren),
   .enable_osd(enable_osd),
-  .debugData(debugData),
+  //.debugData(debugData),
   .controller_data(controller_data),
   .highlight_line(highlight_line),
   .reconf_data(reconf_data),

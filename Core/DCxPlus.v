@@ -83,8 +83,6 @@ wire output_trigger;
 wire _240p_480i_mode;
 wire add_line_mode;
 
-wire adv7513_reset;
-wire adv7513_ready;
 wire ram2video_ready;
 
 wire [9:0] text_rdaddr;
@@ -95,7 +93,7 @@ wire text_wren;
 wire restart;
 wire enable_osd;
 wire [7:0] highlight_line;
-DebugData debugData;
+//DebugData debugData;
 ControllerData controller_data;
 HDMIVideoConfig hdmiVideoConfig;
 DCVideoConfig dcVideoConfig;
@@ -112,9 +110,11 @@ wire generate_timing;
 wire fullcycle;
 wire reset_dc;
 wire reset_clock;
+wire hdmi_int_reg;
+wire hpd_detected;
 
 assign clock54_out = clock54_net;
-assign status_led_nreset = ~fullcycle;
+assign status_led_nreset = ~adv7513_ready;
 
 // DC config in, ics config out
 configuration configurator(
@@ -152,7 +152,7 @@ pll_hdmi pll_hdmi(
     .inclk0(clock74_175824),
     .c0(hdmi_clock),
     .c1(CLOCK),
-    .locked (pll_hdmi_locked),
+    .locked(pll_hdmi_locked),
 
     .areset(pll_hdmi_areset),
     .scanclk(pll_hdmi_scanclk),
@@ -334,28 +334,6 @@ ram2video ram2video(
     .fullcycle(fullcycle)
 );
 
-ADV7513 adv7513(
-    .clk(hdmi_clock),
-    .reset(adv7513_reset),
-    .hdmi_int(HDMI_INT_N),
-    .VSYNC(VSYNC),
-    .DE(DE),
-    .sda(SDAT),
-    .scl(SCLK),
-    .restart(restart),
-    .resync_rise(resync_rise),
-    .ready(adv7513_ready),
-    .debugData_out(debugData),
-    .hdmiVideoConfig(hdmiVideoConfig)
-);
-
-startup adv7513_startup_delay(
-    .clock(hdmi_clock),
-    .nreset(pll_hdmi_locked),
-    .ready(adv7513_reset),
-    .startup_delay(hdmiVideoConfig.startup_delay)
-);
-
 startup ram2video_startup_delay(
     .clock(hdmi_clock),
     .nreset(pll_hdmi_locked),
@@ -381,7 +359,7 @@ i2cSlave i2cSlave(
     .ram_wraddress(text_wraddr),
     .ram_wren(text_wren),
     .enable_osd(enable_osd),
-    .debugData(debugData),
+    //.debugData(debugData),
     .controller_data(controller_data),
     .highlight_line(highlight_line),
     .reconf_data(reconf_data),
@@ -431,5 +409,66 @@ always @(posedge reset_clock) begin
     end
 end
 ////////////////////////////////////////////////////////////////////////
+    // // I2C master clock divisions
+    // // divider = (pixel_clock / bus_clk) / 4; bus_clk = 400_000
+    // // divider[31:24] = div4
+    // // divider[23:16] = div3
+    // // divider[15:8]  = div2
+    // // divider[7:0]   = div1
+    // reg [31:0] divider;
+
+wire adv7513_reset;
+wire adv7513_ready;
+ADV7513Config adv7513Config;
+wire reconf_fifo2_rdempty;
+wire [7:0] reconf_fifo2_q;
+wire reconf_fifo2_rdreq;
+wire pll_hdmi_ready;
+
+Signal_CrossDomain pll_hdmi_locked_check_adv(
+    .SignalIn_clkA(pll_hdmi_locked),
+    .clkB(reset_clock),
+    .SignalOut_clkB(pll_hdmi_ready)
+);
+
+startup adv7513_startup_delay(
+    .clock(reset_clock),
+    .nreset(1'b1),
+    .ready(adv7513_reset),
+    .startup_delay(32'd_16_000_000)
+);
+
+reconf_fifo	reconf_fifo_adv(
+    .rdclk(reset_clock),
+    .rdreq(reconf_fifo2_rdreq),
+    .rdempty(reconf_fifo2_rdempty),
+    .q(reconf_fifo2_q),
+
+    .wrclk(hdmi_clock),
+    .data(reconf_fifo_data),
+    .wrreq(reconf_fifo_wrreq),
+    .wrfull(reconf_fifo_wrfull)
+);
+
+reconf_adv reconf_adv(
+    .clock(reset_clock),
+    .rdempty(reconf_fifo2_rdempty),
+    .fdata(reconf_fifo2_q),
+    .rdreq(reconf_fifo2_rdreq),
+    .adv7513Config(adv7513Config)
+);
+
+ADV7513 adv7513(
+    .clk(reset_clock),
+    .reset(adv7513_reset),
+    .hdmi_int(HDMI_INT_N),
+    .pll_hdmi_ready(pll_hdmi_ready),
+    .sda(SDAT),
+    .scl(SCLK),
+    .ready(adv7513_ready),
+    .adv7513Config(adv7513Config),
+    .hdmi_int_reg(hdmi_int_reg),
+    .hpd_detected(hpd_detected)
+);
 
 endmodule

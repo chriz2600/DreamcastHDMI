@@ -897,6 +897,17 @@ Menu infoMenu("InfoMenu", (uint8_t*) OSD_INFO_MENU, NO_SELECT_LINE, NO_SELECT_LI
         currentMenu->Display();
         return;
     }
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_X)) {
+        DBG_OUTPUT_PORT.printf("reset dreamcast!!!!! %x\n", controller_data);
+        currentMenu->startTransaction();
+        fpgaTask.Write(I2C_DC_RESET, 0, [](uint8_t Address, uint8_t Value) {
+            DBG_OUTPUT_PORT.printf("reset dreamcast callback: %u\n", Value);
+            waitForI2CRecover(true);
+            DBG_OUTPUT_PORT.printf("reset dreamcast recover!\n");
+            currentMenu->endTransaction();
+        });
+        return;
+    }
 }, NULL, [](uint8_t Address, uint8_t Value) {
     taskManager.StartTask(&debugTask);
 });
@@ -931,17 +942,6 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
                 currentMenu->Display();
                 break;
         }
-        return;
-    }
-    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_X)) {
-        DBG_OUTPUT_PORT.printf("reset dreamcast!!!!! %x\n", controller_data);
-        currentMenu->startTransaction();
-        fpgaTask.Write(I2C_DC_RESET, 0, [](uint8_t Address, uint8_t Value) {
-            DBG_OUTPUT_PORT.printf("reset dreamcast callback: %u\n", Value);
-            waitForI2CRecover(true);
-            DBG_OUTPUT_PORT.printf("reset dreamcast recover!\n");
-            currentMenu->endTransaction();
-        });
         return;
     }
 }, NULL, NULL);

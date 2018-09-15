@@ -52,6 +52,8 @@ set_global_assignment -name VERILOG_FILE maple_bus/maple.v
 set_global_assignment -name VERILOG_FILE maple_bus/maple_in.v
 set_global_assignment -name VERILOG_FILE pll_hdmi/reconf_rom.v
 set_global_assignment -name VERILOG_FILE pll_hdmi/trigger_reconf.v
+set_global_assignment -name VERILOG_FILE reconf_adv.v
+set_global_assignment -name VERILOG_FILE Signal_CrossDomain.v
 set_global_assignment -name SDC_FILE DCxPlus.sdc
 set_global_assignment -name SIGNALTAP_FILE stp1.stp
 set_global_assignment -name CDF_FILE "DCxPlus.cdf"
