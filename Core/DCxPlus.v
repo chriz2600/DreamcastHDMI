@@ -108,6 +108,7 @@ wire reset_dc;
 wire control_clock;
 wire hdmi_int_reg;
 wire hpd_detected;
+wire config_changed;
 
 assign clock54_out = clock54_net;
 assign status_led_nreset = ~adv7513_ready;
@@ -119,7 +120,8 @@ configuration configurator(
     ._480p_active_n(video_mode_480p_n),
     .forceVGAMode(forceVGAMode),
     .line_doubler(_240p_480i_mode),
-    .clock_config_S(S)
+    .clock_config_S(S),
+    .config_changed(config_changed)
 );
 
 /////////////////////////////////
@@ -212,7 +214,7 @@ trigger_reconf trigger_reconf(
 // 54/27 MHz area
 data video_input(
     .clock(clock54_net),
-    .reset(~pll54_locked),
+    .reset(~pll54_locked || config_changed),
     ._hsync(_hsync),
     ._vsync(_vsync),
     .line_doubler(_240p_480i_mode),

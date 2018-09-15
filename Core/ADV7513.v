@@ -55,23 +55,21 @@ localparam  s_start  = 0,
             s_wait   = 1,
             s_wait_2 = 2,
             s_idle   = 3;
-localparam  cs_init     = 3'd0,
-            cs_init2    = 3'd1,
-            cs_debug    = 3'd2,
+localparam  cs_pwrdown  = 3'd0,
+            cs_init     = 3'd1,
+            cs_init2    = 3'd2,
             cs_pllcheck = 3'd3,
-            cs_pwrup    = 3'd4,
-            cs_pwrdown  = 3'd5,
-            cs_ctsdebug = 3'd6,
-            cs_ready    = 3'd7;
+            cs_hpdcheck = 3'd4,
+            cs_ready    = 3'd5;
 localparam  scs_start = 6'd0;
 
 reg hdmi_int_prev = 1;
-reg [7:0] hpd_ready_counter;
 
 initial begin
     ready <= 0;
-    hpd_ready_counter <= 0;
 end
+
+reg [32:0] counter = 0;
 
 always @ (posedge clk) begin
 
@@ -86,16 +84,17 @@ always @ (posedge clk) begin
         subcmd_counter <= scs_start;
         i2c_enable <= 1'b0;
         ready <= 1'b0;
-        hpd_ready_counter <= 1'b0;
     end else begin
         case (state)
             s_start: begin
                 if (i2c_done) begin
                     case (cmd_counter)
-                        cs_init: adv7513_monitor_hpd(cs_init2, cs_pwrdown);
                         cs_pwrdown: adv7513_powerdown(cs_init);
+                        cs_init: adv7513_monitor_hpd(cs_init2, cs_pwrdown);
                         cs_init2: adv7513_init(cs_pllcheck);
                         cs_pllcheck: adv7513_pllcheck(cs_ready, cs_pllcheck);
+
+                        cs_hpdcheck: adv7513_monitor_hpd(cs_ready, cs_pwrdown);
 
                         default: begin
                             cmd_counter <= cs_init;
@@ -123,19 +122,24 @@ always @ (posedge clk) begin
             end
 
             s_idle: begin
-                if (hdmi_int_reg) begin
+                if (~output_ready) begin
+                    state <= s_start;
+                    cmd_counter <= cs_pwrdown;
+                    subcmd_counter <= scs_start;
+                    ready <= 1'b0;
+                end else if (hdmi_int_reg) begin
                     state <= s_start;
                     cmd_counter <= cs_init;
                     subcmd_counter <= scs_start;
                     hdmi_int_reg = 1'b0;
-                    hpd_ready_counter <= 1'b0;
                     ready <= 1'b0;
-                end else if (~output_ready) begin
+                end else if (counter == 32'd_16_000_000) begin
                     state <= s_start;
-                    cmd_counter <= cs_pwrdown;
+                    cmd_counter <= cs_hpdcheck;
                     subcmd_counter <= scs_start;
-                    hpd_ready_counter <= 1'b0;
-                    ready <= 1'b0;
+                    counter <= 1'b0;
+                end else begin
+                    counter <= counter + 1'b1;
                 end
             end
             
@@ -217,11 +221,6 @@ task adv7513_monitor_hpd;
             1: read_i2c(CHIP_ADDR, 8'h_42);
             2: begin
                 if (i2c_data[6] && i2c_data[5]) begin
-                    hpd_ready_counter <= hpd_ready_counter + 1'b1;
-                end else begin
-                    hpd_ready_counter <= 0;
-                end
-                if (hpd_ready_counter == 255) begin
                     cmd_counter <= success_cmd;
                     subcmd_counter <= scs_start;
                     hpd_detected <= 1'b1;
