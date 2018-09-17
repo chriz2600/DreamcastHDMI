@@ -43,6 +43,9 @@ class FPGATask : public Task {
             stringLength = strlen((char*) charData);
             localAddress = row * 40 + column;
             left = stringLength;
+            if (data_in != NULL) {
+                free(data_in); data_in = NULL;
+            }
             data_in = (uint8_t*) malloc(stringLength);
             memcpy(data_in, charData, stringLength);
             updateOSDContent = true;
@@ -196,7 +199,7 @@ class FPGATask : public Task {
         virtual void OnStop() {
             DBG_OUTPUT_PORT.printf("OnStop\n");
             if (data_in != NULL) {
-                free(data_in);
+                free(data_in); data_in = NULL;
             }
         }
 };

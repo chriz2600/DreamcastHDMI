@@ -162,7 +162,7 @@ void setScanlines(uint8_t upper, uint8_t lower, WriteCallbackHandlerFunction han
 ///////////////////////////////////////////////////////////////////
 
 Menu outputResSaveMenu("OutputResSaveMenu", (uint8_t*) OSD_OUTPUT_RES_SAVE_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         taskManager.StopTask(&timeoutTask);
         safeSwitchResolution(PrevCurrentResolution, [](uint8_t Address, uint8_t Value){
             currentMenu = &outputResMenu;
@@ -170,7 +170,7 @@ Menu outputResSaveMenu("OutputResSaveMenu", (uint8_t*) OSD_OUTPUT_RES_SAVE_MENU,
         });
         return;
     }
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
         taskManager.StopTask(&timeoutTask);
         writeCurrentResolution();
         currentMenu = &outputResMenu;
@@ -199,12 +199,12 @@ Menu outputResSaveMenu("OutputResSaveMenu", (uint8_t*) OSD_OUTPUT_RES_SAVE_MENU,
 ///////////////////////////////////////////////////////////////////
 
 Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRST_SELECT_LINE, MENU_OR_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu = &mainMenu;
         currentMenu->Display();
         return;
     }
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
         uint8_t value = RESOLUTION_1080p;
 
         switch (menu_activeLine) {
@@ -260,12 +260,12 @@ void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler) {
 ///////////////////////////////////////////////////////////////////
 
 Menu videoModeMenu("VideoModeMenu", (uint8_t*) OSD_VIDEO_MODE_MENU, MENU_VM_FIRST_SELECT_LINE, MENU_VM_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu = &mainMenu;
         currentMenu->Display();
         return;
     }
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
         String vidMode = VIDEO_MODE_STR_CABLE_DETECT;
 
         switch (menu_activeLine) {
@@ -307,7 +307,11 @@ Menu videoModeMenu("VideoModeMenu", (uint8_t*) OSD_VIDEO_MODE_MENU, MENU_VM_FIRS
 ///////////////////////////////////////////////////////////////////
 
 Menu videoModeSaveMenu("VideoModeSaveMenu", (uint8_t*) OSD_VIDEO_MODE_SAVE_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+        resetall();
+        return;
+    }
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu = &videoModeMenu;
         currentMenu->Display();
         return;
@@ -317,13 +321,13 @@ Menu videoModeSaveMenu("VideoModeSaveMenu", (uint8_t*) OSD_VIDEO_MODE_SAVE_MENU,
 ///////////////////////////////////////////////////////////////////
 
 Menu firmwareMenu("FirmwareMenu", (uint8_t*) OSD_FIRMWARE_MENU, MENU_FW_FIRST_SELECT_LINE, MENU_FW_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu->StoreMenuActiveLine(MENU_FW_FIRST_SELECT_LINE);
         currentMenu = &mainMenu;
         currentMenu->Display();
         return;
     }
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
         switch (menu_activeLine) {
             case MENU_FW_CHECK_LINE:
                 currentMenu = &firmwareCheckMenu;
@@ -349,12 +353,12 @@ Menu firmwareMenu("FirmwareMenu", (uint8_t*) OSD_FIRMWARE_MENU, MENU_FW_FIRST_SE
 ///////////////////////////////////////////////////////////////////
 
 Menu firmwareCheckMenu("FirmwareCheckMenu", (uint8_t*) OSD_FIRMWARE_CHECK_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu = &firmwareMenu;
         currentMenu->Display();
         return;
     }
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
         if (!firmwareCheckStarted) {
             firmwareCheckStarted = true;
             md5CheckResult = false;
@@ -453,12 +457,12 @@ ContentCallback createMD5Callback(int pos, int line, char* storedMD5Sum) {
 ///////////////////////////////////////////////////////////////////
 
 Menu firmwareDownloadMenu("FirmwareDownloadMenu", (uint8_t*) OSD_FIRMWARE_DOWNLOAD_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu = &firmwareMenu;
         currentMenu->Display();
         return;
     }
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
         if (!firmwareDownloadStarted) {
             firmwareDownloadStarted = true;
             newFWDownloaded = false;
@@ -606,12 +610,12 @@ ContentCallback createMD5DownloadCallback(int pos, bool forceDownload, int line,
 ///////////////////////////////////////////////////////////////////
 
 Menu firmwareFlashMenu("FirmwareFlashMenu", (uint8_t*) OSD_FIRMWARE_FLASH_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu = &firmwareMenu;
         currentMenu->Display();
         return;
     }
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
         if (!firmwareFlashStarted) {
             firmwareFlashStarted = true;
             newFWFlashed = false;
@@ -766,12 +770,12 @@ ProgressCallback createFlashProgressCallback(int pos, bool force, int line) {
 ///////////////////////////////////////////////////////////////////
 
 Menu firmwareResetMenu("FirmwareResetMenu", (uint8_t*) OSD_FIRMWARE_RESET_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu = &firmwareMenu;
         currentMenu->Display();
         return;
     }
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
         resetall();
         return;
     }
@@ -801,7 +805,7 @@ void displayProgress(int read, int total, int line) {
 ///////////////////////////////////////////////////////////////////
 
 Menu scanlinesMenu("ScanlinesMenu", (uint8_t*) OSD_SCANLINES_MENU, MENU_SL_FIRST_SELECT_LINE, MENU_SL_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         // restoreScanlines
         readScanlinesActive();
         readScanlinesIntensity();
@@ -814,7 +818,7 @@ Menu scanlinesMenu("ScanlinesMenu", (uint8_t*) OSD_SCANLINES_MENU, MENU_SL_FIRST
         return;
     }
 
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
         // restoreScanlines
         writeScanlinesActive();
         writeScanlinesIntensity();
@@ -891,7 +895,7 @@ Menu scanlinesMenu("ScanlinesMenu", (uint8_t*) OSD_SCANLINES_MENU, MENU_SL_FIRST
 ///////////////////////////////////////////////////////////////////
 
 Menu infoMenu("InfoMenu", (uint8_t*) OSD_INFO_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         taskManager.StopTask(&debugTask);
         currentMenu = &mainMenu;
         currentMenu->Display();
@@ -914,12 +918,12 @@ Menu infoMenu("InfoMenu", (uint8_t*) OSD_INFO_MENU, NO_SELECT_LINE, NO_SELECT_LI
 
 ///////////////////////////////////////////////////////////////////
 Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, MENU_M_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu->StoreMenuActiveLine(MENU_M_FIRST_SELECT_LINE);
         closeOSD();
         return;
     }
-    if (CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
         switch (menu_activeLine) {
             case MENU_M_OR:
                 currentMenu = &outputResMenu;
@@ -951,7 +955,7 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
 ///////////////////////////////////////////////////////////////////
 
 FPGATask fpgaTask(1, [](uint16_t controller_data, bool isRepeat) {
-    if (!OSDOpen && CHECK_BIT(controller_data, CTRLR_TRIGGER_OSD)) {
+    if (!OSDOpen && !isRepeat && CHECK_BIT(controller_data, CTRLR_TRIGGER_OSD)) {
         openOSD();
         return;
     }

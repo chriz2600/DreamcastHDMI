@@ -249,7 +249,7 @@ task adv7513_init;
             2: write_i2c(CHIP_ADDR, 16'h_98_03); // Fixed register
             3: write_i2c(CHIP_ADDR, 16'h_9A_E0); // Fixed register
             4: write_i2c(CHIP_ADDR, 16'h_9C_30); // Fixed register
-            5: write_i2c(CHIP_ADDR, 16'h_9D_01); // Fixed register
+            5: write_i2c(CHIP_ADDR, 16'h_9D_61); // Fixed register
             6: write_i2c(CHIP_ADDR, 16'h_A2_A4); // Fixed register
             7: write_i2c(CHIP_ADDR, 16'h_A3_A4); // Fixed register
             8: write_i2c(CHIP_ADDR, 16'h_E0_D0); // Fixed register
@@ -291,9 +291,9 @@ task adv7513_init;
                                                     // [6:4]: audio select = 0b000, I2S
                                                     // [3:2]: audio mode = 0b00, default (HBR not used)
                                                     // [1:0]: MCLK Ratio = 0b00, 128xfs
-            18: write_i2c(CHIP_ADDR, 16'h_01_00); // [3:0] \
-            19: write_i2c(CHIP_ADDR, 16'h_02_18); // [7:0]  |--> [19:0]: audio clock regeneration N value, 44.1kHz@automatic CTS = 0x1880 (6272)
-            20: write_i2c(CHIP_ADDR, 16'h_03_80); // [7:0] /
+            18: write_i2c(CHIP_ADDR, { 8'h_01, adv7513Config.adv_reg_01 });
+            19: write_i2c(CHIP_ADDR, { 8'h_02, adv7513Config.adv_reg_02 });
+            20: write_i2c(CHIP_ADDR, { 8'h_03, adv7513Config.adv_reg_03 });
             21: write_i2c(CHIP_ADDR, 16'h_0B_0E); // [7]:   SPDIF enable = 0b0, disable
                                                     // [6]:   audio clock polarity = 0b0, rising edge
                                                     // [5]:   MCLK enable = 0b0, MCLK internally generated
@@ -337,38 +337,8 @@ task adv7513_powerdown;
     begin
         case (subcmd_counter)
             0: write_i2c(CHIP_ADDR, 16'h_41_50);
-            1: write_i2c(CHIP_ADDR, 16'h_D6_91); // HPD is from pin only, enable soft turn on
+            1: write_i2c(CHIP_ADDR, 16'h_D6_D1); // enable soft turn on
             2: write_i2c(CHIP_ADDR, 16'h_A1_3C); // power down all TMDS channels
-            default: begin
-                cmd_counter <= next_cmd;
-                subcmd_counter <= scs_start;
-            end
-        endcase
-    end
-endtask
-
-task adv7513_link_powerdown;
-    input [2:0] next_cmd;
-
-    begin
-        case (subcmd_counter)
-            0: write_i2c(CHIP_ADDR, 16'h_D6_91);
-            1: write_i2c(CHIP_ADDR, 16'h_A1_3C);
-            default: begin
-                cmd_counter <= next_cmd;
-                subcmd_counter <= scs_start;
-            end
-        endcase
-    end
-endtask
-
-task adv7513_link_powerup;
-    input [2:0] next_cmd;
-
-    begin
-        case (subcmd_counter)
-            0: write_i2c(CHIP_ADDR, 16'h_A1_00);
-            1: write_i2c(CHIP_ADDR, 16'h_D6_00);
             default: begin
                 cmd_counter <= next_cmd;
                 subcmd_counter <= scs_start;
@@ -392,7 +362,7 @@ task adv7513_pllcheck;
                     subcmd_counter <= scs_start;
                 end
             end
-            1: write_i2c(CHIP_ADDR, 16'h_D6_80); // HPD is from pin only, disable soft turn on
+            1: write_i2c(CHIP_ADDR, 16'h_D6_C0); // disable soft turn on
             default: begin
                 cmd_counter <= success_cmd;
                 subcmd_counter <= scs_start;

@@ -20,7 +20,7 @@
 #define MENU_M_FW 5
 #define MENU_M_INF 6
 #define MENU_M_FIRST_SELECT_LINE 2
-#define MENU_M_LAST_SELECT_LINE 6
+#define MENU_M_LAST_SELECT_LINE 5
 char OSD_MAIN_MENU[521] = (
     "MainMenu                                "
     "                                        "
@@ -28,7 +28,8 @@ char OSD_MAIN_MENU[521] = (
     "- Video Mode Settings                   "
     "- Scanlines                             "
     "- Firmware Upgrade                      "
-    "- Debug Info                            "
+    //"- Debug Info                            "
+    "                                        "
     "                                        "
     "                                        "
     "                                        "
@@ -84,10 +85,10 @@ char OSD_VIDEO_MODE_MENU[521] = (
     "- Cable Detect                          "
     "- Switch Trick VGA                      "
     "                                        "
-    "  Save: After saving the Dreamcast      "
-    "        has to be power cycled for      "
-    "        for the changes to take         "
-    "        effect.                         "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
     "                                        "
     "                                        "
     "          A: Save  B: Cancel            "
@@ -96,8 +97,7 @@ char OSD_VIDEO_MODE_MENU[521] = (
 char OSD_VIDEO_MODE_SAVE_MENU[521] = (
     "Video Mode Settings                     "
     "                                        "
-    "   You have to restart your dreamcast   "
-    "        to apply these changes!         "
+    "    Apply changes and reset console?    "
     "                                        "
     "                                        "
     "                                        "
@@ -106,7 +106,8 @@ char OSD_VIDEO_MODE_SAVE_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "               B: Not now               "
+    "                                        "
+    "         A: Reset  B: Not now           "
 );
 
 #define MENU_FW_CHECK_LINE 2
@@ -195,7 +196,7 @@ char OSD_FIRMWARE_RESET_MENU[521] = (
     "Reset Firmware                          "
     "                                        "
     "             Reset DCHDMI?              "
-    "                                        "
+    "   This will also reset the dreamcast!  "
     "                                        "
     "                                        "
     "                                        "

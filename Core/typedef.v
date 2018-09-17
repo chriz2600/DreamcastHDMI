@@ -128,6 +128,9 @@ typedef struct packed {
 
 typedef struct packed {
     // ADV7513 configuration
+    reg [7:0] adv_reg_01; // \
+    reg [7:0] adv_reg_02; //  |--> audio clock regeneration N
+    reg [7:0] adv_reg_03; // /
     reg [7:0] adv_reg_17; // 02: 16:9, 00: 4:3
     reg [7:0] adv_reg_3b; // C8: input pll x2, 80: input pll x1
     reg [7:0] adv_reg_3c; // 00 | vic_manual
