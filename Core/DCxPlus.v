@@ -379,13 +379,13 @@ reg pll_hdmi_lockloss;
 edge_detect pll54_lockloss_check(
     .async_sig(~pll54_locked),
     .clk(control_clock),
-    .rise(pll54_lockloss),
+    .rise(pll54_lockloss)
 );
 
 edge_detect pll_hdmi_lockloss_check(
     .async_sig(~pll_hdmi_locked),
     .clk(control_clock),
-    .rise(pll_hdmi_lockloss),
+    .rise(pll_hdmi_lockloss)
 );
 
 Flag_CrossDomain reset_trigger(
