@@ -26,6 +26,16 @@ module ram2video(
     input Scanline scanline,
     output reg fullcycle
 );
+    localparam ONE_TO_ONE = 256;
+
+    `ifdef OSD_BACKGROUND_ALPHA
+        localparam OSD_BACKGROUND_ALPHA = `OSD_BACKGROUND_ALPHA;
+    `else
+        localparam OSD_BACKGROUND_ALPHA = 64;
+    `endif
+
+    reg [3:0] _fullcycle;
+
     reg [7:0] red_reg;
     reg [7:0] green_reg;
     reg [7:0] blue_reg;
@@ -54,7 +64,6 @@ module ram2video(
     reg [14:0] ram_addrY_reg;
 
     reg trigger = 1'b0;
-    //reg fullcycle = 1'b0;
 
     reg [7:0] char_data_req;
     reg [31:0] text_rddata_reg;
@@ -140,12 +149,14 @@ module ram2video(
         ram_addrX_reg <= 0;
         ram_addrY_reg <= 0;
         fullcycle <= 0;
+        _fullcycle <= 0;
     end
     
     always @(posedge clock or posedge reset) begin
         if (reset) begin
             trigger <= 1'b0;
             fullcycle <= 0;
+            _fullcycle <= 0;
         end else if (!trigger) begin
             // wait for trigger to start
             if (starttrigger) begin
@@ -223,7 +234,7 @@ module ram2video(
             end
 
             if (vsync_reg_q == hdmiVideoConfig.vertical_sync_on_polarity) begin
-                fullcycle <= 1;
+                _fullcycle <= _fullcycle + 1'b1;
             end
 
             counterX_reg_q <= counterX_reg;
@@ -270,11 +281,14 @@ module ram2video(
 
             // OUTPUT
             d_rdaddr <= `GetAddr(counterX_reg, counterY_reg);
-            if (fullcycle) begin
+            if (fullcycle || _fullcycle >= 4'b0001) begin
                 d_video_out <= `GetData(counterX_reg_q_q_q, counterY_reg_q_q_q);
                 d_DrawArea <= `IsDrawAreaHDMI(counterX_reg_q_q_q, counterY_reg_q_q_q);
                 d_hsync <= hsync_reg_q_q;
                 d_vsync <= vsync_reg_q_q;
+                if (_fullcycle == 4'b1111) begin
+                    fullcycle <= 1;
+                end
             end else begin
                 d_video_out <= 24'd0;
                 d_DrawArea <= 1'b0;
@@ -284,14 +298,6 @@ module ram2video(
         end
     end
 
-    localparam ONE_TO_ONE = 256;
-
-    `ifdef OSD_BACKGROUND_ALPHA
-        localparam OSD_BACKGROUND_ALPHA = `OSD_BACKGROUND_ALPHA;
-    `else
-        localparam OSD_BACKGROUND_ALPHA = 64;
-    `endif
-
     assign text_rdaddr = text_rdaddr_x + text_rdaddr_y;
     // bit 7 of text_rddata_reg[31:24] is currently ignored, as we only have a 7 bit charset, maybe this could be used as invert character indicator later
     assign char_addr = (text_rddata_reg[31:24] << 4) + charPixelRow_reg;
@@ -300,11 +306,5 @@ module ram2video(
     assign DrawArea = d_DrawArea;
     assign hsync = d_hsync;
     assign vsync = d_vsync;
-
-    // assign rdaddr = `GetAddr(counterX_reg, counterY_reg);
-    // assign video_out = fullcycle ? `GetData(counterX_reg_q_q, counterY_reg_q_q) : 24'd0;
-    // assign hsync = fullcycle ? hsync_reg_q : ~hdmiVideoConfig.horizontal_sync_on_polarity;
-    // assign vsync = fullcycle ? vsync_reg_q : ~hdmiVideoConfig.vertical_sync_on_polarity;
-    // assign DrawArea = fullcycle ? `IsDrawAreaHDMI(counterX_reg_q_q, counterY_reg_q_q) : 1'b0;
 
 endmodule

@@ -147,42 +147,6 @@ always @ (posedge clk) begin
     end
 end
 
-task do_cts;
-    output [7:0] cts_out;
-
-    input [7:0] max_cts_in;
-    output [7:0] max_cts_out;
-
-    input [7:0] offset_cts_in;
-    output [7:0] offset_cts_out;
-
-    begin
-        subcmd_counter <= subcmd_counter + 1'b1;
-        cts_out <= i2c_data;
-        if (i2c_data >= max_cts_in) begin
-            max_cts_out <= i2c_data;
-        end else begin
-            max_cts_out <= max_cts_in;
-        end
-        calculate_offset(i2c_data, max_cts_in, offset_cts_in, offset_cts_out);
-    end
-endtask
-
-task calculate_offset;
-    input [7:0] cur;
-    input [7:0] max;
-    input [7:0] offset_cts_in;
-    output [7:0] offset_cts_out;
-
-    begin
-        if (max > cur && (max - cur) > offset_cts_in) begin
-            offset_cts_out <= max - cur;
-        end else begin
-            offset_cts_out <= offset_cts_in;
-        end
-    end
-endtask
-
 task write_i2c;
     input [6:0] t_chip_addr;
     input [15:0] t_data;
@@ -267,58 +231,60 @@ task adv7513_init;
             6: write_i2c(CHIP_ADDR, 16'h_18_46); // [7]:   CSC enable = 0b0, disabled
                                                 // [6:5]: default = 0b10
                                                 // [4:0]: default = 0b00110
-            7: write_i2c(CHIP_ADDR, 16'h_55_10); // RGB in AVI InfoFrame
-            8: write_i2c(CHIP_ADDR, { 8'h_56, adv7513Config.adv_reg_56 }); // AVI InfoFrame: Picture Aspect Ratio, Active Format Aspect Ratio
-            9: write_i2c(CHIP_ADDR, 16'h_98_03); // ADI recommended write
-            10: write_i2c(CHIP_ADDR, 16'h_99_02); // ADI recommended write
-            11: write_i2c(CHIP_ADDR, 16'h_9A_E0); // ADI recommended write
-            12: write_i2c(CHIP_ADDR, 16'h_9C_30); // ADI recommended write
-            13: write_i2c(CHIP_ADDR, 16'h_9D_61); // ADI recommended write
-            14: write_i2c(CHIP_ADDR, 16'h_A2_A4); // ADI recommended write
-            15: write_i2c(CHIP_ADDR, 16'h_A3_A4); // ADI recommended write
-            16: write_i2c(CHIP_ADDR, 16'h_A5_04); // ADI recommended write
-            17: write_i2c(CHIP_ADDR, 16'h_AB_40); // ADI recommended write
-            18: write_i2c(CHIP_ADDR, 16'h_AF_16); // [7]:   HDCP enable = 0b0, disabled
+            7: write_i2c(CHIP_ADDR, 16'h_40_80); // ???
+            8: write_i2c(CHIP_ADDR, 16'h_55_10); // RGB in AVI InfoFrame
+            9: write_i2c(CHIP_ADDR, { 8'h_56, adv7513Config.adv_reg_56 }); // AVI InfoFrame: Picture Aspect Ratio, Active Format Aspect Ratio
+            10: write_i2c(CHIP_ADDR, 16'h_98_03); // ADI recommended write
+            11: write_i2c(CHIP_ADDR, 16'h_99_02); // ADI recommended write
+            12: write_i2c(CHIP_ADDR, 16'h_9A_E0); // ADI recommended write
+            13: write_i2c(CHIP_ADDR, 16'h_9C_30); // ADI recommended write
+            14: write_i2c(CHIP_ADDR, 16'h_9D_61); // ADI recommended write
+            15: write_i2c(CHIP_ADDR, 16'h_A2_A4); // ADI recommended write
+            16: write_i2c(CHIP_ADDR, 16'h_A3_A4); // ADI recommended write
+            17: write_i2c(CHIP_ADDR, 16'h_A5_04); // ADI recommended write
+            18: write_i2c(CHIP_ADDR, 16'h_AB_40); // ADI recommended write
+            19: write_i2c(CHIP_ADDR, 16'h_AF_16); // [7]:   HDCP enable = 0b0, disabled
                                                 // [6:5]: fixed = 0b00
                                                 // [4]:   frame encryption = 0b0, current frame not encrypted
                                                 // [3:2]: fixed = 0b01
                                                 // [1]:   HDMI/DVI mode select = 0b1, HDMI mode
                                                 // [0]:   fixed = 0b0
-            19: write_i2c(CHIP_ADDR, 16'h_DE_10); // ADI recommended write
-            20: write_i2c(CHIP_ADDR, 16'h_BA_60); // [7:5]: clock delay, 0b011 no delay
+            20: write_i2c(CHIP_ADDR, 16'h_DE_10); // ADI recommended write
+            21: write_i2c(CHIP_ADDR, 16'h_BA_60); // [7:5]: clock delay, 0b011 no delay
                                                 // [4]:   hdcp eprom, 0b1 internal
                                                 // [3]:   fixed, 0b0
                                                 // [2]:   display aksv, 0b0 don't show
                                                 // [1]:   Ri two point check, 0b0 hdcp Ri standard
-            21: write_i2c(CHIP_ADDR, 16'h_D1_FF); // ADI recommended write
-            22: write_i2c(CHIP_ADDR, 16'h_E4_60); // ADI recommended write
-            23: write_i2c(CHIP_ADDR, 16'h_E0_D0); // Fixed register
-            24: write_i2c(CHIP_ADDR, 16'h_F9_00); // Fixed register
-            25: write_i2c(CHIP_ADDR, { 8'h_01, adv7513Config.adv_reg_01 });
-            26: write_i2c(CHIP_ADDR, { 8'h_02, adv7513Config.adv_reg_02 });
-            27: write_i2c(CHIP_ADDR, { 8'h_03, adv7513Config.adv_reg_03 });
-            28: write_i2c(CHIP_ADDR, 16'h_0A_00); // [7]:   CTS selet = 0b0, automatic
+            22: write_i2c(CHIP_ADDR, 16'h_D1_FF); // ADI recommended write
+            23: write_i2c(CHIP_ADDR, 16'h_E4_60); // ADI recommended write
+            24: write_i2c(CHIP_ADDR, 16'h_FA_7D); // ???
+            25: write_i2c(CHIP_ADDR, 16'h_E0_D0); // Fixed register
+            26: write_i2c(CHIP_ADDR, 16'h_F9_00); // Fixed register
+            27: write_i2c(CHIP_ADDR, { 8'h_01, adv7513Config.adv_reg_01 });
+            28: write_i2c(CHIP_ADDR, { 8'h_02, adv7513Config.adv_reg_02 });
+            29: write_i2c(CHIP_ADDR, { 8'h_03, adv7513Config.adv_reg_03 });
+            30: write_i2c(CHIP_ADDR, 16'h_0A_00); // [7]:   CTS selet = 0b0, automatic
                                                 // [6:4]: audio select = 0b000, I2S
                                                 // [3:2]: audio mode = 0b00, default (HBR not used)
                                                 // [1:0]: MCLK Ratio = 0b00, 128xfs
-            29: write_i2c(CHIP_ADDR, 16'h_0C_05); // [7]:   audio sampling frequency select = 0b0, use sampling frequency from I2S stream
+            31: write_i2c(CHIP_ADDR, 16'h_0C_05); // [7]:   audio sampling frequency select = 0b0, use sampling frequency from I2S stream
                                                 // [6]:   channel status override = 0b0, use channel status bits from I2S stream
                                                 // [5]:   I2S3 enable = 0b0, disabled
                                                 // [4]:   I2S2 enable = 0b0, disabled
                                                 // [3]:   I2S1 enable = 0b0, disabled
                                                 // [2]:   I2S0 enable = 0b1, enabled
                                                 // [1:0]: I2S format = 0b01, right justified mode
-            30: write_i2c(CHIP_ADDR, 16'h_0D_10); // [4:0]: I2S bit width = 0b10000, 16bit
-            31: write_i2c(CHIP_ADDR, { 8'h_3B, adv7513Config.adv_reg_3b });
+            32: write_i2c(CHIP_ADDR, 16'h_0D_10); // [4:0]: I2S bit width = 0b10000, 16bit
+            33: write_i2c(CHIP_ADDR, { 8'h_3B, adv7513Config.adv_reg_3b });
                                                 // [7]:   fixed = 0b1
                                                 // [6:5]: PR Mode = 0b10, manual mode
                                                 // [4:3]: PR PLL Manual = 0b01, x2
                                                 // [2:1]: PR Value Manual = 0b00, x1 to rx
                                                 // [0]:   fixed = 0b0
-            32: write_i2c(CHIP_ADDR, { 8'h_3C, adv7513Config.adv_reg_3c });
+            34: write_i2c(CHIP_ADDR, { 8'h_3C, adv7513Config.adv_reg_3c });
                                                 // [5:0]: VIC Manual = 010000, VIC#16: 1080p-60, 16:9
                                                 // 000000, VIC#0: VIC Unavailable
-            33: write_i2c(CHIP_ADDR, 16'h_94_C0); // [7]:   HPD interrupt = 0b1, enabled
+            35: write_i2c(CHIP_ADDR, 16'h_94_C0); // [7]:   HPD interrupt = 0b1, enabled
                                                 // [6]:   monitor sense interrupt = 0b1, enabled
                                                 // [5]:   vsync interrupt = 0b0, disabled
                                                 // [4]:   audio fifo full interrupt = 0b0, disabled
@@ -367,6 +333,19 @@ task adv7513_pllcheck;
             end
             1: write_i2c(CHIP_ADDR, 16'h_A1_00); // power up TMDS channels
             2: write_i2c(CHIP_ADDR, 16'h_D6_C0); // disable soft turn on
+            // 1: write_i2c(CHIP_ADDR, 16'h_D5_01);
+            // 2: write_i2c(CHIP_ADDR, 16'h_A1_00); // power up TMDS channels
+            // 3: write_i2c(CHIP_ADDR, 16'h_D6_C0); // disable soft turn on
+            // 4: read_i2c(CHIP_ADDR, 8'h_9E);
+            // 5: begin
+            //     if (i2c_data[4]) begin
+            //         subcmd_counter <= subcmd_counter + 1'b1;
+            //     end else begin
+            //         cmd_counter <= failure_cmd;
+            //         subcmd_counter <= scs_start;
+            //     end
+            // end
+            // 6: write_i2c(CHIP_ADDR, 16'h_D5_00);
             default: begin
                 cmd_counter <= success_cmd;
                 subcmd_counter <= scs_start;
