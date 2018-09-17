@@ -22,8 +22,8 @@ set_clock_groups -asynchronous -group datain_clock -group output_clock
 derive_clock_uncertainty
 
 # setup/hold times
-set tSU 1.0
-set tH 0.7
+set tSU 1.3
+set tH 1.0
 
 # input delay
 set dcinputs [get_ports {data* _hsync _vsync}]
