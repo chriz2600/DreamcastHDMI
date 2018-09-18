@@ -327,7 +327,7 @@ startup ram2video_startup_delay(
     .clock(hdmi_clock),
     .nreset(pll_hdmi_locked),
     .ready(ram2video_ready),
-    .startup_delay(hdmiVideoConfig.startup_delay)
+    .startup_delay(32'd255/*hdmiVideoConfig.startup_delay*/)
 );
 
 text_ram text_ram_inst(
@@ -446,7 +446,7 @@ startup adv7513_startup_delay(
     .clock(control_clock),
     .nreset(1'b1),
     .ready(adv7513_reset),
-    .startup_delay(32'd_16_000_000)
+    .startup_delay(32'd_32_000_000)
 );
 
 reconf_fifo	reconf_fifo_adv(
