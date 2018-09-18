@@ -68,6 +68,8 @@
 #define I2C_SCANLINE_UPPER (0x87)
 #define I2C_SCANLINE_LOWER (0x88)
 #define I2C_DC_RESET (0xF0)
+#define I2C_OPT_RESET (0xF1)
+#define I2C_RESET_CONF (0xF2)
 #define I2C_PING (0xFF)
 
 #define I2C_RECOVER_TRIES 100000
@@ -148,5 +150,13 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 #define SCANLINES_THIN "thin"
 
 #define RESOLUTION_SWITCH_TIMEOUT 20000
+
+#define RESET_MODE_STR_LED "led"
+#define RESET_MODE_STR_GDEMU "gdemu"
+#define RESET_MODE_STR_USBGDROM "usb-gdrom"
+
+#define RESET_MODE_LED (0x00)
+#define RESET_MODE_GDEMU (0x01)
+#define RESET_MODE_USBGDROM (0x02)
 
 #endif

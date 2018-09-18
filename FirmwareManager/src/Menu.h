@@ -14,22 +14,25 @@
 #define MENU_BACK_LINE  "                B: Back                 "
 #define MENU_BUTTON_LINE 12
 
+#define MENU_RST_GDEMU_BUTTON_LINE  "     X: Reset DC  Y: GDEMU button       "
+#define MENU_RST_NORMAL_BUTTON_LINE "              X: Reset DC               "
+
 #define MENU_M_OR 2
-#define MENU_M_VM 3
-#define MENU_M_SL 4
+#define MENU_M_SL 3
+#define MENU_M_VM 4
 #define MENU_M_FW 5
-#define MENU_M_INF 6
+//#define MENU_M_INF 6
+#define MENU_M_RST 6
 #define MENU_M_FIRST_SELECT_LINE 2
-#define MENU_M_LAST_SELECT_LINE 5
+#define MENU_M_LAST_SELECT_LINE 6
 char OSD_MAIN_MENU[521] = (
     "MainMenu                                "
     "                                        "
     "- Output Resolution                     "
-    "- Video Mode Settings                   "
     "- Scanlines                             "
+    "- Video Mode Settings                   "
     "- Firmware Upgrade                      "
-    //"- Debug Info                            "
-    "                                        "
+    "- Reset Configuration                   "
     "                                        "
     "                                        "
     "                                        "
@@ -48,7 +51,7 @@ char OSD_OUTPUT_RES_MENU[521] = (
     "- 960p                                  "
     "- 1080p                                 "
     "                                        "
-    "  '>' marks the default setting         "
+    "  '>' marks the stored setting          "
     "                                        "
     "                                        "
     "                                        "
@@ -248,8 +251,30 @@ char OSD_INFO_MENU[521] = (
     "                B: Back                 "
 );
 
+#define MENU_RST_LED_LINE 2
+#define MENU_RST_GDEMU_LINE 3
+#define MENU_RST_USB_GDROM_LINE 4
+#define MENU_RST_FIRST_SELECT_LINE 2
+#define MENU_RST_LAST_SELECT_LINE 4
+char OSD_RESET_MENU[521] = (
+    "Reset Configuration                     "
+    "                                        "
+    "- LED                                   "
+    "- GDEMU                                 "
+    "- USB-GDROM                             "
+    "                                        "
+    "  '>' marks the stored setting          "
+    "                                        "
+    "LED:       OPT -> not connected         "
+    "GDEMU:     OPT -> GDEMU button          "
+    "USB-GDROM: OPT -> USB-GDROM reset       "
+    "                                        "
+    "          A: Apply   B: Back            "
+);
+
+
 typedef std::function<void(uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat)> ClickHandler;
-typedef std::function<uint8_t(uint8_t* menu_text)> PreDisplayHook;
+typedef std::function<uint8_t(uint8_t* menu_text, uint8_t menu_activeLine)> PreDisplayHook;
 
 extern FPGATask fpgaTask;
 
@@ -286,7 +311,7 @@ class Menu
 
     void Display() {
         if (pre_hook != NULL) {
-            menu_activeLine = pre_hook(menu_text);
+            menu_activeLine = pre_hook(menu_text, menu_activeLine);
         }
         fpgaTask.DoWriteToOSD(0, 9, menu_text, [&]() {
             //DBG_OUTPUT_PORT.printf("%i %i\n", menu_activeLine, MENU_OFFSET + menu_activeLine);

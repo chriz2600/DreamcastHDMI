@@ -42,6 +42,7 @@
 #define DEFAULT_SCANLINES_INTENSITY "175"
 #define DEFAULT_SCANLINES_ODDEVEN SCANLINES_EVEN
 #define DEFAULT_SCANLINES_THICKNESS SCANLINES_THIN
+#define DEFAULT_RESET_MODE RESET_MODE_STR_LED
 
 char ssid[64] = DEFAULT_SSID;
 char password[64] = DEFAULT_PASSWORD;
@@ -57,6 +58,7 @@ char confIPDNS[24] = DEFAULT_CONF_IP_DNS;
 char host[64] = DEFAULT_HOST;
 char videoMode[16] = "";
 char configuredResolution[16] = "";
+char resetMode[16] = "";
 const char* WiFiAPPSK = "geheim1234";
 IPAddress ipAddress( 192, 168, 4, 1 );
 bool inInitialSetupMode = false;
@@ -78,6 +80,7 @@ bool OSDOpen = false;
 uint8_t CurrentResolution = RESOLUTION_1080p;
 uint8_t PrevCurrentResolution;
 uint8_t ForceVGA = VGA_ON;
+uint8_t CurrentResetMode = RESET_MODE_LED;
 bool DelayVGA = false;
 
 char md5FPGA[48];
@@ -119,6 +122,7 @@ extern Menu firmwareDownloadMenu;
 extern Menu firmwareFlashMenu;
 extern Menu firmwareResetMenu;
 extern Menu scanlinesMenu;
+extern Menu resetMenu;
 extern Menu infoMenu;
 Menu *currentMenu;
 // functions
@@ -230,7 +234,7 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
         }
         return;
     }
-}, [](uint8_t* menu_text) {
+}, [](uint8_t* menu_text, uint8_t menu_activeLine) {
     // restore original menu text
     for (int i = (MENU_OR_LAST_SELECT_LINE-3) ; i <= MENU_OR_LAST_SELECT_LINE ; i++) {
         menu_text[i * MENU_WIDTH] = '-';
@@ -287,9 +291,9 @@ Menu videoModeMenu("VideoModeMenu", (uint8_t*) OSD_VIDEO_MODE_MENU, MENU_VM_FIRS
         }
         return;
     }
-}, [](uint8_t* menu_text) {
+}, [](uint8_t* menu_text, uint8_t menu_activeLine) {
     // restore original menu text
-    for (int i = MENU_VM_FIRST_SELECT_LINE ; i < MENU_OR_LAST_SELECT_LINE ; i++) {
+    for (int i = MENU_VM_FIRST_SELECT_LINE ; i <= MENU_VM_LAST_SELECT_LINE ; i++) {
         menu_text[i * MENU_WIDTH] = '-';
     }
     String vidMode = String(videoMode);
@@ -876,7 +880,7 @@ Menu scanlinesMenu("ScanlinesMenu", (uint8_t*) OSD_SCANLINES_MENU, MENU_SL_FIRST
                 break;
         }
     }
-}, [](uint8_t* menu_text) {
+}, [](uint8_t* menu_text, uint8_t menu_activeLine) {
     // write current values to menu
     char buffer[MENU_WIDTH] = "";
 
@@ -917,6 +921,44 @@ Menu infoMenu("InfoMenu", (uint8_t*) OSD_INFO_MENU, NO_SELECT_LINE, NO_SELECT_LI
 });
 
 ///////////////////////////////////////////////////////////////////
+
+Menu resetMenu("ResetMenu", (uint8_t*) OSD_RESET_MENU, MENU_RST_FIRST_SELECT_LINE, MENU_RST_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+        currentMenu = &mainMenu;
+        currentMenu->Display();
+        return;
+    }
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+        switch (menu_activeLine) {
+            case MENU_RST_LED_LINE:
+                CurrentResetMode = RESET_MODE_LED;
+                break;
+            case MENU_RST_GDEMU_LINE:
+                CurrentResetMode = RESET_MODE_GDEMU;
+                break;
+            case MENU_RST_USB_GDROM_LINE:
+                CurrentResetMode = RESET_MODE_USBGDROM;
+                break;
+        }
+
+        writeCurrentResetMode();
+        fpgaTask.Write(I2C_RESET_CONF, CurrentResetMode, [](uint8_t Address, uint8_t Value) {
+            currentMenu->Display();
+        });
+        return;
+    }
+}, [](uint8_t* menu_text, uint8_t menu_activeLine) {
+    // restore original menu text
+    for (int i = MENU_RST_FIRST_SELECT_LINE ; i <= MENU_RST_LAST_SELECT_LINE ; i++) {
+        menu_text[i * MENU_WIDTH] = '-';
+    }
+    uint8_t line = (MENU_RST_FIRST_SELECT_LINE + CurrentResetMode);
+    menu_text[line * MENU_WIDTH] = '>';
+    return line;
+}, NULL);
+
+///////////////////////////////////////////////////////////////////
+
 Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, MENU_M_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
         currentMenu->StoreMenuActiveLine(MENU_M_FIRST_SELECT_LINE);
@@ -941,14 +983,45 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
                 currentMenu = &firmwareMenu;
                 currentMenu->Display();
                 break;
-            case MENU_M_INF:
-                currentMenu = &infoMenu;
+            case MENU_M_RST:
+                currentMenu = &resetMenu;
                 currentMenu->Display();
                 break;
         }
         return;
     }
-}, NULL, NULL);
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_X)) {
+        DBG_OUTPUT_PORT.printf("reset dreamcast!!!!! %x\n", controller_data);
+        currentMenu->startTransaction();
+        fpgaTask.Write(I2C_DC_RESET, 0, [](uint8_t Address, uint8_t Value) {
+            DBG_OUTPUT_PORT.printf("reset dreamcast callback: %u\n", Value);
+            waitForI2CRecover(true);
+            DBG_OUTPUT_PORT.printf("reset dreamcast recover!\n");
+            currentMenu->endTransaction();
+        });
+        return;
+    }
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_Y)) {
+        DBG_OUTPUT_PORT.printf("secondary reset!!!!! %x\n", controller_data);
+        currentMenu->startTransaction();
+        fpgaTask.Write(I2C_OPT_RESET, 0, [](uint8_t Address, uint8_t Value) {
+            DBG_OUTPUT_PORT.printf("secondary reset callback: %u\n", Value);
+            waitForI2CRecover(true);
+            DBG_OUTPUT_PORT.printf("secondary reset recover!\n");
+            currentMenu->endTransaction();
+        });
+        return;
+    }
+}, [](uint8_t* menu_text, uint8_t menu_activeLine) {
+    if (CurrentResetMode == RESET_MODE_GDEMU) {
+        memcpy(&menu_text[(MENU_BUTTON_LINE - 1) * MENU_WIDTH], MENU_RST_GDEMU_BUTTON_LINE, MENU_WIDTH);
+    } else {
+        memcpy(&menu_text[(MENU_BUTTON_LINE - 1) * MENU_WIDTH], MENU_RST_NORMAL_BUTTON_LINE, MENU_WIDTH);
+    }
+    return menu_activeLine;
+}, NULL);
+
+            // fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_BUTTON_LINE, (uint8_t*) MENU_BACK_LINE, [ pos ]() {
 
 ///////////////////////////////////////////////////////////////////
 // <-- Menus end
@@ -1705,6 +1778,8 @@ void setupHTTPServer() {
         writeSetupParameter(request, "hostname", host, 64, DEFAULT_HOST);
         writeSetupParameter(request, "video_resolution", configuredResolution, "/etc/video/resolution", 16, DEFAULT_VIDEO_RESOLUTION);
         writeSetupParameter(request, "video_mode", videoMode, "/etc/video/mode", 16, DEFAULT_VIDEO_MODE);
+        writeSetupParameter(request, "reset_mode", resetMode, "/etc/reset/mode", 16, DEFAULT_RESET_MODE);
+        
 
         request->send(200, "text/plain", "OK\n");
     });
@@ -1734,6 +1809,7 @@ void setupHTTPServer() {
         root["fw_version"] = FW_VERSION;
         root["video_resolution"] = configuredResolution;
         root["video_mode"] = videoMode;
+        root["reset_mode"] = resetMode;
 
         root.printTo(*response);
         request->send(response);
@@ -1912,9 +1988,39 @@ void writeVideoMode2(String vidMode) {
     snprintf(videoMode, 16, "%s", vidMode.c_str());
 }
 
+void readCurrentResetMode() {
+    _readFile("/etc/reset/mode", resetMode, 16, DEFAULT_RESET_MODE);
+    CurrentResetMode = cfgRst2Int(resetMode);
+}
+
 void readCurrentResolution() {
     _readFile("/etc/video/resolution", configuredResolution, 16, DEFAULT_VIDEO_RESOLUTION);
     CurrentResolution = cfgRes2Int(configuredResolution);
+}
+
+uint8_t cfgRst2Int(char* rstMode) {
+    String cfgRst = String(rstMode);
+
+    if (cfgRst == RESET_MODE_STR_GDEMU) {
+        return RESET_MODE_GDEMU;
+    } else if (cfgRst == RESET_MODE_STR_USBGDROM) {
+        return RESET_MODE_USBGDROM;
+    }
+    // default is LED
+    return RESET_MODE_LED;
+}
+
+void writeCurrentResetMode() {
+    String cfgRst = RESET_MODE_STR_LED;
+
+    if (CurrentResetMode == RESET_MODE_GDEMU) {
+        cfgRst = RESET_MODE_STR_GDEMU;
+    } else if (CurrentResetMode == RESET_MODE_USBGDROM) {
+        cfgRst = RESET_MODE_STR_USBGDROM;
+    }
+
+    _writeFile("/etc/reset/mode", cfgRst.c_str(), 16);
+    snprintf(resetMode, 16, "%s", cfgRst.c_str());
 }
 
 uint8_t cfgRes2Int(char* intResolution) {
@@ -2016,6 +2122,15 @@ void writeScanlinesThickness() {
 /////////
 /////////
 
+void setupResetMode() {
+    readCurrentResetMode();
+    DBG_OUTPUT_PORT.printf(">> Setting up reset mode: %x\n", CurrentResetMode);
+    forceI2CWrite(
+        I2C_RESET_CONF, CurrentResetMode, 
+        I2C_PING, 0
+    );
+}
+
 void setupOutputResolution() {
     readVideoMode();
     readCurrentResolution();
@@ -2087,6 +2202,7 @@ void setup(void) {
 
     setupI2C();
     setupSPIFFS();
+    setupResetMode();
     setupOutputResolution();
     setupScanlines();
     setupTaskManager();
