@@ -6,7 +6,7 @@ stages:
 fpga-firmware:
   stage: build-fpga
   script: 
-    - ./Core/create_test_text_ram.pl
+    - ./Core/ram/create_text_ram.pl
     - script -qfc "$(printf "%q " "/root/build")" /dev/null
   artifacts:
     paths:

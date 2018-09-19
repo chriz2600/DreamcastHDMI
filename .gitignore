@@ -30,6 +30,7 @@ Core/DCx.map.smsg
 Core/output_files/
 Core/DCxPlus.ipregen.rpt
 Core/.environment
+Core/osc.sopcinfo
 *.BAK.v
 prep/*
 notes

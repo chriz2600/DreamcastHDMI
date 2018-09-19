@@ -13,7 +13,7 @@ sub dec2bin {
 
 open(OUT, "> text_ram.mif");
 print OUT <<EOF
--- created by create_test_text_ram.pl from text_ram.txt
+-- created by create_text_ram.pl from text_ram.txt
 
 DEPTH = 1024;
 WIDTH = 8;
