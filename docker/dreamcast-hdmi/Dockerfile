@@ -6,3 +6,5 @@ RUN mkdir -p /srv && cd /root && git clone --recurse-submodules https://github.c
 ADD files/build /root/build
 ADD files/build.projects /root/build.projects
 ADD files/program /root/program
+ADD files/firmware-packer /root/firmware-packer
+ADD files/firmware-unpacker /root/firmware-unpacker
