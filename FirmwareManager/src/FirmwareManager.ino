@@ -708,7 +708,7 @@ void flashCascade(int pos, bool force) {
             if (newFWFlashed) {
                 result = (
                     "     Firmware successfully flashed!     "
-                    "          Please reset system!          "
+                    "         Please restart system!         "
                 );
             } else {
                 result = (

@@ -1,0 +1,36 @@
+Bangai-O
+    -> EU no VGA
+    -> US no VGA
+Black Matrix A/D
+    -> JP no VGA
+Gunbird 2
+    -> EU(1) no VGA
+    -> US no VGA
+    -> JP no VGA
+Jo Jo’s Bizarre Adventure
+    -> EU no VGA
+    -> US no VGA
+Marvel vs Capcom: Clash of Super Heroes
+    -> EU OK
+    -> JP OK
+Last Blade 2: Final Edition
+    -> US no VGA
+    -> US(2) 
+The King of Fighters Dream Match 1999
+    -> US no VGA
+The King of Fighters 99 Evolution
+    -> JP no VGA
+    -> US no VGA
+
+
+
+    Last Hope
+Street Fighter Alpha 3
+Street Fighter Zero 3
+    Neo XYX
+Street Fighter Zero 3 for Matching Service
+    Gunlord
+    Princess Maker Collection
+Street Fighter 3: Third Strike
+Street Fighter 3: Double Impact
+Twinkle Star Sprites
