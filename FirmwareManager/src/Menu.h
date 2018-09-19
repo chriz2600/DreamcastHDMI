@@ -22,9 +22,10 @@
 #define MENU_M_VM 4
 #define MENU_M_FW 5
 //#define MENU_M_INF 6
-#define MENU_M_RST 6
+#define MENU_M_WIFI 6
+#define MENU_M_RST 7
 #define MENU_M_FIRST_SELECT_LINE 2
-#define MENU_M_LAST_SELECT_LINE 6
+#define MENU_M_LAST_SELECT_LINE 7
 char OSD_MAIN_MENU[521] = (
     "MainMenu                                "
     "                                        "
@@ -32,8 +33,8 @@ char OSD_MAIN_MENU[521] = (
     "- Scanlines                             "
     "- Video Mode Settings                   "
     "- Firmware Upgrade                      "
+    "- WiFi Setup                            "
     "- Reset Configuration                   "
-    "                                        "
     "                                        "
     "                                        "
     "                                        "
@@ -157,7 +158,7 @@ char OSD_FIRMWARE_MENU[521] = (
     "- Check                                 "
     "- Download                              "
     "- Flash                                 "
-    "- Reset                                 "
+    "- Restart                               "
     "                                        "
     "                                        "
     "                                        "
@@ -228,9 +229,9 @@ char OSD_FIRMWARE_FLASH_MENU[521] = (
 );
 
 char OSD_FIRMWARE_RESET_MENU[521] = (
-    "Reset Firmware                          "
+    "Restart Firmware                        "
     "                                        "
-    "             Reset DCHDMI?              "
+    "           Restart DCHDMI?              "
     "   This will also reset the dreamcast!  "
     "                                        "
     "                                        "
@@ -304,6 +305,45 @@ char OSD_RESET_MENU[521] = (
     "          A: Apply   B: Back            "
 );
 
+#define MENU_WIFI_SSID_LINE 2
+#define MENU_WIFI_PASSWORD_LINE 3
+#define MENU_WIFI_RESTART_LINE 4
+#define MENU_WIFI_FIRST_SELECT_LINE 2
+#define MENU_WIFI_LAST_SELECT_LINE 4
+char OSD_WIFI_MENU[521] = (
+    "WiFi Setup                              "
+    "                                        "
+    "- SSID:     ___________________________ "
+    "- Password: ___________________________ "
+    "- Restart to apply changes              "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "          A: Select  B: Back            "
+);
+
+#define MENU_WIFI_EDIT_NAME_LINE 2
+#define MENU_WIFI_EDIT_VALUE_LINE 3
+#define MENU_WIFI_EDIT_CURSOR_LINE 4
+char OSD_WIFI_EDIT_MENU[521] = (
+    "WiFi Setup Edit                         "
+    "                                        "
+    " ______________________________________ "
+    "\x10______________________________________\x11"
+    "                                        "
+    "                                        "
+    "- D-pad left/right to move cursor       "
+    "- D-pad up/down to cylce thru chars     "
+    "- Trailing whitespace is removed on save"
+    "                                        "
+    "                                        "
+    "                                        "
+    "          A: Save  B: Cancel            "
+);
 
 typedef std::function<void(uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat)> ClickHandler;
 typedef std::function<uint8_t(uint8_t* menu_text, uint8_t menu_activeLine)> PreDisplayHook;
@@ -313,7 +353,7 @@ extern FPGATask fpgaTask;
 class Menu
 {
   public:
-    Menu(const char* name, uint8_t* menu, uint8_t first_line, uint8_t last_line, ClickHandler handler, PreDisplayHook pre_hook, WriteCallbackHandlerFunction display_callback) :
+    Menu(const char* name, uint8_t* menu, uint8_t first_line, uint8_t last_line, ClickHandler handler, PreDisplayHook pre_hook, WriteCallbackHandlerFunction display_callback, bool autoUpDown) :
         name(name),
         menu_text(menu),
         first_line(first_line),
@@ -322,7 +362,8 @@ class Menu
         pre_hook(pre_hook),
         display_callback(display_callback),
         menu_activeLine(first_line),
-        inTransaction(false)
+        inTransaction(false),
+        autoUpDown(autoUpDown)
     { };
 
     const char* Name() {
@@ -357,16 +398,18 @@ class Menu
             return;
         }
 
-        // pad up down is handled by menu
-        if (CHECK_MASK(controller_data, CTRLR_PAD_UP)) {
-            menu_activeLine = menu_activeLine <= first_line ? first_line : menu_activeLine - 1;
-            fpgaTask.Write(I2C_OSD_ACTIVE_LINE, MENU_OFFSET + menu_activeLine);
-            return;
-        }
-        if (CHECK_MASK(controller_data, CTRLR_PAD_DOWN)) {
-            menu_activeLine = menu_activeLine >= last_line ? last_line : menu_activeLine + 1;
-            fpgaTask.Write(I2C_OSD_ACTIVE_LINE, MENU_OFFSET + menu_activeLine);
-            return;
+        if (autoUpDown) {
+            // pad up down is handled by menu
+            if (CHECK_MASK(controller_data, CTRLR_PAD_UP)) {
+                menu_activeLine = menu_activeLine <= first_line ? first_line : menu_activeLine - 1;
+                fpgaTask.Write(I2C_OSD_ACTIVE_LINE, MENU_OFFSET + menu_activeLine);
+                return;
+            }
+            if (CHECK_MASK(controller_data, CTRLR_PAD_DOWN)) {
+                menu_activeLine = menu_activeLine >= last_line ? last_line : menu_activeLine + 1;
+                fpgaTask.Write(I2C_OSD_ACTIVE_LINE, MENU_OFFSET + menu_activeLine);
+                return;
+            }
         }
         // pass all other pads to handler
         handler(controller_data, menu_activeLine, isRepeat);
@@ -386,6 +429,7 @@ private:
     WriteCallbackHandlerFunction display_callback;
     uint8_t menu_activeLine;
     bool inTransaction;
+    bool autoUpDown;
 };
 
 #endif

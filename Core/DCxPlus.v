@@ -111,7 +111,7 @@ wire hpd_detected;
 wire config_changed;
 
 assign clock54_out = clock54_net;
-assign status_led_nreset = adv7513_ready;
+assign status_led_nreset = ~adv7513_ready;
 
 // DC config in, ics config out
 configuration configurator(

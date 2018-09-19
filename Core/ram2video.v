@@ -65,7 +65,8 @@ module ram2video(
 
     reg trigger = 1'b0;
 
-    reg [7:0] char_data_req;
+    reg [7:0] char_data_reg;
+    reg [7:0] char_data_reg_q;
     reg [31:0] text_rddata_reg;
     reg [9:0] text_rdaddr_x;
     reg [9:0] text_rdaddr_y;
@@ -103,7 +104,7 @@ module ram2video(
     `define GetData(x, y) ( \
         `IsDrawAreaVGA(x, y) \
         ?   `IsOsdTextArea(x, y) \
-            ?   (char_data_req[7-counterX_reg_q_q[2:0]]) ^ (currentLine_reg_q == highlight_line) \
+            ?   (char_data_reg_q[7-x[2:0]]) ^ (currentLine_reg_q == highlight_line) \
                 ?   {24{1'b1}} \
                 :   `GetRdData(y, (isScanline ? truncate_osdbg(OSD_BACKGROUND_ALPHA * scanline.intensity) : OSD_BACKGROUND_ALPHA)) \
             :   `IsOsdBgArea(x, y) \
@@ -265,7 +266,8 @@ module ram2video(
             text_rddata_reg[15:8] <= text_rddata_reg[7:0];
             text_rddata_reg[23:16] <= text_rddata_reg[15:8];
             text_rddata_reg[31:24] <= text_rddata_reg[23:16];
-            char_data_req <= char_data;
+            char_data_reg <= char_data;
+            char_data_reg_q <= char_data_reg;
             currentLine_reg_q <= currentLine_reg;
 
             // SCANLINES

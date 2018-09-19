@@ -648,7 +648,8 @@ var setupDataMapping = {
     conf_ip_dns:      [ "DNS              ", "empty" ],
     hostname:         [ "Hostname         ", "dc-firmware-manager" ],
     video_resolution: [ "Video output     ", "1080p" ],
-    video_mode:       [ "Video mode       ", "CableDetect" ]
+    video_mode:       [ "Video mode       ", "CableDetect" ],
+    reset_mode:       [ "Opt. reset mode  ", "led" ]
 };
 var dataExcludeMap = {
     "flash_chip_size":"", 
@@ -1097,7 +1098,7 @@ function reset(successCallback, noNewline) {
 var retryTimeout;
 
 function reset_all(successCallback, noNewline) {
-    $.ajax({ url: "/reset/all", timeout: 1000 });
+    $.ajax({ url: "/reset/all", timeout: 5000 });
     term.echo('Reset [[b;green;]OK]');
     retryTimeout = 100;
     pingESP(successCallback);

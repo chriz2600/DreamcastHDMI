@@ -126,7 +126,10 @@ extern Menu resetMenu;
 extern Menu infoMenu;
 extern Menu dcResetConfirmMenu;
 extern Menu optResetConfirmMenu;
+extern Menu wifiMenu;
+extern Menu wifiEditMenu;
 Menu *currentMenu;
+Menu *previousMenu;
 // functions
 void setOSD(bool value, WriteCallbackHandlerFunction handler);
 
@@ -200,7 +203,7 @@ Menu outputResSaveMenu("OutputResSaveMenu", (uint8_t*) OSD_OUTPUT_RES_SAVE_MENU,
         fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_SS_RESULT_LINE, (uint8_t*) result);
     });
     taskManager.StartTask(&timeoutTask);
-});
+}, true);
 
 ///////////////////////////////////////////////////////////////////
 
@@ -243,7 +246,7 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
     }
     menu_text[(MENU_OR_LAST_SELECT_LINE - cfgRes2Int(configuredResolution)) * MENU_WIDTH] = '>';
     return (MENU_OR_LAST_SELECT_LINE - CurrentResolution);
-}, NULL);
+}, NULL, true);
 
 void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler) {
     bool valueChanged = (value != CurrentResolution);
@@ -308,7 +311,7 @@ Menu videoModeMenu("VideoModeMenu", (uint8_t*) OSD_VIDEO_MODE_MENU, MENU_VM_FIRS
 
     menu_text[line * MENU_WIDTH] = '>';
     return line;
-}, NULL);
+}, NULL, true);
 
 ///////////////////////////////////////////////////////////////////
 
@@ -322,7 +325,7 @@ Menu videoModeSaveMenu("VideoModeSaveMenu", (uint8_t*) OSD_VIDEO_MODE_SAVE_MENU,
         currentMenu->Display();
         return;
     }
-}, NULL, NULL);
+}, NULL, NULL, true);
 
 ///////////////////////////////////////////////////////////////////
 
@@ -348,13 +351,14 @@ Menu firmwareMenu("FirmwareMenu", (uint8_t*) OSD_FIRMWARE_MENU, MENU_FW_FIRST_SE
                 currentMenu->Display();
                 break;
             case MENU_FW_RESET_LINE:
+                previousMenu = &firmwareMenu;
                 currentMenu = &firmwareResetMenu;
                 currentMenu->Display();
                 break;
         }
         return;
     }
-}, NULL, NULL);
+}, NULL, NULL, true);
 
 ///////////////////////////////////////////////////////////////////
 
@@ -374,7 +378,7 @@ Menu firmwareCheckMenu("FirmwareCheckMenu", (uint8_t*) OSD_FIRMWARE_CHECK_MENU, 
     }
 }, NULL, [](uint8_t Address, uint8_t Value) {
     firmwareCheckStarted = false;
-});
+}, true);
 
 void md5Cascade(int pos) {
     DBG_OUTPUT_PORT.printf("md5Cascade: %i\n", pos);
@@ -478,7 +482,7 @@ Menu firmwareDownloadMenu("FirmwareDownloadMenu", (uint8_t*) OSD_FIRMWARE_DOWNLO
     }
 }, NULL, [](uint8_t Address, uint8_t Value) {
     firmwareDownloadStarted = false;
-});
+}, true);
 
 void downloadCascade(int pos, bool forceDownload) {
     DBG_OUTPUT_PORT.printf("downloadCascade: %i\n", pos);
@@ -631,7 +635,7 @@ Menu firmwareFlashMenu("FirmwareFlashMenu", (uint8_t*) OSD_FIRMWARE_FLASH_MENU, 
     }
 }, NULL, [](uint8_t Address, uint8_t Value) {
     firmwareFlashStarted = false;
-});
+}, true);
 
 void flashCascade(int pos, bool force) {
     DBG_OUTPUT_PORT.printf("flashCascade: %i\n", pos);
@@ -777,7 +781,7 @@ ProgressCallback createFlashProgressCallback(int pos, bool force, int line) {
 
 Menu firmwareResetMenu("FirmwareResetMenu", (uint8_t*) OSD_FIRMWARE_RESET_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
-        currentMenu = &firmwareMenu;
+        currentMenu = previousMenu;
         currentMenu->Display();
         return;
     }
@@ -785,7 +789,7 @@ Menu firmwareResetMenu("FirmwareResetMenu", (uint8_t*) OSD_FIRMWARE_RESET_MENU, 
         resetall();
         return;
     }
-}, NULL, NULL);
+}, NULL, NULL, true);
 
 ///////////////////////////////////////////////////////////////////
 
@@ -896,7 +900,7 @@ Menu scanlinesMenu("ScanlinesMenu", (uint8_t*) OSD_SCANLINES_MENU, MENU_SL_FIRST
     memcpy(&menu_text[MENU_SL_ODDEVEN * MENU_WIDTH + 12], buffer, 6);
 
     return MENU_SL_FIRST_SELECT_LINE;
-}, NULL);
+}, NULL, true);
 
 ///////////////////////////////////////////////////////////////////
 
@@ -920,7 +924,7 @@ Menu infoMenu("InfoMenu", (uint8_t*) OSD_INFO_MENU, NO_SELECT_LINE, NO_SELECT_LI
     }
 }, NULL, [](uint8_t Address, uint8_t Value) {
     taskManager.StartTask(&debugTask);
-});
+}, true);
 
 ///////////////////////////////////////////////////////////////////
 
@@ -957,7 +961,138 @@ Menu resetMenu("ResetMenu", (uint8_t*) OSD_RESET_MENU, MENU_RST_FIRST_SELECT_LIN
     uint8_t line = (MENU_RST_FIRST_SELECT_LINE + CurrentResetMode);
     menu_text[line * MENU_WIDTH] = '>';
     return line;
-}, NULL);
+}, NULL, true);
+
+///////////////////////////////////////////////////////////////////
+
+char wifiEdit_Name[MENU_WIDTH];
+char wifiEdit_Value[MENU_WIDTH];
+uint8_t wifiEdit_CursorPos = 0;
+uint8_t wifiEdit_activeLine = NO_SELECT_LINE;
+
+Menu wifiMenu("WiFiMenu", (uint8_t*) OSD_WIFI_MENU, MENU_WIFI_FIRST_SELECT_LINE, MENU_WIFI_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+        currentMenu = &mainMenu;
+        currentMenu->Display();
+        return;
+    }
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+        switch (menu_activeLine) {
+            case MENU_WIFI_SSID_LINE:
+                snprintf(wifiEdit_Name, 39, "SSID");
+                snprintf(wifiEdit_Value, 39, "%-38s", ssid);
+                break;
+            case MENU_WIFI_PASSWORD_LINE:
+                snprintf(wifiEdit_Name, 39, "Password");
+                snprintf(wifiEdit_Value, 39, "%-38s", "");
+                break;
+            case MENU_WIFI_RESTART_LINE:
+                previousMenu = &wifiMenu;
+                currentMenu = &firmwareResetMenu;
+                currentMenu->Display();
+                return;
+        }
+        wifiEdit_activeLine = menu_activeLine;
+        wifiEdit_CursorPos = 0;
+        currentMenu = &wifiEditMenu;
+        currentMenu->Display();
+        return;
+    }
+}, [](uint8_t* menu_text, uint8_t menu_activeLine) {
+    // write current values to menu
+    char buffer[MENU_WIDTH] = "";
+
+    snprintf(buffer, 28, "%-27s", ssid);
+    memcpy(&menu_text[MENU_WIFI_SSID_LINE * MENU_WIDTH + 12], buffer, 27);
+    snprintf(buffer, 28, "%-27s", strlen(password) > 0 ? "<password-set>" : "<password-not-set>");
+    memcpy(&menu_text[MENU_WIFI_PASSWORD_LINE * MENU_WIDTH + 12], buffer, 27);
+
+    return menu_activeLine;
+}, NULL, true);
+
+///////////////////////////////////////////////////////////////////
+
+void rtrim(char *str) {
+    int len = strlen(str);
+    for (int i = len - 1 ; i >= 0 ; i--) {
+        if (isspace(str[i])) {
+            str[i] = '\0';
+        } else if (isprint(str[i])) {
+            break;
+        }
+    }
+}
+
+///////////////////////////////////////////////////////////////////
+
+Menu wifiEditMenu("WiFiEditMenu", (uint8_t*) OSD_WIFI_EDIT_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+        currentMenu = &wifiMenu;
+        currentMenu->Display();
+        return;
+    }
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+        char result[MENU_WIDTH] = "";
+        snprintf(result, 39, "%s", wifiEdit_Value);
+        rtrim(result);
+        switch (wifiEdit_activeLine) {
+            case MENU_WIFI_SSID_LINE:
+                snprintf(ssid, 39, "%s", result);
+                _writeFile("/etc/ssid", ssid, 64);
+                break;
+            case MENU_WIFI_PASSWORD_LINE:
+                snprintf(password, 39, "%s", result);
+                _writeFile("/etc/password", password, 64);
+                break;
+        }
+        currentMenu = &wifiMenu;
+        currentMenu->Display();
+        return;
+    }
+
+    bool isLeft = CHECK_MASK(controller_data, CTRLR_PAD_LEFT);
+    bool isRight = CHECK_MASK(controller_data, CTRLR_PAD_RIGHT);
+    bool isUp = CHECK_MASK(controller_data, CTRLR_PAD_UP);
+    bool isDown = CHECK_MASK(controller_data, CTRLR_PAD_DOWN);
+
+    if (isLeft || isRight || isUp || isDown) {
+        if (isLeft) {
+            if (wifiEdit_CursorPos > 0) {
+                wifiEdit_CursorPos--;
+            }
+        } else if (isRight) {
+            if (wifiEdit_CursorPos < 37) {
+                wifiEdit_CursorPos++;
+            }
+        } else if (isUp) {
+            uint8_t c = wifiEdit_Value[wifiEdit_CursorPos] + 1;
+            if (isprint(c)) {
+                wifiEdit_Value[wifiEdit_CursorPos] = c;
+            }
+        } else if (isDown) {
+            uint8_t c = wifiEdit_Value[wifiEdit_CursorPos] - 1;
+            if (isprint(c)) {
+                wifiEdit_Value[wifiEdit_CursorPos] = c;
+            }
+        }
+        currentMenu->Display();
+        return;
+    }
+}, [](uint8_t* menu_text, uint8_t menu_activeLine) {
+    // write current values to menu
+    char buffer[MENU_WIDTH] = "";
+    char buffer2[MENU_WIDTH] = "";
+
+    snprintf(buffer, 39, "%-38s", wifiEdit_Name);
+    memcpy(&menu_text[MENU_WIFI_EDIT_NAME_LINE * MENU_WIDTH + 1], buffer, 38);
+    snprintf(buffer, 39, "%-38s", wifiEdit_Value);
+    memcpy(&menu_text[MENU_WIFI_EDIT_VALUE_LINE * MENU_WIDTH + 1], buffer, 38);
+    snprintf(buffer2, 39, "%*c", wifiEdit_CursorPos + 1, '^');
+    snprintf(buffer, 39, "%-38s", buffer2);
+    memcpy(&menu_text[MENU_WIFI_EDIT_CURSOR_LINE * MENU_WIDTH + 1], buffer, 38);
+
+    return MENU_WIFI_EDIT_VALUE_LINE;
+}, NULL, false);
 
 ///////////////////////////////////////////////////////////////////
 
@@ -985,6 +1120,10 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
                 currentMenu = &firmwareMenu;
                 currentMenu->Display();
                 break;
+            case MENU_M_WIFI:
+                currentMenu = &wifiMenu;
+                currentMenu->Display();
+                break;
             case MENU_M_RST:
                 currentMenu = &resetMenu;
                 currentMenu->Display();
@@ -1009,7 +1148,7 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
         memcpy(&menu_text[(MENU_BUTTON_LINE - 1) * MENU_WIDTH], MENU_RST_NORMAL_BUTTON_LINE, MENU_WIDTH);
     }
     return menu_activeLine;
-}, NULL);
+}, NULL, true);
 
 ///////////////////////////////////////////////////////////////////
 
@@ -1022,6 +1161,8 @@ Menu dcResetConfirmMenu("DCResetConfirm", (uint8_t*) OSD_DC_RESET_CONFIRM_MENU, 
             waitForI2CRecover(true);
             DBG_OUTPUT_PORT.printf("reset dreamcast recover!\n");
             currentMenu->endTransaction();
+            currentMenu = &mainMenu;
+            currentMenu->Display();
         });
         return;
     }
@@ -1030,7 +1171,7 @@ Menu dcResetConfirmMenu("DCResetConfirm", (uint8_t*) OSD_DC_RESET_CONFIRM_MENU, 
         currentMenu->Display();
         return;
     }
-}, NULL, NULL);
+}, NULL, NULL, true);
 
 ///////////////////////////////////////////////////////////////////
 
@@ -1043,6 +1184,8 @@ Menu optResetConfirmMenu("OptResetConfirm", (uint8_t*) OSD_OPT_RESET_CONFIRM_MEN
             waitForI2CRecover(false);
             DBG_OUTPUT_PORT.printf("secondary reset recover!\n");
             currentMenu->endTransaction();
+            currentMenu = &mainMenu;
+            currentMenu->Display();
         });
         return;
     }
@@ -1051,7 +1194,7 @@ Menu optResetConfirmMenu("OptResetConfirm", (uint8_t*) OSD_OPT_RESET_CONFIRM_MEN
         currentMenu->Display();
         return;
     }
-}, NULL, NULL);
+}, NULL, NULL, true);
 
 ///////////////////////////////////////////////////////////////////
 // <-- Menus end
@@ -1809,7 +1952,6 @@ void setupHTTPServer() {
         writeSetupParameter(request, "video_resolution", configuredResolution, "/etc/video/resolution", 16, DEFAULT_VIDEO_RESOLUTION);
         writeSetupParameter(request, "video_mode", videoMode, "/etc/video/mode", 16, DEFAULT_VIDEO_MODE);
         writeSetupParameter(request, "reset_mode", resetMode, "/etc/reset/mode", 16, DEFAULT_RESET_MODE);
-        
 
         request->send(200, "text/plain", "OK\n");
     });
