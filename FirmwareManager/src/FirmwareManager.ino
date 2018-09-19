@@ -124,6 +124,8 @@ extern Menu firmwareResetMenu;
 extern Menu scanlinesMenu;
 extern Menu resetMenu;
 extern Menu infoMenu;
+extern Menu dcResetConfirmMenu;
+extern Menu optResetConfirmMenu;
 Menu *currentMenu;
 // functions
 void setOSD(bool value, WriteCallbackHandlerFunction handler);
@@ -991,25 +993,13 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
         return;
     }
     if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_X)) {
-        DBG_OUTPUT_PORT.printf("reset dreamcast!!!!! %x\n", controller_data);
-        currentMenu->startTransaction();
-        fpgaTask.Write(I2C_DC_RESET, 0, [](uint8_t Address, uint8_t Value) {
-            DBG_OUTPUT_PORT.printf("reset dreamcast callback: %u\n", Value);
-            waitForI2CRecover(true);
-            DBG_OUTPUT_PORT.printf("reset dreamcast recover!\n");
-            currentMenu->endTransaction();
-        });
+        currentMenu = &dcResetConfirmMenu;
+        currentMenu->Display();
         return;
     }
     if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_Y)) {
-        DBG_OUTPUT_PORT.printf("secondary reset!!!!! %x\n", controller_data);
-        currentMenu->startTransaction();
-        fpgaTask.Write(I2C_OPT_RESET, 0, [](uint8_t Address, uint8_t Value) {
-            DBG_OUTPUT_PORT.printf("secondary reset callback: %u\n", Value);
-            waitForI2CRecover(true);
-            DBG_OUTPUT_PORT.printf("secondary reset recover!\n");
-            currentMenu->endTransaction();
-        });
+        currentMenu = &optResetConfirmMenu;
+        currentMenu->Display();
         return;
     }
 }, [](uint8_t* menu_text, uint8_t menu_activeLine) {
@@ -1021,7 +1011,47 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
     return menu_activeLine;
 }, NULL);
 
-            // fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_BUTTON_LINE, (uint8_t*) MENU_BACK_LINE, [ pos ]() {
+///////////////////////////////////////////////////////////////////
+
+Menu dcResetConfirmMenu("DCResetConfirm", (uint8_t*) OSD_DC_RESET_CONFIRM_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+        DBG_OUTPUT_PORT.printf("reset dreamcast!!!!! %x\n", controller_data);
+        currentMenu->startTransaction();
+        fpgaTask.Write(I2C_DC_RESET, 0, [](uint8_t Address, uint8_t Value) {
+            DBG_OUTPUT_PORT.printf("reset dreamcast callback: %u\n", Value);
+            waitForI2CRecover(true);
+            DBG_OUTPUT_PORT.printf("reset dreamcast recover!\n");
+            currentMenu->endTransaction();
+        });
+        return;
+    }
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+        currentMenu = &mainMenu;
+        currentMenu->Display();
+        return;
+    }
+}, NULL, NULL);
+
+///////////////////////////////////////////////////////////////////
+
+Menu optResetConfirmMenu("OptResetConfirm", (uint8_t*) OSD_OPT_RESET_CONFIRM_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_A)) {
+        DBG_OUTPUT_PORT.printf("secondary reset!!!!! %x\n", controller_data);
+        currentMenu->startTransaction();
+        fpgaTask.Write(I2C_OPT_RESET, 0, [](uint8_t Address, uint8_t Value) {
+            DBG_OUTPUT_PORT.printf("secondary reset callback: %u\n", Value);
+            waitForI2CRecover(false);
+            DBG_OUTPUT_PORT.printf("secondary reset recover!\n");
+            currentMenu->endTransaction();
+        });
+        return;
+    }
+    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {
+        currentMenu = &mainMenu;
+        currentMenu->Display();
+        return;
+    }
+}, NULL, NULL);
 
 ///////////////////////////////////////////////////////////////////
 // <-- Menus end

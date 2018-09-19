@@ -113,6 +113,38 @@ char OSD_VIDEO_MODE_SAVE_MENU[521] = (
     "         A: Reset  B: Not now           "
 );
 
+char OSD_DC_RESET_CONFIRM_MENU[521] = (
+    "Reset Dreamcast                         "
+    "                                        "
+    "      Do you really want to reset       "
+    "          the dreamcast now?            "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "         A: Reset  B: Not now           "
+);
+
+char OSD_OPT_RESET_CONFIRM_MENU[521] = (
+    "GDEMU button                            "
+    "                                        "
+    "      Do you really want to press       "
+    "          the GDEMU button?             "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "         A: Press  B: Not now           "
+);
+
 #define MENU_FW_CHECK_LINE 2
 #define MENU_FW_DOWNLOAD_LINE 3
 #define MENU_FW_FLASH_LINE 4
