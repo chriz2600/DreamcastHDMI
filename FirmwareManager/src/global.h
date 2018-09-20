@@ -1,6 +1,9 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+#include <string>
+#include <functional>
+
 //////////////////////////////////////////////////////////////////////////////////
 
 #define DEFAULT_SSID ""
