@@ -1,6 +1,30 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
+//////////////////////////////////////////////////////////////////////////////////
+
+#define DEFAULT_SSID ""
+#define DEFAULT_PASSWORD ""
+#define DEFAULT_OTA_PASSWORD ""
+#define DEFAULT_FW_SERVER "dc.i74.de"
+#define DEFAULT_FW_VERSION "master"
+#define DEFAULT_HTTP_USER "Test"
+#define DEFAULT_HTTP_PASS "testtest"
+#define DEFAULT_CONF_IP_ADDR ""
+#define DEFAULT_CONF_IP_GATEWAY ""
+#define DEFAULT_CONF_IP_MASK ""
+#define DEFAULT_CONF_IP_DNS ""
+#define DEFAULT_HOST "dc-firmware-manager"
+#define DEFAULT_VIDEO_MODE VIDEO_MODE_STR_FORCE_VGA
+#define DEFAULT_VIDEO_RESOLUTION RESOLUTION_STR_1080p
+#define DEFAULT_SCANLINES_ACTIVE SCANLINES_DISABLED
+#define DEFAULT_SCANLINES_INTENSITY "175"
+#define DEFAULT_SCANLINES_ODDEVEN SCANLINES_EVEN
+#define DEFAULT_SCANLINES_THICKNESS SCANLINES_THIN
+#define DEFAULT_RESET_MODE RESET_MODE_STR_LED
+
+//////////////////////////////////////////////////////////////////////////////////
+
 #define CS 16
 #define NCE 4
 #define NCONFIG 5

@@ -349,6 +349,7 @@ typedef std::function<void(uint16_t controller_data, uint8_t menu_activeLine, bo
 typedef std::function<uint8_t(uint8_t* menu_text, uint8_t menu_activeLine)> PreDisplayHook;
 
 extern FPGATask fpgaTask;
+bool OSDOpen = false;
 
 class Menu
 {
@@ -463,4 +464,32 @@ void displayProgress(int read, int total, int line) {
 //#include "osd/Info.h"
 #include "osd/Reset.h"
 #include "osd/Wifi.h"
+
+void setOSD(bool value, WriteCallbackHandlerFunction handler) {
+    OSDOpen = value;
+    fpgaTask.Write(I2C_OSD_ENABLE, value, handler);
+}
+
+void openOSD() {
+    currentMenu = &mainMenu;
+    setOSD(true, [](uint8_t Address, uint8_t Value) {
+        currentMenu->Display();
+    });
+}
+
+void closeOSD() {
+    setOSD(false, NULL);
+}
+
+FPGATask fpgaTask(1, [](uint16_t controller_data, bool isRepeat) {
+    if (!OSDOpen && !isRepeat && CHECK_BIT(controller_data, CTRLR_TRIGGER_OSD)) {
+        openOSD();
+        return;
+    }
+    if (OSDOpen) {
+        //DBG_OUTPUT_PORT.printf("Menu: %s %x\n", currentMenu->Name(), controller_data);
+        currentMenu->HandleClick(controller_data, isRepeat);
+    }
+});
+
 #endif

@@ -106,3 +106,8 @@ Menu scanlinesMenu("ScanlinesMenu", (uint8_t*) OSD_SCANLINES_MENU, MENU_SL_FIRST
     return MENU_SL_FIRST_SELECT_LINE;
 }, NULL, true);
 
+void setScanlines(uint8_t upper, uint8_t lower, WriteCallbackHandlerFunction handler) {
+    fpgaTask.Write(I2C_SCANLINE_UPPER, upper, [ lower, handler ](uint8_t Address, uint8_t Value) {
+        fpgaTask.Write(I2C_SCANLINE_LOWER, lower, handler);
+    });
+}

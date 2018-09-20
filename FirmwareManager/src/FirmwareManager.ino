@@ -1,5 +1,6 @@
+//////////////////////////////////////////////////////////////////////////////////
 /* 
-    Dreamcast Firmware Manager
+    Dreamcast Companion App
 */
 #include "global.h"
 #include <ESP8266WiFi.h>
@@ -22,27 +23,12 @@
 #include "DebugTask.h"
 #include "TimeoutTask.h"
 #include "FlashCheckTask.h"
+#include "util.h"
+#include "data.h"
+#include "web.h"
 #include "Menu.h"
 
-#define DEFAULT_SSID ""
-#define DEFAULT_PASSWORD ""
-#define DEFAULT_OTA_PASSWORD ""
-#define DEFAULT_FW_SERVER "dc.i74.de"
-#define DEFAULT_FW_VERSION "master"
-#define DEFAULT_HTTP_USER "Test"
-#define DEFAULT_HTTP_PASS "testtest"
-#define DEFAULT_CONF_IP_ADDR ""
-#define DEFAULT_CONF_IP_GATEWAY ""
-#define DEFAULT_CONF_IP_MASK ""
-#define DEFAULT_CONF_IP_DNS ""
-#define DEFAULT_HOST "dc-firmware-manager"
-#define DEFAULT_VIDEO_MODE VIDEO_MODE_STR_FORCE_VGA
-#define DEFAULT_VIDEO_RESOLUTION RESOLUTION_STR_1080p
-#define DEFAULT_SCANLINES_ACTIVE SCANLINES_DISABLED
-#define DEFAULT_SCANLINES_INTENSITY "175"
-#define DEFAULT_SCANLINES_ODDEVEN SCANLINES_EVEN
-#define DEFAULT_SCANLINES_THICKNESS SCANLINES_THIN
-#define DEFAULT_RESET_MODE RESET_MODE_STR_LED
+//////////////////////////////////////////////////////////////////////////////////
 
 char ssid[64] = DEFAULT_SSID;
 char password[64] = DEFAULT_PASSWORD;
@@ -62,26 +48,18 @@ char resetMode[16] = "";
 const char* WiFiAPPSK = "geheim1234";
 IPAddress ipAddress( 192, 168, 4, 1 );
 bool inInitialSetupMode = false;
-bool fpgaDisabled = false;
-String fname;
 AsyncWebServer server(80);
 SPIFlash flash(CS);
 int last_error = NO_ERROR; 
 int totalLength;
 int readLength;
 
-static AsyncClient *aClient = NULL;
 File flashFile;
-bool headerFound = false;
-String header = "";
-std::string responseData("");
 
-bool OSDOpen = false;
 uint8_t CurrentResolution = RESOLUTION_1080p;
 uint8_t PrevCurrentResolution;
 uint8_t ForceVGA = VGA_ON;
 uint8_t CurrentResetMode = RESET_MODE_LED;
-bool DelayVGA = false;
 
 char md5FPGA[48];
 char md5ESP[48];
@@ -108,91 +86,60 @@ extern Menu mainMenu;
 Menu *currentMenu;
 Menu *previousMenu;
 
-// functions
-void openOSD() {
-    currentMenu = &mainMenu;
-    setOSD(true, [](uint8_t Address, uint8_t Value) {
-        currentMenu->Display();
-    });
-}
+//////////////////////////////////////////////////////////////////////////////////
 
-void closeOSD() {
-    setOSD(false, NULL);
-}
-
-void setScanlines(uint8_t upper, uint8_t lower, WriteCallbackHandlerFunction handler) {
-    fpgaTask.Write(I2C_SCANLINE_UPPER, upper, [ lower, handler ](uint8_t Address, uint8_t Value) {
-        fpgaTask.Write(I2C_SCANLINE_LOWER, lower, handler);
-    });
-}
-
-FPGATask fpgaTask(1, [](uint16_t controller_data, bool isRepeat) {
-    if (!OSDOpen && !isRepeat && CHECK_BIT(controller_data, CTRLR_TRIGGER_OSD)) {
-        openOSD();
-        return;
-    }
-    if (OSDOpen) {
-        //DBG_OUTPUT_PORT.printf("Menu: %s %x\n", currentMenu->Name(), controller_data);
-        currentMenu->HandleClick(controller_data, isRepeat);
-    }
-});
-
-// poll I2C slave and wait for a no error condition with a maximum number of tries
-void waitForI2CRecover(bool waitForError) {
-    int retryCount = I2C_RECOVER_TRIES;
-    int prev_last_error = NO_ERROR;
-    DBG_OUTPUT_PORT.printf("... PRE: prev_last_error/last_error %i (%u/%u)\n", retryCount, prev_last_error, last_error);
-    while (retryCount >= 0) {
-        fpgaTask.Read(I2C_PING, 1, NULL); 
-        fpgaTask.ForceLoop();
-        if (waitForError) {
-            if (prev_last_error != NO_ERROR && last_error == NO_ERROR) break;
+void setupSPIFFS() {
+    DBG_OUTPUT_PORT.printf(">> Setting up SPIFFS...\n");
+    if (!SPIFFS.begin()) {
+        DBG_OUTPUT_PORT.printf(">> SPIFFS begin failed, trying to format...");
+        if (SPIFFS.format()) {
+            DBG_OUTPUT_PORT.printf("done.\n");
         } else {
-            if (last_error == NO_ERROR) break;
-        }
-        prev_last_error = last_error;
-        retryCount--;
-        delayMicroseconds(I2C_RECOVER_RETRY_INTERVAL_US);
-        yield();
-    }
-    DBG_OUTPUT_PORT.printf("... POST: prev_last_error/last_error %i (%u/%u)\n", retryCount, prev_last_error, last_error);
-}
-
-void switchResolution(uint8_t newValue) {
-    CurrentResolution = newValue;
-    fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
-}
-
-void setOSD(bool value, WriteCallbackHandlerFunction handler) {
-    OSDOpen = value;
-    fpgaTask.Write(I2C_OSD_ENABLE, value, handler);
-}
-
-void _writeFile(const char *filename, const char *towrite, unsigned int len) {
-    File f = SPIFFS.open(filename, "w");
-    if (f) {
-        f.write((const uint8_t*) towrite, len);
-        f.close();
-        DBG_OUTPUT_PORT.printf(">> _writeFile: %s:[%s]\n", filename, towrite);
-    }
-}
-
-void _readFile(const char *filename, char *target, unsigned int len, const char* defaultValue) {
-    bool exists = SPIFFS.exists(filename);
-    bool readFromFile = false;
-    if (exists) {
-        File f = SPIFFS.open(filename, "r");
-        if (f) {
-            f.readBytes(target, len);
-            f.close();
-            DBG_OUTPUT_PORT.printf(">> _readFile: %s:[%s]\n", filename, target);
-            readFromFile = true;
+            DBG_OUTPUT_PORT.printf("error.\n");
         }
     }
-    if (!readFromFile) {
-        snprintf(target, len, "%s", defaultValue);
-        DBG_OUTPUT_PORT.printf(">> _readFile: %s:[%s] (default)\n", filename, target);
-    }
+}
+
+void setupResetMode() {
+    readCurrentResetMode();
+    DBG_OUTPUT_PORT.printf(">> Setting up reset mode: %x\n", CurrentResetMode);
+    forceI2CWrite(
+        I2C_RESET_CONF, CurrentResetMode, 
+        I2C_PING, 0
+    );
+}
+
+void setupOutputResolution() {
+    readVideoMode();
+    readCurrentResolution();
+
+    DBG_OUTPUT_PORT.printf(">> Setting up output resolution: %x\n", ForceVGA | CurrentResolution);
+    reflashNeccessary = !forceI2CWrite(
+        I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, 
+        I2C_DC_RESET, 0
+    );
+}
+
+void setupScanlines() {
+    readScanlinesActive();
+    readScanlinesIntensity();
+    readScanlinesOddeven();
+    readScanlinesThickness();
+
+    uint8_t upper = getScanlinesUpperPart();
+    uint8_t lower = getScanlinesLowerPart();
+
+    DBG_OUTPUT_PORT.printf(">> Setting up scanlines:\n");
+    reflashNeccessary2 = !forceI2CWrite(
+        I2C_SCANLINE_UPPER, upper, 
+        I2C_SCANLINE_LOWER, lower
+    );
+}
+
+void setupTaskManager() {
+    DBG_OUTPUT_PORT.printf(">> Setting up task manager...\n");
+    taskManager.Setup();
+    taskManager.StartTask(&fpgaTask);
 }
 
 void setupCredentials(void) {
@@ -232,326 +179,6 @@ void setupAPMode(void) {
     DBG_OUTPUT_PORT.printf(">> SSID:   %s\n", AP_NameChar);
     DBG_OUTPUT_PORT.printf(">> AP-PSK: %s\n", WiFiAPPSK);
     inInitialSetupMode = true;
-}
-
-void disableFPGA() {
-    pinMode(NCE, OUTPUT);
-    digitalWrite(NCE, HIGH);
-    fpgaDisabled = true;
-}
-
-void enableFPGA() {
-    if (fpgaDisabled) {
-        digitalWrite(NCE, LOW);
-        pinMode(NCE, INPUT);
-        fpgaDisabled = false;
-    }
-}
-
-void startFPGAConfiguration() {
-    pinMode(NCONFIG, OUTPUT);
-    digitalWrite(NCONFIG, LOW);
-}
-
-void endFPGAConfiguration() {
-    digitalWrite(NCONFIG, HIGH);
-    pinMode(NCONFIG, INPUT);    
-}
-
-void resetFPGAConfiguration() {
-    startFPGAConfiguration();
-    delay(1);
-    endFPGAConfiguration();
-}
-
-bool _isAuthenticated(AsyncWebServerRequest *request) {
-    return request->authenticate(httpAuthUser, httpAuthPass);
-}
-
-void handleUpload(AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
-    if(!_isAuthenticated(request)) {
-        return;
-    }
-    if (!index) {
-        fname = filename.c_str();
-        md5.begin();
-        request->_tempFile = SPIFFS.open(filename, "w");
-        DBG_OUTPUT_PORT.printf(">> Receiving %s\n", filename.c_str());
-    }
-    if (request->_tempFile) {
-        if (len) {
-            request->_tempFile.write(data, len);
-            md5.add(data, len);
-        }
-        if (final) {
-            DBG_OUTPUT_PORT.printf(">> MD5 calc for %s\n", fname.c_str());
-            request->_tempFile.close();
-            md5.calculate();
-            String md5sum = md5.toString();
-            _writeFile((fname + ".md5").c_str(), md5sum.c_str(), md5sum.length());
-        }
-    }
-}
-
-int writeProgress(uint8_t *buffer, size_t maxLen, int progress) {
-    char msg[5];
-    uint len = 4;
-    int alen = (len > maxLen ? maxLen : len);
-
-    sprintf(msg, "% 3i\n", progress);
-    //len = strlen(msg);
-    memcpy(buffer, msg, alen);
-    return alen;
-}
-
-void resetall() {
-    DBG_OUTPUT_PORT.printf("all reset requested...\n");
-    taskManager.StopTask(&fpgaTask);
-    enableFPGA();
-    resetFPGAConfiguration();
-    //ESP.eraseConfig();
-    ESP.restart();
-}
-
-void handleFlash(AsyncWebServerRequest *request, const char *filename) {
-    if (SPIFFS.exists(filename)) {
-        taskManager.StartTask(&flashTask);
-        request->send(200);
-    } else {
-        request->send(404);
-    }
-}
-
-void handleESPFlash(AsyncWebServerRequest *request, const char *filename) {
-    if (SPIFFS.exists(filename)) {
-        taskManager.StartTask(&flashESPTask);
-        request->send(200);
-    } else {
-        request->send(404);
-    }
-}
-
-void handleESPIndexFlash(AsyncWebServerRequest *request) {
-    if (SPIFFS.exists(ESP_INDEX_STAGING_FILE)) {
-        taskManager.StartTask(&flashESPIndexTask);
-        request->send(200);
-    } else {
-        request->send(404);
-    }
-}
-
-void handleFPGADownload(AsyncWebServerRequest *request) {
-    handleFPGADownload(request, NULL);
-}
-
-void handleESPDownload(AsyncWebServerRequest *request) {
-    handleESPDownload(request, NULL);
-}
-
-void handleESPIndexDownload(AsyncWebServerRequest *request) {
-    handleESPIndexDownload(request, NULL);
-}
-
-void handleFPGADownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
-    String httpGet = "GET /fw/" 
-        + String(firmwareVersion) 
-        + "/DCxPlus-default"
-        + "." + FIRMWARE_EXTENSION 
-        + " HTTP/1.0\r\nHost: dc.i74.de\r\n\r\n";
-
-    _handleDownload(request, FIRMWARE_FILE, httpGet, progressCallback);
-}
-
-void handleESPDownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
-    String httpGet = "GET /" 
-        + String(firmwareVersion) 
-        + "/" + (ESP.getFlashChipSize() / 1024 / 1024) + "MB"
-        + "-" + "firmware"
-        + "." + ESP_FIRMWARE_EXTENSION 
-        + " HTTP/1.0\r\nHost: esp.i74.de\r\n\r\n";
-
-    _handleDownload(request, ESP_FIRMWARE_FILE, httpGet, progressCallback);
-}
-
-void handleESPIndexDownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
-    String httpGet = "GET /"
-        + String(firmwareVersion)
-        + "/esp.index.html.gz"
-        + " HTTP/1.0\r\nHost: esp.i74.de\r\n\r\n";
-
-    _handleDownload(request, ESP_INDEX_STAGING_FILE, httpGet, progressCallback);
-}
-
-void getMD5SumFromServer(String host, String url, ContentCallback contentCallback) {
-    String httpGet = "GET " + url + " HTTP/1.0\r\nHost: " + host + "\r\n\r\n";
-    headerFound = false;
-    last_error = NO_ERROR;
-    responseData.clear();
-    aClient = new AsyncClient();
-    aClient->onError([ contentCallback ](void *arg, AsyncClient *client, int error) {
-        contentCallback(responseData, UNKNOWN_ERROR);
-        aClient = NULL;
-        delete client;
-    }, NULL);
-
-    aClient->onConnect([ httpGet, contentCallback ](void *arg, AsyncClient *client) {
-        aClient->onError(NULL, NULL);
-
-        client->onDisconnect([ contentCallback ](void *arg, AsyncClient *c) {
-            contentCallback(responseData, NO_ERROR);
-            aClient = NULL;
-            delete c;
-        }, NULL);
-    
-        client->onData([](void *arg, AsyncClient *c, void *data, size_t len) {
-            String sData = String((char*) data);
-            if (!headerFound) {
-                int idx = sData.indexOf("\r\n\r\n");
-                if (idx == -1) {
-                    return;
-                }
-                responseData.append(sData.substring(idx + 4, len).c_str());
-                headerFound = true;
-            } else {
-                responseData.append(sData.substring(0, len).c_str());
-            }
-        }, NULL);
-    
-        //send the request
-        DBG_OUTPUT_PORT.printf("Requesting: %s\n", httpGet.c_str());
-        client->write(httpGet.c_str());
-    });
-
-    if (!aClient->connect(firmwareServer, 80)) {
-        contentCallback(responseData, UNKNOWN_ERROR);
-        AsyncClient *client = aClient;
-        aClient = NULL;
-        delete client;
-    }
-}
-
-void _handleDownload(AsyncWebServerRequest *request, const char *filename, String httpGet, ProgressCallback progressCallback) {
-    headerFound = false;
-    header = "";
-    totalLength = -1;
-    readLength = -1;
-    last_error = NO_ERROR;
-    md5.begin();
-    flashFile = SPIFFS.open(filename, "w");
-
-    if (flashFile) {
-        aClient = new AsyncClient();
-
-        aClient->onError([ progressCallback ](void *arg, AsyncClient *client, int error) {
-            DBG_OUTPUT_PORT.println("Connect Error");
-            PROGRESS_CALLBACK(false, UNKNOWN_ERROR);
-            aClient = NULL;
-            delete client;
-        }, NULL);
-    
-        aClient->onConnect([ filename, httpGet, progressCallback ](void *arg, AsyncClient *client) {
-            DBG_OUTPUT_PORT.println("Connected");
-            //aClient->onError(NULL, NULL);
-
-            client->onDisconnect([ filename, progressCallback ](void *arg, AsyncClient *c) {
-                DBG_OUTPUT_PORT.println("onDisconnect");
-                flashFile.close();
-                md5.calculate();
-                String md5sum = md5.toString();
-                _writeFile((String(filename) + ".md5").c_str(), md5sum.c_str(), md5sum.length());
-                DBG_OUTPUT_PORT.println("Disconnected");
-                PROGRESS_CALLBACK(true, NO_ERROR);
-                aClient = NULL;
-                delete c;
-            }, NULL);
-        
-            client->onData([ progressCallback ](void *arg, AsyncClient *c, void *data, size_t len) {
-                uint8_t* d = (uint8_t*) data;
-
-                if (!headerFound) {
-                    String sData = String((char*) data);
-                    int idx = sData.indexOf("\r\n\r\n");
-                    if (idx == -1) {
-                        DBG_OUTPUT_PORT.printf("header not found. Storing buffer.\n");
-                        header += sData;
-                        return;
-                    } else {
-                        header += sData.substring(0, idx + 4);
-                        header.toLowerCase();
-                        int clstart = header.indexOf("content-length: ");
-                        if (clstart != -1) {
-                            clstart += 16;
-                            int clend = header.indexOf("\r\n", clstart);
-                            if (clend != -1) {
-                                totalLength = atoi(header.substring(clstart, clend).c_str());
-                            }
-                        }
-                        d = (uint8_t*) sData.substring(idx + 4).c_str();
-                        len = (len - (idx + 4));
-                        headerFound = true;
-                        readLength = 0;
-                        DBG_OUTPUT_PORT.printf("header content length found: %i\n", totalLength);
-                    }
-                }
-                readLength += len;
-                DBG_OUTPUT_PORT.printf("write: %i, %i/%i\n", len, readLength, totalLength);
-                flashFile.write(d, len);
-                md5.add(d, len);
-                PROGRESS_CALLBACK(false, NO_ERROR);
-            }, NULL);
-
-            //send the request
-            DBG_OUTPUT_PORT.printf("Requesting: %s\n", httpGet.c_str());
-            client->write(httpGet.c_str());
-        }, NULL);
-
-        DBG_OUTPUT_PORT.println("Trying to connect");
-        if (!aClient->connect(firmwareServer, 80)) {
-            DBG_OUTPUT_PORT.println("Connect Fail");
-            AsyncClient *client = aClient;
-            PROGRESS_CALLBACK(false, UNKNOWN_ERROR);
-            aClient = NULL;
-            delete client;
-        }
-
-        if (request != NULL) { request->send(200); }
-    } else {
-        if (request != NULL) { request->send(500); }
-        PROGRESS_CALLBACK(false, UNKNOWN_ERROR);
-    }
-}
-
-void setupArduinoOTA() {
-    DBG_OUTPUT_PORT.printf(">> Setting up ArduinoOTA...\n");
-    
-    ArduinoOTA.setPort(8266);
-    ArduinoOTA.setHostname(host);
-    ArduinoOTA.setPassword(otaPassword);
-    
-    ArduinoOTA.onStart([]() {
-        DBG_OUTPUT_PORT.println("ArduinoOTA >> Start");
-    });
-    ArduinoOTA.onEnd([]() {
-        DBG_OUTPUT_PORT.println("\nArduinoOTA >> End");
-    });
-    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-        DBG_OUTPUT_PORT.printf("ArduinoOTA >> Progress: %u%%\r", (progress / (total / 100)));
-    });
-    ArduinoOTA.onError([](ota_error_t error) {
-        DBG_OUTPUT_PORT.printf("ArduinoOTA >> Error[%u]: ", error);
-        if (error == OTA_AUTH_ERROR) {
-            DBG_OUTPUT_PORT.println("ArduinoOTA >> Auth Failed");
-        } else if (error == OTA_BEGIN_ERROR) {
-            DBG_OUTPUT_PORT.println("ArduinoOTA >> Begin Failed");
-        } else if (error == OTA_CONNECT_ERROR) {
-            DBG_OUTPUT_PORT.println("ArduinoOTA >> Connect Failed");
-        } else if (error == OTA_RECEIVE_ERROR) {
-            DBG_OUTPUT_PORT.println("ArduinoOTA >> Receive Failed");
-        } else if (error == OTA_END_ERROR) {
-            DBG_OUTPUT_PORT.println("ArduinoOTA >> End Failed");
-        }
-    });
-    ArduinoOTA.begin();
 }
 
 void setupWiFi() {
@@ -635,27 +262,6 @@ void setupWiFi() {
             ">> http://%s.local/\n", 
             host
         );
-    }
-}
-
-void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char* target, unsigned int maxlen, const char* resetValue) {
-    String _tmp = "/etc/" + String(param);
-    writeSetupParameter(request, param, target, _tmp.c_str(), maxlen, resetValue);
-}
-
-void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char* target, const char* filename, unsigned int maxlen, const char* resetValue) {
-    if(request->hasParam(param, true)) {
-        AsyncWebParameter *p = request->getParam(param, true);
-        if (p->value() == "") {
-            DBG_OUTPUT_PORT.printf("SPIFFS.remove: %s\n", filename);
-            snprintf(target, maxlen, "%s", resetValue);
-            SPIFFS.remove(filename);
-        } else {
-            snprintf(target, maxlen, "%s", p->value().c_str());
-            _writeFile(filename, target, maxlen);
-        }
-    } else {
-        DBG_OUTPUT_PORT.printf("no such param: %s\n", param);
     }
 }
 
@@ -1035,262 +641,40 @@ void setupHTTPServer() {
     server.begin();
 }
 
-void setupSPIFFS() {
-    DBG_OUTPUT_PORT.printf(">> Setting up SPIFFS...\n");
-    if (!SPIFFS.begin()) {
-        DBG_OUTPUT_PORT.printf(">> SPIFFS begin failed, trying to format...");
-        if (SPIFFS.format()) {
-            DBG_OUTPUT_PORT.printf("done.\n");
-        } else {
-            DBG_OUTPUT_PORT.printf("error.\n");
+void setupArduinoOTA() {
+    DBG_OUTPUT_PORT.printf(">> Setting up ArduinoOTA...\n");
+    
+    ArduinoOTA.setPort(8266);
+    ArduinoOTA.setHostname(host);
+    ArduinoOTA.setPassword(otaPassword);
+    
+    ArduinoOTA.onStart([]() {
+        DBG_OUTPUT_PORT.println("ArduinoOTA >> Start");
+    });
+    ArduinoOTA.onEnd([]() {
+        DBG_OUTPUT_PORT.println("\nArduinoOTA >> End");
+    });
+    ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+        DBG_OUTPUT_PORT.printf("ArduinoOTA >> Progress: %u%%\r", (progress / (total / 100)));
+    });
+    ArduinoOTA.onError([](ota_error_t error) {
+        DBG_OUTPUT_PORT.printf("ArduinoOTA >> Error[%u]: ", error);
+        if (error == OTA_AUTH_ERROR) {
+            DBG_OUTPUT_PORT.println("ArduinoOTA >> Auth Failed");
+        } else if (error == OTA_BEGIN_ERROR) {
+            DBG_OUTPUT_PORT.println("ArduinoOTA >> Begin Failed");
+        } else if (error == OTA_CONNECT_ERROR) {
+            DBG_OUTPUT_PORT.println("ArduinoOTA >> Connect Failed");
+        } else if (error == OTA_RECEIVE_ERROR) {
+            DBG_OUTPUT_PORT.println("ArduinoOTA >> Receive Failed");
+        } else if (error == OTA_END_ERROR) {
+            DBG_OUTPUT_PORT.println("ArduinoOTA >> End Failed");
         }
-    }
-}
-
-void setupTaskManager() {
-    DBG_OUTPUT_PORT.printf(">> Setting up task manager...\n");
-    taskManager.Setup();
-    taskManager.StartTask(&fpgaTask);
-}
-
-void readVideoMode() {
-    _readFile("/etc/video/mode", videoMode, 16, DEFAULT_VIDEO_MODE);
-    String vidMode = String(videoMode);
-
-    if (vidMode == VIDEO_MODE_STR_FORCE_VGA) {
-        ForceVGA = VGA_ON;
-        DelayVGA = false;
-    } else if (vidMode == VIDEO_MODE_STR_SWITCH_TRICK) {
-        ForceVGA = VGA_ON;
-        DelayVGA = true;
-    } else { // default: VIDEO_MODE_STR_CABLE_DETECT
-        ForceVGA = VGA_OFF;
-        DelayVGA = false;
-    }
-}
-
-void writeVideoMode() {
-    String vidMode = VIDEO_MODE_STR_CABLE_DETECT;
-
-    if (ForceVGA == VGA_ON && !DelayVGA) {
-        vidMode = VIDEO_MODE_STR_FORCE_VGA;
-    } else if (ForceVGA == VGA_ON && DelayVGA) {
-        vidMode = VIDEO_MODE_STR_SWITCH_TRICK;
-    }
-
-    writeVideoMode2(vidMode);
-}
-
-void writeVideoMode2(String vidMode) {
-    _writeFile("/etc/video/mode", vidMode.c_str(), 16);
-    snprintf(videoMode, 16, "%s", vidMode.c_str());
-}
-
-void readCurrentResetMode() {
-    _readFile("/etc/reset/mode", resetMode, 16, DEFAULT_RESET_MODE);
-    CurrentResetMode = cfgRst2Int(resetMode);
-}
-
-void readCurrentResolution() {
-    _readFile("/etc/video/resolution", configuredResolution, 16, DEFAULT_VIDEO_RESOLUTION);
-    CurrentResolution = cfgRes2Int(configuredResolution);
-}
-
-uint8_t cfgRst2Int(char* rstMode) {
-    String cfgRst = String(rstMode);
-
-    if (cfgRst == RESET_MODE_STR_GDEMU) {
-        return RESET_MODE_GDEMU;
-    } else if (cfgRst == RESET_MODE_STR_USBGDROM) {
-        return RESET_MODE_USBGDROM;
-    }
-    // default is LED
-    return RESET_MODE_LED;
-}
-
-void writeCurrentResetMode() {
-    String cfgRst = RESET_MODE_STR_LED;
-
-    if (CurrentResetMode == RESET_MODE_GDEMU) {
-        cfgRst = RESET_MODE_STR_GDEMU;
-    } else if (CurrentResetMode == RESET_MODE_USBGDROM) {
-        cfgRst = RESET_MODE_STR_USBGDROM;
-    }
-
-    _writeFile("/etc/reset/mode", cfgRst.c_str(), 16);
-    snprintf(resetMode, 16, "%s", cfgRst.c_str());
-}
-
-uint8_t cfgRes2Int(char* intResolution) {
-    String cfgRes = String(intResolution);
-
-    if (cfgRes == RESOLUTION_STR_960p) {
-        return RESOLUTION_960p;
-    } else if (cfgRes == RESOLUTION_STR_480p) {
-        return RESOLUTION_480p;
-    } else if (cfgRes == RESOLUTION_STR_VGA) {
-        return RESOLUTION_VGA;
-    }
-    // default is 1080p
-    return RESOLUTION_1080p;
-}
-
-void writeCurrentResolution() {
-    String cfgRes = RESOLUTION_STR_1080p;
-
-    if (CurrentResolution == RESOLUTION_960p) {
-        cfgRes = RESOLUTION_STR_960p;
-    } else if (CurrentResolution == RESOLUTION_480p) {
-        cfgRes = RESOLUTION_STR_480p;
-    } else if (CurrentResolution == RESOLUTION_VGA) {
-        cfgRes = RESOLUTION_STR_VGA;
-    }
-
-    _writeFile("/etc/video/resolution", cfgRes.c_str(), 16);
-    snprintf(configuredResolution, 16, "%s", cfgRes.c_str());
-}
-
-/////////
-
-void readScanlinesActive() {
-    char buffer[32] = "";
-    _readFile("/etc/scanlines/active", buffer, 32, DEFAULT_SCANLINES_ACTIVE);
-    if (strcmp(buffer, SCANLINES_ENABLED) == 0) {
-        scanlinesActive = true;
-        return;
-    }
-    scanlinesActive = false;
-}
-
-void writeScanlinesActive() {
-    _writeFile("/etc/scanlines/active", scanlinesActive ? SCANLINES_ENABLED : SCANLINES_DISABLED, 32);
-}
-
-/////////
-
-void readScanlinesIntensity() {
-    char buffer[32] = "";
-    _readFile("/etc/scanlines/intensity", buffer, 32, DEFAULT_SCANLINES_INTENSITY);
-    scanlinesIntensity = atoi(buffer);
-    if (scanlinesIntensity < 0) {
-        scanlinesIntensity = 0;
-    } else if (scanlinesIntensity > 256) {
-        scanlinesIntensity = 256;
-    }
-}
-
-void writeScanlinesIntensity() {
-    char buffer[32] = "";
-    snprintf(buffer, 31, "%d", scanlinesIntensity);
-    _writeFile("/etc/scanlines/intensity", buffer, 32);
-}
-
-/////////
-
-void readScanlinesOddeven() {
-    char buffer[32] = "";
-    _readFile("/etc/scanlines/oddeven", buffer, 32, DEFAULT_SCANLINES_ODDEVEN);
-    if (strcmp(buffer, SCANLINES_ODD) == 0) {
-        scanlinesOddeven = true;
-        return;
-    }
-    scanlinesOddeven = false;
-}
-
-void writeScanlinesOddeven() {
-    _writeFile("/etc/scanlines/oddeven", scanlinesOddeven ? SCANLINES_ODD : SCANLINES_EVEN, 32);
-}
-
-/////////
-
-void readScanlinesThickness() {
-    char buffer[32] = "";
-    _readFile("/etc/scanlines/thickness", buffer, 32, DEFAULT_SCANLINES_THICKNESS);
-    if (strcmp(buffer, SCANLINES_THICK) == 0) {
-        scanlinesThickness = true;
-        return;
-    }
-    scanlinesThickness = false;
-}
-
-void writeScanlinesThickness() {
-    _writeFile("/etc/scanlines/thickness", scanlinesThickness ? SCANLINES_THICK : SCANLINES_THIN, 32);
-}
-
-/////////
-/////////
-
-void setupResetMode() {
-    readCurrentResetMode();
-    DBG_OUTPUT_PORT.printf(">> Setting up reset mode: %x\n", CurrentResetMode);
-    forceI2CWrite(
-        I2C_RESET_CONF, CurrentResetMode, 
-        I2C_PING, 0
-    );
-}
-
-void setupOutputResolution() {
-    readVideoMode();
-    readCurrentResolution();
-
-    DBG_OUTPUT_PORT.printf(">> Setting up output resolution: %x\n", ForceVGA | CurrentResolution);
-    reflashNeccessary = !forceI2CWrite(
-        I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, 
-        I2C_DC_RESET, 0
-    );
-}
-
-uint8_t getScanlinesUpperPart() {
-    return (scanlinesIntensity >> 1);
-}
-
-uint8_t getScanlinesLowerPart() {
-    return (scanlinesIntensity << 7) | (scanlinesThickness << 6) | (scanlinesOddeven << 5) | (scanlinesActive << 4);
-}
-
-void setupScanlines() {
-    readScanlinesActive();
-    readScanlinesIntensity();
-    readScanlinesOddeven();
-    readScanlinesThickness();
-
-    uint8_t upper = getScanlinesUpperPart();
-    uint8_t lower = getScanlinesLowerPart();
-
-    DBG_OUTPUT_PORT.printf(">> Setting up scanlines:\n");
-    reflashNeccessary2 = !forceI2CWrite(
-        I2C_SCANLINE_UPPER, upper, 
-        I2C_SCANLINE_LOWER, lower
-    );
-}
-
-bool forceI2CWrite(uint8_t addr1, uint8_t val1, uint8_t addr2, uint8_t val2) {
-    int retryCount = 5000;
-    int retries = 0;
-    bool success = false;
-
-    while (retryCount >= 0) {
-        retries++;
-        fpgaTask.Write(addr1, val1, NULL); fpgaTask.ForceLoop();
-        if (last_error == NO_ERROR) { // only try second command, if first was successful
-            DBG_OUTPUT_PORT.printf("   success 1st command: %u %u %i\n", addr1, val1, retries);
-            fpgaTask.Write(addr2, val2, NULL); fpgaTask.ForceLoop();
-        }
-        retryCount--;
-        if (last_error == NO_ERROR) {
-            DBG_OUTPUT_PORT.printf("   success 2nd command: %u %u %i\n", addr2, val2, retries);
-            success = true;
-            break;
-        }
-        delayMicroseconds(500);
-        yield();
-    }
-    DBG_OUTPUT_PORT.printf("   retry loops needed: %i\n", retries);
-    return success;
+    });
+    ArduinoOTA.begin();
 }
 
 void setup(void) {
-
     DBG_OUTPUT_PORT.begin(115200);
     DBG_OUTPUT_PORT.printf("\n>> FirmwareManager starting...\n");
     DBG_OUTPUT_PORT.setDebugOutput(DEBUG);

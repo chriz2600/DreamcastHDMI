@@ -107,3 +107,7 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
     return (MENU_OR_LAST_SELECT_LINE - CurrentResolution);
 }, NULL, true);
 
+void switchResolution(uint8_t newValue) {
+    CurrentResolution = newValue;
+    fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
+}
