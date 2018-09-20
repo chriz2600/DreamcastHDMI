@@ -432,4 +432,35 @@ private:
     bool autoUpDown;
 };
 
+void displayProgress(int read, int total, int line) {
+    // download size may be yet unknown
+    if (total <= 0) {
+        return;
+    }
+
+    int stars = (int)(read * 20 / total);
+    int blanks = 20 - stars;
+    int percent = (int)(read * 100 / total);
+    char result[32];
+
+    if (blanks > 0) {
+        snprintf(result, 32, "[%.*s%*c] %3d%% ", stars, "********************", blanks, ' ', percent);
+    } else {
+        snprintf(result, 32, "[%.*s] %3d%% ", stars, "********************", percent);
+    }
+    fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) result);
+}
+
+#include "osd/Main.h"
+#include "osd/OutputResolution.h"
+#include "osd/VideoMode.h"
+#include "osd/Firmware.h"
+#include "osd/FirmwareCheck.h"
+#include "osd/FirmwareDownload.h"
+#include "osd/FirmwareFlash.h"
+#include "osd/FirmwareReset.h"
+#include "osd/Scanlines.h"
+//#include "osd/Info.h"
+#include "osd/Reset.h"
+#include "osd/Wifi.h"
 #endif
