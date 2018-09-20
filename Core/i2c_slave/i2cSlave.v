@@ -60,6 +60,8 @@ module i2cSlave (
   output HDMIVideoConfig hdmiVideoConfig,
   output Scanline scanline,
   output reset_dc,
+  output reset_opt,
+  output[7:0] reset_conf,
   //input DebugData debugData,
   input ControllerData controller_data
 );
@@ -176,7 +178,9 @@ registerInterface u_registerInterface(
   .reconf_data(reconf_data),
   .hdmiVideoConfig(hdmiVideoConfig),
   .scanline(scanline),
-  .reset_dc(reset_dc)
+  .reset_dc(reset_dc),
+  .reset_opt(reset_opt),
+  .reset_conf(reset_conf)
 );
 
 serialInterface u_serialInterface (

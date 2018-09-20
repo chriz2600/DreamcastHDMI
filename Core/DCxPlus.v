@@ -105,13 +105,15 @@ wire generate_video;
 wire generate_timing;
 wire fullcycle;
 wire reset_dc;
+wire reset_opt;
+wire [7:0] reset_conf;
+
 wire control_clock;
 wire hdmi_int_reg;
 wire hpd_detected;
 wire config_changed;
 
 assign clock54_out = clock54_net;
-assign status_led_nreset = ~adv7513_ready;
 
 // DC config in, ics config out
 configuration configurator(
@@ -128,7 +130,6 @@ configuration configurator(
 // PLLs
 pll54 pll54(
     .inclk0(clock54),
-    //.areset(1'b0),
     .areset(pll54_lockloss),
     .c0(clock54_net),
     .locked(pll54_locked)
@@ -354,7 +355,9 @@ i2cSlave i2cSlave(
     .reconf_data(reconf_data),
     .hdmiVideoConfig(hdmiVideoConfig),
     .scanline(scanline),
-    .reset_dc(reset_dc)
+    .reset_dc(reset_dc),
+    .reset_opt(reset_opt),
+    .reset_conf(reset_conf)
 );
 
 maple mapleBus(
@@ -395,11 +398,38 @@ Flag_CrossDomain reset_trigger(
     .FlagOut_clkB(reset_dc_out)
 );
 
-reg[31:0] counter = 0;
-reg dc_nreset_reg = 1'b1;
-wire reset_dc_out;
+Flag_CrossDomain opt_reset_trigger(
+    .clkA(hdmi_clock),
+    .FlagIn_clkA(reset_opt),
+    .clkB(control_clock),
+    .FlagOut_clkB(reset_opt_out)
+);
 
-assign DC_NRESET = dc_nreset_reg ? 1'bz : 1'b0;
+data_cross reset_cross(
+    .clkIn(hdmi_clock),
+    .clkOut(control_clock),
+    .dataIn(reset_conf),
+    .dataOut(reset_conf_out)
+);
+
+reg[7:0] reset_conf_out;
+reg[31:0] counter = 0;
+reg[31:0] counter2 = 0;
+reg dc_nreset_reg = 1'b1;
+reg opt_nreset_reg = 1'b1;
+wire reset_dc_out;
+wire reset_opt_out;
+
+assign DC_NRESET = (dc_nreset_reg ? 1'bz : 1'b0);
+assign status_led_nreset = (
+    reset_conf_out == 2'd2
+    ? (dc_nreset_reg ? 1'bz : 1'b0)
+    : (
+        reset_conf_out == 2'd0
+        ? ~adv7513_ready
+        : (opt_nreset_reg ? 1'bz : 1'b0)
+    )
+);
 
 always @(posedge control_clock) begin
     if (reset_dc_out) begin
@@ -409,6 +439,18 @@ always @(posedge control_clock) begin
         counter <= counter + 1;
         if (counter == 8_000_000) begin /* 100ms@80MHz, 133ms@60MHz, ... */
             dc_nreset_reg <= 1'b1;
+        end
+    end
+end
+
+always @(posedge control_clock) begin
+    if (reset_opt_out) begin
+        counter2 <= 0;
+        opt_nreset_reg <= 1'b0;
+    end else begin
+        counter2 <= counter2 + 1;
+        if (counter2 == 8_000_000) begin /* 100ms@80MHz, 133ms@60MHz, ... */
+            opt_nreset_reg <= 1'b1;
         end
     end
 end
