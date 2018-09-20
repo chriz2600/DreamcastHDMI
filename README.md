@@ -1,5 +1,39 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2018-09-20
+
+- Updated the firmware to reflect the DCHDMI 1.3 hardware changes. The OSD now contains the following:
+
+    - **Output Resolution selection.**
+        
+        Select *VGA*, *480p*, *960p* and *1080p* from the OSD.
+    
+    - **Scanlines.**
+
+        *On/Off*, *Intensity*, *Odd/Even* and *Thick/Thin*
+
+    - **Video Mode Setup.**
+
+        Select *ForceVGA*, *CableSelect* and *SwitchTrick* for startup.
+
+    - **Firmware Upgrade.**
+
+        *Download* and *flash* new firmware from OSD, and also *reset* DCHDMI.
+
+    - **WiFi Setup.**
+
+        Enter *SSID* and *Password* for a quick wifi configuration from OSD.
+
+    - **Reset Configuration.**
+
+        DCHDMI can now reset the dreamcast. It can also reset the USB-GDROM (to return to the menu), in which case an additional connection is necassary. This pin can also be used to press the GDEMU button. By default it's connected to the onboard LED. So here you can configure to what and if this optional wire is connected.
+
+        - *LED:* use onboard diagnostic LED
+        
+        - *GDEMU:* connected to the button on the GDEMU
+
+        - *USB-GDROM:* connected to the USB-GDROM reset circuit
+
 #### 2018-09-03
 
 - Finished OSD with the following features:
