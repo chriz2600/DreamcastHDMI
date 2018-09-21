@@ -1,10 +1,12 @@
-#ifndef FLASH_ESP_INDEX_TASK_H
-#define FLASH_ESP_INDEX_TASK_H
+#ifndef FLASH_ESP_TASK_H
+#define FLASH_ESP_TASK_H
 
-#include <global.h>
+#include "../global.h"
 #include <Task.h>
 
 extern MD5Builder md5;
+extern File flashFile;
+
 extern int totalLength;
 extern int readLength;
 extern int last_error;
@@ -17,10 +19,10 @@ extern TaskManager taskManager;
 #define BUFFER_SIZE 1024
 #define DEBUG_UPDATER
 
-class FlashESPIndexTask : public Task {
+class FlashESPTask : public Task {
 
     public:
-        FlashESPIndexTask(uint8_t v) :
+        FlashESPTask(uint8_t v) :
             Task(1),
             dummy(v),
             progressCallback(NULL)
@@ -39,21 +41,27 @@ class FlashESPIndexTask : public Task {
         ProgressCallback progressCallback;
         uint8_t buffer[BUFFER_SIZE];
         int prevPercentComplete;
-        File sourceFile;
-        File targetFile;
 
         virtual bool OnStart() {
             totalLength = -1;
             readLength = 0;
             prevPercentComplete = -1;
             last_error = NO_ERROR;
-            
-            md5.begin();
-            sourceFile = SPIFFS.open(ESP_INDEX_STAGING_FILE, "r");
-            targetFile = SPIFFS.open(ESP_INDEX_FILE, "w");
 
-            if (sourceFile && targetFile) {
-                totalLength = sourceFile.size();
+            md5.begin();
+            flashFile = SPIFFS.open(ESP_FIRMWARE_FILE, "r");
+
+            if (flashFile) {
+                totalLength = flashFile.size();
+
+                if (!Update.begin(totalLength, U_FLASH)) { //start with max available size
+                    Update.printError(DBG_OUTPUT_PORT);
+                    DBG_OUTPUT_PORT.println("ERROR");
+                    last_error = ERROR_FILE_SIZE;
+                    InvokeCallback(false);
+                    return false;
+                }
+
                 return true;
             } else {
                 last_error = ERROR_FILE;
@@ -65,14 +73,14 @@ class FlashESPIndexTask : public Task {
         virtual void OnUpdate(uint32_t deltaTime) {
             int bytes_read = 0;
 
-            if (sourceFile.available()) {
-                bytes_read = sourceFile.readBytes((char *) buffer, BUFFER_SIZE);
+            if (flashFile.available()) {
+                bytes_read = flashFile.readBytes((char *) buffer, BUFFER_SIZE);
                 
                 if (bytes_read == 0) {
                     taskManager.StopTask(this);
                 } else {
                     md5.add(buffer, bytes_read);
-                    targetFile.write(buffer, bytes_read);
+                    Update.write(buffer, bytes_read);
                 }
             } else {
                 taskManager.StopTask(this);
@@ -87,13 +95,13 @@ class FlashESPIndexTask : public Task {
         }
 
         virtual void OnStop() {
-            sourceFile.close();
-            targetFile.close();
+            Update.end();
+            flashFile.close();
             md5.calculate();
             String md5sum = md5.toString();
-            _writeFile("/index.html.gz.md5", md5sum.c_str(), md5sum.length());
+            _writeFile("/etc/last_esp_flash_md5", md5sum.c_str(), md5sum.length());
             InvokeCallback(true);
-            DBG_OUTPUT_PORT.printf("2: flashing ESP index finished.\n");
+            DBG_OUTPUT_PORT.printf("2: flashing ESP finished.\n");
         }
 
         void InvokeCallback(bool done) {

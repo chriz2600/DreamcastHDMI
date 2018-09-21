@@ -1,5 +1,10 @@
 #include "../global.h"
 #include "../Menu.h"
+#include "../task/DebugTask.h"
+
+#include <HardwareSerial.h>
+
+extern DebugTask debugTask;
 
 Menu infoMenu("InfoMenu", (uint8_t*) OSD_INFO_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_B)) {

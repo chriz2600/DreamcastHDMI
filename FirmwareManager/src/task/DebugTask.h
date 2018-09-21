@@ -1,9 +1,8 @@
 #ifndef DEBUG_TASK_H
 #define DEBUG_TASK_H
 
-#include <global.h>
-#include <Task.h>
-#include <Menu.h>
+#include "../global.h"
+#include "../Menu.h"
 
 extern FPGATask fpgaTask;
 extern TaskManager taskManager;

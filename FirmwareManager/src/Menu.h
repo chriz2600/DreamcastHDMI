@@ -4,7 +4,7 @@
 #include <inttypes.h>
 #include <functional>
 #include "global.h"
-#include "FPGATask.h"
+#include "task/FPGATask.h"
 
 #define MENU_OFFSET 9
 #define MENU_WIDTH 40

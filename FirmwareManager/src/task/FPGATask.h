@@ -1,7 +1,7 @@
 #ifndef FPGA_TASK_H
 #define FPGA_TASK_H
 
-#include <global.h>
+#include "../global.h"
 #include <Task.h>
 #include <inttypes.h>
 #include <string.h>
