@@ -87,6 +87,7 @@
 
 #define PLL_RESET_OFF (0x00)
 #define PLL_RESET_ON (0x40)
+#define GENERATE_TIMING_AND_VIDEO (0x30)
 
 #define I2C_OSD_ADDR_OFFSET (0x80)
 #define I2C_OSD_ENABLE (0x81)

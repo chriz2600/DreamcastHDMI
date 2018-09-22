@@ -149,6 +149,7 @@ set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to S[1]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to S[2]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to S[3]
 set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to status_led_nreset
+set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to video_mode_480p_n
 set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to SDAT
 set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to SCLK
 set_instance_assignment -name CURRENT_STRENGTH_NEW "8mA" -to ESP_SDA

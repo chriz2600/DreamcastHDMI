@@ -34,6 +34,21 @@ class FlashTask : public Task {
             progressCallback = NULL;
         }
 
+        ////
+
+        bool doStart() {
+            return OnStart();
+        }
+
+        bool doUpdate() {
+            OnUpdate(0l);
+            return finished;
+        }
+
+        void doStop() {
+            OnStop();
+        }
+
     private:
         uint8_t dummy;
         ProgressCallback progressCallback;
@@ -48,6 +63,7 @@ class FlashTask : public Task {
         unsigned int page;
         int prevPercentComplete;
         MD5Builder spiMD5;
+        bool finished = false;
 
         virtual bool OnStart() {
             page = 0;
@@ -58,6 +74,7 @@ class FlashTask : public Task {
             // local
             chunk_size = 0;
             bytes_in_result = 0;
+            finished = false;
 
             md5.begin();
             spiMD5.begin();
@@ -110,6 +127,7 @@ class FlashTask : public Task {
         virtual void OnUpdate(uint32_t deltaTime) {
             if (!flash.is_busy_async()) {
                 if (page >= PAGES || doFlash() == -1) {
+                    finished = true;
                     taskManager.StopTask(this);
                 }
             }
@@ -178,7 +196,7 @@ class FlashTask : public Task {
         }
 
         virtual void OnStop() {
-            DBG_OUTPUT_PORT.printf("wrote %u pages.\n", page);
+            DBG_OUTPUT_PORT.printf("FlashTask.OnStop: wrote %u pages.\n", page);
             flash.disable();
             flashFile.close();
             // store md5 sum of last flashed firmware file

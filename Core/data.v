@@ -21,6 +21,9 @@ module data(
     reg hsync_reg;
     reg vsync_reg;
 
+    reg [31:0] vsync_reg_store = 0;
+    reg force_generate = 0;
+
     reg [7:0] red_reg_buf;
     reg [7:0] red_reg;
     reg [7:0] green_reg_buf;
@@ -77,8 +80,10 @@ module data(
     always @(posedge clock or posedge reset) begin
         if (reset) begin
             resync_reg <= 1;
+            vsync_reg_store <= 0;
+            force_generate <= 0;
         end else begin
-            if (generate_timing) begin
+            if (force_generate || generate_timing) begin
                 if (raw_counterX_reg < `RAW_WIDTH - 1) begin
                     raw_counterX_reg <= raw_counterX_reg + 1'b1;
                 end else begin
@@ -87,12 +92,24 @@ module data(
                     if (raw_counterY_reg < `RAW_HEIGHT - 1) begin
                         raw_counterY_reg <= raw_counterY_reg + 1'b1;
                     end else begin
+                        resync_reg <= 0;
                         raw_counterY_reg <= 0;
                     end
                 end
             end else begin
                 hsync_reg <= _hsync;
                 vsync_reg <= _vsync;
+
+                // 
+                if (vsync_reg && _vsync && hsync_reg && _hsync) begin
+                    vsync_reg_store <= vsync_reg_store + 1;
+
+                    if (vsync_reg_store == 32'd_108_000_000) begin
+                        force_generate <= 1'b1;
+                    end
+                end else begin
+                    vsync_reg_store <= 0;
+                end
 
                 // reset horizontal raw counter on hsync
                 if (hsync_reg && !_hsync) begin
@@ -143,7 +160,7 @@ module data(
             // store red and first half of green
             if (counterX_reg >= 0 && counterX_reg < VISIBLE_AREA_WIDTH 
             && counterY_reg >= 0 && counterY_reg < VISIBLE_AREA_HEIGHT) begin
-                if (generate_video) begin
+                if (force_generate || generate_video) begin
                     // store values on even clock
                     if (~raw_counterX_reg[0]) begin
                         // apply combined values of red, green, blue simultanesly

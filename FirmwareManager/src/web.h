@@ -1,3 +1,6 @@
+#ifndef WEB_H
+#define WEB_H
+
 #include "global.h"
 #include <ESPAsyncTCP.h>
 
@@ -271,3 +274,5 @@ void handleESPIndexFlash(AsyncWebServerRequest *request) {
         request->send(404);
     }
 }
+
+#endif

@@ -72,6 +72,7 @@ bool scanlinesThickness;
 
 bool reflashNeccessary;
 bool reflashNeccessary2;
+bool reflashNeccessary3;
 
 MD5Builder md5;
 TaskManager taskManager;
@@ -103,7 +104,7 @@ void setupSPIFFS() {
 void setupResetMode() {
     readCurrentResetMode();
     DBG_OUTPUT_PORT.printf(">> Setting up reset mode: %x\n", CurrentResetMode);
-    forceI2CWrite(
+    reflashNeccessary3 = !forceI2CWrite(
         I2C_RESET_CONF, CurrentResetMode, 
         I2C_PING, 0
     );
@@ -182,6 +183,16 @@ void setupAPMode(void) {
 }
 
 void setupWiFi() {
+    if (strlen(ssid) == 0) {
+        DBG_OUTPUT_PORT.printf(">> No ssid, starting AP mode...\n");
+        setupAPMode();
+    } else {
+        DBG_OUTPUT_PORT.printf(">> Trying to connect in client mode first...\n");
+        setupWiFiStation();
+    }
+}
+
+void setupWiFiStation() {
     bool doStaticIpConfig = false;
     IPAddress ipAddr;
     doStaticIpConfig = ipAddr.fromString(confIPAddr);
@@ -624,6 +635,14 @@ void setupHTTPServer() {
         request->send(200);
     });
 
+    server.on("/generate/on", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution | GENERATE_TIMING_AND_VIDEO, NULL);
+        request->send(200);
+    });
+
     AsyncStaticWebHandler* handler = &server
         .serveStatic("/", SPIFFS, "/")
         .setDefaultFile("index.html");
@@ -698,9 +717,20 @@ void setup(void) {
     }
 
     setOSD(false, NULL); fpgaTask.ForceLoop();
-    DBG_OUTPUT_PORT.printf("reflashNeccessary: %s %s\n", reflashNeccessary ? "true" : "false", reflashNeccessary2 ? "true": "false");
-    if (reflashNeccessary && reflashNeccessary2) {
-
+    if (reflashNeccessary && reflashNeccessary2 && reflashNeccessary3) {
+        DBG_OUTPUT_PORT.printf("FPGA firmware missing or broken, reflash needed.\n");
+        disableFPGA();
+        if (flashTask.doStart()) {
+            // [](int read, int total, bool done, int error) {
+            // }
+            DBG_OUTPUT_PORT.printf("   firmware flashing started.\n");
+            while (!flashTask.doUpdate()) {
+                yield();
+            }
+            flashTask.doStop();
+            DBG_OUTPUT_PORT.printf("   firmware flashing done.\n");
+            resetall();
+        }
     }
     DBG_OUTPUT_PORT.println(">> Ready.");
 }
