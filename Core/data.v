@@ -15,14 +15,14 @@ module data(
     output [11:0] counterX,
     output [11:0] counterY,
     output add_line,
-    output resync
+    output resync,
+    output reg force_generate
 );
 
     reg hsync_reg;
     reg vsync_reg;
 
     reg [31:0] vsync_reg_store = 0;
-    reg force_generate = 0;
 
     reg [7:0] red_reg_buf;
     reg [7:0] red_reg;
@@ -51,6 +51,7 @@ module data(
         raw_counterY_reg <= 0;
         add_line_reg <= 0;
         resync_reg <= 1;
+        force_generate <= 0;
     end
 
     always @(*) begin

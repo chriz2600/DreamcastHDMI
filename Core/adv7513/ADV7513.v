@@ -83,13 +83,15 @@ always @ (posedge clk) begin
         cmd_counter <= cs_pwrdown;
         subcmd_counter <= scs_start;
         i2c_enable <= 1'b0;
-        ready <= 1'b0;
     end else begin
         case (state)
             s_start: begin
                 if (i2c_done) begin
                     case (cmd_counter)
-                        cs_pwrdown: adv7513_powerdown(cs_init);
+                        cs_pwrdown: begin
+                            ready <= 1'b0;
+                            adv7513_powerdown(cs_init);
+                        end
                         cs_init: adv7513_monitor_hpd(cs_init2, cs_pwrdown);
                         cs_init2: adv7513_init(cs_pllcheck);
                         cs_pllcheck: adv7513_pllcheck(cs_ready, cs_pllcheck);
@@ -126,13 +128,11 @@ always @ (posedge clk) begin
                     state <= s_start;
                     cmd_counter <= cs_pwrdown;
                     subcmd_counter <= scs_start;
-                    ready <= 1'b0;
                 end else if (hdmi_int_reg) begin
                     state <= s_start;
                     cmd_counter <= cs_init;
                     subcmd_counter <= scs_start;
                     hdmi_int_reg = 1'b0;
-                    ready <= 1'b0;
                 end else if (counter == 32'd_16_000_000) begin
                     state <= s_start;
                     cmd_counter <= cs_hpdcheck;

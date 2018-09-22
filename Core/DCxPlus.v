@@ -100,6 +100,7 @@ Scanline scanline;
 wire forceVGAMode;
 wire resetPLL;
 wire resync;
+wire force_generate;
 
 wire generate_video;
 wire generate_timing;
@@ -224,6 +225,7 @@ data video_input(
     .indata(data),
     .add_line(add_line_mode),
     .resync(resync),
+    .force_generate(force_generate),
     .blue(dc_blue),
     .counterX(data_in_counter_x),
     .counterY(data_in_counter_y),
@@ -367,15 +369,15 @@ maple mapleBus(
     .controller_data(controller_data)
 );
 
+////////////////////////////////////////////////////////////////////////
+// dreamcast reset and control, also ADV7513 I2C control
+////////////////////////////////////////////////////////////////////////
 // reset clock circuit
 osc control_clock_gen(
     .oscena(1'b1),
     .clkout(control_clock)
 );
 
-////////////////////////////////////////////////////////////////////////
-// dreamcast reset
-////////////////////////////////////////////////////////////////////////
 reg pll54_lockloss;
 reg pll_hdmi_lockloss;
 
@@ -417,19 +419,65 @@ reg[31:0] counter = 0;
 reg[31:0] counter2 = 0;
 reg dc_nreset_reg = 1'b1;
 reg opt_nreset_reg = 1'b1;
+reg status_led_nreset_reg;
+reg control_resync_out;
+reg control_force_generate_out;
 wire reset_dc_out;
 wire reset_opt_out;
 
 assign DC_NRESET = (dc_nreset_reg ? 1'bz : 1'b0);
-assign status_led_nreset = (
-    reset_conf_out == 2'd2
-    ? (dc_nreset_reg ? 1'bz : 1'b0)
-    : (
-        reset_conf_out == 2'd0
-        ? ~adv7513_ready
-        : (opt_nreset_reg ? 1'bz : 1'b0)
-    )
+assign status_led_nreset = status_led_nreset_reg;
+
+wire slowGlow_out;
+wire fastGlow_out;
+
+LEDglow #(
+    .BITPOS(26)
+) slowGlow (
+    .clk(control_clock),
+    .LED(slowGlow_out)
 );
+
+LEDglow #(
+    .BITPOS(22)
+) fastGlow (
+    .clk(control_clock),
+    .LED(fastGlow_out)
+);
+
+Flag_CrossDomain control_rsync(
+    .clkA(clock54_net),
+    .FlagIn_clkA(resync),
+    .clkB(control_clock),
+    .FlagOut_clkB(control_resync_out)
+);
+
+Flag_CrossDomain control_force_generate(
+    .clkA(clock54_net),
+    .FlagIn_clkA(force_generate),
+    .clkB(control_clock),
+    .FlagOut_clkB(control_force_generate_out)
+);
+
+always @(posedge control_clock) begin
+    if (reset_conf_out == 2'd2) begin
+        status_led_nreset_reg <= (dc_nreset_reg ? 1'bz : 1'b0);
+    end else if (reset_conf_out == 2'd0) begin
+        if (!pll_hdmi_ready) begin
+            status_led_nreset_reg <= 1'b1;
+        end else if (control_resync_out || control_force_generate_out) begin
+            status_led_nreset_reg <= ~fastGlow_out;
+        end else begin
+            if (adv7513_ready) begin
+                status_led_nreset_reg <= 1'b0;
+            end else begin
+                status_led_nreset_reg <= ~slowGlow_out;
+            end
+        end
+    end else begin
+        status_led_nreset_reg <= (opt_nreset_reg ? 1'bz : 1'b0);
+    end
+end
 
 always @(posedge control_clock) begin
     if (reset_dc_out) begin
