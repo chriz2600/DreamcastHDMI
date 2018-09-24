@@ -35,22 +35,24 @@ typedef struct packed {
 
 // Maple Controller Data
 typedef struct packed {
-    reg a;           // 11
-    reg b;           // 10
-    reg x;           // 09
-    reg y;           // 08
+    reg a;           // 12
+    reg b;           // 11
+    reg x;           // 10
+    reg y;           // 09
 
-    reg up;          // 07
-    reg down;        // 06
-    reg left;        // 05
-    reg right;       // 04
+    reg up;          // 08
+    reg down;        // 07
+    reg left;        // 06
+    reg right;       // 05
 
-    reg start;       // 03
-    reg ltrigger;    // 02
-    reg rtrigger;    // 01
+    reg start;       // 04
+    reg ltrigger;    // 03
+    reg rtrigger;    // 02
 
     // meta
-    reg trigger_osd; // 00
+    reg trigger_osd; // 01
+    reg trigger_default_resolution; // 00
+
 } ControllerData;
 
 typedef struct packed {

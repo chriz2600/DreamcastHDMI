@@ -121,14 +121,15 @@ always @(posedge clk) begin
             09: left
             08: right
         */
-        8'h85: dataOut_reg <= controller_data[11:4];
+        8'h85: dataOut_reg <= controller_data[12:5];
         /*
             07: start
             06: ltrigger
             05: rtrigger
             04: trigger_osd
+            03: trigger_default_resolution
         */
-        8'h86: dataOut_reg <= { controller_data[3:0], 4'b0000 };
+        8'h86: dataOut_reg <= { controller_data[4:0], 3'b000 };
 
         // scanline data
         8'h87: dataOut_reg <= scanline_reg.intensity[8:1];

@@ -21,14 +21,16 @@ reg triggered = 0;
 
 reg[3:0] controller_packet_check;
 reg[3:0] pullup_osd;
+reg[3:0] trig_def_res;
 
-ControllerData cdata_in = { 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0 };
-ControllerData cdata_out = { 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0 };
+ControllerData cdata_in = { 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0 };
+ControllerData cdata_out = { 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0 };
 
 initial begin
     pos <= 0;
     controller_packet_check <= 0;
     pullup_osd <= 0;
+    trig_def_res <= 0;
 end
 
 maple_in test(
@@ -61,12 +63,14 @@ always @(posedge clk) begin
         pos <= 0;
         controller_packet_check <= 0;
         pullup_osd <= 0;
-        cdata_in <= { 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0 };
+        trig_def_res <= 0;
+        cdata_in <= { 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0 };
 
         // check for controller packet, to assign output data
         if (controller_packet_check == 4'b1111) begin
-            cdata_out[11:1] <= cdata_in[11:1];
+            cdata_out[12:2] <= cdata_in[12:2];
             cdata_out.trigger_osd <= (pullup_osd == 4'b1111);
+            cdata_out.trigger_default_resolution <= (trig_def_res == 4'b1111);
         end
     end
     // get maple bus data
@@ -98,18 +102,22 @@ always @(posedge clk) begin
             8: begin
                 if (maple_data == 8'hFF) begin // ltrigger must be completely engaged
                     pullup_osd[0] <= 1'b1;
+                    trig_def_res[0] <= 1'b1;
                 end
                 cdata_in.ltrigger <= (maple_data == 8'hFF);
             end
             9: begin
                 if (maple_data == 8'hFF) begin // rtrigger must be completely engaged
                     pullup_osd[1] <= 1'b1;
+                    trig_def_res[1] <= 1'b1;
                 end
                 cdata_in.rtrigger <= (maple_data == 8'hFF);
             end
             10: begin
                 if (maple_data == 8'b_1111_1011) begin // buttons[15:8] X pressed
                     pullup_osd[2] <= 1'b1;
+                end else if (maple_data == 8'b_1111_1101) begin // buttons[15:8] Y pressed
+                    trig_def_res[2] <= 1'b1;
                 end
                 cdata_in.y <= ~maple_data[1];
                 cdata_in.x <= ~maple_data[2];
@@ -117,6 +125,8 @@ always @(posedge clk) begin
             11: begin
                 if (maple_data == 8'b_1111_0011) begin // buttons[7:0] A pressed, START pressed
                     pullup_osd[3] <= 1'b1;
+                end else if (maple_data == 8'b_1111_0101) begin // buttons[7:0] B pressed, START pressed
+                    trig_def_res[3] <= 1'b1;
                 end
                 cdata_in.b <= ~maple_data[1];
                 cdata_in.a <= ~maple_data[2];

@@ -482,9 +482,15 @@ void closeOSD() {
 }
 
 FPGATask fpgaTask(1, [](uint16_t controller_data, bool isRepeat) {
-    if (!OSDOpen && !isRepeat && CHECK_BIT(controller_data, CTRLR_TRIGGER_OSD)) {
-        openOSD();
-        return;
+    if (!isRepeat) {
+        if (!OSDOpen && CHECK_BIT(controller_data, CTRLR_TRIGGER_OSD)) {
+            openOSD();
+            return;
+        }
+        if (CHECK_BIT(controller_data, CTRLR_TRIGGER_DEFAULT_RESOLUTION)) {
+            switchResolution(RESOLUTION_VGA);
+            return;
+        }
     }
     if (OSDOpen) {
         //DBG_OUTPUT_PORT.printf("Menu: %s %x\n", currentMenu->Name(), controller_data);
