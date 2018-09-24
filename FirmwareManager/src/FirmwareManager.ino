@@ -411,6 +411,16 @@ void setupHTTPServer() {
         request->send(200);
     });
 
+    server.on("/cleanupconfig", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        SPIFFS.remove("/etc/video/resolution");
+        SPIFFS.remove("/etc/video/mode");
+        SPIFFS.remove("/etc/reset/mode");
+        request->send(200);
+    });
+
     server.on("/flash/secure/fpga", HTTP_GET, [](AsyncWebServerRequest *request){
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
