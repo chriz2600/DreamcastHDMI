@@ -459,14 +459,22 @@ Flag_CrossDomain control_force_generate(
     .FlagOut_clkB(control_force_generate_out)
 );
 
+reg [31:0] led_counter = 0;
+
 always @(posedge control_clock) begin
     if (reset_conf_out == 2'd2) begin
         status_led_nreset_reg <= (dc_nreset_reg ? 1'bz : 1'b0);
     end else if (reset_conf_out == 2'd0) begin
         if (!pll_hdmi_ready) begin
             status_led_nreset_reg <= 1'b1;
-        end else if (control_resync_out || control_force_generate_out) begin
+        end else if (control_resync_out) begin
             status_led_nreset_reg <= ~fastGlow_out;
+        end else if (control_force_generate_out) begin
+            if (led_counter[24]) begin
+                status_led_nreset_reg <= ~fastGlow_out;
+            end else begin
+                status_led_nreset_reg <= 1'b1;
+            end
         end else begin
             if (adv7513_ready) begin
                 status_led_nreset_reg <= 1'b0;
@@ -477,6 +485,7 @@ always @(posedge control_clock) begin
     end else begin
         status_led_nreset_reg <= (opt_nreset_reg ? 1'bz : 1'b0);
     end
+    led_counter <= led_counter + 1'b1;
 end
 
 always @(posedge control_clock) begin
