@@ -77,6 +77,7 @@ module data(
 
     `define RAW_WIDTH 1716
     `define RAW_HEIGHT 525
+    `define HORIZONTAL_OFFSET 44
 
     always @(posedge clock or posedge reset) begin
         if (reset) begin
@@ -165,7 +166,7 @@ module data(
                     // store values on even clock
                     if (~raw_counterX_reg[0]) begin
                         // apply combined values of red, green, blue simultanesly
-                        if (counterX_reg[5] ^ counterY_reg[5]) begin
+                        if (get_fifth_bit(counterX_reg - `HORIZONTAL_OFFSET) ^ counterY_reg[5]) begin
                             red_reg <= 8'd255;
                             green_reg <= 8'd255;
                             blue_reg <= 8'd255;
@@ -197,6 +198,12 @@ module data(
             counterY_reg_q <= counterY_reg;
         end
     end
+
+    function get_fifth_bit(
+        input[11:0] value
+    );
+        get_fifth_bit = value[5];
+    endfunction
 
     assign counterX = counterX_reg_q;
     assign counterY = counterY_reg_q;
