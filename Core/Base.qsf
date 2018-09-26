@@ -24,42 +24,9 @@ set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_NEAR_END_VMEAS "HALF VCCIO" -fall
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -rise
 set_global_assignment -name OUTPUT_IO_TIMING_FAR_END_VMEAS "HALF SIGNAL SWING" -fall
-set_global_assignment -name QSYS_FILE osc.qsys
-set_global_assignment -name VERILOG_FILE DCxPlus.v
-set_global_assignment -name VERILOG_FILE data.v
-set_global_assignment -name VERILOG_FILE video2ram.v
-set_global_assignment -name VERILOG_FILE ram2video.v
-set_global_assignment -name VERILOG_FILE typedef.v
-set_global_assignment -name QIP_FILE fifo/reconf_fifo.qip
-set_global_assignment -name VHDL_FILE adv7513/i2c_master.vhd
-set_global_assignment -name VERILOG_FILE adv7513/I2C.v
-set_global_assignment -name VERILOG_FILE adv7513/ADV7513.v
-set_global_assignment -name VERILOG_FILE adv7513/reconf_adv.v
-set_global_assignment -name VERILOG_FILE char_rom/char_rom.v
-set_global_assignment -name QIP_FILE pll_dc/pll54.qip
-set_global_assignment -name QIP_FILE pll_hdmi/pll_hdmi.qip
-set_global_assignment -name QIP_FILE pll_hdmi/pll_hdmi_reconf.qip
-set_global_assignment -name QIP_FILE ram/ram.qip
-set_global_assignment -name QIP_FILE ram/text_ram.qip
-set_global_assignment -name VERILOG_FILE i2c_slave/timescale.v
-set_global_assignment -name VERILOG_FILE i2c_slave/serialInterface.v
-set_global_assignment -name VERILOG_FILE i2c_slave/i2cSlave_define.v
-set_global_assignment -name VERILOG_FILE i2c_slave/i2cSlave.v
-set_global_assignment -name VERILOG_FILE i2c_slave/registerInterface.v
-set_global_assignment -name VERILOG_FILE maple_bus/maple.v
-set_global_assignment -name VERILOG_FILE maple_bus/maple_in.v
-set_global_assignment -name VERILOG_FILE pll_hdmi/reconf_rom.v
-set_global_assignment -name VERILOG_FILE pll_hdmi/trigger_reconf.v
-set_global_assignment -name VERILOG_FILE misc/Signal_CrossDomain.v
-set_global_assignment -name VERILOG_FILE misc/Flag_CrossDomain.v
-set_global_assignment -name VERILOG_FILE misc/startup.v
-set_global_assignment -name VERILOG_FILE misc/edge_detect.v
-set_global_assignment -name VERILOG_FILE misc/data_cross.v
-set_global_assignment -name VERILOG_FILE misc/LEDglow.v
 set_global_assignment -name SDC_FILE DCxPlus.sdc
 set_global_assignment -name SIGNALTAP_FILE stp1.stp
 set_global_assignment -name CDF_FILE "DCxPlus.cdf"
-set_global_assignment -name VERILOG_FILE configuration.v
 set_global_assignment -name ENABLE_BOOT_SEL_PIN OFF
 set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF
 set_global_assignment -name TRI_STATE_SPI_PINS ON
@@ -75,6 +42,42 @@ set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
 set_global_assignment -name FITTER_EFFORT "AUTO FIT"
 set_global_assignment -name SEED 74
 #set_global_assignment -name SLD_FILE db/stp1_auto_stripped.stp
+
+# source files
+set_global_assignment -name QIP_FILE source/fifo/reconf_fifo.qip
+set_global_assignment -name QIP_FILE source/pll_dc/pll54.qip
+set_global_assignment -name QIP_FILE source/pll_hdmi/pll_hdmi.qip
+set_global_assignment -name QIP_FILE source/pll_hdmi/pll_hdmi_reconf.qip
+set_global_assignment -name QIP_FILE source/ram/ram.qip
+set_global_assignment -name QIP_FILE source/ram/text_ram.qip
+set_global_assignment -name QSYS_FILE source/osc.qsys
+set_global_assignment -name VERILOG_FILE source/DCxPlus.v
+set_global_assignment -name VERILOG_FILE source/data.v
+set_global_assignment -name VERILOG_FILE source/video2ram.v
+set_global_assignment -name VERILOG_FILE source/ram2video.v
+set_global_assignment -name VERILOG_FILE source/typedef.v
+set_global_assignment -name VERILOG_FILE source/adv7513/I2C.v
+set_global_assignment -name VERILOG_FILE source/adv7513/ADV7513.v
+set_global_assignment -name VERILOG_FILE source/adv7513/reconf_adv.v
+set_global_assignment -name VERILOG_FILE source/char_rom/char_rom.v
+set_global_assignment -name VERILOG_FILE source/i2c_slave/timescale.v
+set_global_assignment -name VERILOG_FILE source/i2c_slave/serialInterface.v
+set_global_assignment -name VERILOG_FILE source/i2c_slave/i2cSlave_define.v
+set_global_assignment -name VERILOG_FILE source/i2c_slave/i2cSlave.v
+set_global_assignment -name VERILOG_FILE source/i2c_slave/registerInterface.v
+set_global_assignment -name VERILOG_FILE source/maple_bus/maple.v
+set_global_assignment -name VERILOG_FILE source/maple_bus/maple_in.v
+set_global_assignment -name VERILOG_FILE source/pll_hdmi/reconf_rom.v
+set_global_assignment -name VERILOG_FILE source/pll_hdmi/trigger_reconf.v
+set_global_assignment -name VERILOG_FILE source/misc/Signal_CrossDomain.v
+set_global_assignment -name VERILOG_FILE source/misc/Flag_CrossDomain.v
+set_global_assignment -name VERILOG_FILE source/misc/startup.v
+set_global_assignment -name VERILOG_FILE source/misc/edge_detect.v
+set_global_assignment -name VERILOG_FILE source/misc/data_cross.v
+set_global_assignment -name VERILOG_FILE source/misc/LEDglow.v
+set_global_assignment -name VERILOG_FILE source/configuration.v
+set_global_assignment -name VHDL_FILE source/adv7513/i2c_master.vhd
+set_global_assignment -name SEARCH_PATH source/
 
 set_global_assignment -name DEVICE_FILTER_PACKAGE "ANY QFP"
 set_global_assignment -name DEVICE_FILTER_PIN_COUNT 144
