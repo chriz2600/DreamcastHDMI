@@ -1,34 +1,38 @@
-# -------------------------------------------------------------------------- #
+# Default value changes
 #
-# Copyright (C) 2018  Intel Corporation. All rights reserved.
-# Your use of Intel Corporation's design tools, logic functions 
-# and other software and tools, and its AMPP partner logic 
-# functions, and any output files from any of the foregoing 
-# (including device programming or simulation files), and any 
-# associated documentation or information are expressly subject 
-# to the terms and conditions of the Intel Program License 
-# Subscription Agreement, the Intel Quartus Prime License Agreement,
-# the Intel FPGA IP License Agreement, or other applicable license
-# agreement, including, without limitation, that your use is for
-# the sole purpose of programming logic devices manufactured by
-# Intel and sold by Intel or its authorized distributors.  Please
-# refer to the applicable agreement for further details.
-#
-# -------------------------------------------------------------------------- #
-#
-# Quartus Prime
-# Version 18.0.0 Build 614 04/24/2018 SJ Lite Edition
-# Date created = 15:49:03  June 01, 2018
-#
-# -------------------------------------------------------------------------- #
-#
-# Note:
-#
-# 1) Do not modify this file. This file was generated
-#    automatically by the Quartus Prime software and is used
-#    to preserve global assignments across Quartus Prime versions.
-#
-# -------------------------------------------------------------------------- #
+# In 16.1, the default value of assignment OCP_HW_EVAL has changed to "Enable"
+# In 15.0, the default value of assignment FAMILY has changed to "Cyclone V"
+# In 10.0, the default value of assignment OPTIMIZE_IOC_REGISTER_PLACEMENT_FOR_TIMING has changed to "Normal"
+# In 9.1, the default value of assignment PARALLEL_SYNTHESIS has changed to "On"
+# In 9.1, the default value of assignment SYNTH_TIMING_DRIVEN_SYNTHESIS has changed to "On" for device family "Arria II GZ"
+# In 9.1, the default value of assignment SYNTH_TIMING_DRIVEN_SYNTHESIS has changed to "On" for device family "Cyclone 10 LP"
+# In 9.1, the default value of assignment SYNTH_TIMING_DRIVEN_SYNTHESIS has changed to "On" for device family "Cyclone IV GX"
+# In 9.1, the default value of assignment SYNTH_TIMING_DRIVEN_SYNTHESIS has changed to "On" for device family "Stratix IV"
+# In 9.1, the default value of assignment SYNTH_TIMING_DRIVEN_SYNTHESIS has changed to "On" for device family "Cyclone IV E"
+# In 9.1, the default value of assignment SYNTH_TIMING_DRIVEN_SYNTHESIS has changed to "On" for device family "Arria II GX"
+# In 9.1, the default value of assignment SYNTH_TIMING_DRIVEN_SYNTHESIS has changed to "On" for device family "Arria II GZ"
+# In 9.1, the default value of assignment SYNTH_TIMING_DRIVEN_SYNTHESIS has changed to "On" for device family "Cyclone 10 LP"
+# In 9.1, the default value of assignment SYNTH_TIMING_DRIVEN_SYNTHESIS has changed to "On" for device family "Cyclone IV GX"
+# In 9.1, the default value of assignment SYNTH_TIMING_DRIVEN_SYNTHESIS has changed to "On" for device family "Stratix IV"
+# In 9.1, the default value of assignment SYNTH_TIMING_DRIVEN_SYNTHESIS has changed to "On" for device family "Cyclone IV E"
+# In 9.1, the default value of assignment SYNTH_TIMING_DRIVEN_SYNTHESIS has changed to "On" for device family "Arria II GX"
+# In 9.0, the default value of assignment ENABLE_BENEFICIAL_SKEW_OPTIMIZATION has changed to "On"
+# In 8.1, the default value of assignment OPTIMIZE_HOLD_TIMING has changed to "All Paths" for device family "Arria II GZ"
+# In 8.1, the default value of assignment OPTIMIZE_HOLD_TIMING has changed to "All Paths" for device family "Cyclone 10 LP"
+# In 8.1, the default value of assignment OPTIMIZE_HOLD_TIMING has changed to "All Paths" for device family "Cyclone IV GX"
+# In 8.1, the default value of assignment OPTIMIZE_HOLD_TIMING has changed to "All Paths" for device family "Stratix IV"
+# In 8.1, the default value of assignment OPTIMIZE_HOLD_TIMING has changed to "All Paths" for device family "Cyclone IV E"
+# In 8.1, the default value of assignment OPTIMIZE_HOLD_TIMING has changed to "All Paths" for device family "Arria II GX"
+# In 8.0, the default value of assignment USE_CONFIGURATION_DEVICE has changed to "Off" for device family "Cyclone 10 LP"
+# In 8.0, the default value of assignment USE_CONFIGURATION_DEVICE has changed to "Off" for device family "Cyclone IV E"
+# In 8.0, the default value of assignment USE_CONFIGURATION_DEVICE has changed to "Off" for device family "Cyclone IV GX"
+# In 7.2, the default value of assignment POWER_REPORT_SIGNAL_ACTIVITY has changed to "Off"
+# In 7.2, the default value of assignment POWER_REPORT_POWER_DISSIPATION has changed to "Off"
+# In 5.1, the default value of assignment ANALYZE_LATCHES_AS_SYNCHRONOUS_ELEMENTS has changed to "On"
+# In 5.1, the default value of assignment STRATIXII_MRAM_COMPATIBILITY has changed to "Off"
+# In 5.0, the default value of assignment SIMULATION_WITH_GLITCH_FILTERING_WHEN_GENERATING_SAF has changed to "On"
+# In 4.1, the default value of assignment FITTER_EFFORT has changed to "Auto Fit"
+
 
 set_global_assignment -name IP_COMPONENT_REPORT_HIERARCHY Off
 set_global_assignment -name IP_COMPONENT_INTERNAL Off
@@ -753,6 +757,7 @@ set_global_assignment -name VCCPD_VOLTAGE 3.3V -section_id ?
 set_global_assignment -name EDA_USER_COMPILED_SIMULATION_LIBRARY_DIRECTORY "<None>" -section_id ?
 set_global_assignment -name EDA_LAUNCH_CMD_LINE_TOOL Off -section_id ?
 set_global_assignment -name EDA_ENABLE_IPUTF_MODE On -section_id ?
+set_global_assignment -name EDA_EXTRA_ELAB_OPTION "\"\"" -section_id ?
 set_global_assignment -name EDA_NATIVELINK_PORTABLE_FILE_PATHS Off -section_id ?
 set_global_assignment -name EDA_NATIVELINK_GENERATE_SCRIPT_ONLY Off -section_id ?
 set_global_assignment -name EDA_WAIT_FOR_GUI_TOOL_COMPLETION Off -section_id ?
