@@ -46,6 +46,8 @@ module data(
     reg add_line_reg = 0;
     reg resync_reg = 1;
     
+    reg [4:0] test_counter = 0;
+
     initial begin
         raw_counterX_reg <= 0;
         raw_counterY_reg <= 0;
@@ -103,7 +105,7 @@ module data(
                 vsync_reg <= _vsync;
 
                 // 
-                if (vsync_reg && _vsync && hsync_reg && _hsync) begin
+                if (vsync_reg && _vsync && hsync_reg && _hsync && (& indata)) begin
                     vsync_reg_store <= vsync_reg_store + 1;
 
                     if (vsync_reg_store == 32'd_108_000_000) begin
@@ -170,10 +172,13 @@ module data(
                             red_reg <= 8'd255;
                             green_reg <= 8'd255;
                             blue_reg <= 8'd255;
+                            test_counter <= 5'b0;
                         end else begin
-                            red_reg <= 8'd0;
-                            green_reg <= 8'd0;
-                            blue_reg <= 8'd0;
+                            // 
+                            red_reg <= 8'd1 << test_counter[4:2];
+                            green_reg <= 8'd1 << test_counter[4:2];
+                            blue_reg <= 8'd1 << test_counter[4:2];
+                            test_counter <= test_counter + 1'b1;
                         end
                     end
                 end else begin
