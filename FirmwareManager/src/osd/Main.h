@@ -79,7 +79,7 @@ Menu dcResetConfirmMenu("DCResetConfirm", (uint8_t*) OSD_DC_RESET_CONFIRM_MENU, 
             DBG_OUTPUT_PORT.printf("reset dreamcast recover!\n");
             currentMenu->endTransaction();
             currentMenu = &mainMenu;
-            currentMenu->Display();
+            closeOSD();
         });
         return;
     }

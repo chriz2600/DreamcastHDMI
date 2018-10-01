@@ -27,14 +27,14 @@
 #define MENU_M_FIRST_SELECT_LINE 2
 #define MENU_M_LAST_SELECT_LINE 7
 char OSD_MAIN_MENU[521] = (
-    "MainMenu                                "
+    "Main Menu                               "
     "                                        "
     "- Output Resolution                     "
     "- Scanlines                             "
     "- Video Mode Settings                   "
     "- Firmware Upgrade                      "
     "- WiFi Setup                            "
-    "- Reset Configuration                   "
+    "- Reset Options                         "
     "                                        "
     "                                        "
     "                                        "
@@ -290,7 +290,7 @@ char OSD_INFO_MENU[521] = (
 #define MENU_RST_FIRST_SELECT_LINE 2
 #define MENU_RST_LAST_SELECT_LINE 4
 char OSD_RESET_MENU[521] = (
-    "Reset Configuration                     "
+    "Reset Options                           "
     "                                        "
     "- LED                                   "
     "- GDEMU                                 "

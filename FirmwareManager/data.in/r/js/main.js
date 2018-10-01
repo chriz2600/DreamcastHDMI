@@ -249,6 +249,10 @@ var term = $('#term').terminal(function(command, term) {
         startTransaction(null, function() {
             getConfig(false, setupMode);
         });
+    } else if (command.match(/^\s*factoryreset\s*$/)) {
+        startTransaction(null, function() {
+            getConfig(false, function() { setupMode(true); });
+        });
     } else if (command.match(/^\s*config\s*$/)) {
         startTransaction(null, function() {
             getConfig(true);
@@ -804,7 +808,7 @@ function getConfig(show, cb) {
     });
 }
 
-function setupMode() {
+function setupMode(doResetConfiguration) {
     term.history().disable();
     var questions = [
         {
@@ -848,7 +852,11 @@ function setupMode() {
     var keyz = Object.keys(setupDataMapping);
     var size = keyz.length;
     for (var i = size - 1 ; i >= 0 ; i--) {
-        questions.unshift(prepareQuestion(i + 1, size, keyz[i]));
+        if (doResetConfiguration) {
+            setupData[keyz[i]] = "";
+        } else {
+            questions.unshift(prepareQuestion(i + 1, size, keyz[i]));
+        }
     }
     var next = function() {
         var n = questions.shift();
