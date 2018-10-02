@@ -303,6 +303,10 @@ var term = $('#term').terminal(function(command, term) {
         startTransaction(null, function() {
             generateVideoAndTiming("off");
         });
+    } else if (command.match(/^\s*spi_flash_erase\s*$/)) {
+        startTransaction(null, function() {
+            spiFlashErase();
+        });
     } else if (command.match(/^\s*resetpll\s*$/)) {
         startTransaction(null, function() {
             resetpll();
@@ -800,6 +804,15 @@ function generateVideoAndTiming(state) {
         endTransaction("Generate video and timing: " + state);
     }).fail(function() {
         endTransaction('Error setting generate video and timing.', true);
+    });
+}
+
+function spiFlashErase() {
+    term.set_prompt(progress(0, progressSize));
+    $.ajax("/spi/flash/erase").done(function (data) {
+        doProgress(function() { endTransaction("spi flash erase done"); });
+    }).fail(function() {
+        endTransaction("Error starting flash process!", true);
     });
 }
 

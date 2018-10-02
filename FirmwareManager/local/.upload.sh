@@ -2,7 +2,7 @@
 
 username="Test"
 password="testtest"
-hostname="dc-firmware-manager.local"
+hostname=${ESP_HOSTNAME:-dc-firmware-manager.local}
 
 function doUpload() {
     target=$1

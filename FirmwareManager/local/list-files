@@ -1,4 +1,6 @@
 #!/bin/bash
 
+hostname=${ESP_HOSTNAME:-dc-firmware-manager.local}
+
 curl --basic --user Test:testtest \
-    -s "http://dc-firmware-manager.local/list-files" | jq .
+    -s "http://${hostname}/list-files" | jq .

@@ -23,6 +23,7 @@
 #include "task/DebugTask.h"
 #include "task/TimeoutTask.h"
 #include "task/FlashCheckTask.h"
+#include "task/FlashEraseTask.h"
 #include "util.h"
 #include "data.h"
 #include "web.h"
@@ -82,6 +83,7 @@ FlashESPIndexTask flashESPIndexTask(1);
 DebugTask debugTask(16);
 TimeoutTask timeoutTask(MsToTaskTime(100));
 FlashCheckTask flashCheckTask(1, NULL);
+FlashEraseTask flashEraseTask(1);
 
 extern Menu mainMenu;
 Menu *currentMenu;
@@ -658,6 +660,14 @@ void setupHTTPServer() {
             return request->requestAuthentication();
         }
         fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
+        request->send(200);
+    });
+
+    server.on("/spi/flash/erase", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        taskManager.StartTask(&flashEraseTask);
         request->send(200);
     });
 
