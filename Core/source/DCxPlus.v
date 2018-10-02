@@ -124,7 +124,8 @@ configuration configurator(
     .forceVGAMode(forceVGAMode),
     .line_doubler(_240p_480i_mode),
     .clock_config_S(S),
-    .config_changed(config_changed)
+    .config_changed(config_changed),
+    .force_generate(force_generate)
 );
 
 /////////////////////////////////
