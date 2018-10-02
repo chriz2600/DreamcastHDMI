@@ -653,6 +653,14 @@ void setupHTTPServer() {
         request->send(200);
     });
 
+    server.on("/generate/off", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
+        request->send(200);
+    });
+
     AsyncStaticWebHandler* handler = &server
         .serveStatic("/", SPIFFS, "/")
         .setDefaultFile("index.html");

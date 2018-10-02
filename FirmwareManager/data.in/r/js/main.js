@@ -295,6 +295,14 @@ var term = $('#term').terminal(function(command, term) {
         startTransaction(null, function() {
             setResolution("1080p");
         });
+    } else if (command.match(/^\s*generate_on\s*$/)) {
+        startTransaction(null, function() {
+            generateVideoAndTiming("on");
+        });
+    } else if (command.match(/^\s*generate_off\s*$/)) {
+        startTransaction(null, function() {
+            generateVideoAndTiming("off");
+        });
     } else if (command.match(/^\s*resetpll\s*$/)) {
         startTransaction(null, function() {
             resetpll();
@@ -651,12 +659,12 @@ var setupDataMapping = {
     conf_ip_mask:     [ "Netmask          ", "empty" ],
     conf_ip_dns:      [ "DNS              ", "empty" ],
     hostname:         [ "Hostname         ", "dc-firmware-manager" ],
-    video_resolution: [ "Video output     ", "1080p" ],
+    video_resolution: [ "Video output     ", "VGA" ],
     video_mode:       [ "Video mode       ", "CableDetect" ],
     reset_mode:       [ "Opt. reset mode  ", "led" ]
 };
 var dataExcludeMap = {
-    "flash_chip_size":"", 
+    "flash_chip_size":"",
     "fw_version":""
 };
 
@@ -671,7 +679,7 @@ function setupDataDisplayToString(data, isSafe) {
             + (
                 data[x] 
                 ? ('[[b;#fff;]' + data[x] + ']')
-                : (isSafe ? '[[b;yellow;]reset]' : '[[b;red;]not yet set]')
+                : (isSafe ? '[[b;yellow;]reset] (' + (setupDataMapping[x][1] || '-') + ')' : '[[b;red;]not yet set]')
             )
              + " \n";
     }
@@ -784,6 +792,14 @@ function setResolution(type) {
         endTransaction("Switched resolution to: " + type);
     }).fail(function() {
         endTransaction('Error switching resolution.', true);
+    });
+}
+
+function generateVideoAndTiming(state) {
+    $.ajax("/generate/" + state).done(function (data) {
+        endTransaction("Generate video and timing: " + state);
+    }).fail(function() {
+        endTransaction('Error setting generate video and timing.', true);
     });
 }
 

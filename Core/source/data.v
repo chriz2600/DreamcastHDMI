@@ -45,8 +45,6 @@ module data(
     
     reg add_line_reg = 0;
     reg resync_reg = 1;
-    
-    reg [4:0] test_counter = 0;
 
     initial begin
         raw_counterX_reg <= 0;
@@ -163,23 +161,16 @@ module data(
 
             // store red and first half of green
             if (counterX_reg >= 0 && counterX_reg < VISIBLE_AREA_WIDTH 
-            && counterY_reg >= 0 && counterY_reg < VISIBLE_AREA_HEIGHT) begin
+             && counterY_reg >= 0 && counterY_reg < VISIBLE_AREA_HEIGHT) begin
                 if (force_generate || generate_video) begin
                     // store values on even clock
                     if (~raw_counterX_reg[0]) begin
-                        // apply combined values of red, green, blue simultanesly
-                        if (get_fifth_bit(counterX_reg - `HORIZONTAL_OFFSET) ^ counterY_reg[5]) begin
-                            red_reg <= 8'd255;
-                            green_reg <= 8'd255;
-                            blue_reg <= 8'd255;
-                            test_counter <= 5'b0;
-                        end else begin
-                            // 
-                            red_reg <= 8'd1 << test_counter[4:2];
-                            green_reg <= 8'd1 << test_counter[4:2];
-                            blue_reg <= 8'd1 << test_counter[4:2];
-                            test_counter <= test_counter + 1'b1;
-                        end
+                        doOutputValue(counterX_reg, 8'd255);
+                        // if (counterY_reg < 240) begin
+                        //     doOutputValue(counterX_reg, ((~counterY_reg[7:0] / 32) * 32));
+                        // end else begin
+                        //     doOutputValue(counterX_reg, (((counterY_reg[7:0] + 16) / 32) * 32) + 15);
+                        // end
                     end
                 end else begin
                     // store values on even clock
@@ -217,5 +208,47 @@ module data(
     assign blue = blue_reg;
     assign add_line = add_line_reg;
     assign resync = resync_reg;
+
+    task doOutputValue;
+        input [11:0] xpos;
+        input [7:0] val;
+        begin
+            if (xpos >= `HORIZONTAL_OFFSET && xpos < 640 + `HORIZONTAL_OFFSET) begin
+                if (xpos < 80 + `HORIZONTAL_OFFSET) begin
+                    red_reg <= val;
+                    green_reg <= 8'd0;
+                    blue_reg <= 8'd0;
+                end else if (xpos < 160 + `HORIZONTAL_OFFSET) begin
+                    red_reg <= 8'd0;
+                    green_reg <= val;
+                    blue_reg <= 8'd0;
+                end else if (xpos < 240 + `HORIZONTAL_OFFSET) begin
+                    red_reg <= 8'd0;
+                    green_reg <= 8'd0;
+                    blue_reg <= val;
+                end else if (xpos < 320 + `HORIZONTAL_OFFSET) begin
+                    red_reg <= val;
+                    green_reg <= val;
+                    blue_reg <= val;
+                end else if (xpos < 400 + `HORIZONTAL_OFFSET) begin
+                    red_reg <= 8'd0;
+                    green_reg <= 8'd0;
+                    blue_reg <= 8'd0;
+                end else if (xpos < 480 + `HORIZONTAL_OFFSET) begin
+                    red_reg <= 8'd0;
+                    green_reg <= val;
+                    blue_reg <= val;
+                end else if (xpos < 560 + `HORIZONTAL_OFFSET) begin
+                    red_reg <= val;
+                    green_reg <= val;
+                    blue_reg <= 8'd0;
+                end else begin
+                    red_reg <= val;
+                    green_reg <= 8'd0;
+                    blue_reg <= val;
+                end
+            end
+        end
+    endtask
 
 endmodule
