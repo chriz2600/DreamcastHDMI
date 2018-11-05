@@ -10,12 +10,18 @@
 #define MENU_WIDTH 40
 
 #define NO_SELECT_LINE 32
-#define MENU_START_LINE "          A: Start    B: Back           "
-#define MENU_BACK_LINE  "                B: Back                 "
+#define MENU_START_LINE "          " MENU_OK_STR ": Start    " MENU_CANCEL_STR ": Back           "
+#define MENU_BACK_LINE  "                " MENU_CANCEL_STR ": Back                 "
 #define MENU_BUTTON_LINE 12
 
 #define MENU_RST_GDEMU_BUTTON_LINE  "     X: Reset DC  Y: GDEMU button       "
 #define MENU_RST_NORMAL_BUTTON_LINE "              X: Reset DC               "
+
+#define MENU_OK CTRLR_LTRIGGER
+#define MENU_CANCEL CTRLR_RTRIGGER
+
+#define MENU_OK_STR "L"
+#define MENU_CANCEL_STR "R"
 
 #define MENU_M_OR 2
 #define MENU_M_SL 3
@@ -39,7 +45,7 @@ char OSD_MAIN_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "          A: Select  B: Exit            "
+    "          " MENU_OK_STR ": Select  " MENU_CANCEL_STR ": Exit            "
 );
 
 #define MENU_OR_LAST_SELECT_LINE 5
@@ -57,7 +63,7 @@ char OSD_OUTPUT_RES_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "          A: Apply   B: Back            "
+    "          " MENU_OK_STR ": Apply   " MENU_CANCEL_STR ": Back            "
 );
 
 #define MENU_SS_RESULT_LINE 4
@@ -74,7 +80,7 @@ char OSD_OUTPUT_RES_SAVE_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "          A: Keep  B: Revert            "
+    "          " MENU_OK_STR ": Keep  " MENU_CANCEL_STR ": Revert            "
 );
 
 #define MENU_VM_FORCE_VGA_LINE 2
@@ -95,7 +101,7 @@ char OSD_VIDEO_MODE_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "          A: Save  B: Cancel            "
+    "          " MENU_OK_STR ": Save  " MENU_CANCEL_STR ": Cancel            "
 );
 
 char OSD_VIDEO_MODE_SAVE_MENU[521] = (
@@ -111,7 +117,7 @@ char OSD_VIDEO_MODE_SAVE_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "         A: Reset  B: Not now           "
+    "         " MENU_OK_STR ": Reset  " MENU_CANCEL_STR ": Not now           "
 );
 
 char OSD_DC_RESET_CONFIRM_MENU[521] = (
@@ -127,7 +133,7 @@ char OSD_DC_RESET_CONFIRM_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "         A: Reset  B: Not now           "
+    "         " MENU_OK_STR ": Reset  " MENU_CANCEL_STR ": Not now           "
 );
 
 char OSD_OPT_RESET_CONFIRM_MENU[521] = (
@@ -143,7 +149,7 @@ char OSD_OPT_RESET_CONFIRM_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "         A: Press  B: Not now           "
+    "         " MENU_OK_STR ": Press  " MENU_CANCEL_STR ": Not now           "
 );
 
 #define MENU_FW_CHECK_LINE 2
@@ -165,7 +171,7 @@ char OSD_FIRMWARE_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "          A: Select  B: Exit            "
+    "          " MENU_OK_STR ": Select  " MENU_CANCEL_STR ": Exit            "
 );
 
 #define MENU_FWC_FPGA_LINE 4
@@ -241,7 +247,7 @@ char OSD_FIRMWARE_RESET_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "          A: Ok    B: Cancel            "
+    "          " MENU_OK_STR ": Ok    " MENU_CANCEL_STR ": Cancel            "
 );
 
 #define MENU_SL_ACTIVE 2
@@ -259,11 +265,11 @@ char OSD_SCANLINES_MENU[521] = (
     "- Thickness: _____                      "
     "                                        "
     "  left/right (d-pad): change value.     "
-    "  A: save settings and exit.            "
-    "  B: discard changes and exit.          "
+    "  " MENU_OK_STR ": save settings and exit.            "
+    "  " MENU_CANCEL_STR ": discard changes and exit.          "
     "                                        "
     "                                        "
-    "          A: Save  B: Cancel            "
+    "          " MENU_OK_STR ": Save  " MENU_CANCEL_STR ": Cancel            "
 );
 
 #define MENU_INF_RESULT_LINE 2
@@ -281,7 +287,7 @@ char OSD_INFO_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "                B: Back                 "
+    "                " MENU_CANCEL_STR ": Back                 "
 );
 
 #define MENU_RST_LED_LINE 2
@@ -302,7 +308,7 @@ char OSD_RESET_MENU[521] = (
     "GDEMU:     OPT -> GDEMU button          "
     "USB-GDROM: OPT -> USB-GDROM reset       "
     "                                        "
-    "          A: Apply   B: Back            "
+    "          " MENU_OK_STR ": Apply   " MENU_CANCEL_STR ": Back            "
 );
 
 #define MENU_WIFI_SSID_LINE 2
@@ -323,7 +329,7 @@ char OSD_WIFI_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "          A: Select  B: Back            "
+    "          " MENU_OK_STR ": Select  " MENU_CANCEL_STR ": Back            "
 );
 
 #define MENU_WIFI_EDIT_NAME_LINE 2
@@ -342,7 +348,7 @@ char OSD_WIFI_EDIT_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "          A: Save  B: Cancel            "
+    "          " MENU_OK_STR ": Save  " MENU_CANCEL_STR ": Cancel            "
 );
 
 typedef std::function<void(uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat)> ClickHandler;
