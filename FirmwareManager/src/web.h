@@ -11,7 +11,7 @@ extern char firmwareServer[1024];
 static AsyncClient *aClient = NULL;
 String fname;
 bool headerFound = false;
-String header = "";
+std::string responseHeader("");
 std::string responseData("");
 
 void _handleDownload(AsyncWebServerRequest *request, const char *filename, String httpGet, ProgressCallback progressCallback);
@@ -110,16 +110,16 @@ void getMD5SumFromServer(String host, String url, ContentCallback contentCallbac
         }, NULL);
     
         client->onData([](void *arg, AsyncClient *c, void *data, size_t len) {
-            String sData = String((char*) data);
+            std::string sData((char*) data);
             if (!headerFound) {
-                int idx = sData.indexOf("\r\n\r\n");
+                int idx = sData.find("\r\n\r\n");
                 if (idx == -1) {
                     return;
                 }
-                responseData.append(sData.substring(idx + 4, len).c_str());
+                responseData.append(sData.substr(idx + 4, len - (idx + 4)));
                 headerFound = true;
             } else {
-                responseData.append(sData.substring(0, len).c_str());
+                responseData.append(sData.substr(0, len));
             }
         }, NULL);
     
@@ -138,7 +138,7 @@ void getMD5SumFromServer(String host, String url, ContentCallback contentCallbac
 
 void _handleDownload(AsyncWebServerRequest *request, const char *filename, String httpGet, ProgressCallback progressCallback) {
     headerFound = false;
-    header = "";
+    responseHeader.clear();
     totalLength = -1;
     readLength = -1;
     last_error = NO_ERROR;
@@ -173,26 +173,24 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
         
             client->onData([ progressCallback ](void *arg, AsyncClient *c, void *data, size_t len) {
                 uint8_t* d = (uint8_t*) data;
-
                 if (!headerFound) {
-                    String sData = String((char*) data);
-                    int idx = sData.indexOf("\r\n\r\n");
+                    std::string sData((char*) data);
+                    std::string::size_type idx = sData.find("\r\n\r\n");
                     if (idx == -1) {
                         DBG_OUTPUT_PORT.printf("header not found. Storing buffer.\n");
-                        header += sData;
+                        responseHeader.append(sData.substr(0, len));
                         return;
                     } else {
-                        header += sData.substring(0, idx + 4);
-                        header.toLowerCase();
-                        int clstart = header.indexOf("content-length: ");
+                        responseHeader.append(sData.substr(0, idx + 4));
+                        int clstart = responseHeader.find("Content-Length: ");
                         if (clstart != -1) {
                             clstart += 16;
-                            int clend = header.indexOf("\r\n", clstart);
+                            int clend = responseHeader.find("\r\n", clstart);
                             if (clend != -1) {
-                                totalLength = atoi(header.substring(clstart, clend).c_str());
+                                totalLength = atoi(responseHeader.substr(clstart, clend - clstart).c_str());
                             }
                         }
-                        d = (uint8_t*) sData.substring(idx + 4).c_str();
+                        d = (uint8_t*) sData.substr(idx + 4, len - (idx + 4)).c_str();
                         len = (len - (idx + 4));
                         headerFound = true;
                         readLength = 0;

@@ -311,6 +311,10 @@ var term = $('#term').terminal(function(command, term) {
         startTransaction(null, function() {
             resetpll();
         });
+    } else if (command.match(/^\s*debug\s*$/)) {
+        startTransaction(null, function() {
+            debug();
+        });
     } else if (command.match(/^\s*details\s*$/)) {
         typed_message(term,
               getHelpDetailsFPGA()
@@ -821,6 +825,14 @@ function resetpll() {
         endTransaction("Reset PLL done.");
     }).fail(function() {
         endTransaction('Error resetting PLL.', true);
+    });
+}
+
+function debug() {
+    $.ajax("/debug").done(function (data) {
+        endTransaction(data);
+    }).fail(function() {
+        endTransaction('Error getting debug data.', true);
     });
 }
 

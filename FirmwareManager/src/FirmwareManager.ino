@@ -308,6 +308,15 @@ void setupHTTPServer() {
         handleUpload(request, ESP_INDEX_STAGING_FILE, index, data, len, final);
     });
 
+    server.on("/debug", HTTP_GET, [](AsyncWebServerRequest *request){
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        char msg[64];
+        _readFile("/debug", msg, 64, "---");
+        request->send(200, "text/plain", msg);
+    });
+
     server.on("/list-files", HTTP_GET, [](AsyncWebServerRequest *request){
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();

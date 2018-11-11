@@ -17,11 +17,11 @@
 #define MENU_RST_GDEMU_BUTTON_LINE  "     X: Reset DC  Y: GDEMU button       "
 #define MENU_RST_NORMAL_BUTTON_LINE "              X: Reset DC               "
 
-#define MENU_OK CTRLR_LTRIGGER
-#define MENU_CANCEL CTRLR_RTRIGGER
+#define MENU_OK CTRLR_RTRIGGER
+#define MENU_CANCEL CTRLR_LTRIGGER
 
-#define MENU_OK_STR "L"
-#define MENU_CANCEL_STR "R"
+#define MENU_OK_STR "R"
+#define MENU_CANCEL_STR "L"
 
 #define MENU_M_OR 2
 #define MENU_M_SL 3

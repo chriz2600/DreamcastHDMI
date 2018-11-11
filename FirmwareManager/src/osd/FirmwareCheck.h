@@ -85,7 +85,6 @@ void md5Cascade(int pos) {
     }
 }
 
-
 void readStoredMD5Sum(int pos, int line, const char* fname, char* md5sum) {
     char value[9];
     _readFile(fname, md5sum, 33, DEFAULT_MD5_SUM);
