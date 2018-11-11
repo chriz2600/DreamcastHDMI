@@ -1,5 +1,13 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2018-11-11
+
+- Changed the button layout for the OSD control: *A* and *B* are now remapped to *R* and *L*, to reduce button conflicts with the game running in the background.
+
+    Thanks to ***-=FamilyGuy=-*** from the assemblergames forum for this idea!
+
+- ESP firmware is now built using *PlatformIO, version 3.6.1*
+
 #### 2018-09-20
 
 - Updated the firmware to reflect the DCHDMI 1.3 hardware changes. The OSD now contains the following:
