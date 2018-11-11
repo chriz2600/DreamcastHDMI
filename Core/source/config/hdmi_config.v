@@ -9,7 +9,7 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_1080P = {
     11'd1125,       // vertical_lines
     11'd1125,       // vertical_lines_240p
     11'd1080,       // vertical_lines_visible
-    11'd1084,       // vertical_sync_start
+    11'd1083,       // vertical_sync_start
     11'd5,          // vertical_sync_width
     1'b1,           // vertical_sync_on_polarity
 
@@ -51,7 +51,7 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_960P = {
     11'd1000,       // vertical_lines
     11'd1000,       // vertical_lines_240p
     11'd960,        // vertical_lines_visible
-    11'd961,        // vertical_sync_start
+    11'd960,        // vertical_sync_start
     11'd3,          // vertical_sync_width
     1'b1,           // vertical_sync_on_polarity
 
@@ -86,14 +86,14 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_960P = {
 const HDMIVideoConfig HDMI_VIDEO_CONFIG_480P = { 
     12'd858,        // horizontal_pixels_per_line
     12'd720,        // horizontal_pixels_visible
-    12'd746,        // horizontal_sync_start
+    12'd736,        // horizontal_sync_start
     12'd62,         // horizontal_sync_width
     1'b0,           // horizontal_sync_on_polarity
 
     11'd525,        // vertical_lines
     11'd526,        // vertical_lines_240p
     11'd480,        // vertical_lines_visible
-    11'd489,        // vertical_sync_start
+    11'd488,        // vertical_sync_start
     11'd6,          // vertical_sync_width
     1'b0,           // vertical_sync_on_polarity
 
@@ -135,7 +135,7 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_VGA = {
     11'd525,        // vertical_lines
     11'd526,        // vertical_lines_240p
     11'd480,        // vertical_lines_visible
-    11'd490,        // vertical_sync_start
+    11'd489,        // vertical_sync_start
     11'd2,          // vertical_sync_width
     1'b0,           // vertical_sync_on_polarity
 
