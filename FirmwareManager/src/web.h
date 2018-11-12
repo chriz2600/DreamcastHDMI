@@ -175,7 +175,7 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
                 uint8_t* d = (uint8_t*) data;
                 if (!headerFound) {
                     std::string sData((char*) data);
-                    std::string::size_type idx = sData.find("\r\n\r\n");
+                    int idx = sData.find("\r\n\r\n");
                     if (idx == -1) {
                         DBG_OUTPUT_PORT.printf("header not found. Storing buffer.\n");
                         responseHeader.append(sData.substr(0, len));
