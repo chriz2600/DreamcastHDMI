@@ -680,6 +680,22 @@ void setupHTTPServer() {
         request->send(200);
     });
 
+    server.on("/pinok", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        fpgaTask.Read(I2C_PINOK_BASE, I2C_PINOK_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+            char msg[64];
+            if (len == I2C_PINOK_LENGTH) {
+                sprintf(msg, "GOT: %02x %02x %02x\n", buffer[0], buffer[1], buffer[2]);
+                request->send(200, "text/plain", msg);
+            } else {
+                request->send(200, "text/plain", "SOMETHING_IS_WRONG\n");
+            }
+        }); 
+        fpgaTask.ForceLoop();
+    });
+
     AsyncStaticWebHandler* handler = &server
         .serveStatic("/", SPIFFS, "/")
         .setDefaultFile("index.html");

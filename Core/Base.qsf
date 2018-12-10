@@ -45,6 +45,7 @@ set_global_assignment -name SEED 74
 
 # source files
 set_global_assignment -name QIP_FILE source/fifo/reconf_fifo.qip
+set_global_assignment -name QIP_FILE source/fifo/pinok_fifo.qip
 set_global_assignment -name QIP_FILE source/pll_dc/pll54.qip
 set_global_assignment -name QIP_FILE source/pll_hdmi/pll_hdmi.qip
 set_global_assignment -name QIP_FILE source/pll_hdmi/pll_hdmi_reconf.qip
@@ -74,6 +75,7 @@ set_global_assignment -name VERILOG_FILE source/misc/Flag_CrossDomain.v
 set_global_assignment -name VERILOG_FILE source/misc/startup.v
 set_global_assignment -name VERILOG_FILE source/misc/edge_detect.v
 set_global_assignment -name VERILOG_FILE source/misc/data_cross.v
+set_global_assignment -name VERILOG_FILE source/misc/pinok_cross.v
 set_global_assignment -name VERILOG_FILE source/misc/LEDglow.v
 set_global_assignment -name VERILOG_FILE source/configuration.v
 set_global_assignment -name VHDL_FILE source/adv7513/i2c_master.vhd

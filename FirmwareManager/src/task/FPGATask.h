@@ -155,7 +155,7 @@ class FPGATask : public Task {
                 // update controller data
                 uint8_t buffer[1];
                 uint8_t buffer2[2];
-                buffer[0] = 0x85;
+                buffer[0] = I2C_CONTROLLER_DATA_BASE;
                 brzo_i2c_write(buffer, 1, false);
                 brzo_i2c_read(buffer2, 2, false);
                 // new controller data

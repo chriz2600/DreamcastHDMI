@@ -16,6 +16,7 @@ module data(
     output [11:0] counterY,
     output add_line,
     output resync,
+    output [19:0] pinok,
     output reg force_generate
 );
 
@@ -46,12 +47,19 @@ module data(
     reg add_line_reg = 0;
     reg resync_reg = 1;
 
+    reg [10:0] pinok1 = 0;
+    reg [10:0] pinok2 = 0;
+    reg [10:0] pinok1_reg = 0;
+    reg [10:0] pinok2_reg = 0;
+
     initial begin
         raw_counterX_reg <= 0;
         raw_counterY_reg <= 0;
         add_line_reg <= 0;
         resync_reg <= 1;
         force_generate <= 0;
+        pinok1 <= 0;
+        pinok2 <= 0;
     end
 
     always @(*) begin
@@ -84,6 +92,8 @@ module data(
             resync_reg <= 1;
             vsync_reg_store <= 0;
             force_generate <= 0;
+            pinok1 <= 0;
+            pinok2 <= 0;
         end else begin
             if (force_generate || generate_timing) begin
                 if (raw_counterX_reg < `RAW_WIDTH - 1) begin
@@ -152,6 +162,11 @@ module data(
                 
                 if (raw_counterY_reg == VISIBLE_AREA_VSTART) begin
                     counterY_reg <= 0;
+                    // reset pinok test data on new frame
+                    pinok1_reg <= pinok1;
+                    pinok2_reg <= pinok2;
+                    pinok1 <= 0;
+                    pinok2 <= 0;
                 end else begin
                     counterY_reg <= counterY_reg + 1'b1;
                 end
@@ -173,6 +188,7 @@ module data(
                         // end
                     end
                 end else begin
+                    checkPins();
                     // store values on even clock
                     if (raw_counterX_reg[0]) begin
                         red_reg_buf <= indata[11:4];
@@ -208,6 +224,7 @@ module data(
     assign blue = blue_reg;
     assign add_line = add_line_reg;
     assign resync = resync_reg;
+    assign pinok = { pinok1_reg, pinok2_reg };
 
     task doOutputValue;
         input [11:0] xpos;
@@ -248,6 +265,38 @@ module data(
                     blue_reg <= val;
                 end
             end
+        end
+    endtask
+
+    reg [31:0] counter = 0;
+
+    task checkPins;
+        begin
+            //////////////////////////////////////////////
+            // check for pins being shorted
+            if (indata[1:0] == 2'b10) pinok1[0] <= 1'b1;
+            if (indata[2:1] == 2'b10) pinok1[1] <= 1'b1;
+            if (indata[3:2] == 2'b10) pinok1[2] <= 1'b1;
+            if (indata[4:3] == 2'b10) pinok1[3] <= 1'b1;
+            if (indata[5:4] == 2'b10) pinok1[4] <= 1'b1;
+            if (indata[6:5] == 2'b10) pinok1[5] <= 1'b1;
+            if (indata[7:6] == 2'b10) pinok1[6] <= 1'b1;
+            if (indata[8:7] == 2'b10) pinok1[7] <= 1'b1;
+            if (indata[9:8] == 2'b10) pinok1[8] <= 1'b1;
+            if (indata[10:9] == 2'b10) pinok1[9] <= 1'b1;
+            if (indata[11:10] == 2'b10) pinok1[10] <= 1'b1;
+            if (indata[1:0] == 2'b01) pinok2[0] <= 1'b1;
+            if (indata[2:1] == 2'b01) pinok2[1] <= 1'b1;
+            if (indata[3:2] == 2'b01) pinok2[2] <= 1'b1;
+            if (indata[4:3] == 2'b01) pinok2[3] <= 1'b1;
+            if (indata[5:4] == 2'b01) pinok2[4] <= 1'b1;
+            if (indata[6:5] == 2'b01) pinok2[5] <= 1'b1;
+            if (indata[7:6] == 2'b01) pinok2[6] <= 1'b1;
+            if (indata[8:7] == 2'b01) pinok2[7] <= 1'b1;
+            if (indata[9:8] == 2'b01) pinok2[8] <= 1'b1;
+            if (indata[10:9] == 2'b01) pinok2[9] <= 1'b1;
+            if (indata[11:10] == 2'b01) pinok2[10] <= 1'b1;
+            //////////////////////////////////////////////
         end
     endtask
 

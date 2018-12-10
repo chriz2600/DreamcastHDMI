@@ -93,6 +93,7 @@
 #define I2C_OSD_ENABLE (0x81)
 #define I2C_OSD_ACTIVE_LINE (0x82)
 #define I2C_OUTPUT_RESOLUTION (0x83)
+#define I2C_CONTROLLER_DATA_BASE (0x85)
 #define I2C_SCANLINE_UPPER (0x87)
 #define I2C_SCANLINE_LOWER (0x88)
 #define I2C_DC_RESET (0xF0)
@@ -102,6 +103,10 @@
 
 #define I2C_RECOVER_TRIES 100000
 #define I2C_RECOVER_RETRY_INTERVAL_US 200
+
+// pinok data
+#define I2C_PINOK_BASE (0xB0)
+#define I2C_PINOK_LENGTH 3
 
 // // controller data, int16
 // /*

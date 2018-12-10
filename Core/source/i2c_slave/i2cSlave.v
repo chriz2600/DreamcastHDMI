@@ -62,6 +62,7 @@ module i2cSlave (
   output reset_dc,
   output reset_opt,
   output[7:0] reset_conf,
+  input [19:0] pinok,
   //input DebugData debugData,
   input ControllerData controller_data
 );
@@ -180,7 +181,8 @@ registerInterface u_registerInterface(
   .scanline(scanline),
   .reset_dc(reset_dc),
   .reset_opt(reset_opt),
-  .reset_conf(reset_conf)
+  .reset_conf(reset_conf),
+  .pinok(pinok)
 );
 
 serialInterface u_serialInterface (
