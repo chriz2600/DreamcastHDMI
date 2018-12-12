@@ -27,11 +27,11 @@
 #define MENU_M_SL 3
 #define MENU_M_VM 4
 #define MENU_M_FW 5
-//#define MENU_M_INF 6
 #define MENU_M_WIFI 6
 #define MENU_M_RST 7
+#define MENU_M_INF 8
 #define MENU_M_FIRST_SELECT_LINE 2
-#define MENU_M_LAST_SELECT_LINE 7
+#define MENU_M_LAST_SELECT_LINE 8
 char OSD_MAIN_MENU[521] = (
     "Main Menu                               "
     "                                        "
@@ -41,7 +41,7 @@ char OSD_MAIN_MENU[521] = (
     "- Firmware Upgrade                      "
     "- WiFi Setup                            "
     "- Reset Options                         "
-    "                                        "
+    "- Test/Info                             "
     "                                        "
     "                                        "
     "                                        "
@@ -275,7 +275,7 @@ char OSD_SCANLINES_MENU[521] = (
 #define MENU_INF_RESULT_LINE 2
 #define MENU_INF_RESULT_HEIGHT 9
 char OSD_INFO_MENU[521] = (
-    "Debug Info                              "
+    "Test/Info                               "
     "                                        "
     "                                        "
     "                                        "
@@ -467,7 +467,7 @@ void displayProgress(int read, int total, int line) {
 #include "osd/FirmwareFlash.h"
 #include "osd/FirmwareReset.h"
 #include "osd/Scanlines.h"
-//#include "osd/Info.h"
+#include "osd/Info.h"
 #include "osd/Reset.h"
 #include "osd/Wifi.h"
 

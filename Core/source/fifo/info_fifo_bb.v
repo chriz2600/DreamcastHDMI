@@ -4,7 +4,7 @@
 // MODULE: dcfifo 
 
 // ============================================================
-// File Name: pinok_fifo.v
+// File Name: info_fifo_bb.v
 // Megafunction Name(s):
 // 			dcfifo
 //
@@ -31,7 +31,7 @@
 //Intel and sold by Intel or its authorized distributors.  Please
 //refer to the applicable agreement for further details.
 
-module pinok_fifo (
+module info_fifo_bb (
 	data,
 	rdclk,
 	rdreq,
@@ -41,12 +41,12 @@ module pinok_fifo (
 	rdempty,
 	wrfull);
 
-	input	[19:0]  data;
+	input	[23:0]  data;
 	input	  rdclk;
 	input	  rdreq;
 	input	  wrclk;
 	input	  wrreq;
-	output	[19:0]  q;
+	output	[23:0]  q;
 	output	  rdempty;
 	output	  wrfull;
 
@@ -65,7 +65,7 @@ endmodule
 // Retrieval info: PRIVATE: Empty NUMERIC "1"
 // Retrieval info: PRIVATE: Full NUMERIC "1"
 // Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Cyclone 10 LP"
-// Retrieval info: PRIVATE: LE_BasedFIFO NUMERIC "1"
+// Retrieval info: PRIVATE: LE_BasedFIFO NUMERIC "0"
 // Retrieval info: PRIVATE: LegacyRREQ NUMERIC "1"
 // Retrieval info: PRIVATE: MAX_DEPTH_BY_9 NUMERIC "0"
 // Retrieval info: PRIVATE: OVERFLOW_CHECKING NUMERIC "0"
@@ -74,11 +74,11 @@ endmodule
 // Retrieval info: PRIVATE: SYNTH_WRAPPER_GEN_POSTFIX STRING "0"
 // Retrieval info: PRIVATE: UNDERFLOW_CHECKING NUMERIC "0"
 // Retrieval info: PRIVATE: UsedW NUMERIC "1"
-// Retrieval info: PRIVATE: Width NUMERIC "20"
+// Retrieval info: PRIVATE: Width NUMERIC "24"
 // Retrieval info: PRIVATE: dc_aclr NUMERIC "0"
 // Retrieval info: PRIVATE: diff_widths NUMERIC "0"
 // Retrieval info: PRIVATE: msb_usedw NUMERIC "0"
-// Retrieval info: PRIVATE: output_width NUMERIC "20"
+// Retrieval info: PRIVATE: output_width NUMERIC "24"
 // Retrieval info: PRIVATE: rsEmpty NUMERIC "1"
 // Retrieval info: PRIVATE: rsFull NUMERIC "0"
 // Retrieval info: PRIVATE: rsUsedW NUMERIC "0"
@@ -92,33 +92,33 @@ endmodule
 // Retrieval info: CONSTANT: LPM_NUMWORDS NUMERIC "4"
 // Retrieval info: CONSTANT: LPM_SHOWAHEAD STRING "OFF"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "dcfifo"
-// Retrieval info: CONSTANT: LPM_WIDTH NUMERIC "20"
+// Retrieval info: CONSTANT: LPM_WIDTH NUMERIC "24"
 // Retrieval info: CONSTANT: LPM_WIDTHU NUMERIC "2"
 // Retrieval info: CONSTANT: OVERFLOW_CHECKING STRING "ON"
 // Retrieval info: CONSTANT: RDSYNC_DELAYPIPE NUMERIC "5"
 // Retrieval info: CONSTANT: UNDERFLOW_CHECKING STRING "ON"
-// Retrieval info: CONSTANT: USE_EAB STRING "OFF"
+// Retrieval info: CONSTANT: USE_EAB STRING "ON"
 // Retrieval info: CONSTANT: WRSYNC_DELAYPIPE NUMERIC "5"
-// Retrieval info: USED_PORT: data 0 0 20 0 INPUT NODEFVAL "data[19..0]"
-// Retrieval info: USED_PORT: q 0 0 20 0 OUTPUT NODEFVAL "q[19..0]"
+// Retrieval info: USED_PORT: data 0 0 24 0 INPUT NODEFVAL "data[23..0]"
+// Retrieval info: USED_PORT: q 0 0 24 0 OUTPUT NODEFVAL "q[23..0]"
 // Retrieval info: USED_PORT: rdclk 0 0 0 0 INPUT NODEFVAL "rdclk"
 // Retrieval info: USED_PORT: rdempty 0 0 0 0 OUTPUT NODEFVAL "rdempty"
 // Retrieval info: USED_PORT: rdreq 0 0 0 0 INPUT NODEFVAL "rdreq"
 // Retrieval info: USED_PORT: wrclk 0 0 0 0 INPUT NODEFVAL "wrclk"
 // Retrieval info: USED_PORT: wrfull 0 0 0 0 OUTPUT NODEFVAL "wrfull"
 // Retrieval info: USED_PORT: wrreq 0 0 0 0 INPUT NODEFVAL "wrreq"
-// Retrieval info: CONNECT: @data 0 0 20 0 data 0 0 20 0
+// Retrieval info: CONNECT: @data 0 0 24 0 data 0 0 24 0
 // Retrieval info: CONNECT: @rdclk 0 0 0 0 rdclk 0 0 0 0
 // Retrieval info: CONNECT: @rdreq 0 0 0 0 rdreq 0 0 0 0
 // Retrieval info: CONNECT: @wrclk 0 0 0 0 wrclk 0 0 0 0
 // Retrieval info: CONNECT: @wrreq 0 0 0 0 wrreq 0 0 0 0
-// Retrieval info: CONNECT: q 0 0 20 0 @q 0 0 20 0
+// Retrieval info: CONNECT: q 0 0 24 0 @q 0 0 24 0
 // Retrieval info: CONNECT: rdempty 0 0 0 0 @rdempty 0 0 0 0
 // Retrieval info: CONNECT: wrfull 0 0 0 0 @wrfull 0 0 0 0
-// Retrieval info: GEN_FILE: TYPE_NORMAL pinok_fifo.v TRUE
-// Retrieval info: GEN_FILE: TYPE_NORMAL pinok_fifo.inc FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL pinok_fifo.cmp FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL pinok_fifo.bsf FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL pinok_fifo_inst.v FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL pinok_fifo_bb.v TRUE
+// Retrieval info: GEN_FILE: TYPE_NORMAL info_fifo.v TRUE
+// Retrieval info: GEN_FILE: TYPE_NORMAL info_fifo.inc FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL info_fifo.cmp FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL info_fifo.bsf FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL info_fifo_inst.v FALSE
+// Retrieval info: GEN_FILE: TYPE_NORMAL info_fifo_bb.v TRUE
 // Retrieval info: LIB_FILE: altera_mf

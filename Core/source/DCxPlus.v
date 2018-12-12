@@ -100,8 +100,10 @@ Scanline scanline;
 wire forceVGAMode;
 wire resetPLL;
 wire resync;
-wire [19:0] pinok;
-wire [19:0] pinok_out;
+wire [23:0] pinok;
+wire [23:0] pinok_out;
+wire [23:0] timingInfo;
+wire [23:0] timingInfo_out;
 wire force_generate;
 
 wire generate_video;
@@ -234,7 +236,8 @@ data video_input(
     .counterY(data_in_counter_y),
     .green(dc_green),
     .red(dc_red),
-    .pinok(pinok)
+    .pinok(pinok),
+    .timingInfo(timingInfo)
 );
 
 video2ram video2ram(
@@ -364,7 +367,8 @@ i2cSlave i2cSlave(
     .reset_dc(reset_dc),
     .reset_opt(reset_opt),
     .reset_conf(reset_conf),
-    .pinok(pinok_out)
+    .pinok(pinok_out),
+    .timingInfo(timingInfo_out)
 );
 
 maple mapleBus(
@@ -419,11 +423,18 @@ data_cross reset_cross(
     .dataOut(reset_conf_out)
 );
 
-pinok_cross pinok_cross(
+info_cross pinok_cross(
     .clkIn(clock54_net),
     .clkOut(hdmi_clock),
     .dataIn(pinok),
     .dataOut(pinok_out)
+);
+
+info_cross resolution_cross(
+    .clkIn(clock54_net),
+    .clkOut(hdmi_clock),
+    .dataIn(timingInfo),
+    .dataOut(timingInfo_out)
 );
 
 reg[7:0] reset_conf_out;

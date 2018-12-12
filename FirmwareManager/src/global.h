@@ -105,8 +105,8 @@
 #define I2C_RECOVER_RETRY_INTERVAL_US 200
 
 // pinok data
-#define I2C_PINOK_BASE (0xB0)
-#define I2C_PINOK_LENGTH 3
+#define I2C_TESTDATA_BASE (0xB0)
+#define I2C_TESTDATA_LENGTH 6
 
 // // controller data, int16
 // /*

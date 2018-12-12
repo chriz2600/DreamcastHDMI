@@ -24,6 +24,7 @@
 #include "task/TimeoutTask.h"
 #include "task/FlashCheckTask.h"
 #include "task/FlashEraseTask.h"
+#include "task/InfoTask.h"
 #include "util.h"
 #include "data.h"
 #include "web.h"
@@ -84,6 +85,7 @@ DebugTask debugTask(16);
 TimeoutTask timeoutTask(MsToTaskTime(100));
 FlashCheckTask flashCheckTask(1, NULL);
 FlashEraseTask flashEraseTask(1);
+InfoTask infoTask(16);
 
 extern Menu mainMenu;
 Menu *currentMenu;
@@ -684,10 +686,10 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        fpgaTask.Read(I2C_PINOK_BASE, I2C_PINOK_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+        fpgaTask.Read(I2C_TESTDATA_BASE, I2C_TESTDATA_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
             char msg[64];
-            if (len == I2C_PINOK_LENGTH) {
-                sprintf(msg, "GOT: %02x %02x %02x\n", buffer[0], buffer[1], buffer[2]);
+            if (len == I2C_TESTDATA_LENGTH) {
+                sprintf(msg, "%02x %02x %02x %02x %02x %02x\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
                 request->send(200, "text/plain", msg);
             } else {
                 request->send(200, "text/plain", "SOMETHING_IS_WRONG\n");

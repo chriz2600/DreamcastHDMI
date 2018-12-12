@@ -16,7 +16,8 @@ module data(
     output [11:0] counterY,
     output add_line,
     output resync,
-    output [19:0] pinok,
+    output [23:0] pinok,
+    output [23:0] timingInfo,
     output reg force_generate
 );
 
@@ -31,10 +32,12 @@ module data(
     reg [7:0] green_reg;
     reg [7:0] blue_reg;
 
+    reg [11:0] raw_counterX = 0;
     reg [11:0] raw_counterX_reg = 0;
     reg [11:0] counterX_reg;
     reg [11:0] counterX_reg_q;
 
+    reg [11:0] raw_counterY = 0;
     reg [11:0] raw_counterY_reg = 0;
     reg [11:0] counterY_reg;
     reg [11:0] counterY_reg_q;
@@ -125,6 +128,7 @@ module data(
 
                 // reset horizontal raw counter on hsync
                 if (hsync_reg && !_hsync) begin
+                    raw_counterX <= raw_counterX_reg;
                     raw_counterX_reg <= 0;
 
                     // reset vertical raw counter on vsync
@@ -147,6 +151,7 @@ module data(
                             add_line_reg <= 1'b0;
                         end
 
+                        raw_counterY <= raw_counterY_reg;
                         raw_counterY_reg <= 0;
                     end else begin
                         raw_counterY_reg <= raw_counterY_reg + 1'b1;
@@ -224,7 +229,8 @@ module data(
     assign blue = blue_reg;
     assign add_line = add_line_reg;
     assign resync = resync_reg;
-    assign pinok = { pinok1_reg, pinok2_reg };
+    assign pinok = { 2'b00, pinok1_reg, pinok2_reg };
+    assign timingInfo = { raw_counterX, raw_counterY };
 
     task doOutputValue;
         input [11:0] xpos;
@@ -267,8 +273,6 @@ module data(
             end
         end
     endtask
-
-    reg [31:0] counter = 0;
 
     task checkPins;
         begin

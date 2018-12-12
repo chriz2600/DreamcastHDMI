@@ -9,6 +9,7 @@ extern Menu wifiMenu;
 extern Menu resetMenu;
 extern Menu dcResetConfirmMenu;
 extern Menu optResetConfirmMenu;
+extern Menu infoMenu;
 extern Menu *currentMenu;
 extern uint8_t CurrentResetMode;
 
@@ -45,6 +46,10 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
                 break;
             case MENU_M_RST:
                 currentMenu = &resetMenu;
+                currentMenu->Display();
+                break;
+            case MENU_M_INF:
+                currentMenu = &infoMenu;
                 currentMenu->Display();
                 break;
         }

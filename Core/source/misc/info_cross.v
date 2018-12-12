@@ -1,16 +1,17 @@
-module pinok_cross(
+
+module info_cross(
     input clkIn,
     input clkOut,
-    input [19:0] dataIn,
-    output reg [19:0] dataOut
+    input [23:0] dataIn,
+    output reg [23:0] dataOut
 );
     reg wrreq = 0;
     reg rdreq = 0;
     reg wrfull;
     reg rdempty;
-    reg [19:0] dataIn_reg = 0;
+    reg [23:0] dataIn_reg = 0;
 
-    pinok_fifo fifo(
+    info_fifo fifo(
         .wrclk(clkIn),
         .data(dataIn_reg),
         .wrreq(wrreq),

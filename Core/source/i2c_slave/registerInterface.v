@@ -65,7 +65,8 @@ module registerInterface (
     output reset_dc,
     output reset_opt,
     output[7:0] reset_conf,
-    input [19:0] pinok,
+    input [23:0] pinok,
+    input [23:0] timingInfo,
     //input DebugData debugData,
     input ControllerData controller_data
 );
@@ -163,9 +164,12 @@ always @(posedge clk) begin
         // 8'hA7: dataOut_reg <= debugData.hdmi_int_processed_count;
         // 8'hA8: dataOut_reg <= debugData.not_ready_count;
         // 8'hA9: dataOut_reg <= debugData.resync_count;
-        8'hB0: dataOut_reg <= { 4'b0, pinok[19:16] };
+        8'hB0: dataOut_reg <= { 2'b0, pinok[21:16] };
         8'hB1: dataOut_reg <= pinok[15:8];
         8'hB2: dataOut_reg <= pinok[7:0];
+        8'hB3: dataOut_reg <= timingInfo[23:16];
+        8'hB4: dataOut_reg <= timingInfo[15:8];
+        8'hB5: dataOut_reg <= timingInfo[7:0];
 
         default: dataOut_reg <= 0;
     endcase
