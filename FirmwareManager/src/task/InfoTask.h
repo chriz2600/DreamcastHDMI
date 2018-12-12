@@ -48,6 +48,7 @@ class InfoTask : public Task {
                     uint16_t resolX = (buffer[3] << 4) | (buffer[4] >> 4);
                     uint16_t resolY = ((buffer[4] & 0xF) << 8) | buffer[5];
                     snprintf(result, MENU_INF_RESULT_HEIGHT * MENU_WIDTH,
+                        "No signal should be X on VMU screen!    "
                         "Signal test:                            "
                         "  00 01 02 03 04 05 06 07 08 09 10 11   "
                         "   %c  %c  %c  %c  %c  %c  %c  %c  %c  %c  %c  %c   "
@@ -55,8 +56,7 @@ class InfoTask : public Task {
                         "Raw Input Resolution: %03ux%03u           "
                         "                                        "
                         "Raw data:                               "
-                        "  %02x %02x %02x %02x %02x %02x                     "
-                        "  %04x %04x                             ",
+                        "  %02x %02x %02x %02x %02x %02x %04x %04x           ",
                         checkPin(pinok1, pinok2, 0, 0),
                         checkPin(pinok1, pinok2, 0, 1),
                         checkPin(pinok1, pinok2, 1, 2),
