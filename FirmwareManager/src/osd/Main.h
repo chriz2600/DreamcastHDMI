@@ -44,10 +44,10 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
                 currentMenu = &wifiMenu;
                 currentMenu->Display();
                 break;
-            case MENU_M_RST:
-                currentMenu = &resetMenu;
-                currentMenu->Display();
-                break;
+            // case MENU_M_RST:
+            //     currentMenu = &resetMenu;
+            //     currentMenu->Display();
+            //     break;
             case MENU_M_INF:
                 currentMenu = &infoMenu;
                 currentMenu->Display();

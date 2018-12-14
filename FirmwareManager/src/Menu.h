@@ -28,10 +28,10 @@
 #define MENU_M_VM 4
 #define MENU_M_FW 5
 #define MENU_M_WIFI 6
-#define MENU_M_RST 7
-#define MENU_M_INF 8
+//#define MENU_M_RST 7
+#define MENU_M_INF 7
 #define MENU_M_FIRST_SELECT_LINE 2
-#define MENU_M_LAST_SELECT_LINE 8
+#define MENU_M_LAST_SELECT_LINE MENU_M_INF
 char OSD_MAIN_MENU[521] = (
     "Main Menu                               "
     "                                        "
@@ -40,8 +40,9 @@ char OSD_MAIN_MENU[521] = (
     "- Video Mode Settings                   "
     "- Firmware Upgrade                      "
     "- WiFi Setup                            "
-    "- Reset Options                         "
+    //"- Reset Options                         "
     "- Test/Info                             "
+    "                                        "
     "                                        "
     "                                        "
     "                                        "

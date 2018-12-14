@@ -3,4 +3,4 @@
 hostname=${ESP_HOSTNAME:-dc-firmware-manager.local}
 
 curl --digest --user Test:testtest \
-    -s "http://${hostname}/pinok"
+    -s "http://${hostname}/testdata"

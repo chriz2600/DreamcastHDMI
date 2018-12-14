@@ -682,7 +682,7 @@ void setupHTTPServer() {
         request->send(200);
     });
 
-    server.on("/pinok", HTTP_GET, [](AsyncWebServerRequest *request) {
+    server.on("/testdata", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }

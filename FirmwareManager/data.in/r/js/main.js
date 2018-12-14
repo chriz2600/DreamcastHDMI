@@ -6,6 +6,7 @@ var FIRMWARE_EXTENSION = "dc";
 var ESP_FIRMWARE_FILE = "/firmware.bin";
 var ESP_INDEX_STAGING_FILE = "/esp.index.html.gz";
 var ESP_FIRMWARE_EXTENSION = "bin";
+var DEFAULT_PROMPT = 'dc-hdmi> ';
 
 var process = {};
 process.nextTick = (function () {
@@ -140,7 +141,7 @@ function endTransaction(msg, iserror, cb) {
             }
             term.find('.cursor').show();
             term.find('.cursor').addClass('blink');
-            term.set_prompt('dc-hdmi> ');
+            term.set_prompt(DEFAULT_PROMPT);
             $('#term').scrollTop($('#term').prop('scrollHeight'));
             waiting = false;
             if (typeof(cb) == "function") {
@@ -315,6 +316,12 @@ var term = $('#term').terminal(function(command, term) {
         startTransaction(null, function() {
             debug();
         });
+    } else if (command.match(/^\s*testdata\s*$/)) {
+        //term.echo("<Return> to stop.")
+        term.clear();
+        term.set_prompt('');
+        term.find('.cursor').hide();
+        testdata();
     } else if (command.match(/^\s*details\s*$/)) {
         typed_message(term,
               getHelpDetailsFPGA()
@@ -421,7 +428,7 @@ var term = $('#term').terminal(function(command, term) {
             "exit"
         ]);
     },
-    prompt: 'dc-hdmi> ',
+    prompt: DEFAULT_PROMPT,
     greetings: [
         '       __                                        __ ',
         '   ___/ /___ _____ ___   ______ ____ ___   ____ / /_',
@@ -437,6 +444,10 @@ var term = $('#term').terminal(function(command, term) {
     keydown: function(e) {
         //disable keyboard when animating or waiting
         if (waiting || anim) {
+            return false;
+        }
+        if (testloop) {
+            endTestloop();
             return false;
         }
     }
@@ -834,6 +845,117 @@ function debug() {
     }).fail(function() {
         endTransaction('Error getting debug data.', true);
     });
+}
+
+var testloop = false;
+var testtimeout;
+function testdata(check) {
+    $.ajax("/testdata").done(function (data) {
+        if (check && !testloop) {
+            return;
+        }
+        term.set_prompt(createTestData(data));
+        term.history().disable();
+        testloop = true;
+        testtimeout = setTimeout(function() {
+            if (testloop) {
+                testdata(true);
+            }
+        }, 1);
+    }).fail(function() {
+        endTransaction('Error getting test data.', true);
+    });
+}
+
+var testrefresh = 0;
+var testdatares = {
+    wmin : 10000,
+    wmax : 0,
+    hmin : 10000,
+    hmax : 0
+};
+function createTestData(rawdata) {
+    var msg = rawdata.replace(/\n/g, "");
+    var buffer = msg.split(/\ /);
+    if (buffer.length == 6) {
+        var pinok1 = (parseInt(buffer[0], 16) << 5) | (parseInt(buffer[1], 16) >> 3);
+        var pinok2 = ((parseInt(buffer[1], 16) & 0x7) << 8) | parseInt(buffer[2], 16);
+        var resolX = (parseInt(buffer[3], 16) << 4) | (parseInt(buffer[4], 16) >> 4);
+        var resolY = ((parseInt(buffer[4], 16) & 0xF) << 8) | parseInt(buffer[5], 16);
+
+        var rawWidth = (resolX + 1);
+        var rawHeight = (resolY + 1);
+
+        testdatares.wmin = (rawWidth < testdatares.wmin ? rawWidth : testdatares.wmin);
+        testdatares.hmin = (rawHeight < testdatares.hmin ? rawHeight : testdatares.hmin);
+        testdatares.wmax = (rawWidth > testdatares.wmax ? rawWidth : testdatares.wmax);
+        testdatares.hmax = (rawHeight > testdatares.hmax ? rawHeight : testdatares.hmax);
+
+        return (
+            "Test/Info: ("+ String('0000' + testrefresh++).slice(-4)+")\n"
+            + " \n"
+            + "No signals should be X on VMU screen!\n"
+            + "Signal test:\n"
+            + "  [[b;#fff;]00] [[b;#fff;]01] [[b;#fff;]02] [[b;#fff;]03] [[b;#fff;]04] [[b;#fff;]05] [[b;#fff;]06] [[b;#fff;]07] [[b;#fff;]08] [[b;#fff;]09] [[b;#fff;]10] [[b;#fff;]11]\n"
+            + "   " + checkPin(pinok1, pinok2, 0, 0)
+            + "  " + checkPin(pinok1, pinok2, 0, 1)
+            + "  " + checkPin(pinok1, pinok2, 1, 2)
+            + "  " + checkPin(pinok1, pinok2, 2, 3)
+            + "  " + checkPin(pinok1, pinok2, 3, 4)
+            + "  " + checkPin(pinok1, pinok2, 4, 5)
+            + "  " + checkPin(pinok1, pinok2, 5, 6)
+            + "  " + checkPin(pinok1, pinok2, 6, 7)
+            + "  " + checkPin(pinok1, pinok2, 7, 8)
+            + "  " + checkPin(pinok1, pinok2, 8, 9)
+            + "  " + checkPin(pinok1, pinok2, 9, 10)
+            + "  " + checkPin(pinok1, pinok2, 10, 10)
+            + "\n"
+            + " \n"
+            + "Raw Input Resolution: [[b;#fff;]" + rawWidth + "x" + rawHeight + "]\n"
+            + "     min./max. width: [[b;#fff;]" + testdatares.wmin + " " + testdatares.wmax + "]\n"
+            + "    min./max. height: [[b;#fff;]" + testdatares.hmin + " " + testdatares.hmax + "]\n"
+            + " \n"
+            + "Raw data:"
+            + "  " + msg + " "
+                + String('0000' + pinok1.toString(16)).slice(-4)
+                + " "
+                + String('0000' + pinok2.toString(16)).slice(-4)
+            + "\n"
+            + " \n"
+            + "Press any key to stop."
+        );
+    }
+
+    return "Could not get test data!";
+}
+
+function checkPin(pinok1, pinok2, pos1, pos2) {
+    var isOk = (
+           (pinok1 & (1 << pos1))
+        && (pinok2 & (1 << pos1))
+        && (pinok1 & (1 << pos2))
+        && (pinok2 & (1 << pos2))
+    );
+
+    return '[[b;#fff;]' + (isOk ? '\u2665' : 'X') + ']';
+}
+
+function endTestloop() {
+    if (testloop) {
+        clearTimeout(testtimeout);
+        testloop = false;
+        //term.pop();
+        term.history().enable();
+        term.set_prompt(DEFAULT_PROMPT);
+        term.find('.cursor').show();
+        testrefresh = 0;
+        testdatares = {
+            wmin : 10000,
+            wmax : 0,
+            hmin : 10000,
+            hmax : 0
+        };
+    }
 }
 
 function getConfig(show, cb) {
