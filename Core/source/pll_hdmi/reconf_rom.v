@@ -69,6 +69,9 @@ always @(posedge clock) begin
             3: begin
                 dcVideoConfig <= DC_VIDEO_CONFIG_VGA;
             end
+            4: begin
+                dcVideoConfig <= DC_VIDEO_CONFIG_240Px3;
+            end
         endcase
     end else begin
         trigger_read <= 1'b0;
@@ -87,6 +90,9 @@ always @(posedge clock) begin
         end
         3: begin
             `include "config/VGA.v"
+        end
+        4: begin
+            `include "config/240p_x3.v"
         end
     endcase
 

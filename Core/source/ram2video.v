@@ -54,7 +54,7 @@ module ram2video(
     reg [11:0] counterY_reg_q;
     reg [11:0] counterY_reg_q_q;
     reg [11:0] counterY_reg_q_q_q;
-    
+
     reg [7:0] currentLine_reg;
     reg [7:0] currentLine_reg_q;
 
@@ -62,6 +62,8 @@ module ram2video(
 
     reg [9:0] ram_addrX_reg;
     reg [14:0] ram_addrY_reg;
+    reg [3:0] pxl_rep_c_x;
+    reg [3:0] pxl_rep_c_y;
 
     reg trigger = 1'b0;
 
@@ -149,6 +151,8 @@ module ram2video(
         vsync_reg_q <= ~`INITIAL_VERTICAL_SYNC_ON_POLARITY;
         ram_addrX_reg <= 0;
         ram_addrY_reg <= 0;
+        pxl_rep_c_x <= 0;
+        pxl_rep_c_y <= 0;
         fullcycle <= 0;
         _fullcycle <= 0;
     end
@@ -168,6 +172,8 @@ module ram2video(
                 vsync_reg_q <= ~hdmiVideoConfig.vertical_sync_on_polarity;
                 ram_addrX_reg <= 0;
                 ram_addrY_reg <= 0;
+                pxl_rep_c_x <= 0;
+                pxl_rep_c_y <= 0;
             end
         end else begin
             // trigger is set, output data
@@ -176,42 +182,70 @@ module ram2video(
 
                 if (counterX_reg >= hdmiVideoConfig.horizontal_offset
                  && ram_addrX_reg < hdmiVideoConfig.buffer_line_length - 1) begin
-                    ram_addrX_reg <= ram_addrX_reg + 1'b1;
+                    if (hdmiVideoConfig.pxl_rep_on) begin
+                        if (pxl_rep_c_x == hdmiVideoConfig.pxl_rep_h - 1) begin
+                            ram_addrX_reg <= ram_addrX_reg + hdmiVideoConfig.pxl_rep_addr_inr_h;
+                            pxl_rep_c_x <= 0;
+                        end else begin
+                            pxl_rep_c_x <= pxl_rep_c_x + 1'b1;
+                        end
+                    end else begin
+                        ram_addrX_reg <= ram_addrX_reg + 1'b1;
+                    end
                 end else begin
                     ram_addrX_reg <= 0;
+                    pxl_rep_c_x <= 0;
                 end
             end else begin
                 counterX_reg <= 0;
                 ram_addrX_reg <= 0;
+                pxl_rep_c_x <= 0;
 
                 if (counterY_reg < (add_line ? hdmiVideoConfig.vertical_lines_240p : hdmiVideoConfig.vertical_lines) - 1) begin
                     counterY_reg <= counterY_reg + 1'b1;
 
                     if (counterY_reg >= hdmiVideoConfig.vertical_offset
                      && ram_addrY_reg < hdmiVideoConfig.ram_numwords - hdmiVideoConfig.buffer_line_length) begin
-                        if (hdmiVideoConfig.pixel_repetition) begin
-                            if (counterY_reg[0] && (!line_doubler || counterY_reg[1])) begin
+                        if (hdmiVideoConfig.pxl_rep_on) begin
+                            if (pxl_rep_c_y == hdmiVideoConfig.pxl_rep_v - 1) begin
                                 ram_addrY_reg <= ram_addrY_reg + hdmiVideoConfig.buffer_line_length;
+                                pxl_rep_c_y <= 0;
+                            end else begin
+                                pxl_rep_c_y <= pxl_rep_c_y + 1'b1;
                             end
                         end else begin
-                            if (!line_doubler || counterY_reg[0]) begin
-                                ram_addrY_reg <= ram_addrY_reg + hdmiVideoConfig.buffer_line_length;
+                            if (hdmiVideoConfig.pixel_repetition) begin
+                                if (counterY_reg[0] && (!line_doubler || counterY_reg[1])) begin
+                                    ram_addrY_reg <= ram_addrY_reg + hdmiVideoConfig.buffer_line_length;
+                                end
+                            end else begin
+                                if (!line_doubler || counterY_reg[0]) begin
+                                    ram_addrY_reg <= ram_addrY_reg + hdmiVideoConfig.buffer_line_length;
+                                end
                             end
                         end
-                        //$display("2: y:%0d ay:%0d", counterY_reg, ram_addrY_reg);
                     end else begin
-                        if (hdmiVideoConfig.pixel_repetition) begin
-                            if (counterY_reg[0] && (!line_doubler || counterY_reg[1])) begin
+                        if (hdmiVideoConfig.pxl_rep_on) begin
+                            if (pxl_rep_c_y == hdmiVideoConfig.pxl_rep_v - 1) begin
+                                ram_addrY_reg <= 0;
+                                pxl_rep_c_y <= 0;
+                            end else begin
+                                pxl_rep_c_y <= pxl_rep_c_y + 1'b1;
+                            end
+                        end else begin
+                            if (hdmiVideoConfig.pixel_repetition) begin
+                                if (counterY_reg[0] && (!line_doubler || counterY_reg[1])) begin
+                                    ram_addrY_reg <= 0;
+                                end
+                            end else begin
                                 ram_addrY_reg <= 0;
                             end
-                        end else begin
-                            ram_addrY_reg <= 0;
                         end
-                        //$display("2: y:%0d ay:%0d", counterY_reg, ram_addrY_reg);
                     end
                 end else begin
                     counterY_reg <= 0;
                     ram_addrY_reg <= 0;
+                    pxl_rep_c_y <= 0;
                 end
             end
 

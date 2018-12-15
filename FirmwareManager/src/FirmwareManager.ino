@@ -618,6 +618,14 @@ void setupHTTPServer() {
         request->send(200);
     });
 
+    server.on("/res/240p_x3", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        switchResolution(RESOLUTION_240Px3);
+        request->send(200);
+    });
+
     server.on("/res/VGA", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();

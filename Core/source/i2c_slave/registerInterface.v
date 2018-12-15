@@ -204,6 +204,9 @@ always @(posedge clk) begin
                 3: begin // VGA
                     hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_VGA;
                 end
+                4: begin // 240p_x3
+                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240Px3;
+                end
             endcase
         // scanline data
         end else if (addr == 8'h87) begin

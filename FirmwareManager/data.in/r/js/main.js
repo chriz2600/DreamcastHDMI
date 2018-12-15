@@ -280,6 +280,10 @@ var term = $('#term').terminal(function(command, term) {
         startTransaction(null, function() {
             getConfig(false, downloadESPIndex);
         });
+    } else if (command.match(/^\s*res_240p_x3\s*$/)) {
+        startTransaction(null, function() {
+            setResolution("240p_x3");
+        });
     } else if (command.match(/^\s*res_vga\s*$/)) {
         startTransaction(null, function() {
             setResolution("VGA");

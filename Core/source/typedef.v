@@ -97,6 +97,11 @@ typedef struct packed {
     reg [14:0] ram_numwords;                // size of video buffer, 21120 for 1080p
     reg pixel_repetition;                   // 0: pixel repetition OFF, 1: pixel repetition ON
 
+    reg pxl_rep_on;                         // activate extended pixel repetition mode
+    reg [3:0] pxl_rep_h;                    // horizontal repetition rate
+    reg [3:0] pxl_rep_v;                    // vertical repetition rate
+    reg [1:0] pxl_rep_addr_inr_h;           // horizontal pixel increment
+
     reg [31:0] startup_delay;               // pixel_clk * 200ms / 1000ms
 } HDMIVideoConfig;
 
