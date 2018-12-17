@@ -23,6 +23,6 @@ for vert in range(1053, 1900):
 
 for res in results:
     data = results[res]
-    print("%g MHz: %f %f (%.60f %.60f)" % (res, data["horiz"], data["vert"], data["horiztest"], data["verttest"]))
+    print("%g MHz: %g %g (%.60f %.60f)" % (res, data["horiz"], data["vert"], data["horiztest"], data["verttest"]))
 
 # ./assets/test.py | awk '{ print length($1), $0 }' | sort -n | cut -d" " -f2- | head -10
