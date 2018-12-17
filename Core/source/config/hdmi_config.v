@@ -280,3 +280,51 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_240Px4 = {
 
     32'd13_500_000  // startup_delay
 };
+
+const HDMIVideoConfig HDMI_VIDEO_CONFIG_240P_1080P = {
+    12'd1052,       // horizontal_pixels_per_line
+    12'd960,        // horizontal_pixels_visible
+    12'd1004,       // horizontal_sync_start
+    12'd22,         // horizontal_sync_width
+    1'b1,           // horizontal_sync_on_polarity
+
+    11'd1144,       // vertical_lines
+    11'd1144,       // vertical_lines_240p
+    11'd1080,       // vertical_lines_visible
+    11'd1083,       // vertical_sync_start
+    11'd5,          // vertical_sync_width
+    1'b1,           // vertical_sync_on_polarity
+
+    10'd160,        // horizontal_offset
+    10'd60,         // vertical_offset
+
+    12'd160,        // horizontal_capture_start
+    12'd800,        // horizontal_capture_end
+    11'd60,         // vertical_capture_start
+    11'd1020,       // vertical_capture_end
+
+    12'd310,        // osd_bg_offset_x_start
+    12'd650,        // osd_bg_offset_x_end
+    11'd130,        // osd_bg_offset_y_start
+    11'd958,        // osd_bg_offset_y_end
+
+    12'd320,        // osd_text_x_start
+    12'd640,        // osd_text_x_end
+    11'd160,        // osd_text_y_start
+    11'd928,        // osd_text_y_end
+
+    12'd40,         // text_offset_character_x
+    11'd5,          // text_offset_character_y
+
+    15'd640,        // buffer_line_length
+    15'd21120,      // ram_numwords
+    1'b1,           // pixel_repetition
+
+    1'b1,           // pxl_rep_on
+    4'd1,           // pxl_rep_h
+    4'd4,           // pxl_rep_v
+    2'd1,           // pxl_rep_addr_inr_h
+
+    32'd18_562_500  // startup_delay
+};
+

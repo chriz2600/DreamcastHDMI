@@ -288,6 +288,10 @@ var term = $('#term').terminal(function(command, term) {
         startTransaction(null, function() {
             setResolution("240p_x4");
         });
+    } else if (command.match(/^\s*res_240p_1080p\s*$/)) {
+        startTransaction(null, function() {
+            setResolution("240p_1080p");
+        });
     } else if (command.match(/^\s*res_vga\s*$/)) {
         startTransaction(null, function() {
             setResolution("VGA");

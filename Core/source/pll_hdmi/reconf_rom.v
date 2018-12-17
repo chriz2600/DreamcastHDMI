@@ -75,6 +75,9 @@ always @(posedge clock) begin
             5: begin
                 dcVideoConfig <= DC_VIDEO_CONFIG_240Px4;
             end
+            6: begin
+                dcVideoConfig <= DC_VIDEO_CONFIG_240P_1080P;
+            end
         endcase
     end else begin
         trigger_read <= 1'b0;
@@ -99,6 +102,9 @@ always @(posedge clock) begin
         end
         5: begin
             `include "config/960p.v"
+        end
+        6: begin
+            `include "config/240p_1080p.v"
         end
     endcase
 
