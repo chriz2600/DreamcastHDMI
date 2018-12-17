@@ -25,6 +25,8 @@ esp-firmware:
     - "cd FirmwareManager"
     - "./local/prepare-index-html"
     - "./local/prepare-fw-version"
+    - "export SOURCE_DATE_EPOCH=$(git --no-pager log -1 --pretty='format:%ct' src)"
+    - "echo $SOURCE_DATE_EPOCH"
     - "pio run"
     - "cp ../Core/output_files/DCxPlus-default.dc data/firmware.dc"
     - "md5sum data/firmware.dc | awk '{print $1;}' > data/firmware.dc.md5"

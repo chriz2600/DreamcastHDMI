@@ -934,17 +934,15 @@ function createTestData(rawdata) {
 
         testdatares.wmin = (rawWidth < testdatares.wmin ? rawWidth : testdatares.wmin);
         testdatares.hmin = (rawHeight < testdatares.hmin ? rawHeight : testdatares.hmin);
-
-        testdatares.rmin = (rawWidth < testdatares.rmin ? rawWidth : testdatares.rmin);
-        testdatares.gmin = (rawHeight < testdatares.gmin ? rawHeight : testdatares.gmin);
-        testdatares.bmin = (rawHeight < testdatares.bmin ? rawHeight : testdatares.bmin);
+        testdatares.rmin = (red < testdatares.rmin ? red : testdatares.rmin);
+        testdatares.gmin = (green < testdatares.gmin ? green : testdatares.gmin);
+        testdatares.bmin = (blue < testdatares.bmin ? blue : testdatares.bmin);
 
         testdatares.wmax = (rawWidth > testdatares.wmax ? rawWidth : testdatares.wmax);
         testdatares.hmax = (rawHeight > testdatares.hmax ? rawHeight : testdatares.hmax);
-
-        testdatares.rmax = (rawWidth > testdatares.rmax ? rawWidth : testdatares.rmax);
-        testdatares.gmax = (rawHeight > testdatares.gmax ? rawHeight : testdatares.gmax);
-        testdatares.bmax = (rawHeight > testdatares.bmax ? rawHeight : testdatares.bmax);
+        testdatares.rmax = (red > testdatares.rmax ? red : testdatares.rmax);
+        testdatares.gmax = (green > testdatares.gmax ? green : testdatares.gmax);
+        testdatares.bmax = (blue > testdatares.bmax ? blue : testdatares.bmax);
 
         return (
             "Test/Info: ("+ String('0000' + testrefresh++).slice(-4)+")\n"
