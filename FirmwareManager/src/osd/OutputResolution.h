@@ -111,3 +111,39 @@ void switchResolution(uint8_t newValue) {
     CurrentResolution = newValue;
     fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
 }
+
+void mapResolution(uint8_t data) {
+    if (data & 0x80) {
+        // 240p mode
+        switch (CurrentResolution) {
+            case RESOLUTION_VGA:
+            case RESOLUTION_480p:
+                // do nothing
+                break;
+            case RESOLUTION_960p:
+                switchResolution(RESOLUTION_240Px4);
+                break;
+            case RESOLUTION_1080p:
+                switchResolution(RESOLUTION_240P1080P);
+                break;
+            default:
+                break;
+        }
+    } else {
+        // 480i/p mode
+        switch (CurrentResolution) {
+            case RESOLUTION_VGA:
+            case RESOLUTION_480p:
+                // do nothing
+                break;
+            case RESOLUTION_240Px4:
+                switchResolution(RESOLUTION_960p);
+                break;
+            case RESOLUTION_240P1080P:
+                switchResolution(RESOLUTION_1080p);
+                break;
+            default:
+                break;
+        }
+    }
+}

@@ -22,6 +22,7 @@ void setupI2C() {
 }
 
 extern TaskManager taskManager;
+void mapResolution(uint8_t data);
 
 class FPGATask : public Task {
 
@@ -154,32 +155,34 @@ class FPGATask : public Task {
             } else {
                 // update controller data
                 uint8_t buffer[1];
-                uint8_t buffer2[2];
-                buffer[0] = I2C_CONTROLLER_DATA_BASE;
+                uint8_t buffer2[I2C_CONTROLLER_AND_DATA_BASE_LENGTH];
+                buffer[0] = I2C_CONTROLLER_AND_DATA_BASE;
                 brzo_i2c_write(buffer, 1, false);
-                brzo_i2c_read(buffer2, 2, false);
+                brzo_i2c_read(buffer2, I2C_CONTROLLER_AND_DATA_BASE_LENGTH, false);
                 // new controller data
                 if (buffer2[0] != data_out[0]
                  || buffer2[1] != data_out[1])
                 {
-                    //DBG_OUTPUT_PORT.printf("new data: %x %x %x %x\n", data_out[0], data_out[1], buffer2[0], buffer2[1]);
                     // reset repeat
                     controller_handler(buffer2[0] << 8 | buffer2[1], false);
                     eTime = millis();
                     repeatCount = 0;
+                } else if (buffer2[2] != data_out[2]) {
+                    // new add_line (240p) mode data
+                    // TODO: switch between corresponding 480p/i and 240p modes
+                    mapResolution(buffer2[2]);
                 } else {
                     // check repeat
                     if (buffer2[0] != 0x00 || buffer2[1] != 0x00) {
                         unsigned long duration = (repeatCount == 0 ? REPEAT_DELAY : REPEAT_RATE);
                         if (millis() - eTime > duration) {
-                            //DBG_OUTPUT_PORT.printf("repeat: %x %x %x %x\n", data_out[0], data_out[1], buffer2[0], buffer2[1]);
                             controller_handler(buffer2[0] << 8 | buffer2[1], true);
                             eTime = millis();
                             repeatCount++;
                         }
                     }
                 }
-                memcpy(data_out, buffer2, 2);
+                memcpy(data_out, buffer2, I2C_CONTROLLER_AND_DATA_BASE_LENGTH);
             }
             if (brzo_i2c_end_transaction()) {
                 if (!GotError) {

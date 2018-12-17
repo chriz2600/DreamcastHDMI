@@ -111,9 +111,11 @@ void writeCurrentResolution() {
     } else if (CurrentResolution == RESOLUTION_240Px3) {
         cfgRes = RESOLUTION_STR_240Px3;
     } else if (CurrentResolution == RESOLUTION_240Px4) {
-        cfgRes = RESOLUTION_STR_240Px4;
+        // store 240p_x4 as 960p
+        cfgRes = RESOLUTION_STR_960p;
     } else if (CurrentResolution == RESOLUTION_240P1080P) {
-        cfgRes = RESOLUTION_STR_240P1080P;
+        // store 240p_1080p as 1080p
+        cfgRes = RESOLUTION_STR_1080p;
     }
 
     _writeFile("/etc/video/resolution", cfgRes.c_str(), 16);
