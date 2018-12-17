@@ -69,7 +69,7 @@ module registerInterface (
     input [23:0] pinok,
     input [23:0] timingInfo,
     input [23:0] rgbData,
-    //input DebugData debugData,
+    input add_line,
     input ControllerData controller_data
 );
 
@@ -136,38 +136,12 @@ always @(posedge clk) begin
             03: trigger_default_resolution
         */
         8'h86: dataOut_reg <= { controller_data[4:0], 3'b000 };
+        8'h87: dataOut_reg <= { add_line, 7'b0000000 };
 
         // scanline data
-        8'h87: dataOut_reg <= scanline_reg.intensity[8:1];
-        8'h88: dataOut_reg <= { scanline_reg.intensity[0], scanline_reg.thickness, scanline_reg.oddeven, scanline_reg.active, 4'b0000 };
+        8'h88: dataOut_reg <= scanline_reg.intensity[8:1];
+        8'h89: dataOut_reg <= { scanline_reg.intensity[0], scanline_reg.thickness, scanline_reg.oddeven, scanline_reg.active, 4'b0000 };
 
-        // debug data
-        // 8'h90: dataOut_reg <= debugData.pll_errors;
-        // 8'h91: dataOut_reg <= debugData.test;
-        // 8'h92: dataOut_reg <= debugData.frame_counter[7:0];
-        // 8'h93: dataOut_reg <= debugData.frame_counter[9:8];
-        // 8'h94: dataOut_reg <= debugData.pll_status;
-        // 8'h95: dataOut_reg <= debugData.id_check_high;
-        // 8'h96: dataOut_reg <= debugData.id_check_low;
-        // 8'h97: dataOut_reg <= debugData.chip_revision;
-        // 8'h98: dataOut_reg <= debugData.vic_detected;
-        // 8'h99: dataOut_reg <= debugData.vic_to_rx;
-        // 8'h9A: dataOut_reg <= debugData.misc_data;
-        // 8'h9B: dataOut_reg <= debugData.restart_count;
-        // 8'h9C: dataOut_reg <= debugData.cts1_status;
-        // 8'h9D: dataOut_reg <= debugData.cts2_status;
-        // 8'h9E: dataOut_reg <= debugData.cts3_status;
-        // 8'h9F: dataOut_reg <= debugData.max_cts1_status;
-        // 8'hA0: dataOut_reg <= debugData.max_cts2_status;
-        // 8'hA1: dataOut_reg <= debugData.max_cts3_status;
-        // 8'hA2: dataOut_reg <= debugData.summary_cts1_status;
-        // 8'hA3: dataOut_reg <= debugData.summary_cts2_status;
-        // 8'hA4: dataOut_reg <= debugData.summary_cts3_status;
-        // 8'hA5: dataOut_reg <= debugData.summary_summary_cts3_status;
-        // 8'hA6: dataOut_reg <= debugData.hdmi_int_count;
-        // 8'hA7: dataOut_reg <= debugData.hdmi_int_processed_count;
-        // 8'hA8: dataOut_reg <= debugData.not_ready_count;
-        // 8'hA9: dataOut_reg <= debugData.resync_count;
         8'hB0: dataOut_reg <= { 2'b0, pinok[21:16] };
         8'hB1: dataOut_reg <= pinok[15:8];
         8'hB2: dataOut_reg <= pinok[7:0];
@@ -221,15 +195,15 @@ always @(posedge clk) begin
                 end
             endcase
         // scanline data
-        end else if (addr == 8'h87) begin
-            scanline_reg.intensity[8:1] <= dataIn;
         end else if (addr == 8'h88) begin
+            scanline_reg.intensity[8:1] <= dataIn;
+        end else if (addr == 8'h89) begin
             scanline_reg.intensity[0] <= dataIn[7];
             scanline_reg.thickness <= dataIn[6];
             scanline_reg.oddeven <= dataIn[5];
             scanline_reg.active <= dataIn[4];
         // 240p config
-        end else if (addr == 8'h89) begin
+        end else if (addr == 8'h90) begin
             conf240p_reg <= { 16'd0, dataIn };
         // reset dreamcast
         end else if (addr == 8'hF0) begin
