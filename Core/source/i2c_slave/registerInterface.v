@@ -62,11 +62,13 @@ module registerInterface (
     output[7:0] reconf_data,
     output HDMIVideoConfig hdmiVideoConfig,
     output Scanline scanline,
+    output [23:0] conf240p,
     output reset_dc,
     output reset_opt,
     output[7:0] reset_conf,
     input [23:0] pinok,
     input [23:0] timingInfo,
+    input [23:0] rgbData,
     //input DebugData debugData,
     input ControllerData controller_data
 );
@@ -85,6 +87,7 @@ reg reset_opt_reg = 1'b0;
 
 HDMIVideoConfig hdmiVideoConfig_reg;
 Scanline scanline_reg = { 9'h100, 1'b0, 1'b0, 1'b0 };
+reg [23:0] conf240p_reg = 24'd20;
 reg [7:0] reset_conf_reg = 0;
 
 initial begin
@@ -103,6 +106,7 @@ assign reconf_data = reconf_data_reg;
 assign reset_dc = reset_dc_reg;
 assign reset_opt = reset_opt_reg;
 assign reset_conf = reset_conf_reg;
+assign conf240p = conf240p_reg;
 
 // --- I2C Read
 always @(posedge clk) begin
@@ -170,7 +174,9 @@ always @(posedge clk) begin
         8'hB3: dataOut_reg <= timingInfo[23:16];
         8'hB4: dataOut_reg <= timingInfo[15:8];
         8'hB5: dataOut_reg <= timingInfo[7:0];
-
+        8'hB6: dataOut_reg <= rgbData[23:16]; // red
+        8'hB7: dataOut_reg <= rgbData[15:8];  // green
+        8'hB8: dataOut_reg <= rgbData[7:0];   // blue
         default: dataOut_reg <= 0;
     endcase
 end
@@ -207,6 +213,9 @@ always @(posedge clk) begin
                 4: begin // 240p_x3
                     hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240Px3;
                 end
+                5: begin // 240p_x4
+                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240Px4;
+                end
             endcase
         // scanline data
         end else if (addr == 8'h87) begin
@@ -216,6 +225,9 @@ always @(posedge clk) begin
             scanline_reg.thickness <= dataIn[6];
             scanline_reg.oddeven <= dataIn[5];
             scanline_reg.active <= dataIn[4];
+        // 240p config
+        end else if (addr == 8'h89) begin
+            conf240p_reg <= { 16'd0, dataIn };
         // reset dreamcast
         end else if (addr == 8'hF0) begin
             reset_dc_reg <= 1'b1;

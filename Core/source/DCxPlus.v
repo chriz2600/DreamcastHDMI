@@ -104,6 +104,10 @@ wire [23:0] pinok;
 wire [23:0] pinok_out;
 wire [23:0] timingInfo;
 wire [23:0] timingInfo_out;
+wire [23:0] rgbData;
+wire [23:0] rgbData_out;
+wire [23:0] conf240p;
+wire [23:0] conf240p_out;
 wire force_generate;
 
 wire generate_video;
@@ -237,7 +241,9 @@ data video_input(
     .green(dc_green),
     .red(dc_red),
     .pinok(pinok),
-    .timingInfo(timingInfo)
+    .timingInfo(timingInfo),
+    .rgbData(rgbData),
+    .conf240p(conf240p_out)
 );
 
 video2ram video2ram(
@@ -368,7 +374,9 @@ i2cSlave i2cSlave(
     .reset_opt(reset_opt),
     .reset_conf(reset_conf),
     .pinok(pinok_out),
-    .timingInfo(timingInfo_out)
+    .timingInfo(timingInfo_out),
+    .rgbData(rgbData_out),
+    .conf240p(conf240p)
 );
 
 maple mapleBus(
@@ -435,6 +443,20 @@ info_cross resolution_cross(
     .clkOut(hdmi_clock),
     .dataIn(timingInfo),
     .dataOut(timingInfo_out)
+);
+
+info_cross rgbdata_cross(
+    .clkIn(clock54_net),
+    .clkOut(hdmi_clock),
+    .dataIn(rgbData),
+    .dataOut(rgbData_out)
+);
+
+info_cross conf240p_cross(
+    .clkIn(hdmi_clock),
+    .clkOut(clock54_net),
+    .dataIn(conf240p),
+    .dataOut(conf240p_out)
 );
 
 reg[7:0] reset_conf_out;

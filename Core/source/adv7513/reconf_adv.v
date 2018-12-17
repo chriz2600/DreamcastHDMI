@@ -37,6 +37,9 @@ always @(posedge clock) begin
             4: begin
                 adv7513Config <= ADV7513_CONFIG_240Px3;
             end
+            5: begin
+                adv7513Config <= ADV7513_CONFIG_240Px4;
+            end
         endcase
     end
 end

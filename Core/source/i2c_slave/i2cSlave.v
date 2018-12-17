@@ -59,11 +59,13 @@ module i2cSlave (
   output[7:0] reconf_data,
   output HDMIVideoConfig hdmiVideoConfig,
   output Scanline scanline,
+  output [23:0] conf240p,
   output reset_dc,
   output reset_opt,
   output[7:0] reset_conf,
   input [23:0] pinok,
   input [23:0] timingInfo,
+  input [23:0] rgbData,
   //input DebugData debugData,
   input ControllerData controller_data
 );
@@ -180,11 +182,13 @@ registerInterface u_registerInterface(
   .reconf_data(reconf_data),
   .hdmiVideoConfig(hdmiVideoConfig),
   .scanline(scanline),
+  .conf240p(conf240p),
   .reset_dc(reset_dc),
   .reset_opt(reset_opt),
   .reset_conf(reset_conf),
   .pinok(pinok),
-  .timingInfo(timingInfo)
+  .timingInfo(timingInfo),
+  .rgbData(rgbData)
 );
 
 serialInterface u_serialInterface (

@@ -143,3 +143,7 @@ typedef struct packed {
     reg [7:0] adv_reg_3b; // C8: input pll x2, 80: input pll x1
     reg [7:0] adv_reg_3c; // 00 | vic_manual
 } ADV7513Config;
+
+// typedef struct packed {
+//     reg[7:0] offset;
+// } Conf240p;

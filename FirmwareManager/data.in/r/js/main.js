@@ -284,6 +284,10 @@ var term = $('#term').terminal(function(command, term) {
         startTransaction(null, function() {
             setResolution("240p_x3");
         });
+    } else if (command.match(/^\s*res_240p_x4\s*$/)) {
+        startTransaction(null, function() {
+            setResolution("240p_x4");
+        });
     } else if (command.match(/^\s*res_vga\s*$/)) {
         startTransaction(null, function() {
             setResolution("VGA");
@@ -352,6 +356,10 @@ var term = $('#term').terminal(function(command, term) {
     } else if (match = command.match(/^\s*osdwrite\s*([0-9]+)\s*([0-9]+)\s*"([^"]*)"\s*$/)) {
         startTransaction(null, function() {
             osdWrite(match[1], match[2], match[3]);
+        });
+    } else if (match = command.match(/^\s*240p_offset\s*([0-9]+)\s*$/)) {
+        startTransaction(null, function() {
+            write240p_offset(match[1]);
         });
     } else if (command !== '') {
         term.error('unkown command, try:');
@@ -793,6 +801,21 @@ function osdControl(state) {
     });
 }
 
+function write240p_offset(offset) {
+    var data = {
+        'offset': offset
+    };
+    $.ajax({
+        'type': "POST",
+        'url': "/240p_offset",
+        'data': $.param(data, true)
+    }).done(function (data) {
+        endTransaction('[[b;#fff;]Done].\n');
+    }).fail(function() {
+        endTransaction('Error.', true);
+    });
+}
+
 function osdWrite(column, row, text) {
     var data = {
         'column': column,
@@ -872,28 +895,52 @@ function testdata(check) {
 }
 
 var testrefresh = 0;
-var testdatares = {
-    wmin : 10000,
-    wmax : 0,
-    hmin : 10000,
-    hmax : 0
-};
+var testdatares;
+
+function initTestdatares() {
+    testdatares = {
+        wmin : 10000,
+        wmax : 0,
+        hmin : 10000,
+        hmax : 0,
+        rmin : 255,
+        rmax : 0,
+        gmin : 255,
+        gmax : 0,
+        bmin : 255,
+        bmax : 0
+    };
+}
+initTestdatares();
+
 function createTestData(rawdata) {
     var msg = rawdata.replace(/\n/g, "");
     var buffer = msg.split(/\ /);
-    if (buffer.length == 6) {
+    if (buffer.length == 9) {
         var pinok1 = (parseInt(buffer[0], 16) << 5) | (parseInt(buffer[1], 16) >> 3);
         var pinok2 = ((parseInt(buffer[1], 16) & 0x7) << 8) | parseInt(buffer[2], 16);
         var resolX = (parseInt(buffer[3], 16) << 4) | (parseInt(buffer[4], 16) >> 4);
         var resolY = ((parseInt(buffer[4], 16) & 0xF) << 8) | parseInt(buffer[5], 16);
+        var red    = parseInt(buffer[6], 16);
+        var green  = parseInt(buffer[7], 16);
+        var blue   = parseInt(buffer[8], 16);
 
         var rawWidth = (resolX + 1);
         var rawHeight = (resolY + 1);
 
         testdatares.wmin = (rawWidth < testdatares.wmin ? rawWidth : testdatares.wmin);
         testdatares.hmin = (rawHeight < testdatares.hmin ? rawHeight : testdatares.hmin);
+
+        testdatares.rmin = (rawWidth < testdatares.rmin ? rawWidth : testdatares.rmin);
+        testdatares.gmin = (rawHeight < testdatares.gmin ? rawHeight : testdatares.gmin);
+        testdatares.bmin = (rawHeight < testdatares.bmin ? rawHeight : testdatares.bmin);
+
         testdatares.wmax = (rawWidth > testdatares.wmax ? rawWidth : testdatares.wmax);
         testdatares.hmax = (rawHeight > testdatares.hmax ? rawHeight : testdatares.hmax);
+
+        testdatares.rmax = (rawWidth > testdatares.rmax ? rawWidth : testdatares.rmax);
+        testdatares.gmax = (rawHeight > testdatares.gmax ? rawHeight : testdatares.gmax);
+        testdatares.bmax = (rawHeight > testdatares.bmax ? rawHeight : testdatares.bmax);
 
         return (
             "Test/Info: ("+ String('0000' + testrefresh++).slice(-4)+")\n"
@@ -918,6 +965,11 @@ function createTestData(rawdata) {
             + "Raw Input Resolution: [[b;#fff;]" + rawWidth + "x" + rawHeight + "]\n"
             + "     min./max. width: [[b;#fff;]" + testdatares.wmin + " " + testdatares.wmax + "]\n"
             + "    min./max. height: [[b;#fff;]" + testdatares.hmin + " " + testdatares.hmax + "]\n"
+            + " \n"
+            + "RGB data: [[b;#fff;]" + red + " " + green + " " + blue + "]\n"
+            + "      min./max. red: [[b;#fff;]" + testdatares.rmin + " " + testdatares.rmax + "]\n"
+            + "    min./max. green: [[b;#fff;]" + testdatares.gmin + " " + testdatares.gmax + "]\n"
+            + "     min./max. blue: [[b;#fff;]" + testdatares.bmin + " " + testdatares.bmax + "]\n"
             + " \n"
             + "Raw data:"
             + "  " + msg + " "
@@ -953,12 +1005,7 @@ function endTestloop() {
         term.set_prompt(DEFAULT_PROMPT);
         term.find('.cursor').show();
         testrefresh = 0;
-        testdatares = {
-            wmin : 10000,
-            wmax : 0,
-            hmin : 10000,
-            hmax : 0
-        };
+        initTestdatares();
     }
 }
 

@@ -73,12 +73,14 @@
 #define RESOLUTION_480p (0x02)
 #define RESOLUTION_VGA (0x03)
 #define RESOLUTION_240Px3 (0x04)
+#define RESOLUTION_240Px4 (0x05)
 
 #define RESOLUTION_STR_1080p "1080p"
 #define RESOLUTION_STR_960p "960p"
 #define RESOLUTION_STR_480p "480p"
 #define RESOLUTION_STR_VGA "VGA"
 #define RESOLUTION_STR_240Px3 "240p_x3"
+#define RESOLUTION_STR_240Px4 "240p_x4"
 
 #define VIDEO_MODE_STR_FORCE_VGA "ForceVGA"
 #define VIDEO_MODE_STR_CABLE_DETECT "CableDetect"
@@ -98,6 +100,7 @@
 #define I2C_CONTROLLER_DATA_BASE (0x85)
 #define I2C_SCANLINE_UPPER (0x87)
 #define I2C_SCANLINE_LOWER (0x88)
+#define I2C_240P_OFFSET (0x89)
 #define I2C_DC_RESET (0xF0)
 #define I2C_OPT_RESET (0xF1)
 #define I2C_RESET_CONF (0xF2)
@@ -108,7 +111,7 @@
 
 // pinok data
 #define I2C_TESTDATA_BASE (0xB0)
-#define I2C_TESTDATA_LENGTH 6
+#define I2C_TESTDATA_LENGTH 9
 
 // // controller data, int16
 // /*

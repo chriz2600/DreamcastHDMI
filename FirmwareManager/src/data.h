@@ -90,6 +90,8 @@ uint8_t cfgRes2Int(char* intResolution) {
         return RESOLUTION_VGA;
     } else if (cfgRes == RESOLUTION_STR_240Px3) {
         return RESOLUTION_240Px3;
+    } else if (cfgRes == RESOLUTION_STR_240Px4) {
+        return RESOLUTION_240Px4;
     }
     // default is 1080p
     return RESOLUTION_1080p;
@@ -106,6 +108,8 @@ void writeCurrentResolution() {
         cfgRes = RESOLUTION_STR_VGA;
     } else if (CurrentResolution == RESOLUTION_240Px3) {
         cfgRes = RESOLUTION_STR_240Px3;
+    } else if (CurrentResolution == RESOLUTION_240Px4) {
+        cfgRes = RESOLUTION_STR_240Px4;
     }
 
     _writeFile("/etc/video/resolution", cfgRes.c_str(), 16);

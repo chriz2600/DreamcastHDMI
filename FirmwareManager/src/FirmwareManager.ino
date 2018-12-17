@@ -580,6 +580,16 @@ void setupHTTPServer() {
         request->send(200);
     });
 
+    server.on("/240p_offset", HTTP_POST, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+
+        AsyncWebParameter *offset = request->getParam("offset", true);
+        fpgaTask.Write(I2C_240P_OFFSET, atoi(offset->value().c_str()), NULL);
+        request->send(200);
+    });
+
     server.on("/scanlines", HTTP_POST, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
@@ -623,6 +633,14 @@ void setupHTTPServer() {
             return request->requestAuthentication();
         }
         switchResolution(RESOLUTION_240Px3);
+        request->send(200);
+    });
+
+    server.on("/res/240p_x4", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        switchResolution(RESOLUTION_240Px4);
         request->send(200);
     });
 
@@ -697,7 +715,7 @@ void setupHTTPServer() {
         fpgaTask.Read(I2C_TESTDATA_BASE, I2C_TESTDATA_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
             char msg[64];
             if (len == I2C_TESTDATA_LENGTH) {
-                sprintf(msg, "%02x %02x %02x %02x %02x %02x\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
+                sprintf(msg, "%02x %02x %02x %02x %02x %02x %02x %02x %02x\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7], buffer[8]);
                 request->send(200, "text/plain", msg);
             } else {
                 request->send(200, "text/plain", "SOMETHING_IS_WRONG\n");

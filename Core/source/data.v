@@ -7,6 +7,7 @@ module data(
     input line_doubler,
     input generate_video,
     input generate_timing,
+    input [23:0] conf240p,
     
     output [7:0] red,
     output [7:0] green,
@@ -18,6 +19,7 @@ module data(
     output resync,
     output [23:0] pinok,
     output [23:0] timingInfo,
+    output [23:0] rgbData,
     output reg force_generate
 );
 
@@ -55,6 +57,9 @@ module data(
     reg [10:0] pinok1_reg = 0;
     reg [10:0] pinok2_reg = 0;
 
+    reg [23:0] rgbData_buf = 0;
+    reg [23:0] rgbData_reg = 0;
+
     initial begin
         raw_counterX_reg <= 0;
         raw_counterY_reg <= 0;
@@ -68,7 +73,7 @@ module data(
     always @(*) begin
         if (line_doubler) begin
             if (add_line) begin
-                VISIBLE_AREA_HSTART = 10'd347;
+                VISIBLE_AREA_HSTART = 10'd327; // 10'd347
                 VISIBLE_AREA_VSTART = 10'd18;
                 VISIBLE_AREA_WIDTH  = 10'd643;
                 VISIBLE_AREA_HEIGHT = 10'd504;
@@ -162,7 +167,7 @@ module data(
             end
 
             // recalculate counterX and counterY to match visible area
-            if (raw_counterX_reg == VISIBLE_AREA_HSTART) begin
+            if (raw_counterX_reg == VISIBLE_AREA_HSTART + conf240p[7:0]) begin
                 counterX_reg <= 0;
                 
                 if (raw_counterY_reg == VISIBLE_AREA_VSTART) begin
@@ -203,12 +208,16 @@ module data(
                         red_reg <= red_reg_buf;
                         green_reg <= { green_reg_buf[7:4], indata[11:8] };
                         blue_reg <= indata[7:0];
+                        if (counterX_reg == 380 && counterY_reg == 240) begin
+                            rgbData_buf <= { red_reg_buf, green_reg_buf[7:4], indata[11:8], indata[7:0] };
+                        end
                     end
                 end
             end else begin
                 red_reg <= 8'd0;
                 green_reg <= 8'd0;
                 blue_reg <= 8'd0;
+                rgbData_reg <= rgbData_buf;
             end
 
             counterX_reg_q <= counterX_reg;
@@ -231,6 +240,7 @@ module data(
     assign resync = resync_reg;
     assign pinok = { 2'b00, pinok1_reg, pinok2_reg };
     assign timingInfo = { raw_counterX, raw_counterY };
+    assign rgbData = rgbData_reg;
 
     task doOutputValue;
         input [11:0] xpos;
