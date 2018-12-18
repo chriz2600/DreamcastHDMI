@@ -1,5 +1,13 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2018-12-18 *Firmware v1.2.0*
+
+- All output modes (*VGA/480p/960p/1080p*) now support dreamcast 240p games.
+
+    Because video timing for 240p is different from 480i/p, the video output does not fully comply with the HDMI specification, so 960p/1080p may not work on all TVs (monitors usually work fine).
+
+- For some 240p games the active video area is shifted to the right, so there is a new option under `Output Resolution` to compensate for that: `240p adjust position`
+
 #### 2018-11-11
 
 - Changed the button layout for the OSD control: *A* and *B* are now remapped to *R* and *L*, to reduce button conflicts with the game running in the background.
