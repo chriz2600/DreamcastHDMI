@@ -12,6 +12,7 @@ extern char configuredResolution[16];
 void writeCurrentResolution();
 void waitForI2CRecover(bool waitForError);
 uint8_t cfgRes2Int(char* intResolution);
+uint8_t remapResolution(uint8_t resd);
 
 void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler) {
     value = mapResolution(value);
@@ -106,7 +107,7 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
         menu_text[i * MENU_WIDTH] = '-';
     }
     menu_text[(MENU_OR_LAST_SELECT_LINE - cfgRes2Int(configuredResolution)) * MENU_WIDTH] = '>';
-    return (MENU_OR_LAST_SELECT_LINE - CurrentResolution);
+    return (MENU_OR_LAST_SELECT_LINE - remapResolution(CurrentResolution));
 }, NULL, true);
 
 void switchResolution(uint8_t newValue) {
@@ -118,6 +119,17 @@ void storeResolutionData(uint8_t data) {
     CurrentResolutionData = data;
 }
 
+uint8_t remapResolution(uint8_t resd) {
+    switch (resd) {
+        case RESOLUTION_240Px4:
+            return RESOLUTION_960p;
+        case RESOLUTION_240P1080P:
+            return RESOLUTION_1080p;
+        default:
+            return resd;
+    }
+}
+
 uint8_t mapResolution(uint8_t resd) {
     if (CurrentResolutionData & 0x80) {
         // 240p mode
@@ -127,10 +139,8 @@ uint8_t mapResolution(uint8_t resd) {
                 return resd;
             case RESOLUTION_960p:
                 return RESOLUTION_240Px4;
-                break;
             case RESOLUTION_1080p:
                 return RESOLUTION_240P1080P;
-                break;
             default:
                 break;
         }
@@ -142,10 +152,8 @@ uint8_t mapResolution(uint8_t resd) {
                 return resd;
             case RESOLUTION_240Px4:
                 return RESOLUTION_960p;
-                break;
             case RESOLUTION_240P1080P:
                 return RESOLUTION_1080p;
-                break;
             default:
                 break;
         }
