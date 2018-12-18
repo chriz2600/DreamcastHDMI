@@ -13,6 +13,7 @@ extern Menu infoMenu;
 extern Menu *currentMenu;
 extern uint8_t CurrentResetMode;
 extern uint8_t offset_240p;
+extern uint8_t CurrentResolutionData;
 
 void closeOSD();
 void waitForI2CRecover(bool waitForError);
