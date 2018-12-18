@@ -12,9 +12,11 @@ extern Menu optResetConfirmMenu;
 extern Menu infoMenu;
 extern Menu *currentMenu;
 extern uint8_t CurrentResetMode;
+extern uint8_t offset_240p;
 
 void closeOSD();
 void waitForI2CRecover(bool waitForError);
+void write240pOffset();
 
 Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, MENU_M_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_MASK(controller_data, MENU_CANCEL)) {
@@ -63,6 +65,16 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
     if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_Y)) {
         currentMenu = &optResetConfirmMenu;
         currentMenu->Display();
+        return;
+    }
+    if (!isRepeat && (CurrentResolutionData & 0x80) && CHECK_MASK(controller_data, CTRLR_BUTTON_START)) {
+        offset_240p = (offset_240p == 20 ? 0 : 20);
+        write240pOffset();
+        fpgaTask.Write(I2C_240P_OFFSET, offset_240p, [](uint8_t Address, uint8_t Value) {
+            currentMenu->endTransaction();
+            currentMenu = &mainMenu;
+            currentMenu->Display();
+        });
         return;
     }
 }, [](uint8_t* menu_text, uint8_t menu_activeLine) {

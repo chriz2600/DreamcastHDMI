@@ -63,6 +63,7 @@ uint8_t PrevCurrentResolution;
 uint8_t CurrentResolutionData = 0;
 uint8_t ForceVGA = VGA_ON;
 uint8_t CurrentResetMode = RESET_MODE_LED;
+uint8_t offset_240p;
 
 char md5FPGA[48];
 char md5ESP[48];
@@ -139,6 +140,14 @@ void setupScanlines() {
     reflashNeccessary2 = !forceI2CWrite(
         I2C_SCANLINE_UPPER, upper, 
         I2C_SCANLINE_LOWER, lower
+    );
+}
+
+void setup240pOffset() {
+    read240pOffset();
+    forceI2CWrite(
+        I2C_240P_OFFSET, offset_240p, 
+        I2C_240P_OFFSET, offset_240p
     );
 }
 
@@ -796,6 +805,7 @@ void setup(void) {
     setupResetMode();
     setupOutputResolution();
     setupScanlines();
+    setup240pOffset();
     setupTaskManager();
     setupCredentials();
     setupWiFi();

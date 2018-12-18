@@ -151,10 +151,27 @@ void readScanlinesIntensity() {
     }
 }
 
+void read240pOffset() {
+    char buffer[32] = "";
+    _readFile("/etc/240p/offset", buffer, 32, DEFAULT_240P_OFFSET);
+    offset_240p = atoi(buffer);
+    if (offset_240p < 0) {
+        offset_240p = 0;
+    } else if (offset_240p > 255) {
+        offset_240p = 255;
+    }
+}
+
 void writeScanlinesIntensity() {
     char buffer[32] = "";
     snprintf(buffer, 31, "%d", scanlinesIntensity);
     _writeFile("/etc/scanlines/intensity", buffer, 32);
+}
+
+void write240pOffset() {
+    char buffer[32] = "";
+    snprintf(buffer, 31, "%d", offset_240p);
+    _writeFile("/etc/240p/offset", buffer, 32);
 }
 
 /////////
