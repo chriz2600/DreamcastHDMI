@@ -38,9 +38,10 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_1080P = {
     15'd21120,      // ram_numwords
     1'b1,           // pixel_repetition
 
-    1'b0,           // pxl_rep_on
-    4'd0,           // pxl_rep_h
-    4'd0,           // pxl_rep_v
+    1'b1,           // pxl_rep_on
+    4'd1,           // pxl_rep_h
+    4'd2,           // pxl_rep_v
+    4'd4,           // pxl_rep_v_i
     2'd1,           // pxl_rep_addr_inr_h
 
     32'd18_562_500  // startup_delay
@@ -85,9 +86,10 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_960P = {
     15'd15360,      // ram_numwords
     1'b1,           // pixel_repetition
 
-    1'b0,           // pxl_rep_on
-    4'd0,           // pxl_rep_h
-    4'd0,           // pxl_rep_v
+    1'b1,           // pxl_rep_on
+    4'd1,           // pxl_rep_h
+    4'd2,           // pxl_rep_v
+    4'd4,           // pxl_rep_v_i
     2'd1,           // pxl_rep_addr_inr_h
 
     32'd13_500_000  // startup_delay
@@ -135,6 +137,7 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_480P = {
     1'b0,           // pxl_rep_on
     4'd0,           // pxl_rep_h
     4'd0,           // pxl_rep_v
+    4'd0,           // pxl_rep_v_i
     2'd1,           // pxl_rep_addr_inr_h
 
     32'd6_750_000   // startup_delay
@@ -182,6 +185,7 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_VGA = {
     1'b0,           // pxl_rep_on
     4'd0,           // pxl_rep_h
     4'd0,           // pxl_rep_v
+    4'd0,           // pxl_rep_v_i
     2'd1,           // pxl_rep_addr_inr_h
 
     32'd6_300_000   // startup_delay
@@ -229,6 +233,7 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_240Px3 = {
     1'b1,           // pxl_rep_on
     4'd3,           // pxl_rep_h
     4'd3,           // pxl_rep_v
+    4'd3,           // pxl_rep_v_i
     2'd2,           // pxl_rep_addr_inr_h
 
     32'd20_250_000  // startup_delay
@@ -276,6 +281,7 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_240Px4 = {
     1'b1,           // pxl_rep_on
     4'd1,           // pxl_rep_h
     4'd4,           // pxl_rep_v
+    4'd4,           // pxl_rep_v_i
     2'd1,           // pxl_rep_addr_inr_h
 
     32'd13_500_000  // startup_delay
@@ -323,6 +329,7 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_240P_1080P = {
     1'b1,           // pxl_rep_on
     4'd1,           // pxl_rep_h
     4'd4,           // pxl_rep_v
+    4'd4,           // pxl_rep_v_i
     2'd1,           // pxl_rep_addr_inr_h
 
     32'd18_562_500  // startup_delay

@@ -60,6 +60,7 @@ File flashFile;
 
 uint8_t CurrentResolution = RESOLUTION_1080p;
 uint8_t PrevCurrentResolution;
+uint8_t CurrentResolutionData = 0;
 uint8_t ForceVGA = VGA_ON;
 uint8_t CurrentResetMode = RESET_MODE_LED;
 
@@ -120,7 +121,7 @@ void setupOutputResolution() {
 
     DBG_OUTPUT_PORT.printf(">> Setting up output resolution: %x\n", ForceVGA | CurrentResolution);
     reflashNeccessary = !forceI2CWrite(
-        I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, 
+        I2C_OUTPUT_RESOLUTION, ForceVGA | mapResolution(CurrentResolution),
         I2C_DC_RESET, 0
     );
 }

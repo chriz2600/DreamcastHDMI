@@ -100,6 +100,7 @@ typedef struct packed {
     reg pxl_rep_on;                         // activate extended pixel repetition mode
     reg [3:0] pxl_rep_h;                    // horizontal repetition rate
     reg [3:0] pxl_rep_v;                    // vertical repetition rate
+    reg [3:0] pxl_rep_v_i;                  // vertical repetition rate interlaced
     reg [1:0] pxl_rep_addr_inr_h;           // horizontal pixel increment
 
     reg [31:0] startup_delay;               // pixel_clk * 200ms / 1000ms

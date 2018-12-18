@@ -207,7 +207,7 @@ module ram2video(
                     if (counterY_reg >= hdmiVideoConfig.vertical_offset
                      && ram_addrY_reg < hdmiVideoConfig.ram_numwords - hdmiVideoConfig.buffer_line_length) begin
                         if (hdmiVideoConfig.pxl_rep_on) begin
-                            if (pxl_rep_c_y == hdmiVideoConfig.pxl_rep_v - 1) begin
+                            if (pxl_rep_c_y == ((line_doubler ? hdmiVideoConfig.pxl_rep_v_i : hdmiVideoConfig.pxl_rep_v) - 1)) begin
                                 ram_addrY_reg <= ram_addrY_reg + hdmiVideoConfig.buffer_line_length;
                                 pxl_rep_c_y <= 0;
                             end else begin
@@ -226,7 +226,7 @@ module ram2video(
                         end
                     end else begin
                         if (hdmiVideoConfig.pxl_rep_on) begin
-                            if (pxl_rep_c_y == hdmiVideoConfig.pxl_rep_v - 1) begin
+                            if (pxl_rep_c_y == ((line_doubler ? hdmiVideoConfig.pxl_rep_v_i : hdmiVideoConfig.pxl_rep_v) - 1)) begin
                                 ram_addrY_reg <= 0;
                                 pxl_rep_c_y <= 0;
                             end else begin

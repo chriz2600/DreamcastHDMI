@@ -5,6 +5,7 @@
 extern TimeoutTask timeoutTask;
 extern uint8_t PrevCurrentResolution;
 extern uint8_t CurrentResolution;
+extern uint8_t CurrentResolutionData;
 extern uint8_t ForceVGA;
 extern char configuredResolution[16];
 
@@ -13,6 +14,7 @@ void waitForI2CRecover(bool waitForError);
 uint8_t cfgRes2Int(char* intResolution);
 
 void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler) {
+    value = mapResolution(value);
     bool valueChanged = (value != CurrentResolution);
     PrevCurrentResolution = CurrentResolution;
     CurrentResolution = value;
@@ -112,38 +114,42 @@ void switchResolution(uint8_t newValue) {
     fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
 }
 
-void mapResolution(uint8_t data) {
-    if (data & 0x80) {
+void storeResolutionData(uint8_t data) {
+    CurrentResolutionData = data;
+}
+
+uint8_t mapResolution(uint8_t resd) {
+    if (CurrentResolutionData & 0x80) {
         // 240p mode
-        switch (CurrentResolution) {
+        switch (resd) {
             case RESOLUTION_VGA:
             case RESOLUTION_480p:
-                // do nothing
-                break;
+                return resd;
             case RESOLUTION_960p:
-                switchResolution(RESOLUTION_240Px4);
+                return RESOLUTION_240Px4;
                 break;
             case RESOLUTION_1080p:
-                switchResolution(RESOLUTION_240P1080P);
+                return RESOLUTION_240P1080P;
                 break;
             default:
                 break;
         }
     } else {
         // 480i/p mode
-        switch (CurrentResolution) {
+        switch (resd) {
             case RESOLUTION_VGA:
             case RESOLUTION_480p:
-                // do nothing
-                break;
+                return resd;
             case RESOLUTION_240Px4:
-                switchResolution(RESOLUTION_960p);
+                return RESOLUTION_960p;
                 break;
             case RESOLUTION_240P1080P:
-                switchResolution(RESOLUTION_1080p);
+                return RESOLUTION_1080p;
                 break;
             default:
                 break;
         }
     }
+    // unknown
+    return resd;
 }

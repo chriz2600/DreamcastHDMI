@@ -167,7 +167,7 @@ module data(
             end
 
             // recalculate counterX and counterY to match visible area
-            if (raw_counterX_reg == VISIBLE_AREA_HSTART + conf240p[7:0]) begin
+            if (raw_counterX_reg == VISIBLE_AREA_HSTART + (add_line ? conf240p[7:0] : 0)) begin
                 counterX_reg <= 0;
                 
                 if (raw_counterY_reg == VISIBLE_AREA_VSTART) begin
@@ -208,7 +208,7 @@ module data(
                         red_reg <= red_reg_buf;
                         green_reg <= { green_reg_buf[7:4], indata[11:8] };
                         blue_reg <= indata[7:0];
-                        if (counterX_reg == 380 && counterY_reg == 240) begin
+                        if (counterX_reg == 120 && counterY_reg == 120) begin
                             rgbData_buf <= { red_reg_buf, green_reg_buf[7:4], indata[11:8], indata[7:0] };
                         end
                     end

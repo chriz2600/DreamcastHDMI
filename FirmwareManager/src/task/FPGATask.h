@@ -16,13 +16,17 @@ typedef std::function<void(uint8_t Address, uint8_t Value)> WriteCallbackHandler
 typedef std::function<void(uint8_t address, uint8_t* buffer, uint8_t len)> ReadCallbackHandlerFunction;
 typedef std::function<void()> WriteOSDCallbackHandlerFunction;
 
+extern uint8_t CurrentResolution;
+void switchResolution(uint8_t newValue);
+void storeResolutionData(uint8_t data);
+
 void setupI2C() {
     DBG_OUTPUT_PORT.printf(">> Setting up I2C master...\n");
     brzo_i2c_setup(FPGA_I2C_SDA, FPGA_I2C_SCL, CLOCK_STRETCH_TIMEOUT);
 }
 
 extern TaskManager taskManager;
-void mapResolution(uint8_t data);
+uint8_t mapResolution(uint8_t data);
 
 class FPGATask : public Task {
 
@@ -169,8 +173,9 @@ class FPGATask : public Task {
                     repeatCount = 0;
                 } else if (buffer2[2] != data_out[2]) {
                     // new add_line (240p) mode data
-                    // TODO: switch between corresponding 480p/i and 240p modes
-                    mapResolution(buffer2[2]);
+                    // switch between corresponding 480p/i and 240p modes
+                    storeResolutionData(buffer2[2]);
+                    switchResolution(mapResolution(CurrentResolution));
                 } else {
                     // check repeat
                     if (buffer2[0] != 0x00 || buffer2[1] != 0x00) {

@@ -292,6 +292,8 @@ task adv7513_init;
                                                 // [2]:   EDID ready interrupt = 0b0, disabled
                                                 // [1]:   HDCP authenticated interrupt = 0b0, disabled
                                                 // [0]:   fixed = 0b0
+            36: write_i2c(CHIP_ADDR, 16'h_57_08); // xvYCC 601, full range
+            37: write_i2c(CHIP_ADDR, 16'h_59_40); // full range
             default: begin
                 cmd_counter <= next_cmd;
                 subcmd_counter <= scs_start;
