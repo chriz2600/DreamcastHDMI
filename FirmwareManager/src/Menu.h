@@ -14,6 +14,8 @@
 #define MENU_BACK_LINE  "                " MENU_CANCEL_STR ": Back                 "
 #define MENU_BUTTON_LINE 12
 
+#define MENU_EMPTY_LINE "                                        "
+#define MENU_OFFSET_240P_SETTING_LINE "    Start: Adjust image position (%u)    "
 #define MENU_RST_GDEMU_BUTTON_LINE  "     X: Reset DC  Y: GDEMU button       "
 #define MENU_RST_NORMAL_BUTTON_LINE "              X: Reset DC               "
 
