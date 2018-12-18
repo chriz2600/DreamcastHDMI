@@ -14,8 +14,6 @@
 #define MENU_BACK_LINE  "                " MENU_CANCEL_STR ": Back                 "
 #define MENU_BUTTON_LINE 12
 
-#define MENU_EMPTY_LINE               "                                        "
-#define MENU_OFFSET_240P_SETTING_LINE "    Start: Adjust image position (%u)    "
 #define MENU_RST_GDEMU_BUTTON_LINE    "     X: Reset DC  Y: GDEMU button       "
 #define MENU_RST_NORMAL_BUTTON_LINE   "              X: Reset DC               "
 
@@ -51,8 +49,8 @@ char OSD_MAIN_MENU[521] = (
     "          " MENU_OK_STR ": Select  " MENU_CANCEL_STR ": Exit            "
 );
 
-#define MENU_OR_LAST_SELECT_LINE 5
-#define MENU_OR_FIRST_SELECT_LINE (MENU_OR_LAST_SELECT_LINE-3)
+#define MENU_OR_LAST_SELECT_LINE 6
+#define MENU_OR_FIRST_SELECT_LINE (MENU_OR_LAST_SELECT_LINE-4)
 char OSD_OUTPUT_RES_MENU[521] = (
     "Output Resolution                       "
     "                                        "
@@ -60,10 +58,10 @@ char OSD_OUTPUT_RES_MENU[521] = (
     "- 480p                                  "
     "- 960p                                  "
     "- 1080p                                 "
+    "- 240p adjust position:                 "
     "                                        "
     "  '>' marks the stored setting          "
-    "                                        "
-    "                                        "
+    "  left/right to change 240p position    "
     "                                        "
     "                                        "
     "          " MENU_OK_STR ": Apply   " MENU_CANCEL_STR ": Back            "

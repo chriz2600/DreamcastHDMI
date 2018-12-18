@@ -79,21 +79,23 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
         uint8_t value = RESOLUTION_1080p;
 
         switch (menu_activeLine) {
-            case MENU_OR_LAST_SELECT_LINE-3:
+            case MENU_OR_LAST_SELECT_LINE-4:
                 value = RESOLUTION_VGA;
                 break;
-            case MENU_OR_LAST_SELECT_LINE-2:
+            case MENU_OR_LAST_SELECT_LINE-3:
                 value = RESOLUTION_480p;
                 break;
-            case MENU_OR_LAST_SELECT_LINE-1:
+            case MENU_OR_LAST_SELECT_LINE-2:
                 value = RESOLUTION_960p;
                 break;
-            case MENU_OR_LAST_SELECT_LINE:
+            case MENU_OR_LAST_SELECT_LINE-1:
                 value = RESOLUTION_1080p;
                 break;
+            case MENU_OR_LAST_SELECT_LINE:
+                value = CurrentResolution;
+                break;
         }
-
-        if (value != CurrentResolution) {
+        if (value != remapResolution(CurrentResolution)) {
             safeSwitchResolution(value, [](uint8_t Address, uint8_t Value) {
                 currentMenu = &outputResSaveMenu;
                 currentMenu->Display();
@@ -101,13 +103,28 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
         }
         return;
     }
+    if (!isRepeat && (CHECK_MASK(controller_data, CTRLR_PAD_LEFT) || CHECK_MASK(controller_data, CTRLR_PAD_RIGHT))) {
+        offset_240p = (offset_240p == 20 ? 0 : 20);
+        write240pOffset();
+        fpgaTask.Write(I2C_240P_OFFSET, offset_240p, [](uint8_t Address, uint8_t Value) {
+            char buffer[MENU_WIDTH] = "";
+            snprintf(buffer, 4, "%s    ", Value == 20 ? "On" : "Off");
+            fpgaTask.DoWriteToOSD(24, MENU_OFFSET + MENU_OR_LAST_SELECT_LINE, (uint8_t*) buffer);
+        });
+        return;
+    }
 }, [](uint8_t* menu_text, uint8_t menu_activeLine) {
+    char buffer[MENU_WIDTH] = "";
     // restore original menu text
-    for (int i = (MENU_OR_LAST_SELECT_LINE-3) ; i <= MENU_OR_LAST_SELECT_LINE ; i++) {
+    for (int i = (MENU_OR_LAST_SELECT_LINE-4) ; i <= MENU_OR_LAST_SELECT_LINE ; i++) {
         menu_text[i * MENU_WIDTH] = '-';
     }
-    menu_text[(MENU_OR_LAST_SELECT_LINE - cfgRes2Int(configuredResolution)) * MENU_WIDTH] = '>';
-    return (MENU_OR_LAST_SELECT_LINE - remapResolution(CurrentResolution));
+    menu_text[(MENU_OR_LAST_SELECT_LINE - cfgRes2Int(configuredResolution) - 1) * MENU_WIDTH] = '>';
+
+    snprintf(buffer, 4, "%s    ", offset_240p == 20 ? "On" : "Off");
+    memcpy(&menu_text[MENU_OR_LAST_SELECT_LINE * MENU_WIDTH + 24], buffer, 3);
+
+    return (MENU_OR_LAST_SELECT_LINE - remapResolution(CurrentResolution) - 1);
 }, NULL, true);
 
 void switchResolution(uint8_t newValue) {

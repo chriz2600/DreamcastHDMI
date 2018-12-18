@@ -68,27 +68,7 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
         currentMenu->Display();
         return;
     }
-    if (!isRepeat && (CurrentResolutionData & 0x80) && CHECK_MASK(controller_data, CTRLR_BUTTON_START)) {
-        offset_240p = (offset_240p == 20 ? 0 : 20);
-        write240pOffset();
-        fpgaTask.Write(I2C_240P_OFFSET, offset_240p, [](uint8_t Address, uint8_t Value) {
-            uint8_t pos = (Value == 20 ? 1 : 0);
-            char buffer[MENU_WIDTH] = "";
-            snprintf(buffer, MENU_WIDTH - 1, MENU_OFFSET_240P_SETTING_LINE, pos);
-            fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_BUTTON_LINE - 2, (uint8_t*) buffer);
-        });
-        return;
-    }
 }, [](uint8_t* menu_text, uint8_t menu_activeLine) {
-    uint8_t pos = (offset_240p == 20 ? 1 : 0);
-    char buffer[MENU_WIDTH] = "";
-    if (CurrentResolutionData & 0x80) {
-        snprintf(buffer, MENU_WIDTH - 1, MENU_OFFSET_240P_SETTING_LINE, pos);
-    } else {
-        snprintf(buffer, MENU_WIDTH - 1, "%s", MENU_EMPTY_LINE);
-    }
-    memcpy(&menu_text[(MENU_BUTTON_LINE - 2) * MENU_WIDTH], buffer, MENU_WIDTH - 2);
-
     if (CurrentResetMode == RESET_MODE_GDEMU) {
         memcpy(&menu_text[(MENU_BUTTON_LINE - 1) * MENU_WIDTH], MENU_RST_GDEMU_BUTTON_LINE, MENU_WIDTH);
     } else {
