@@ -6,7 +6,7 @@
 
 //////////////////////////////////////////////////////////////////////////////////
 
-#define DCHDMI_VERSION "v1.2.0"
+#define DCHDMI_VERSION "v1.2.1"
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -64,6 +64,9 @@
 #define ERROR_FILE 18
 #define ERROR_FILE_SIZE 19
 #define ERROR_END_I2C_TRANSACTION 20
+#define ERROR_ESP_FLASH 21
+#define ERROR_ESP_FLASH_END 22
+#define ERROR_ESP_INDEX_FLASH 23
 
 #define FW_VERSION DCHDMI_VERSION
 

@@ -72,7 +72,10 @@ class FlashESPIndexTask : public Task {
                     taskManager.StopTask(this);
                 } else {
                     md5.add(buffer, bytes_read);
-                    targetFile.write(buffer, bytes_read);
+                    if ((int) targetFile.write(buffer, bytes_read) != bytes_read) {
+                        last_error = ERROR_ESP_INDEX_FLASH;
+                        taskManager.StopTask(this);
+                    }
                 }
             } else {
                 taskManager.StopTask(this);
@@ -89,9 +92,11 @@ class FlashESPIndexTask : public Task {
         virtual void OnStop() {
             sourceFile.close();
             targetFile.close();
-            md5.calculate();
-            String md5sum = md5.toString();
-            _writeFile("/index.html.gz.md5", md5sum.c_str(), md5sum.length());
+            if (last_error != NO_ERROR) {
+                md5.calculate();
+                String md5sum = md5.toString();
+                _writeFile("/index.html.gz.md5", md5sum.c_str(), md5sum.length());
+            }
             InvokeCallback(true);
             DBG_OUTPUT_PORT.printf("2: flashing ESP index finished.\n");
         }

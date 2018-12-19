@@ -125,8 +125,9 @@ void readStoredMD5SumDownload(int pos, bool forceDownload, const char* fname, ch
 ProgressCallback createProgressCallback(int pos, bool forceDownload, int line) {
     return [ pos, forceDownload, line ](int read, int total, bool done, int error) {
         if (error != NO_ERROR) {
-            // TODO: handle error
-            downloadCascade(pos + 1, forceDownload);
+            fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "[ ERROR DOWNLOADING  ] done.", [ pos, forceDownload ]() {
+                downloadCascade(pos + 1, forceDownload);
+            });
             return;
         }
 
@@ -146,8 +147,9 @@ ProgressCallback createProgressCallback(int pos, bool forceDownload, int line) {
 ContentCallback createMD5DownloadCallback(int pos, bool forceDownload, int line, char* storedMD5Sum) {
     return [pos, forceDownload, line, storedMD5Sum](std::string data, int error) {
         if (error != NO_ERROR) {
-            // TODO: handle error
-            downloadCascade(pos + 1, forceDownload);
+            fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "[ ERROR CHECKING MD5 ] done.", [ pos, forceDownload ]() {
+                downloadCascade(pos + 1, forceDownload);
+            });
             return;
         }
 

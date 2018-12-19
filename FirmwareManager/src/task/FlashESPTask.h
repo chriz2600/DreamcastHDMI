@@ -80,7 +80,11 @@ class FlashESPTask : public Task {
                     taskManager.StopTask(this);
                 } else {
                     md5.add(buffer, bytes_read);
-                    Update.write(buffer, bytes_read);
+                    if ((int) Update.write(buffer, bytes_read) != bytes_read) {
+                        Update.printError(DBG_OUTPUT_PORT);
+                        last_error = ERROR_ESP_FLASH;
+                        taskManager.StopTask(this);
+                    }
                 }
             } else {
                 taskManager.StopTask(this);
@@ -95,11 +99,15 @@ class FlashESPTask : public Task {
         }
 
         virtual void OnStop() {
-            Update.end();
             flashFile.close();
-            md5.calculate();
-            String md5sum = md5.toString();
-            _writeFile("/etc/last_esp_flash_md5", md5sum.c_str(), md5sum.length());
+            if (!Update.end()) {
+                last_error = ERROR_ESP_FLASH_END;
+            }
+            if (last_error == NO_ERROR) {
+                md5.calculate();
+                String md5sum = md5.toString();
+                _writeFile("/etc/last_esp_flash_md5", md5sum.c_str(), md5sum.length());
+            }
             InvokeCallback(true);
             DBG_OUTPUT_PORT.printf("2: flashing ESP finished.\n");
         }

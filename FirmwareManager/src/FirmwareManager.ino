@@ -426,6 +426,11 @@ void setupHTTPServer() {
         SPIFFS.remove(String(FIRMWARE_FILE) + ".md5");
         SPIFFS.remove(String(ESP_FIRMWARE_FILE) + ".md5");
         SPIFFS.remove(String(ESP_INDEX_STAGING_FILE) + ".md5");
+
+        SPIFFS.remove(LOCAL_FPGA_MD5);
+        SPIFFS.remove(LOCAL_ESP_MD5);
+        SPIFFS.remove(LOCAL_ESP_INDEX_MD5);
+
         // remove legacy config data
         SPIFFS.remove("/etc/firmware_fpga");
         SPIFFS.remove("/etc/firmware_format");
@@ -444,7 +449,15 @@ void setupHTTPServer() {
         request->send(200);
     });
 
-    server.on("/flash/secure/fpga", HTTP_GET, [](AsyncWebServerRequest *request){
+    server.on("/factoryresetall", HTTP_GET, [](AsyncWebServerRequest *request){
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        SPIFFS.format();
+        request->send(200);
+    });
+
+   server.on("/flash/secure/fpga", HTTP_GET, [](AsyncWebServerRequest *request){
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }

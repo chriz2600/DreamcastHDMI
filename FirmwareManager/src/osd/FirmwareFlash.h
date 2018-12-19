@@ -153,8 +153,9 @@ void checkStoredMD5SumFlash(int pos, bool force, int line, const char* fname, ch
 ProgressCallback createFlashProgressCallback(int pos, bool force, int line) {
     return [ pos, force, line ](int read, int total, bool done, int error) {
         if (error != NO_ERROR) {
-            // TODO: handle error
-            flashCascade(pos + 1, force);
+            fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "[ ERROR FLASHING     ] done.", [ pos, force ]() {
+                flashCascade(pos + 1, force);
+            });
             return;
         }
 

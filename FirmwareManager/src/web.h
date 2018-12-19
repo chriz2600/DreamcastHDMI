@@ -4,6 +4,8 @@
 #include "global.h"
 #include <ESPAsyncTCP.h>
 
+#define FW_PORT 80
+
 extern char httpAuthUser[64];
 extern char httpAuthPass[64];
 extern char firmwareServer[1024];
@@ -95,6 +97,7 @@ void getMD5SumFromServer(String host, String url, ContentCallback contentCallbac
     responseData.clear();
     aClient = new AsyncClient();
     aClient->onError([ contentCallback ](void *arg, AsyncClient *client, int error) {
+        last_error = UNKNOWN_ERROR;
         contentCallback(responseData, UNKNOWN_ERROR);
         aClient = NULL;
         delete client;
@@ -111,6 +114,7 @@ void getMD5SumFromServer(String host, String url, ContentCallback contentCallbac
     
         client->onData([](void *arg, AsyncClient *c, void *data, size_t len) {
             std::string sData((char*) data);
+            DBG_OUTPUT_PORT.printf("--> write: %i, %i/%i %i\n", len, readLength, totalLength, headerFound);            
             if (!headerFound) {
                 int idx = sData.find("\r\n\r\n");
                 if (idx == -1) {
@@ -128,7 +132,7 @@ void getMD5SumFromServer(String host, String url, ContentCallback contentCallbac
         client->write(httpGet.c_str());
     });
 
-    if (!aClient->connect(firmwareServer, 80)) {
+    if (!aClient->connect(firmwareServer, FW_PORT)) {
         contentCallback(responseData, UNKNOWN_ERROR);
         AsyncClient *client = aClient;
         aClient = NULL;
@@ -150,6 +154,7 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
 
         aClient->onError([ progressCallback ](void *arg, AsyncClient *client, int error) {
             DBG_OUTPUT_PORT.println("Connect Error");
+            last_error = UNKNOWN_ERROR;
             PROGRESS_CALLBACK(false, UNKNOWN_ERROR);
             aClient = NULL;
             delete client;
@@ -172,6 +177,7 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
             }, NULL);
         
             client->onData([ progressCallback ](void *arg, AsyncClient *c, void *data, size_t len) {
+                DBG_OUTPUT_PORT.printf("--> write: %i, %i/%i %i\n", len, readLength, totalLength, headerFound);
                 uint8_t* d = (uint8_t*) data;
                 if (!headerFound) {
                     std::string sData((char*) data);
@@ -210,7 +216,7 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
         }, NULL);
 
         DBG_OUTPUT_PORT.println("Trying to connect");
-        if (!aClient->connect(firmwareServer, 80)) {
+        if (!aClient->connect(firmwareServer, FW_PORT)) {
             DBG_OUTPUT_PORT.println("Connect Fail");
             AsyncClient *client = aClient;
             PROGRESS_CALLBACK(false, UNKNOWN_ERROR);
