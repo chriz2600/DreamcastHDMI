@@ -65,7 +65,7 @@
 #define ERROR_FILE_SIZE 19
 #define ERROR_END_I2C_TRANSACTION 20
 
-#define FW_VERSION "__FW_VERSION__"
+#define FW_VERSION DCHDMI_VERSION
 
 #define CHECK_BIT(var,pos) ((var) & (pos))
 #define CHECK_MASK(var,pos) ((var) == (pos))
