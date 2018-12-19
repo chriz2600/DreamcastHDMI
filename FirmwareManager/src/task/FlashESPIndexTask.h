@@ -92,7 +92,7 @@ class FlashESPIndexTask : public Task {
         virtual void OnStop() {
             sourceFile.close();
             targetFile.close();
-            if (last_error != NO_ERROR) {
+            if (last_error == NO_ERROR) {
                 md5.calculate();
                 String md5sum = md5.toString();
                 _writeFile("/index.html.gz.md5", md5sum.c_str(), md5sum.length());
