@@ -440,6 +440,7 @@ private:
     bool autoUpDown;
 };
 
+int last_progress = 100;
 void displayProgress(int read, int total, int line) {
     // download size may be yet unknown
     if (total <= 0) {
@@ -457,6 +458,10 @@ void displayProgress(int read, int total, int line) {
         snprintf(result, 32, "[%.*s] %3d%% ", stars, "********************", percent);
     }
     fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) result);
+    if (last_progress != (percent / 10)) {
+        fpgaTask.ForceLoop();
+    }
+    last_progress = (percent / 10);
 }
 
 #include "osd/Main.h"

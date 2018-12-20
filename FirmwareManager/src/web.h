@@ -165,7 +165,7 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
             //aClient->onError(NULL, NULL);
 
             client->onDisconnect([ filename, progressCallback ](void *arg, AsyncClient *c) {
-                DBG_OUTPUT_PORT.println("onDisconnect");
+                DBG_OUTPUT_PORT.printf("\nonDisconnect\n");
                 flashFile.close();
                 md5.calculate();
                 String md5sum = md5.toString();
@@ -204,7 +204,7 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
                     }
                 }
                 readLength += len;
-                DBG_OUTPUT_PORT.printf("write: %i, %i/%i\n", len, readLength, totalLength);
+                //DBG_OUTPUT_PORT.printf("write: %i, %i/%i\n", len, readLength, totalLength);
                 flashFile.write(d, len);
                 md5.add(d, len);
                 PROGRESS_CALLBACK(false, NO_ERROR);
