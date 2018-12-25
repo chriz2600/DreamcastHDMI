@@ -53,10 +53,11 @@ class FlashTask : public Task {
         uint8_t dummy;
         ProgressCallback progressCallback;
 
-        uint8_t *buffer = NULL;
+        uint8_t *chunk_buffer = NULL;
         uint8_t *result = NULL;
         uint8_t *result_start = NULL;
         uint8_t header[16];
+        uint8_t chunk_header[2];
         size_t bytes_in_result = 0;
         size_t block_size = 1536;
         int chunk_size = 0;
@@ -105,7 +106,6 @@ class FlashTask : public Task {
 
                 md5.add(header, 16);
 
-                buffer = (uint8_t *) malloc(block_size);
                 result = (uint8_t *) malloc(block_size);
                 result_start = result;
                 // initialze complete buffer with flash "default"
@@ -156,7 +156,7 @@ class FlashTask : public Task {
 
             if (chunk_size > 0) {
                 // step 3: decompress
-                bytes_in_result = fastlz_decompress(buffer, chunk_size, result, block_size);
+                bytes_in_result = fastlz_decompress(chunk_buffer, chunk_size, result, block_size);
                 chunk_size = 0;
                 return 0; /* no bytes written yet */
             }
@@ -165,15 +165,19 @@ class FlashTask : public Task {
                 // reset the result buffer pointer
                 result = result_start;
                 // step 1: read chunk header
-                if (flashFile.readBytes((char *) buffer, 2) == 0) {
+                if (flashFile.readBytes((char *) chunk_header, 2) == 0) {
                     // no more chunks
                     return -1;
                 }
-                md5.add(buffer, 2);
-                chunk_size = buffer[0] + (buffer[1] << 8);
+                md5.add(chunk_header, 2);
+                chunk_size = chunk_header[0] + (chunk_header[1] << 8);
                 // step 2: read chunk length from file
-                flashFile.readBytes((char *) buffer, chunk_size);
-                md5.add(buffer, chunk_size);
+                if (chunk_buffer != NULL) {
+                    free(chunk_buffer);
+                }
+                chunk_buffer = (uint8_t *) malloc(block_size);
+                flashFile.readBytes((char *) chunk_buffer, chunk_size);
+                md5.add(chunk_buffer, chunk_size);
                 return 0; /* no bytes written yet */
             }
 
@@ -208,13 +212,13 @@ class FlashTask : public Task {
             _writeFile("/etc/last_flash_spi_md5", spiMD5sum.c_str(), spiMD5sum.length());
             _writeFile("/etc/last_flash_spi_pages", (String(totalLength)).c_str(), 8);
             // cleanup
-            if (buffer != NULL)
-                free(buffer);
+            if (chunk_buffer != NULL)
+                free(chunk_buffer);
             // make sure pointer is reset to original start
             result = result_start;
             if (result != NULL)
                 free(result);
-            buffer = NULL;
+            chunk_buffer = NULL;
             result = NULL;
             result_start = NULL;
             InvokeCallback(true);
