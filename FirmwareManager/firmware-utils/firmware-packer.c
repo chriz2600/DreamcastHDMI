@@ -42,6 +42,7 @@ int main(int argc, char** argv) {
     unsigned long total_read = 0;
     unsigned long total_compressed = 0;
     int chunk_size = 0;
+    int max_chunk_size = 0;
     uint8_t block_size_set = 0;
 
     for(i = 1; i <= argc; i++) {
@@ -126,6 +127,10 @@ int main(int argc, char** argv) {
         reverseBitOrder(buffer, bytes_read);
         chunk_size = fastlz_compress(buffer, bytes_read, result);
 
+        if (chunk_size > max_chunk_size) {
+            max_chunk_size = chunk_size;
+        }
+
         chunk_header[0] = chunk_size & 255;
         chunk_header[1] = (chunk_size >> 8) & 255;
 
@@ -144,6 +149,6 @@ int main(int argc, char** argv) {
     }
     fclose(out);
 
-    printf("%s: %lu / %lu (%zu)\n", input_file, fsize, total_compressed, block_size);
+    printf("%s: %lu / %lu (%zu) (%d)\n", input_file, fsize, total_compressed, block_size, max_chunk_size);
     return 0;
 }
