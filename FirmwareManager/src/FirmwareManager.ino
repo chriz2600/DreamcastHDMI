@@ -831,7 +831,7 @@ void waitForController() {
             if (len == I2C_CONTROLLER_AND_DATA_BASE_LENGTH) {
                 uint16_t cdata = buffer[0] << 8 | buffer[1];
                 if (CHECK_BIT(cdata, CTRLR_DATA_VALID)) {
-                    if (CHECK_BIT(cdata, CTRLR_BUTTON_START)) {
+                    if (CHECK_BIT(cdata, CTRLR_LTRIGGER)) {
                         if (CHECK_BIT(cdata, CTRLR_PAD_UP)) {
                             _ForceVGA = VGA_ON;
                         } else if (CHECK_BIT(cdata, CTRLR_PAD_DOWN)) {
