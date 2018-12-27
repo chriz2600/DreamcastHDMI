@@ -35,6 +35,8 @@ typedef struct packed {
 
 // Maple Controller Data
 typedef struct packed {
+    reg valid_packet; // 13
+
     reg a;           // 12
     reg b;           // 11
     reg x;           // 10
@@ -52,7 +54,6 @@ typedef struct packed {
     // meta
     reg trigger_osd; // 01
     reg trigger_default_resolution; // 00
-
 } ControllerData;
 
 typedef struct packed {

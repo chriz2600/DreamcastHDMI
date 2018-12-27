@@ -805,6 +805,46 @@ void setupArduinoOTA() {
     ArduinoOTA.begin();
 }
 
+void waitForController() {
+    bool gotValidPacket = false;
+    uint8_t _ForceVGA = ForceVGA;
+
+    for (int i = 0 ; i < 3333 ; i++) {
+        // stop, if we got a valid packet
+        if (gotValidPacket) {
+            DBG_OUTPUT_PORT.printf("found valid controller packet at %i\n", i);
+            if (_ForceVGA != ForceVGA) {
+                ForceVGA = _ForceVGA;
+                DBG_OUTPUT_PORT.printf("switching video mode to: %u\n", ForceVGA);
+                forceI2CWrite(
+                    I2C_OUTPUT_RESOLUTION, ForceVGA | mapResolution(CurrentResolution),
+                    I2C_OUTPUT_RESOLUTION, ForceVGA | mapResolution(CurrentResolution)
+                );
+                writeVideoMode();
+            } else {
+                DBG_OUTPUT_PORT.printf("video mode NOT changed: %u\n", ForceVGA);
+            }
+            return;
+        }
+        fpgaTask.Read(I2C_CONTROLLER_AND_DATA_BASE, I2C_CONTROLLER_AND_DATA_BASE_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+            if (len == I2C_CONTROLLER_AND_DATA_BASE_LENGTH) {
+                uint16_t cdata = buffer[0] << 8 | buffer[1];
+                DBG_OUTPUT_PORT.printf("%03i %04x\n", i, cdata);
+                if (CHECK_BIT(cdata, CTRLR_DATA_VALID)) {
+                    if (CHECK_BIT(cdata, CTRLR_PAD_UP)) {
+                        _ForceVGA = VGA_ON;
+                    } else if (CHECK_BIT(cdata, CTRLR_PAD_DOWN)) {
+                        _ForceVGA = VGA_OFF;
+                    }
+                    gotValidPacket = true;
+                }
+            }
+        });
+        fpgaTask.ForceLoop();
+        delay(1);
+    }
+}
+
 void setup(void) {
     DBG_OUTPUT_PORT.begin(115200);
     DBG_OUTPUT_PORT.printf("\n>> FirmwareManager starting...\n");
@@ -821,6 +861,7 @@ void setup(void) {
     setup240pOffset();
     setupTaskManager();
     setupCredentials();
+    waitForController();
     setupWiFi();
     setupHTTPServer();
     

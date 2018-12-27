@@ -6,7 +6,7 @@
 
 //////////////////////////////////////////////////////////////////////////////////
 
-#define DCHDMI_VERSION "v1.2.1"
+#define DCHDMI_VERSION "v1.2.2"
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -145,6 +145,7 @@
 #define CTRLR_RTRIGGER (1<<(5))
 #define CTRLR_TRIGGER_OSD (1<<(4))
 #define CTRLR_TRIGGER_DEFAULT_RESOLUTION (1<<(3))
+#define CTRLR_DATA_VALID (1)
 
 typedef std::function<void(std::string data, int error)> ContentCallback;
 typedef std::function<void(int read, int total, bool done, int error)> ProgressCallback;

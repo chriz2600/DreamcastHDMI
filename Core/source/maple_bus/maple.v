@@ -23,8 +23,8 @@ reg[3:0] controller_packet_check;
 reg[3:0] pullup_osd;
 reg[3:0] trig_def_res;
 
-ControllerData cdata_in = { 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0 };
-ControllerData cdata_out = { 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0 };
+ControllerData cdata_in = 0;
+ControllerData cdata_out = 0;
 
 initial begin
     pos <= 0;
@@ -64,13 +64,14 @@ always @(posedge clk) begin
         controller_packet_check <= 0;
         pullup_osd <= 0;
         trig_def_res <= 0;
-        cdata_in <= { 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0, 1'b0 };
+        cdata_in <= 0;
 
         // check for controller packet, to assign output data
         if (controller_packet_check == 4'b1111) begin
             cdata_out[12:2] <= cdata_in[12:2];
             cdata_out.trigger_osd <= (pullup_osd == 4'b1111);
             cdata_out.trigger_default_resolution <= (trig_def_res == 4'b1111);
+            cdata_out.valid_packet <= 1'b1;
         end
     end
     // get maple bus data

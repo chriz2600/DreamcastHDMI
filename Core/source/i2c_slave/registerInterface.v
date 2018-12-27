@@ -135,7 +135,7 @@ always @(posedge clk) begin
             04: trigger_osd
             03: trigger_default_resolution
         */
-        8'h86: dataOut_reg <= { controller_data[4:0], 3'b000 };
+        8'h86: dataOut_reg <= { controller_data[4:0], 2'b00, controller_data.valid_packet };
         8'h87: dataOut_reg <= { add_line, 7'b0000000 };
 
         // scanline data
