@@ -58,6 +58,10 @@ int writeProgress(uint8_t *buffer, size_t maxLen, int progress) {
     return alen;
 }
 
+bool forceI2CWrite(uint8_t addr1, uint8_t val1) {
+    return forceI2CWrite(addr1, val1, 0, 0);
+}
+
 bool forceI2CWrite(uint8_t addr1, uint8_t val1, uint8_t addr2, uint8_t val2) {
     int retryCount = 5000;
     int retries = 0;
@@ -66,7 +70,7 @@ bool forceI2CWrite(uint8_t addr1, uint8_t val1, uint8_t addr2, uint8_t val2) {
     while (retryCount >= 0) {
         retries++;
         fpgaTask.Write(addr1, val1, NULL); fpgaTask.ForceLoop();
-        if (last_error == NO_ERROR) { // only try second command, if first was successful
+        if (last_error == NO_ERROR && addr2 != 0 && val2 != 0) { // only try second command, if first was successful and is != 0
             DBG_OUTPUT_PORT.printf("   success 1st command: %u %u %i\n", addr1, val1, retries);
             fpgaTask.Write(addr2, val2, NULL); fpgaTask.ForceLoop();
         }

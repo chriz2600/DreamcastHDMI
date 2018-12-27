@@ -816,10 +816,7 @@ void waitForController() {
             if (_ForceVGA != ForceVGA) {
                 ForceVGA = _ForceVGA;
                 DBG_OUTPUT_PORT.printf("switching video mode to: %u\n", ForceVGA);
-                forceI2CWrite(
-                    I2C_OUTPUT_RESOLUTION, ForceVGA | mapResolution(CurrentResolution),
-                    I2C_OUTPUT_RESOLUTION, ForceVGA | mapResolution(CurrentResolution)
-                );
+                forceI2CWrite(I2C_OUTPUT_RESOLUTION, ForceVGA | mapResolution(CurrentResolution));
                 writeVideoMode();
             } else {
                 DBG_OUTPUT_PORT.printf("video mode NOT changed: %u\n", ForceVGA);
