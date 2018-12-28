@@ -816,12 +816,9 @@ void waitForController() {
             DBG_OUTPUT_PORT.printf("   found valid controller packet at %i\n", i);
             if (_ForceVGA != ForceVGA) {
                 ForceVGA = _ForceVGA;
-                DBG_OUTPUT_PORT.printf("   switching video mode to: %x\n", ForceVGA);
-                forceI2CWrite(
-                    I2C_OUTPUT_RESOLUTION, ForceVGA | mapResolution(CurrentResolution),
-                    I2C_DC_RESET, 1
-                );
                 writeVideoMode();
+                DBG_OUTPUT_PORT.printf("   performing a resetall\n");
+                resetall();
             } else {
                 DBG_OUTPUT_PORT.printf("   video mode NOT changed: %u\n", ForceVGA);
             }
