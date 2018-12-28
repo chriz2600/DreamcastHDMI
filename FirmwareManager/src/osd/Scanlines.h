@@ -19,7 +19,7 @@ uint8_t getScanlinesLowerPart();
 void setScanlines(uint8_t upper, uint8_t lower, WriteCallbackHandlerFunction handler);
 
 Menu scanlinesMenu("ScanlinesMenu", (uint8_t*) OSD_SCANLINES_MENU, MENU_SL_FIRST_SELECT_LINE, MENU_SL_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_CANCEL)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         // restoreScanlines
         readScanlinesActive();
         readScanlinesIntensity();
@@ -32,7 +32,7 @@ Menu scanlinesMenu("ScanlinesMenu", (uint8_t*) OSD_SCANLINES_MENU, MENU_SL_FIRST
         return;
     }
 
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_OK)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         // restoreScanlines
         writeScanlinesActive();
         writeScanlinesIntensity();
@@ -43,8 +43,8 @@ Menu scanlinesMenu("ScanlinesMenu", (uint8_t*) OSD_SCANLINES_MENU, MENU_SL_FIRST
         return;
     }
 
-    bool isLeft = CHECK_MASK(controller_data, CTRLR_PAD_LEFT);
-    bool isRight = CHECK_MASK(controller_data, CTRLR_PAD_RIGHT);
+    bool isLeft = CHECK_CTRLR_MASK(controller_data, CTRLR_PAD_LEFT);
+    bool isRight = CHECK_CTRLR_MASK(controller_data, CTRLR_PAD_RIGHT);
 
     if (isLeft || isRight) {
         switch (menu_activeLine) {

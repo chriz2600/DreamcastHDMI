@@ -14,12 +14,12 @@ void checkStoredMD5SumFlash(int pos, bool force, int line, const char* fname, ch
 ProgressCallback createFlashProgressCallback(int pos, bool force, int line);
 
 Menu firmwareFlashMenu("FirmwareFlashMenu", (uint8_t*) OSD_FIRMWARE_FLASH_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_CANCEL)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         currentMenu = &firmwareMenu;
         currentMenu->Display();
         return;
     }
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_OK)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         if (!firmwareFlashStarted) {
             firmwareFlashStarted = true;
             newFWFlashed = false;

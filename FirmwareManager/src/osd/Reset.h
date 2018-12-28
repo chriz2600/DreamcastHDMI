@@ -4,12 +4,12 @@
 void writeCurrentResetMode();
 
 Menu resetMenu("ResetMenu", (uint8_t*) OSD_RESET_MENU, MENU_RST_FIRST_SELECT_LINE, MENU_RST_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_CANCEL)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         currentMenu = &mainMenu;
         currentMenu->Display();
         return;
     }
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_OK)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         switch (menu_activeLine) {
             case MENU_RST_LED_LINE:
                 CurrentResetMode = RESET_MODE_LED;

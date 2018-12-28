@@ -11,12 +11,12 @@ uint8_t wifiEdit_CursorPos = 0;
 uint8_t wifiEdit_activeLine = NO_SELECT_LINE;
 
 Menu wifiMenu("WiFiMenu", (uint8_t*) OSD_WIFI_MENU, MENU_WIFI_FIRST_SELECT_LINE, MENU_WIFI_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_CANCEL)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         currentMenu = &mainMenu;
         currentMenu->Display();
         return;
     }
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_OK)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         switch (menu_activeLine) {
             case MENU_WIFI_SSID_LINE:
                 snprintf(wifiEdit_Name, 39, "SSID");
@@ -66,12 +66,12 @@ void rtrim(char *str) {
 ///////////////////////////////////////////////////////////////////
 
 Menu wifiEditMenu("WiFiEditMenu", (uint8_t*) OSD_WIFI_EDIT_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_CANCEL)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         currentMenu = &wifiMenu;
         currentMenu->Display();
         return;
     }
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_OK)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         char result[MENU_WIDTH] = "";
         snprintf(result, 39, "%s", wifiEdit_Value);
         rtrim(result);
@@ -90,10 +90,10 @@ Menu wifiEditMenu("WiFiEditMenu", (uint8_t*) OSD_WIFI_EDIT_MENU, NO_SELECT_LINE,
         return;
     }
 
-    bool isLeft = CHECK_MASK(controller_data, CTRLR_PAD_LEFT);
-    bool isRight = CHECK_MASK(controller_data, CTRLR_PAD_RIGHT);
-    bool isUp = CHECK_MASK(controller_data, CTRLR_PAD_UP);
-    bool isDown = CHECK_MASK(controller_data, CTRLR_PAD_DOWN);
+    bool isLeft = CHECK_CTRLR_MASK(controller_data, CTRLR_PAD_LEFT);
+    bool isRight = CHECK_CTRLR_MASK(controller_data, CTRLR_PAD_RIGHT);
+    bool isUp = CHECK_CTRLR_MASK(controller_data, CTRLR_PAD_UP);
+    bool isDown = CHECK_CTRLR_MASK(controller_data, CTRLR_PAD_DOWN);
 
     if (isLeft || isRight || isUp || isDown) {
         if (isLeft) {

@@ -819,7 +819,7 @@ void waitForController() {
                 DBG_OUTPUT_PORT.printf("   switching video mode to: %x\n", ForceVGA);
                 forceI2CWrite(
                     I2C_OUTPUT_RESOLUTION, ForceVGA | mapResolution(CurrentResolution),
-                    I2C_DC_RESET, 0
+                    I2C_DC_RESET, 1
                 );
                 writeVideoMode();
             } else {
@@ -829,14 +829,13 @@ void waitForController() {
         }
         fpgaTask.Read(I2C_CONTROLLER_AND_DATA_BASE, I2C_CONTROLLER_AND_DATA_BASE_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
             if (len == I2C_CONTROLLER_AND_DATA_BASE_LENGTH) {
-                uint16_t cdata = buffer[0] << 8 | buffer[1];
+                uint16_t cdata = (buffer[0] << 8 | buffer[1]);
                 if (CHECK_BIT(cdata, CTRLR_DATA_VALID)) {
-                    if (CHECK_BIT(cdata, CTRLR_LTRIGGER)) {
-                        if (CHECK_BIT(cdata, CTRLR_PAD_UP)) {
-                            _ForceVGA = VGA_ON;
-                        } else if (CHECK_BIT(cdata, CTRLR_PAD_DOWN)) {
-                            _ForceVGA = VGA_OFF;
-                        }
+                    DBG_OUTPUT_PORT.printf("   %i: %04x\n", i, cdata);
+                    if (CHECK_BIT(cdata, CTRLR_PAD_UP)) {
+                        _ForceVGA = VGA_ON;
+                    } else if (CHECK_BIT(cdata, CTRLR_PAD_DOWN)) {
+                        _ForceVGA = VGA_OFF;
                     }
                     gotValidPacket = true;
                 }

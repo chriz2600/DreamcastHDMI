@@ -33,7 +33,7 @@ void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler) {
 }
 
 Menu outputResSaveMenu("OutputResSaveMenu", (uint8_t*) OSD_OUTPUT_RES_SAVE_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_CANCEL)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         taskManager.StopTask(&timeoutTask);
         safeSwitchResolution(PrevCurrentResolution, [](uint8_t Address, uint8_t Value){
             currentMenu = &outputResMenu;
@@ -41,7 +41,7 @@ Menu outputResSaveMenu("OutputResSaveMenu", (uint8_t*) OSD_OUTPUT_RES_SAVE_MENU,
         });
         return;
     }
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_OK)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         taskManager.StopTask(&timeoutTask);
         writeCurrentResolution();
         currentMenu = &outputResMenu;
@@ -70,12 +70,12 @@ Menu outputResSaveMenu("OutputResSaveMenu", (uint8_t*) OSD_OUTPUT_RES_SAVE_MENU,
 ///////////////////////////////////////////////////////////////////
 
 Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRST_SELECT_LINE, MENU_OR_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_CANCEL)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         currentMenu = &mainMenu;
         currentMenu->Display();
         return;
     }
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_OK)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         uint8_t value = RESOLUTION_1080p;
 
         switch (menu_activeLine) {
@@ -103,7 +103,7 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
         }
         return;
     }
-    if (!isRepeat && (CHECK_MASK(controller_data, CTRLR_PAD_LEFT) || CHECK_MASK(controller_data, CTRLR_PAD_RIGHT))) {
+    if (!isRepeat && (CHECK_CTRLR_MASK(controller_data, CTRLR_PAD_LEFT) || CHECK_CTRLR_MASK(controller_data, CTRLR_PAD_RIGHT))) {
         offset_240p = (offset_240p == 20 ? 0 : 20);
         write240pOffset();
         fpgaTask.Write(I2C_240P_OFFSET, offset_240p, [](uint8_t Address, uint8_t Value) {

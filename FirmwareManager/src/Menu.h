@@ -408,12 +408,12 @@ class Menu
 
         if (autoUpDown) {
             // pad up down is handled by menu
-            if (CHECK_MASK(controller_data, CTRLR_PAD_UP)) {
+            if (CHECK_CTRLR_MASK(controller_data, CTRLR_PAD_UP)) {
                 menu_activeLine = menu_activeLine <= first_line ? first_line : menu_activeLine - 1;
                 fpgaTask.Write(I2C_OSD_ACTIVE_LINE, MENU_OFFSET + menu_activeLine);
                 return;
             }
-            if (CHECK_MASK(controller_data, CTRLR_PAD_DOWN)) {
+            if (CHECK_CTRLR_MASK(controller_data, CTRLR_PAD_DOWN)) {
                 menu_activeLine = menu_activeLine >= last_line ? last_line : menu_activeLine + 1;
                 fpgaTask.Write(I2C_OSD_ACTIVE_LINE, MENU_OFFSET + menu_activeLine);
                 return;

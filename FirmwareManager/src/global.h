@@ -71,7 +71,7 @@
 #define FW_VERSION DCHDMI_VERSION
 
 #define CHECK_BIT(var,pos) ((var) & (pos))
-#define CHECK_MASK(var,pos) ((var) == (pos))
+#define CHECK_CTRLR_MASK(var,pos) ((var | CTRLR_DATA_VALID) == (pos | CTRLR_DATA_VALID))
 
 #define FPGA_UPDATE_OSD_DONE 0x00
 #define FPGA_WRITE_DONE ((uint8_t) 0x01)
