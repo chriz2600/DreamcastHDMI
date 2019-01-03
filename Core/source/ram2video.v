@@ -1,4 +1,10 @@
+`timescale 1 ns / 1 ns
+
+`ifdef TEST_BENCH
+`include "../../config.inc"
+`else
 `include "config.inc"
+`endif
 
 module ram2video(
     input [23:0] rddata,
@@ -8,7 +14,6 @@ module ram2video(
     input reset,
     
     input line_doubler,
-    input add_line,
 
     output [14:0] rdaddr,
     input [7:0] text_rddata,
@@ -27,6 +32,7 @@ module ram2video(
     output reg fullcycle
 );
     localparam ONE_TO_ONE = 256;
+    localparam DATA_FETCH_DELAY = 2;
 
     `ifdef OSD_BACKGROUND_ALPHA
         localparam OSD_BACKGROUND_ALPHA = `OSD_BACKGROUND_ALPHA;
@@ -50,6 +56,9 @@ module ram2video(
     reg [11:0] counterX_reg_q_q;
     reg [11:0] counterX_reg_q_q_q;
     
+    reg [11:0] counterX_osd_reg;
+    reg [11:0] counterX_osd_reg_q5;
+
     reg [11:0] counterY_reg;
     reg [11:0] counterY_reg_q;
     reg [11:0] counterY_reg_q_q;
@@ -80,6 +89,7 @@ module ram2video(
     reg d_hsync;
     reg d_vsync;
     reg d_DrawArea;
+    reg state;
 
     wire [10:0] char_addr;
     wire [7:0] char_data;
@@ -87,6 +97,15 @@ module ram2video(
         .address(char_addr),
         .clock(clock),
         .q(char_data)
+    );
+
+    delayline #(
+        .CYCLES(4),
+        .WIDTH(12)
+    ) osd_delay (
+        .clock(clock),
+        .in(counterX_osd_reg),
+        .out(counterX_osd_reg_q5)
     );
 
     `define IsOsdBgArea(x, y)  ( \
@@ -103,10 +122,10 @@ module ram2video(
         && y >= hdmiVideoConfig.osd_text_y_start \
         && y < hdmiVideoConfig.osd_text_y_end)
 
-    `define GetData(x, y) ( \
+    `define GetData(x, y, osd_x) ( \
         `IsDrawAreaVGA(x, y) \
         ?   `IsOsdTextArea(x, y) \
-            ?   (char_data_reg_q[7-x[2:0]]) ^ (currentLine_reg_q == highlight_line) \
+            ?   char_data[7-osd_x[2:0]] ^ (currentLine_reg_q == highlight_line) \
                 ?   {24{1'b1}} \
                 :   `GetRdData(y, (isScanline ? truncate_osdbg(OSD_BACKGROUND_ALPHA * scanline.intensity) : OSD_BACKGROUND_ALPHA)) \
             :   `IsOsdBgArea(x, y) \
@@ -137,11 +156,21 @@ module ram2video(
         truncate_osdbg = value[16:8];
     endfunction
 
+    function [8:0] osdaddr(
+        input[11:0] value
+    );
+        osdaddr = value[11:3];
+    endfunction
+
     `define GetRdData(y, a) ({ \
                 truncate_rddata({ 8'b0, rddata[23:16] } * a), \
                 truncate_rddata({ 8'b0, rddata[15:8] } * a), \
                 truncate_rddata({ 8'b0, rddata[7:0] } * a) \
             })
+
+    `define VerticalLines (state ? hdmiVideoConfig.vertical_lines_2 : hdmiVideoConfig.vertical_lines_1)
+    `define VerticalSyncStart (state ? hdmiVideoConfig.vertical_sync_start_2 : hdmiVideoConfig.vertical_sync_start_1)
+    `define VerticalSyncPixelOffset (state ? hdmiVideoConfig.vertical_sync_pixel_offset_2 : hdmiVideoConfig.vertical_sync_pixel_offset_1)
 
     initial begin
         trigger <= 0;
@@ -155,6 +184,7 @@ module ram2video(
         pxl_rep_c_y <= 0;
         fullcycle <= 0;
         _fullcycle <= 0;
+        state <= 0;
     end
     
     always @(posedge clock or posedge reset) begin
@@ -174,8 +204,10 @@ module ram2video(
                 ram_addrY_reg <= 0;
                 pxl_rep_c_x <= 0;
                 pxl_rep_c_y <= 0;
+                state <= 0;
             end
         end else begin
+            //////////////////////////////////////////////////////////////////////
             // trigger is set, output data
             if (counterX_reg < hdmiVideoConfig.horizontal_pixels_per_line - 1) begin
                 counterX_reg <= counterX_reg + 1'b1;
@@ -201,7 +233,7 @@ module ram2video(
                 ram_addrX_reg <= 0;
                 pxl_rep_c_x <= 0;
 
-                if (counterY_reg < (add_line ? hdmiVideoConfig.vertical_lines_240p : hdmiVideoConfig.vertical_lines) - 1) begin
+                if (counterY_reg < `VerticalLines - 1) begin
                     counterY_reg <= counterY_reg + 1'b1;
 
                     if (counterY_reg >= hdmiVideoConfig.vertical_offset
@@ -214,7 +246,7 @@ module ram2video(
                                 pxl_rep_c_y <= pxl_rep_c_y + 1'b1;
                             end
                         end else begin
-                            if (hdmiVideoConfig.pixel_repetition) begin
+                            if (hdmiVideoConfig.line_doubling) begin
                                 if (counterY_reg[0] && (!line_doubler || counterY_reg[1])) begin
                                     ram_addrY_reg <= ram_addrY_reg + hdmiVideoConfig.buffer_line_length;
                                 end
@@ -233,7 +265,7 @@ module ram2video(
                                 pxl_rep_c_y <= pxl_rep_c_y + 1'b1;
                             end
                         end else begin
-                            if (hdmiVideoConfig.pixel_repetition) begin
+                            if (hdmiVideoConfig.line_doubling) begin
                                 if (counterY_reg[0] && (!line_doubler || counterY_reg[1])) begin
                                     ram_addrY_reg <= 0;
                                 end
@@ -246,9 +278,11 @@ module ram2video(
                     counterY_reg <= 0;
                     ram_addrY_reg <= 0;
                     pxl_rep_c_y <= 0;
+                    state <= ~state;
                 end
             end
 
+            //////////////////////////////////////////////////////////////////////
             // generate output hsync
             if (counterX_reg_q >= hdmiVideoConfig.horizontal_sync_start && counterX_reg_q < hdmiVideoConfig.horizontal_sync_start + hdmiVideoConfig.horizontal_sync_width) begin
                 hsync_reg_q <= hdmiVideoConfig.horizontal_sync_on_polarity;
@@ -256,10 +290,11 @@ module ram2video(
                 hsync_reg_q <= ~hdmiVideoConfig.horizontal_sync_on_polarity;
             end
 
+            //////////////////////////////////////////////////////////////////////
             // generate output vsync
-            if (counterY_reg_q >= hdmiVideoConfig.vertical_sync_start && counterY_reg_q < hdmiVideoConfig.vertical_sync_start + hdmiVideoConfig.vertical_sync_width + 1) begin // + 1: synchronize last vsync period with hsync negative edge
-                if ((counterY_reg_q == hdmiVideoConfig.vertical_sync_start && counterX_reg_q < hdmiVideoConfig.horizontal_sync_start) 
-                    || (counterY_reg_q == hdmiVideoConfig.vertical_sync_start + hdmiVideoConfig.vertical_sync_width && counterX_reg_q >= hdmiVideoConfig.horizontal_sync_start)) begin
+            if (counterY_reg_q >= `VerticalSyncStart && counterY_reg_q < `VerticalSyncStart + hdmiVideoConfig.vertical_sync_width + 1) begin
+                if ((counterY_reg_q == `VerticalSyncStart && counterX_reg_q < `VerticalSyncPixelOffset) 
+                    || (counterY_reg_q == `VerticalSyncStart + hdmiVideoConfig.vertical_sync_width && counterX_reg_q >= `VerticalSyncPixelOffset)) begin
                     vsync_reg_q <= ~hdmiVideoConfig.vertical_sync_on_polarity; // OFF
                 end else begin
                     vsync_reg_q <= hdmiVideoConfig.vertical_sync_on_polarity; // ON
@@ -272,41 +307,52 @@ module ram2video(
                 _fullcycle <= _fullcycle + 1'b1;
             end
 
+            //////////////////////////////////////////////////////////////////////
+            // delay queue
             counterX_reg_q <= counterX_reg;
-            counterY_reg_q <= counterY_reg;
             counterX_reg_q_q <= counterX_reg_q;
-            counterY_reg_q_q <= counterY_reg_q;
             counterX_reg_q_q_q <= counterX_reg_q_q;
+
+            counterY_reg_q <= counterY_reg;
+            counterY_reg_q_q <= counterY_reg_q;
             counterY_reg_q_q_q <= counterY_reg_q_q;
+
             hsync_reg_q_q <= hsync_reg_q;
             vsync_reg_q_q <= vsync_reg_q;
 
+            //////////////////////////////////////////////////////////////////////
             // OSD TEXT
             if (counterX_reg == 0) begin
-                if (hdmiVideoConfig.pixel_repetition) begin
-                    currentLine_reg <= counterY_reg[11:5] - hdmiVideoConfig.text_offset_character_y[7:0];
-                    charPixelRow_reg <= counterY_reg[4:1];
+                if (hdmiVideoConfig.line_doubling) begin
+                    currentLine_reg <= (hdmiVideoConfig.interlaceOSD ? counterY_reg[11:4] : counterY_reg[11:5]) - hdmiVideoConfig.text_offset_character_y[7:0];
+                    charPixelRow_reg <= (hdmiVideoConfig.interlaceOSD ? counterY_reg[3:1] << 1'b1 : counterY_reg[4:1]) + (hdmiVideoConfig.interlaceOSD && state ? 1'b1 : 1'b0);
                 end else begin
-                    currentLine_reg <= counterY_reg[11:4] - hdmiVideoConfig.text_offset_character_y[7:0];
-                    charPixelRow_reg <= counterY_reg[3:0];
+                    currentLine_reg <= (hdmiVideoConfig.interlaceOSD ? counterY_reg[10:3] : counterY_reg[11:4]) - hdmiVideoConfig.text_offset_character_y[7:0];
+                    charPixelRow_reg <= (hdmiVideoConfig.interlaceOSD ? counterY_reg[2:0] << 1'b1 : counterY_reg[3:0]) + (hdmiVideoConfig.interlaceOSD && state ? 1'b1 : 1'b0);
                 end
             end else if (counterX_reg == 1) begin
                 text_rdaddr_y <= currentLine_reg * 10'd40;
                 text_rdaddr_x <= 0;
-            end else if (counterX_reg[11:3] >= hdmiVideoConfig.text_offset_character_x) begin
-                text_rdaddr_x <= (counterX_reg[11:3] - hdmiVideoConfig.text_offset_character_x[9:0] + 1'b1);
+            end else if (counterX_reg + DATA_FETCH_DELAY >= hdmiVideoConfig.osd_text_x_start) begin
+                text_rdaddr_x <= osdaddr(counterX_osd_reg);
             end
-            text_rddata_reg[7:0] <= text_rddata;
-            text_rddata_reg[15:8] <= text_rddata_reg[7:0];
-            text_rddata_reg[23:16] <= text_rddata_reg[15:8];
-            text_rddata_reg[31:24] <= text_rddata_reg[23:16];
-            char_data_reg <= char_data;
-            char_data_reg_q <= char_data_reg;
+
+            if (counterX_reg + DATA_FETCH_DELAY + 1 == hdmiVideoConfig.osd_text_x_start) begin
+                counterX_osd_reg <= 0;
+            end else begin
+                if (hdmiVideoConfig.pixel_repetition) begin
+                    counterX_osd_reg <= counterX_osd_reg + counterX_reg[0];
+                end else begin
+                    counterX_osd_reg <= counterX_osd_reg + 1'b1;
+                end
+            end
+
             currentLine_reg_q <= currentLine_reg;
 
+            //////////////////////////////////////////////////////////////////////
             // SCANLINES
             if (scanline.active) begin
-                if (hdmiVideoConfig.pixel_repetition) begin
+                if (hdmiVideoConfig.line_doubling) begin
                     isScanline <= counterY_reg[2:1] >> scanline.thickness ^ scanline.oddeven;
                 end else begin
                     isScanline <= counterY_reg[1:0] >> scanline.thickness ^ scanline.oddeven;
@@ -315,10 +361,11 @@ module ram2video(
                 isScanline <= 1'b0;
             end
 
+            //////////////////////////////////////////////////////////////////////
             // OUTPUT
             d_rdaddr <= `GetAddr(counterX_reg, counterY_reg);
             if (fullcycle || _fullcycle >= 4'b0001) begin
-                d_video_out <= `GetData(counterX_reg_q_q_q, counterY_reg_q_q_q);
+                d_video_out <= `GetData(counterX_reg_q_q_q, counterY_reg_q_q_q, counterX_osd_reg_q5);
                 d_DrawArea <= `IsDrawAreaHDMI(counterX_reg_q_q_q, counterY_reg_q_q_q);
                 d_hsync <= hsync_reg_q_q;
                 d_vsync <= vsync_reg_q_q;
@@ -335,8 +382,7 @@ module ram2video(
     end
 
     assign text_rdaddr = text_rdaddr_x + text_rdaddr_y;
-    // bit 7 of text_rddata_reg[31:24] is currently ignored, as we only have a 7 bit charset, maybe this could be used as invert character indicator later
-    assign char_addr = (text_rddata_reg[31:24] << 4) + charPixelRow_reg;
+    assign char_addr = (text_rddata << 4) + charPixelRow_reg;
     assign rdaddr = d_rdaddr;
     assign video_out = d_video_out;
     assign DrawArea = d_DrawArea;

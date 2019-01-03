@@ -323,7 +323,7 @@ ram2video ram2video(
     .clock(hdmi_clock),
     .reset(~pll_hdmi_locked || ~ram2video_ready || resync_signal),
     .line_doubler(line_doubler_sync),
-    .add_line(add_line_sync),
+    //.add_line(add_line_sync),
     .rddata(ram_rddata),
     .hsync(HSYNC),
     .vsync(VSYNC),

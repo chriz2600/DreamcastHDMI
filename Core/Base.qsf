@@ -76,6 +76,7 @@ set_global_assignment -name VERILOG_FILE source/misc/startup.v
 set_global_assignment -name VERILOG_FILE source/misc/edge_detect.v
 set_global_assignment -name VERILOG_FILE source/misc/data_cross.v
 set_global_assignment -name VERILOG_FILE source/misc/info_cross.v
+set_global_assignment -name VERILOG_FILE source/misc/delayline.v
 set_global_assignment -name VERILOG_FILE source/misc/LEDglow.v
 set_global_assignment -name VERILOG_FILE source/configuration.v
 set_global_assignment -name VHDL_FILE source/adv7513/i2c_master.vhd

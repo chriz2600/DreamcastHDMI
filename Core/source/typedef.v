@@ -57,19 +57,27 @@ typedef struct packed {
 } ControllerData;
 
 typedef struct packed {
-    // output video definition
+    // horizontal configuration
+    reg horizontal_sync_on_polarity;        // 1'b1 for 1080p
     reg [11:0] horizontal_pixels_per_line;  // 12'd1100 for 1080p
     reg [11:0] horizontal_pixels_visible;   // 12'd960 for 1080p
-    reg [11:0] horizontal_sync_start;       // 12'd1004 for 1080p
     reg [11:0] horizontal_sync_width;       // 12'd22 for 1080p
-    reg horizontal_sync_on_polarity;        // 1'b1 for 1080p
+    reg [11:0] horizontal_sync_start;       // 12'd1004 for 1080p
 
-    reg [10:0] vertical_lines;              // 11'd1125 for 1080p
-    reg [10:0] vertical_lines_240p;         // 11'd1125 for 1080p
-    reg [10:0] vertical_lines_visible;      // 11'd1080 for 1080p
-    reg [10:0] vertical_sync_start;         // 11'd1084 for 1080p
-    reg [10:0] vertical_sync_width;         // 11'd5 for 1080p
+    // vertical configuration
     reg vertical_sync_on_polarity;          // 1'b1 for 1080p
+    reg [10:0] vertical_lines_visible;      // 11'd1080 for 1080p
+    reg [10:0] vertical_sync_width;         // 11'd5 for 1080p
+
+    reg [10:0] vertical_lines_1;            // 11'd1084 for 1080p 
+    reg [10:0] vertical_sync_start_1;       // 11'd1084 for 1080p 
+    reg [11:0] vertical_sync_pixel_offset_1;
+    //////////////////////////////////////////////////////////////
+    // values are the same for progressive formats
+    reg [10:0] vertical_lines_2;            // 11'd1084 for 1080p 
+    reg [10:0] vertical_sync_start_2;       // 11'd1084 for 1080p 
+    reg [11:0] vertical_sync_pixel_offset_2; 
+    //////////////////////////////////////////////////////////////
 
     reg [9:0] horizontal_offset;            // 10'd160 for 1080p
     reg [9:0] vertical_offset;              // 10'd60 for 1080p
@@ -79,6 +87,9 @@ typedef struct packed {
 
     reg [10:0] vertical_capture_start;      //
     reg [10:0] vertical_capture_end;        //
+
+    // OSD related settings
+    reg interlaceOSD;
 
     // OSD related settings
     reg [11:0] osd_bg_offset_x_start;       // start of osd area
@@ -91,11 +102,11 @@ typedef struct packed {
     reg [10:0] osd_text_y_start;            // 
     reg [10:0] osd_text_y_end;              // 
 
-    reg [11:0] text_offset_character_x;     // (text_offset_counter_x + horizontal_offset) / 8
     reg [10:0] text_offset_character_y;     // (text_offset_counter_y + vertical_offset) / (pixel_repetition ? 32 : 16)
 
     reg [14:0] buffer_line_length;          // 720 for 480p, 640 for others
     reg [14:0] ram_numwords;                // size of video buffer, 21120 for 1080p
+    reg line_doubling;                      // 0: line doubling OFF, 1: line doubling ON
     reg pixel_repetition;                   // 0: pixel repetition OFF, 1: pixel repetition ON
 
     reg pxl_rep_on;                         // activate extended pixel repetition mode
