@@ -280,13 +280,17 @@ var term = $('#term').terminal(function(command, term) {
         startTransaction(null, function() {
             getConfig(false, downloadESPIndex);
         });
-    } else if (command.match(/^\s*res_240p_x3\s*$/)) {
+    } else if (command.match(/^\s*res_240p_VGA\s*$/)) {
         startTransaction(null, function() {
-            setResolution("240p_x3");
+            setResolution("240p_VGA");
         });
-    } else if (command.match(/^\s*res_240p_x4\s*$/)) {
+    } else if (command.match(/^\s*res_240p_480p\s*$/)) {
         startTransaction(null, function() {
-            setResolution("240p_x4");
+            setResolution("240p_480p");
+        });
+    } else if (command.match(/^\s*res_240p_960p\s*$/)) {
+        startTransaction(null, function() {
+            setResolution("240p_960p");
         });
     } else if (command.match(/^\s*res_240p_1080p\s*$/)) {
         startTransaction(null, function() {

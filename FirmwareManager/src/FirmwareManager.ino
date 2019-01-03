@@ -651,19 +651,27 @@ void setupHTTPServer() {
         request->send(200);
     });
 
-    server.on("/res/240p_x3", HTTP_GET, [](AsyncWebServerRequest *request) {
+    server.on("/res/240p_VGA", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        switchResolution(RESOLUTION_240Px3);
+        switchResolution(RESOLUTION_240p_VGA);
         request->send(200);
     });
 
-    server.on("/res/240p_x4", HTTP_GET, [](AsyncWebServerRequest *request) {
+    server.on("/res/240p_480p", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        switchResolution(RESOLUTION_240Px4);
+        switchResolution(RESOLUTION_240p_480p);
+        request->send(200);
+    });
+
+    server.on("/res/240p_960p", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        switchResolution(RESOLUTION_240p_960p);
         request->send(200);
     });
 
@@ -671,7 +679,7 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        switchResolution(RESOLUTION_240P1080P);
+        switchResolution(RESOLUTION_240p_1080p);
         request->send(200);
     });
 

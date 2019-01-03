@@ -88,12 +88,14 @@ uint8_t cfgRes2Int(char* intResolution) {
         return RESOLUTION_480p;
     } else if (cfgRes == RESOLUTION_STR_VGA) {
         return RESOLUTION_VGA;
-    } else if (cfgRes == RESOLUTION_STR_240Px3) {
-        return RESOLUTION_240Px3;
-    } else if (cfgRes == RESOLUTION_STR_240Px4) {
-        return RESOLUTION_240Px4;
-    } else if (cfgRes == RESOLUTION_STR_240P1080P) {
-        return RESOLUTION_240P1080P;
+    } else if (cfgRes == RESOLUTION_STR_240p_1080p) {
+        return RESOLUTION_240p_1080p;
+    } else if (cfgRes == RESOLUTION_STR_240p_960p) {
+        return RESOLUTION_240p_960p;
+    } else if (cfgRes == RESOLUTION_STR_240p_480p) {
+        return RESOLUTION_240p_480p;
+    } else if (cfgRes == RESOLUTION_STR_240p_VGA) {
+        return RESOLUTION_240p_VGA;
     }
     // default is 1080p
     return RESOLUTION_1080p;
@@ -108,14 +110,16 @@ void writeCurrentResolution() {
         cfgRes = RESOLUTION_STR_480p;
     } else if (CurrentResolution == RESOLUTION_VGA) {
         cfgRes = RESOLUTION_STR_VGA;
-    } else if (CurrentResolution == RESOLUTION_240Px3) {
-        cfgRes = RESOLUTION_STR_240Px3;
-    } else if (CurrentResolution == RESOLUTION_240Px4) {
-        // store 240p_x4 as 960p
-        cfgRes = RESOLUTION_STR_960p;
-    } else if (CurrentResolution == RESOLUTION_240P1080P) {
-        // store 240p_1080p as 1080p
+    //////////////////////////
+    // normalize 240p resolutions
+    } else if (CurrentResolution == RESOLUTION_240p_1080p) {
         cfgRes = RESOLUTION_STR_1080p;
+    } else if (CurrentResolution == RESOLUTION_240p_960p) {
+        cfgRes = RESOLUTION_STR_960p;
+    } else if (CurrentResolution == RESOLUTION_240p_480p) {
+        cfgRes = RESOLUTION_STR_480p;
+    } else if (CurrentResolution == RESOLUTION_240p_VGA) {
+        cfgRes = RESOLUTION_STR_VGA;
     }
 
     _writeFile("/etc/video/resolution", cfgRes.c_str(), 16);

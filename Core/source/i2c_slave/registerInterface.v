@@ -172,26 +172,31 @@ always @(posedge clk) begin
             reconf_data_reg <= dataIn;
             //wrreq_reg <= 1'b1;
             case (dataIn[3:0])
-                0: begin // 1080p
+                // 480i/p input
+                4'h0: begin // 1080p
                     hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_1080P;
                 end
-                1: begin // 960
+                4'h1: begin // 960p
                     hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_960P;
                 end
-                2: begin // 480
+                4'h2: begin // 480p
                     hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_480P;
                 end
-                3: begin // VGA
+                4'h3: begin // VGA
                     hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_VGA;
                 end
-                4: begin // 240p_x3
-                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240Px3;
-                end
-                5: begin // 240p_x4
-                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240Px4;
-                end
-                6: begin // 240p_1080p
+                // 240p input
+                4'h8: begin // 240p_1080p
                     hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240P_1080P;
+                end
+                4'h9: begin // 240p_960p
+                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240P_960P;
+                end
+                4'hA: begin // 240p_480p
+                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240P_480P;
+                end
+                4'hB: begin // 240p_240p
+                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240P_VGA;
                 end
             endcase
         // scanline data
