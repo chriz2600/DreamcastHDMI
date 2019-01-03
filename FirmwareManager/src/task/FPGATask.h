@@ -174,8 +174,9 @@ class FPGATask : public Task {
                 } else if (buffer2[2] != data_out[2]) {
                     // new add_line (240p) mode data
                     // switch between corresponding 480p/i and 240p modes
+                    DBG_OUTPUT_PORT.printf("switch to 240p equivalent\n");
                     storeResolutionData(buffer2[2]);
-                    switchResolution(mapResolution(CurrentResolution));
+                    switchResolution(CurrentResolution);
                 } else {
                     // check repeat
                     if (buffer2[0] != 0x00 || buffer2[1] != 0x00) {

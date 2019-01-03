@@ -22,26 +22,29 @@ always @(posedge clock) begin
 
     if (rdreq) begin
         case (fdata[3:0])
-            0: begin
+            4'h0: begin
                 adv7513Config <= ADV7513_CONFIG_1080P;
             end
-            1: begin
+            4'h1: begin
                 adv7513Config <= ADV7513_CONFIG_960P;
             end
-            2: begin
+            4'h2: begin
                 adv7513Config <= ADV7513_CONFIG_480P;
             end
-            3: begin
+            4'h3: begin
                 adv7513Config <= ADV7513_CONFIG_VGA;
             end
-            4: begin
-                adv7513Config <= ADV7513_CONFIG_240Px3;
-            end
-            5: begin
-                adv7513Config <= ADV7513_CONFIG_240Px4;
-            end
-            6: begin
+            4'h8: begin
                 adv7513Config <= ADV7513_CONFIG_240P_1080P;
+            end
+            4'h9: begin
+                adv7513Config <= ADV7513_CONFIG_240P_960P;
+            end
+            4'hA: begin
+                adv7513Config <= ADV7513_CONFIG_240P_480P;
+            end
+            4'hB: begin
+                adv7513Config <= ADV7513_CONFIG_240P_VGA;
             end
         endcase
     end

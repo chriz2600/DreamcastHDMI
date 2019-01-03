@@ -1,5 +1,6 @@
 #include "../global.h"
 #include "../Menu.h"
+#include "../util.h"
 
 extern Menu outputResMenu;
 extern Menu videoModeMenu;
@@ -78,6 +79,11 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
 }, NULL, true);
 
 Menu dcResetConfirmMenu("DCResetConfirm", (uint8_t*) OSD_DC_RESET_CONFIRM_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, CTRLR_BUTTON_Y)) {
+        DBG_OUTPUT_PORT.printf("full reset dreamcast!!!!! %x\n", controller_data);
+        resetall();
+        return;
+    }
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         DBG_OUTPUT_PORT.printf("reset dreamcast!!!!! %x\n", controller_data);
         currentMenu->startTransaction();

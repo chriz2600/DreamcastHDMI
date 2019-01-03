@@ -57,26 +57,29 @@ always @(posedge clock) begin
         generate_video <= fdata[5];
         generate_timing <= fdata[4];
         case (fdata[3:0])
-            0: begin
+            4'h0: begin
                 dcVideoConfig <= DC_VIDEO_CONFIG_1080P;
             end
-            1: begin
+            4'h1: begin
                 dcVideoConfig <= DC_VIDEO_CONFIG_960P;
             end
-            2: begin
+            4'h2: begin
                 dcVideoConfig <= DC_VIDEO_CONFIG_480P;
             end
-            3: begin
+            4'h3: begin
                 dcVideoConfig <= DC_VIDEO_CONFIG_VGA;
             end
-            4: begin
-                dcVideoConfig <= DC_VIDEO_CONFIG_240Px3;
-            end
-            5: begin
-                dcVideoConfig <= DC_VIDEO_CONFIG_240Px4;
-            end
-            6: begin
+            4'h8: begin
                 dcVideoConfig <= DC_VIDEO_CONFIG_240P_1080P;
+            end
+            4'h9: begin
+                dcVideoConfig <= DC_VIDEO_CONFIG_240P_960P;
+            end
+            4'hA: begin
+                dcVideoConfig <= DC_VIDEO_CONFIG_240P_480P;
+            end
+            4'hB: begin
+                dcVideoConfig <= DC_VIDEO_CONFIG_240P_VGA;
             end
         endcase
     end else begin
@@ -85,26 +88,29 @@ always @(posedge clock) begin
     end
 
     case (fdata_req[3:0])
-        0: begin
+        4'h0: begin
             `include "config/1080p.v"
         end
-        1: begin
+        4'h1: begin
             `include "config/960p.v"
         end
-        2: begin
+        4'h2: begin
             `include "config/480p.v"
         end
-        3: begin
+        4'h3: begin
             `include "config/VGA.v"
         end
-        4: begin
-            `include "config/240p_x3.v"
+        4'h8: begin
+            `include "config/240p_1080p.v"
         end
-        5: begin
+        4'h9: begin
             `include "config/960p.v"
         end
-        6: begin
-            `include "config/240p_1080p.v"
+        4'hA: begin
+            `include "config/480p.v"
+        end
+        4'hB: begin
+            `include "config/VGA.v"
         end
     endcase
 

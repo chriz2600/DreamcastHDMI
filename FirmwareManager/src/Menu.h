@@ -133,7 +133,7 @@ char OSD_DC_RESET_CONFIRM_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "                                        "
+    "             Y: Full Reset              "
     "         " MENU_OK_STR ": Reset  " MENU_CANCEL_STR ": Not now           "
 );
 
@@ -500,6 +500,7 @@ FPGATask fpgaTask(1, [](uint16_t controller_data, bool isRepeat) {
             return;
         }
         if (CHECK_BIT(controller_data, CTRLR_TRIGGER_DEFAULT_RESOLUTION)) {
+            DBG_OUTPUT_PORT.printf("FPGATask: switchResolution\n");
             switchResolution(RESOLUTION_VGA);
             return;
         }

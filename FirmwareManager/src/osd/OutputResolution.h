@@ -19,10 +19,10 @@ void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler) {
     bool valueChanged = (value != CurrentResolution);
     PrevCurrentResolution = CurrentResolution;
     CurrentResolution = value;
-    DBG_OUTPUT_PORT.printf("setting output resolution: %u\n", (ForceVGA | CurrentResolution));
+    DBG_OUTPUT_PORT.printf("setting output resolution: %02x\n", (ForceVGA | CurrentResolution));
     currentMenu->startTransaction();
     fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, [ handler, valueChanged ](uint8_t Address, uint8_t Value) {
-        DBG_OUTPUT_PORT.printf("safe switch resolution callback: %u\n", Value);
+        DBG_OUTPUT_PORT.printf("safe switch resolution callback: %02x\n", Value);
         if (valueChanged) {
             waitForI2CRecover(false);
         }
@@ -128,7 +128,8 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
 }, NULL, true);
 
 void switchResolution(uint8_t newValue) {
-    CurrentResolution = newValue;
+    CurrentResolution = mapResolution(newValue);
+    DBG_OUTPUT_PORT.printf("switchResolution: %02x %02x\n", newValue, CurrentResolution);
     fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
 }
 
