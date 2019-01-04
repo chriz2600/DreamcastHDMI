@@ -14,6 +14,12 @@ void waitForI2CRecover(bool waitForError);
 uint8_t cfgRes2Int(char* intResolution);
 uint8_t remapResolution(uint8_t resd);
 
+void switchResolution(uint8_t newValue) {
+    CurrentResolution = mapResolution(newValue);
+    DBG_OUTPUT_PORT.printf("switchResolution: %02x %02x\n", newValue, CurrentResolution);
+    fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
+}
+
 void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler) {
     value = mapResolution(value);
     bool valueChanged = (value != CurrentResolution);
@@ -127,12 +133,6 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
     return (MENU_OR_LAST_SELECT_LINE - remapResolution(CurrentResolution) - 1);
 }, NULL, true);
 
-void switchResolution(uint8_t newValue) {
-    CurrentResolution = mapResolution(newValue);
-    DBG_OUTPUT_PORT.printf("switchResolution: %02x %02x\n", newValue, CurrentResolution);
-    fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
-}
-
 void storeResolutionData(uint8_t data) {
     CurrentResolutionData = data;
 }
@@ -153,6 +153,7 @@ uint8_t remapResolution(uint8_t resd) {
 }
 
 uint8_t mapResolution(uint8_t resd) {
+    // check add_line flag, so map 240p mode
     if (CurrentResolutionData & 0x80) {
         // 240p mode
         switch (resd) {
@@ -167,8 +168,8 @@ uint8_t mapResolution(uint8_t resd) {
             default:
                 break;
         }
-    } else if(CurrentResolutionData & 0x40 && true) {
-        
+    // } else if(CurrentResolutionData & 0x40 && ) {
+    //     return 
     } else {
         // 480i/p mode
         return remapResolution(resd);

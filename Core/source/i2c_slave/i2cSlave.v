@@ -57,6 +57,7 @@ module i2cSlave (
   output enable_osd,
   output[7:0] highlight_line,
   output[7:0] reconf_data,
+  output[7:0] video_gen_data,
   output HDMIVideoConfig hdmiVideoConfig,
   output Scanline scanline,
   output [23:0] conf240p,
@@ -68,6 +69,7 @@ module i2cSlave (
   input [23:0] rgbData,
   input add_line,
   input line_doubler,
+  input is_pal,
   input ControllerData controller_data
 );
 
@@ -181,6 +183,7 @@ registerInterface u_registerInterface(
   .controller_data(controller_data),
   .highlight_line(highlight_line),
   .reconf_data(reconf_data),
+  .video_gen_data(video_gen_data),
   .hdmiVideoConfig(hdmiVideoConfig),
   .scanline(scanline),
   .conf240p(conf240p),
@@ -191,7 +194,8 @@ registerInterface u_registerInterface(
   .timingInfo(timingInfo),
   .rgbData(rgbData),
   .add_line(add_line),
-  .line_doubler(line_doubler)
+  .line_doubler(line_doubler),
+  .is_pal(is_pal)
 );
 
 serialInterface u_serialInterface (

@@ -700,7 +700,8 @@ var setupDataMapping = {
     hostname:         [ "Hostname         ", "dc-firmware-manager" ],
     video_resolution: [ "Video output     ", "VGA" ],
     video_mode:       [ "Video mode       ", "CableDetect" ],
-    reset_mode:       [ "Opt. reset mode  ", "led" ]
+    reset_mode:       [ "Opt. reset mode  ", "led" ],
+    deinterlace_mode: [ "Deinterlacer     ", "bob" ],
 };
 var dataExcludeMap = {
     "flash_chip_size":"",

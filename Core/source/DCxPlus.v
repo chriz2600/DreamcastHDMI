@@ -82,6 +82,7 @@ wire output_trigger;
 
 wire _240p_480i_mode;
 wire add_line_mode;
+wire is_pal_mode;
 
 wire ram2video_ready;
 
@@ -98,7 +99,6 @@ HDMIVideoConfig hdmiVideoConfig;
 DCVideoConfig dcVideoConfig;
 Scanline scanline;
 wire forceVGAMode;
-wire resetPLL;
 wire resync;
 wire [23:0] pinok;
 wire [23:0] pinok_out;
@@ -112,6 +112,7 @@ wire force_generate;
 
 wire generate_video;
 wire generate_timing;
+wire [7:0] video_gen_data;
 wire fullcycle;
 wire reset_dc;
 wire reset_opt;
@@ -168,7 +169,7 @@ pll_hdmi_reconf	pll_hdmi_reconf(
     .counter_type(4'b0),
     .counter_param(3'b0),
 
-    .pll_areset_in(resetPLL || pll54_lockloss || pll_hdmi_lockloss),
+    .pll_areset_in(pll54_lockloss || pll_hdmi_lockloss),
 
     .pll_scandataout(pll_hdmi_scandataout),
     .pll_scandone(pll_hdmi_scandone),
@@ -195,10 +196,7 @@ reconf_rom reconf_rom(
     .rdreq(reconf_fifo_rdreq),
     .trigger_read(pll_hdmi_write_from_rom),
     .forceVGAMode(forceVGAMode),
-    .resetPLL(resetPLL),
-    .dcVideoConfig(dcVideoConfig),
-    .generate_video(generate_video),
-    .generate_timing(generate_timing)
+    .dcVideoConfig(dcVideoConfig)
 );
 
 reconf_fifo	reconf_fifo(
@@ -223,6 +221,14 @@ trigger_reconf trigger_reconf(
 
 /////////////////////////////////
 // 54/27 MHz area
+
+data_cross video_gen_data_cross(
+    .clkIn(hdmi_clock),
+    .clkOut(clock54_net),
+    .dataIn(video_gen_data),
+    .dataOut({ 6'bzzzzzz, generate_video, generate_timing })
+);
+
 data video_input(
     .clock(clock54_net),
     .reset(~pll54_locked || config_changed),
@@ -233,6 +239,7 @@ data video_input(
     .generate_timing(generate_timing),
     .indata(data),
     .add_line(add_line_mode),
+    .is_pal(is_pal_mode)
     .resync(resync),
     .force_generate(force_generate),
     .blue(dc_blue),
@@ -289,6 +296,7 @@ reg resync_out = 0;
 reg resync_signal = 1;
 wire line_doubler_sync;
 wire add_line_sync;
+wire is_pal_sync;
 
 Flag_CrossDomain rsync_trigger(
     .clkA(clock54_net),
@@ -316,6 +324,12 @@ Signal_CrossDomain addLine(
     .SignalIn_clkA(add_line_mode),
     .clkB(hdmi_clock),
     .SignalOut_clkB(add_line_sync)
+);
+
+Signal_CrossDomain isPAL(
+    .SignalIn_clkA(is_pal_mode),
+    .clkB(hdmi_clock),
+    .SignalOut_clkB(is_pal_sync)
 );
 
 ram2video ram2video(
@@ -378,7 +392,8 @@ i2cSlave i2cSlave(
     .rgbData(rgbData_out),
     .conf240p(conf240p),
     .add_line(add_line_sync),
-    .line_doubler(line_doubler_sync)
+    .line_doubler(line_doubler_sync),
+    .is_pal(is_pal_sync)
 );
 
 maple mapleBus(

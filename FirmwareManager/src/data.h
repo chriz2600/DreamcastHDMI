@@ -6,10 +6,12 @@
 
 extern uint8_t ForceVGA;
 extern char resetMode[16];
+extern char deinterlaceMode[16];
 
 bool DelayVGA = false;
 
 uint8_t cfgRst2Int(char* rstMode);
+uint8_t cfgDeint2Int(char* dMode);
 
 void readVideoMode() {
     _readFile("/etc/video/mode", videoMode, 16, DEFAULT_VIDEO_MODE);
@@ -49,6 +51,35 @@ void readCurrentResetMode() {
     CurrentResetMode = cfgRst2Int(resetMode);
 }
 
+void writeCurrentResetMode() {
+    String cfgRst = RESET_MODE_STR_LED;
+
+    if (CurrentResetMode == RESET_MODE_GDEMU) {
+        cfgRst = RESET_MODE_STR_GDEMU;
+    } else if (CurrentResetMode == RESET_MODE_USBGDROM) {
+        cfgRst = RESET_MODE_STR_USBGDROM;
+    }
+
+    _writeFile("/etc/reset/mode", cfgRst.c_str(), 16);
+    snprintf(resetMode, 16, "%s", cfgRst.c_str());
+}
+
+void readCurrentDeinterlaceMode() {
+    _readFile("/etc/deinterlace/mode", deinterlaceMode, 16, DEFAULT_DEINTERLACE_MODE);
+    CurrentDeinterlaceMode = cfgDeint2Int(deinterlaceMode);
+}
+
+void writeCurrentDeinterlaceMode() {
+    String cfgDeint = DEINTERLACE_MODE_STR_BOB;
+
+    if (CurrentDeinterlaceMode == DEINTERLACE_MODE_PASSTHRU) {
+        cfgDeint = DEINTERLACE_MODE_STR_PASSTHRU;
+    }
+
+    _writeFile("/etc/deinterlace/mode", cfgDeint.c_str(), 16);
+    snprintf(deinterlaceMode, 16, "%s", cfgDeint.c_str());
+}
+
 void readCurrentResolution() {
     _readFile("/etc/video/resolution", configuredResolution, 16, DEFAULT_VIDEO_RESOLUTION);
     CurrentResolution = cfgRes2Int(configuredResolution);
@@ -66,17 +97,14 @@ uint8_t cfgRst2Int(char* rstMode) {
     return RESET_MODE_LED;
 }
 
-void writeCurrentResetMode() {
-    String cfgRst = RESET_MODE_STR_LED;
+uint8_t cfgDeint2Int(char* dMode) {
+    String cfgDeint = String(dMode);
 
-    if (CurrentResetMode == RESET_MODE_GDEMU) {
-        cfgRst = RESET_MODE_STR_GDEMU;
-    } else if (CurrentResetMode == RESET_MODE_USBGDROM) {
-        cfgRst = RESET_MODE_STR_USBGDROM;
+    if (cfgDeint == DEINTERLACE_MODE_STR_PASSTHRU) {
+        return DEINTERLACE_MODE_PASSTHRU;
     }
-
-    _writeFile("/etc/reset/mode", cfgRst.c_str(), 16);
-    snprintf(resetMode, 16, "%s", cfgRst.c_str());
+    // default is bob deinterlacing
+    return DEINTERLACE_MODE_BOB;
 }
 
 uint8_t cfgRes2Int(char* intResolution) {

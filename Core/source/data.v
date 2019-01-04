@@ -16,6 +16,7 @@ module data(
     output [11:0] counterX,
     output [11:0] counterY,
     output add_line,
+    output is_pal,
     output resync,
     output [23:0] pinok,
     output [23:0] timingInfo,
@@ -50,6 +51,7 @@ module data(
     reg [9:0] VISIBLE_AREA_HEIGHT;
     
     reg add_line_reg = 0;
+    reg is_pal_reg = 0;
     reg resync_reg = 1;
 
     reg [10:0] pinok1 = 0;
@@ -64,6 +66,7 @@ module data(
         raw_counterX_reg <= 0;
         raw_counterY_reg <= 0;
         add_line_reg <= 0;
+        is_pal_reg <= 0;
         resync_reg <= 1;
         force_generate <= 0;
         pinok1 <= 0;
@@ -73,6 +76,11 @@ module data(
     always @(*) begin
         if (line_doubler) begin
             if (add_line) begin
+                VISIBLE_AREA_HSTART = 10'd327; // 10'd347
+                VISIBLE_AREA_VSTART = 10'd18;
+                VISIBLE_AREA_WIDTH  = 10'd643;
+                VISIBLE_AREA_HEIGHT = 10'd504;
+            end else if (is_pal) begin
                 VISIBLE_AREA_HSTART = 10'd327; // 10'd347
                 VISIBLE_AREA_VSTART = 10'd18;
                 VISIBLE_AREA_WIDTH  = 10'd643;
@@ -143,7 +151,7 @@ module data(
                             as we have to send a resync to the hdmi output side
                             if not, to keep the vertical alignment :)
                         */
-                        if (raw_counterY_reg == 262 || raw_counterY_reg == 524) begin
+                        if (raw_counterY_reg == 262 || raw_counterY_reg == 524 || raw_counterY_reg == 624) begin
                             resync_reg <= 0;
                         end else begin
                             resync_reg <= 1;
@@ -154,6 +162,13 @@ module data(
                             add_line_reg <= 1'b1;
                         end else begin
                             add_line_reg <= 1'b0;
+                        end
+
+                        // PAL
+                        if (raw_counterY_reg == 624) begin
+                            is_pal_reg <= 1'b1;
+                        end else begin
+                            is_pal_reg <= 1'b0;
                         end
 
                         raw_counterY <= raw_counterY_reg;
@@ -237,6 +252,7 @@ module data(
     assign green = green_reg;
     assign blue = blue_reg;
     assign add_line = add_line_reg;
+    assign is_pal = is_pal_reg;
     assign resync = resync_reg;
     assign pinok = { 2'b00, pinok1_reg, pinok2_reg };
     assign timingInfo = { raw_counterX, raw_counterY };

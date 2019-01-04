@@ -13,6 +13,7 @@ extern Menu optResetConfirmMenu;
 extern Menu infoMenu;
 extern Menu *currentMenu;
 extern uint8_t CurrentResetMode;
+extern uint8_t CurrentDeinterlaceMode;
 extern uint8_t offset_240p;
 extern uint8_t CurrentResolutionData;
 

@@ -30,6 +30,7 @@
 #define DEFAULT_SCANLINES_ODDEVEN SCANLINES_EVEN
 #define DEFAULT_SCANLINES_THICKNESS SCANLINES_THIN
 #define DEFAULT_RESET_MODE RESET_MODE_STR_LED
+#define DEFAULT_DEINTERLACE_MODE DEINTERLACE_MODE_STR_BOB
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -101,14 +102,13 @@
 #define VGA_OFF (0x00)
 #define VGA_ON (0x80)
 
-#define PLL_RESET_OFF (0x00)
-#define PLL_RESET_ON (0x40)
-#define GENERATE_TIMING_AND_VIDEO (0x30)
+#define GENERATE_TIMING_AND_VIDEO (0x03)
 
 #define I2C_OSD_ADDR_OFFSET (0x80)
 #define I2C_OSD_ENABLE (0x81)
 #define I2C_OSD_ACTIVE_LINE (0x82)
 #define I2C_OUTPUT_RESOLUTION (0x83)
+#define I2C_VIDEO_GEN (0x84)
 #define I2C_CONTROLLER_AND_DATA_BASE (0x85)
 #define I2C_METADATA (0x87)
 #define I2C_SCANLINE_UPPER (0x88)
@@ -214,5 +214,11 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 #define RESET_MODE_LED (0x00)
 #define RESET_MODE_GDEMU (0x01)
 #define RESET_MODE_USBGDROM (0x02)
+
+#define DEINTERLACE_MODE_BOB (0x00)
+#define DEINTERLACE_MODE_PASSTHRU (0x01)
+#define DEINTERLACE_MODE_STR_BOB "bob"
+#define DEINTERLACE_MODE_STR_PASSTHRU "passthru"
+
 
 #endif

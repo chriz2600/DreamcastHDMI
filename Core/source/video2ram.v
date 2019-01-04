@@ -11,6 +11,7 @@ module video2ram(
     input [11:0] counterY,
     
     input line_doubler,
+    input is_pal,
     
     output [23:0] wrdata,
     output [14:0] wraddr,
@@ -54,7 +55,9 @@ module video2ram(
 
     `define IsVerticalCaptureTime(y) ( \
         line_doubler \
-            ? (y < 240 || (y > 262 && y < V_CAPTURE_END)) \
+            ? (is_pal \
+                ? (y < 288 || (y > 312 && y < V_CAPTURE_END)) \
+                : (y < 240 || (y > 262 && y < V_CAPTURE_END))) \
             : (y >= V_CAPTURE_START && y < V_CAPTURE_END) \
     )
     `define IsCaptureTime(x,y) ( \

@@ -47,6 +47,7 @@ char host[64] = DEFAULT_HOST;
 char videoMode[16] = "";
 char configuredResolution[16] = "";
 char resetMode[16] = "";
+char deinterlaceMode[16] = "";
 const char* WiFiAPPSK = "geheim1234";
 IPAddress ipAddress( 192, 168, 4, 1 );
 bool inInitialSetupMode = false;
@@ -63,6 +64,7 @@ uint8_t PrevCurrentResolution;
 uint8_t CurrentResolutionData = 0;
 uint8_t ForceVGA = VGA_ON;
 uint8_t CurrentResetMode = RESET_MODE_LED;
+uint8_t CurrentDeinterlaceMode = DEINTERLACE_MODE_BOB;
 uint8_t offset_240p;
 
 char md5FPGA[48];
@@ -446,6 +448,7 @@ void setupHTTPServer() {
         SPIFFS.remove("/etc/video/resolution");
         SPIFFS.remove("/etc/video/mode");
         SPIFFS.remove("/etc/reset/mode");
+        SPIFFS.remove("/etc/deinterlace/mode");
         request->send(200);
     });
 
@@ -541,6 +544,7 @@ void setupHTTPServer() {
         writeSetupParameter(request, "video_resolution", configuredResolution, "/etc/video/resolution", 16, DEFAULT_VIDEO_RESOLUTION);
         writeSetupParameter(request, "video_mode", videoMode, "/etc/video/mode", 16, DEFAULT_VIDEO_MODE);
         writeSetupParameter(request, "reset_mode", resetMode, "/etc/reset/mode", 16, DEFAULT_RESET_MODE);
+        writeSetupParameter(request, "deinterlace_mode", deinterlaceMode, "/etc/deinterlace/mode", 16, DEFAULT_DEINTERLACE_MODE);
 
         request->send(200, "text/plain", "OK\n");
     });
@@ -571,6 +575,7 @@ void setupHTTPServer() {
         root["video_resolution"] = configuredResolution;
         root["video_mode"] = videoMode;
         root["reset_mode"] = resetMode;
+        root["deinterlace_mode"] = deinterlaceMode;
 
         root.printTo(*response);
         request->send(response);
@@ -715,19 +720,11 @@ void setupHTTPServer() {
         request->send(200);
     });
 
-    server.on("/reset/pll", HTTP_GET, [](AsyncWebServerRequest *request) {
-        if(!_isAuthenticated(request)) {
-            return request->requestAuthentication();
-        }
-        fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution | PLL_RESET_ON, NULL);
-        request->send(200);
-    });
-
     server.on("/generate/on", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution | GENERATE_TIMING_AND_VIDEO, NULL);
+        fpgaTask.Write(I2C_VIDEO_GEN, GENERATE_TIMING_AND_VIDEO, NULL);
         request->send(200);
     });
 
