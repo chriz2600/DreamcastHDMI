@@ -172,9 +172,7 @@ class FPGATask : public Task {
                     eTime = millis();
                     repeatCount = 0;
                 } else if (buffer2[2] != data_out[2]) {
-                    // new add_line (240p) mode data
-                    // switch between corresponding 480p/i and 240p modes
-                    DBG_OUTPUT_PORT.printf("switch to 240p equivalent\n");
+                    DBG_OUTPUT_PORT.printf("I2C_CONTROLLER_AND_DATA_BASE, switch to: %02x\n", buffer2[2]);
                     storeResolutionData(buffer2[2]);
                     switchResolution(CurrentResolution);
                 } else {

@@ -67,6 +67,7 @@ module i2cSlave (
   input [23:0] timingInfo,
   input [23:0] rgbData,
   input add_line,
+  input line_doubler,
   input ControllerData controller_data
 );
 
@@ -189,7 +190,8 @@ registerInterface u_registerInterface(
   .pinok(pinok),
   .timingInfo(timingInfo),
   .rgbData(rgbData),
-  .add_line(add_line)
+  .add_line(add_line),
+  .line_doubler(line_doubler)
 );
 
 serialInterface u_serialInterface (

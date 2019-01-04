@@ -167,6 +167,8 @@ uint8_t mapResolution(uint8_t resd) {
             default:
                 break;
         }
+    } else if(CurrentResolutionData & 0x40 && true) {
+        
     } else {
         // 480i/p mode
         return remapResolution(resd);

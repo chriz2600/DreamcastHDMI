@@ -377,7 +377,8 @@ i2cSlave i2cSlave(
     .timingInfo(timingInfo_out),
     .rgbData(rgbData_out),
     .conf240p(conf240p),
-    .add_line(add_line_sync)
+    .add_line(add_line_sync),
+    .line_doubler(line_doubler_sync)
 );
 
 maple mapleBus(

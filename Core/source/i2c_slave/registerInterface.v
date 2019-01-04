@@ -70,6 +70,7 @@ module registerInterface (
     input [23:0] timingInfo,
     input [23:0] rgbData,
     input add_line,
+    input line_doubler,
     input ControllerData controller_data
 );
 
@@ -136,7 +137,7 @@ always @(posedge clk) begin
             03: trigger_default_resolution
         */
         8'h86: dataOut_reg <= { controller_data[4:0], 2'b00, controller_data.valid_packet };
-        8'h87: dataOut_reg <= { add_line, 7'b0000000 };
+        8'h87: dataOut_reg <= { add_line, line_doubler, 6'b0000000 };
 
         // scanline data
         8'h88: dataOut_reg <= scanline_reg.intensity[8:1];
