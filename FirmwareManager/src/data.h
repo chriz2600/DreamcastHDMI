@@ -116,37 +116,21 @@ uint8_t cfgRes2Int(char* intResolution) {
         return RESOLUTION_480p;
     } else if (cfgRes == RESOLUTION_STR_VGA) {
         return RESOLUTION_VGA;
-    } else if (cfgRes == RESOLUTION_STR_240p_1080p) {
-        return RESOLUTION_240p_1080p;
-    } else if (cfgRes == RESOLUTION_STR_240p_960p) {
-        return RESOLUTION_240p_960p;
-    } else if (cfgRes == RESOLUTION_STR_240p_480p) {
-        return RESOLUTION_240p_480p;
-    } else if (cfgRes == RESOLUTION_STR_240p_VGA) {
-        return RESOLUTION_240p_VGA;
     }
+
     // default is 1080p
     return RESOLUTION_1080p;
 }
 
 void writeCurrentResolution() {
     String cfgRes = RESOLUTION_STR_1080p;
+    uint8_t saveres = remapResolution(CurrentResolution);
 
-    if (CurrentResolution == RESOLUTION_960p) {
+    if (saveres == RESOLUTION_960p) {
         cfgRes = RESOLUTION_STR_960p;
-    } else if (CurrentResolution == RESOLUTION_480p) {
+    } else if (saveres == RESOLUTION_480p) {
         cfgRes = RESOLUTION_STR_480p;
-    } else if (CurrentResolution == RESOLUTION_VGA) {
-        cfgRes = RESOLUTION_STR_VGA;
-    //////////////////////////
-    // normalize 240p resolutions
-    } else if (CurrentResolution == RESOLUTION_240p_1080p) {
-        cfgRes = RESOLUTION_STR_1080p;
-    } else if (CurrentResolution == RESOLUTION_240p_960p) {
-        cfgRes = RESOLUTION_STR_960p;
-    } else if (CurrentResolution == RESOLUTION_240p_480p) {
-        cfgRes = RESOLUTION_STR_480p;
-    } else if (CurrentResolution == RESOLUTION_240p_VGA) {
+    } else if (saveres == RESOLUTION_VGA) {
         cfgRes = RESOLUTION_STR_VGA;
     }
 

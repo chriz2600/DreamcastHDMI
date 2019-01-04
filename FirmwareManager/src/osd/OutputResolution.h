@@ -138,42 +138,18 @@ void storeResolutionData(uint8_t data) {
 }
 
 uint8_t remapResolution(uint8_t resd) {
-    switch (resd) {
-        case RESOLUTION_240p_1080p:
-            return RESOLUTION_1080p;
-        case RESOLUTION_240p_960p:
-            return RESOLUTION_960p;
-        case RESOLUTION_240p_480p:
-            return RESOLUTION_480p;
-        case RESOLUTION_240p_VGA:
-            return RESOLUTION_VGA;
-        default:
-            return resd;
-    }
+    return resd & 0x0F;
 }
 
 uint8_t mapResolution(uint8_t resd) {
+    uint8_t targetres = remapResolution(resd);
+
     // check add_line flag, so map 240p mode
     if (CurrentResolutionData & 0x80) {
-        // 240p mode
-        switch (resd) {
-            case RESOLUTION_VGA:
-                return RESOLUTION_240p_VGA;
-            case RESOLUTION_480p:
-                return RESOLUTION_240p_480p;
-            case RESOLUTION_960p:
-                return RESOLUTION_240p_960p;
-            case RESOLUTION_1080p:
-                return RESOLUTION_240p_1080p;
-            default:
-                break;
-        }
+        targetres |= RESOLUTION_MOD_240p;
     // } else if(CurrentResolutionData & 0x40 && ) {
     //     return 
-    } else {
-        // 480i/p mode
-        return remapResolution(resd);
     }
-    // unknown
-    return resd;
+
+    return targetres;
 }

@@ -660,7 +660,7 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        switchResolution(RESOLUTION_240p_VGA);
+        switchResolution(RESOLUTION_VGA | RESOLUTION_MOD_240p);
         request->send(200);
     });
 
@@ -668,7 +668,7 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        switchResolution(RESOLUTION_240p_480p);
+        switchResolution(RESOLUTION_480p | RESOLUTION_MOD_240p);
         request->send(200);
     });
 
@@ -676,7 +676,7 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        switchResolution(RESOLUTION_240p_960p);
+        switchResolution(RESOLUTION_960p | RESOLUTION_MOD_240p);
         request->send(200);
     });
 
@@ -684,7 +684,7 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        switchResolution(RESOLUTION_240p_1080p);
+        switchResolution(RESOLUTION_1080p | RESOLUTION_MOD_240p);
         request->send(200);
     });
 

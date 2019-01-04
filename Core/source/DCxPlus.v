@@ -239,7 +239,7 @@ data video_input(
     .generate_timing(generate_timing),
     .indata(data),
     .add_line(add_line_mode),
-    .is_pal(is_pal_mode)
+    .is_pal(is_pal_mode),
     .resync(resync),
     .force_generate(force_generate),
     .blue(dc_blue),

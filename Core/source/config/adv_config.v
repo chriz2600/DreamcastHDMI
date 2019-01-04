@@ -87,3 +87,24 @@ const ADV7513Config ADV7513_CONFIG_240P_VGA = {
     8'h_01  // adv_reg_3c
 };
 
+/////////////////////////////////////////////////
+
+const ADV7513Config ADV7513_CONFIG_480I = {
+    8'h_00, // adv_reg_01 \
+    8'h_18, // adv_reg_02  |--> audio config
+    8'h_80, // adv_reg_03 /
+    8'h_00, // adv_reg_17 sync
+    8'h_18, // adv_reg_56 aspect ratio
+    8'h_80, // adv_reg_3b pxl repetition
+    8'h_06  // adv_reg_3c VIC
+};
+
+const ADV7513Config ADV7513_CONFIG_576I = {
+    8'h_00, // adv_reg_01 \
+    8'h_18, // adv_reg_02  |--> audio config
+    8'h_80, // adv_reg_03 /
+    8'h_00, // adv_reg_17 sync
+    8'h_18, // adv_reg_56 aspect ratio
+    8'h_80, // adv_reg_3b pxl repetition
+    8'h_11  // adv_reg_3c VIC
+};
