@@ -49,8 +49,9 @@ char OSD_MAIN_MENU[521] = (
     "          " MENU_OK_STR ": Select  " MENU_CANCEL_STR ": Exit            "
 );
 
-#define MENU_OR_LAST_SELECT_LINE 6
-#define MENU_OR_FIRST_SELECT_LINE (MENU_OR_LAST_SELECT_LINE-4)
+#define MENU_OR_LAST_SELECT_LINE 5
+#define MENU_OR_FIRST_SELECT_LINE (MENU_OR_LAST_SELECT_LINE-3)
+#define MENU_OR_240P_ADJUST_LINE 6
 char OSD_OUTPUT_RES_MENU[521] = (
     "Output Resolution                       "
     "                                        "
@@ -478,14 +479,20 @@ void displayProgress(int read, int total, int line) {
 #include "osd/Wifi.h"
 
 void setOSD(bool value, WriteCallbackHandlerFunction handler) {
-    OSDOpen = value;
-    fpgaTask.Write(I2C_OSD_ENABLE, value, handler);
+    if (handler != NULL) {
+        fpgaTask.Write(I2C_OSD_ENABLE, value, handler);
+    } else {
+        fpgaTask.Write(I2C_OSD_ENABLE, value, [](uint8_t Address, uint8_t Value) {
+            OSDOpen = Value;
+        });
+    }
 }
 
 void openOSD() {
     currentMenu = &mainMenu;
     setOSD(true, [](uint8_t Address, uint8_t Value) {
         currentMenu->Display();
+        OSDOpen = Value;
     });
 }
 

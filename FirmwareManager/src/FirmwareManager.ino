@@ -121,11 +121,12 @@ void setupResetMode() {
 void setupOutputResolution() {
     readVideoMode();
     readCurrentResolution();
+    readCurrentDeinterlaceMode();
 
     DBG_OUTPUT_PORT.printf(">> Setting up output resolution: %x\n", ForceVGA | CurrentResolution);
     reflashNeccessary = !forceI2CWrite(
         I2C_OUTPUT_RESOLUTION, ForceVGA | mapResolution(CurrentResolution),
-        I2C_DC_RESET, 0
+        ForceVGA ? I2C_DC_RESET : I2C_PING, 0
     );
 }
 
@@ -720,6 +721,24 @@ void setupHTTPServer() {
         request->send(200);
     });
 
+    server.on("/deinterlace/bob", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        CurrentDeinterlaceMode = DEINTERLACE_MODE_BOB;
+        switchResolution(CurrentResolution);
+        request->send(200);
+    });
+
+    server.on("/deinterlace/passthru", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        CurrentDeinterlaceMode = DEINTERLACE_MODE_PASSTHRU;
+        switchResolution(CurrentResolution);
+        request->send(200);
+    });
+
     server.on("/generate/on", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
@@ -813,7 +832,7 @@ void setupArduinoOTA() {
 void waitForController() {
     bool gotValidPacket = false;
     uint8_t _ForceVGA = ForceVGA;
-    DBG_OUTPUT_PORT.printf(">> Checking video mode controller overide...\n");
+    DBG_OUTPUT_PORT.printf(">> Checking video mode controller override...\n");
 
     for (int i = 0 ; i < 3333 ; i++) {
         // stop, if we got a valid packet
@@ -825,6 +844,8 @@ void waitForController() {
                 DBG_OUTPUT_PORT.printf("   performing a resetall\n");
                 resetall();
             } else {
+                switchResolution();
+                fpgaTask.ForceLoop();
                 DBG_OUTPUT_PORT.printf("   video mode NOT changed: %u\n", ForceVGA);
             }
             return;
@@ -832,8 +853,10 @@ void waitForController() {
         fpgaTask.Read(I2C_CONTROLLER_AND_DATA_BASE, I2C_CONTROLLER_AND_DATA_BASE_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
             if (len == I2C_CONTROLLER_AND_DATA_BASE_LENGTH) {
                 uint16_t cdata = (buffer[0] << 8 | buffer[1]);
+                uint8_t metadata = buffer[2];
                 if (CHECK_BIT(cdata, CTRLR_DATA_VALID)) {
-                    DBG_OUTPUT_PORT.printf("   %i: %04x\n", i, cdata);
+                    storeResolutionData(metadata);
+                    DBG_OUTPUT_PORT.printf("   %i: %04x %02x\n", i, cdata, metadata);
                     if (CHECK_BIT(cdata, CTRLR_PAD_UP)) {
                         _ForceVGA = VGA_ON;
                     } else if (CHECK_BIT(cdata, CTRLR_PAD_DOWN)) {
@@ -846,6 +869,7 @@ void waitForController() {
         fpgaTask.ForceLoop();
         delay(1);
     }
+    DBG_OUTPUT_PORT.printf("no valid controller packet found within timeout\n");
 }
 
 void setup(void) {

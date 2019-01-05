@@ -1,0 +1,6 @@
+#!/bin/bash
+
+./compile DCxPlus && \
+    ./create-jic DCxPlus-raw.cof && \
+    ./pack-firmware output_files/DCxPlus.rbf output_files/DCxPlus.dc && \
+    md5sum output_files/DCxPlus.dc

@@ -1,5 +1,6 @@
 module maple(
     input clk,
+    input reset,
     input pin1,
     input pin5,
     output ControllerData controller_data
@@ -34,7 +35,7 @@ initial begin
 end
 
 maple_in test(
-    .rst(1'b0),
+    .rst(reset),
     .clk(clk),
     .pin1(pin1),
     .pin5(pin5),
@@ -48,16 +49,8 @@ maple_in test(
     .data_produce(maple_data_produce)
 );
 
-always @(posedge clk) begin
-    // re-trigger read loop
-    if (!triggered) begin
-        trigger_start <= 1;
-        triggered <= 1;
-    end else begin
-        trigger_start <= 0;
-    end
-    // re-trigger read loop on package end
-    if (maple_end_detected) begin
+always @(posedge clk or posedge reset) begin
+    if (reset) begin
         // reset values
         triggered <= 0;
         pos <= 0;
@@ -65,83 +58,101 @@ always @(posedge clk) begin
         pullup_osd <= 0;
         trig_def_res <= 0;
         cdata_in <= 0;
-
-        // check for controller packet, to assign output data
-        if (controller_packet_check == 4'b1111) begin
-            cdata_out[12:2] <= cdata_in[12:2];
-            cdata_out.trigger_osd <= (pullup_osd == 4'b1111);
-            cdata_out.trigger_default_resolution <= (trig_def_res == 4'b1111);
-            cdata_out.valid_packet <= 1'b1;
+    end else begin
+        // re-trigger read loop
+        if (!triggered) begin
+            trigger_start <= 1;
+            triggered <= 1;
+        end else begin
+            trigger_start <= 0;
         end
-    end
-    // get maple bus data
-    if (maple_data_produce) begin
-        case (pos)
-            0: begin
-                if (maple_data == 8'h03) begin // 3 additional frames
-                    controller_packet_check[0] <= 1'b1;
+        // re-trigger read loop on package end
+        if (maple_end_detected) begin
+            // reset values
+            triggered <= 0;
+            pos <= 0;
+            controller_packet_check <= 0;
+            pullup_osd <= 0;
+            trig_def_res <= 0;
+            cdata_in <= 0;
+
+            // check for controller packet, to assign output data
+            if (controller_packet_check == 4'b1111) begin
+                cdata_out[12:2] <= cdata_in[12:2];
+                cdata_out.trigger_osd <= (pullup_osd == 4'b1111);
+                cdata_out.trigger_default_resolution <= (trig_def_res == 4'b1111);
+                cdata_out.valid_packet <= 1'b1;
+            end
+        end
+        // get maple bus data
+        if (maple_data_produce) begin
+            case (pos)
+                0: begin
+                    if (maple_data == 8'h03) begin // 3 additional frames
+                        controller_packet_check[0] <= 1'b1;
+                    end
                 end
-            end
-            1: begin
-                // ignore sender address
-            end
-            2: begin
-                if (maple_data == 8'h00) begin // receipient is dc
-                    controller_packet_check[1] <= 1'b1;
+                1: begin
+                    // ignore sender address
                 end
-            end
-            3: begin
-                if (maple_data == 8'h08) begin // command is data reply
-                    controller_packet_check[2] <= 1'b1;
+                2: begin
+                    if (maple_data == 8'h00) begin // receipient is dc
+                        controller_packet_check[1] <= 1'b1;
+                    end
                 end
-            end
-            4: begin
-                if (maple_data == 8'h01) begin // func is controller
-                    controller_packet_check[3] <= 1'b1;
+                3: begin
+                    if (maple_data == 8'h08) begin // command is data reply
+                        controller_packet_check[2] <= 1'b1;
+                    end
                 end
-            end
-            8: begin
-                if (maple_data == 8'hFF) begin // ltrigger must be completely engaged
-                    pullup_osd[0] <= 1'b1;
-                    trig_def_res[0] <= 1'b1;
+                4: begin
+                    if (maple_data == 8'h01) begin // func is controller
+                        controller_packet_check[3] <= 1'b1;
+                    end
                 end
-                cdata_in.ltrigger <= (maple_data == 8'hFF);
-            end
-            9: begin
-                if (maple_data == 8'hFF) begin // rtrigger must be completely engaged
-                    pullup_osd[1] <= 1'b1;
-                    trig_def_res[1] <= 1'b1;
+                8: begin
+                    if (maple_data == 8'hFF) begin // ltrigger must be completely engaged
+                        pullup_osd[0] <= 1'b1;
+                        trig_def_res[0] <= 1'b1;
+                    end
+                    cdata_in.ltrigger <= (maple_data == 8'hFF);
                 end
-                cdata_in.rtrigger <= (maple_data == 8'hFF);
-            end
-            10: begin
-                if (maple_data == 8'b_1111_1011) begin // buttons[15:8] X pressed
-                    pullup_osd[2] <= 1'b1;
-                end else if (maple_data == 8'b_1111_1101) begin // buttons[15:8] Y pressed
-                    trig_def_res[2] <= 1'b1;
+                9: begin
+                    if (maple_data == 8'hFF) begin // rtrigger must be completely engaged
+                        pullup_osd[1] <= 1'b1;
+                        trig_def_res[1] <= 1'b1;
+                    end
+                    cdata_in.rtrigger <= (maple_data == 8'hFF);
                 end
-                cdata_in.y <= ~maple_data[1];
-                cdata_in.x <= ~maple_data[2];
-            end
-            11: begin
-                if (maple_data == 8'b_1111_0011) begin // buttons[7:0] A pressed, START pressed
-                    pullup_osd[3] <= 1'b1;
-                end else if (maple_data == 8'b_1111_0101) begin // buttons[7:0] B pressed, START pressed
-                    trig_def_res[3] <= 1'b1;
+                10: begin
+                    if (maple_data == 8'b_1111_1011) begin // buttons[15:8] X pressed
+                        pullup_osd[2] <= 1'b1;
+                    end else if (maple_data == 8'b_1111_1101) begin // buttons[15:8] Y pressed
+                        trig_def_res[2] <= 1'b1;
+                    end
+                    cdata_in.y <= ~maple_data[1];
+                    cdata_in.x <= ~maple_data[2];
                 end
-                cdata_in.b <= ~maple_data[1];
-                cdata_in.a <= ~maple_data[2];
-                cdata_in.start <= ~maple_data[3];
-                cdata_in.up <= ~maple_data[4];
-                cdata_in.down <= ~maple_data[5];
-                cdata_in.left <= ~maple_data[6];
-                cdata_in.right <= ~maple_data[7];
-            end
-            default: begin
-                // ignored
-            end
-        endcase
-        pos <= pos + 1'b1;
+                11: begin
+                    if (maple_data == 8'b_1111_0011) begin // buttons[7:0] A pressed, START pressed
+                        pullup_osd[3] <= 1'b1;
+                    end else if (maple_data == 8'b_1111_0101) begin // buttons[7:0] B pressed, START pressed
+                        trig_def_res[3] <= 1'b1;
+                    end
+                    cdata_in.b <= ~maple_data[1];
+                    cdata_in.a <= ~maple_data[2];
+                    cdata_in.start <= ~maple_data[3];
+                    cdata_in.up <= ~maple_data[4];
+                    cdata_in.down <= ~maple_data[5];
+                    cdata_in.left <= ~maple_data[6];
+                    cdata_in.right <= ~maple_data[7];
+                end
+                default: begin
+                    // ignored
+                end
+            endcase
+            pos <= pos + 1'b1;
+        end
     end
 end
 

@@ -76,23 +76,23 @@ module data(
     always @(*) begin
         if (line_doubler) begin
             if (add_line) begin
-                VISIBLE_AREA_HSTART = 10'd327; // 10'd347
+                VISIBLE_AREA_HSTART = 10'd249;
                 VISIBLE_AREA_VSTART = 10'd18;
-                VISIBLE_AREA_WIDTH  = 10'd643;
+                VISIBLE_AREA_WIDTH  = 10'd720;
                 VISIBLE_AREA_HEIGHT = 10'd504;
             end else if (is_pal) begin
-                VISIBLE_AREA_HSTART = 10'd327; // 10'd347
-                VISIBLE_AREA_VSTART = 10'd18;
-                VISIBLE_AREA_WIDTH  = 10'd643;
-                VISIBLE_AREA_HEIGHT = 10'd504;
+                VISIBLE_AREA_HSTART = 10'd249;
+                VISIBLE_AREA_VSTART = 10'd19;
+                VISIBLE_AREA_WIDTH  = 10'd720;
+                VISIBLE_AREA_HEIGHT = 10'd600;
             end else begin
-                VISIBLE_AREA_HSTART = 10'd327;
+                VISIBLE_AREA_HSTART = 10'd249;
                 VISIBLE_AREA_VSTART = 10'd18;
-                VISIBLE_AREA_WIDTH  = 10'd643;
+                VISIBLE_AREA_WIDTH  = 10'd720;
                 VISIBLE_AREA_HEIGHT = 10'd504;
             end
         end else begin
-            VISIBLE_AREA_HSTART = 10'd257;
+            VISIBLE_AREA_HSTART = 10'd265;
             VISIBLE_AREA_VSTART = 10'd40;
             VISIBLE_AREA_WIDTH  = 10'd720;
             VISIBLE_AREA_HEIGHT = 10'd480;

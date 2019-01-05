@@ -16,8 +16,12 @@ uint8_t remapResolution(uint8_t resd);
 
 void switchResolution(uint8_t newValue) {
     CurrentResolution = mapResolution(newValue);
-    DBG_OUTPUT_PORT.printf("switchResolution: %02x %02x\n", newValue, CurrentResolution);
+    DBG_OUTPUT_PORT.printf("   switchResolution: %02x %02x\n", newValue, CurrentResolution);
     fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
+}
+
+void switchResolution() {
+    switchResolution(CurrentResolution);
 }
 
 void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler) {
@@ -85,20 +89,17 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
         uint8_t value = RESOLUTION_1080p;
 
         switch (menu_activeLine) {
-            case MENU_OR_LAST_SELECT_LINE-4:
+            case MENU_OR_LAST_SELECT_LINE-3:
                 value = RESOLUTION_VGA;
                 break;
-            case MENU_OR_LAST_SELECT_LINE-3:
+            case MENU_OR_LAST_SELECT_LINE-2:
                 value = RESOLUTION_480p;
                 break;
-            case MENU_OR_LAST_SELECT_LINE-2:
+            case MENU_OR_LAST_SELECT_LINE-1:
                 value = RESOLUTION_960p;
                 break;
-            case MENU_OR_LAST_SELECT_LINE-1:
-                value = RESOLUTION_1080p;
-                break;
             case MENU_OR_LAST_SELECT_LINE:
-                value = CurrentResolution;
+                value = RESOLUTION_1080p;
                 break;
         }
         if (value != remapResolution(CurrentResolution)) {
@@ -115,26 +116,30 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
         fpgaTask.Write(I2C_240P_OFFSET, offset_240p, [](uint8_t Address, uint8_t Value) {
             char buffer[MENU_WIDTH] = "";
             snprintf(buffer, 4, "%s    ", Value == 20 ? "On" : "Off");
-            fpgaTask.DoWriteToOSD(24, MENU_OFFSET + MENU_OR_LAST_SELECT_LINE, (uint8_t*) buffer);
+            fpgaTask.DoWriteToOSD(24, MENU_OFFSET + MENU_OR_240P_ADJUST_LINE, (uint8_t*) buffer);
         });
         return;
     }
 }, [](uint8_t* menu_text, uint8_t menu_activeLine) {
     char buffer[MENU_WIDTH] = "";
     // restore original menu text
-    for (int i = (MENU_OR_LAST_SELECT_LINE-4) ; i <= MENU_OR_LAST_SELECT_LINE ; i++) {
+    for (int i = (MENU_OR_LAST_SELECT_LINE-3) ; i <= MENU_OR_LAST_SELECT_LINE ; i++) {
         menu_text[i * MENU_WIDTH] = '-';
     }
-    menu_text[(MENU_OR_LAST_SELECT_LINE - cfgRes2Int(configuredResolution) - 1) * MENU_WIDTH] = '>';
+    menu_text[(MENU_OR_LAST_SELECT_LINE - cfgRes2Int(configuredResolution)) * MENU_WIDTH] = '>';
 
     snprintf(buffer, 4, "%s    ", offset_240p == 20 ? "On" : "Off");
-    memcpy(&menu_text[MENU_OR_LAST_SELECT_LINE * MENU_WIDTH + 24], buffer, 3);
+    memcpy(&menu_text[MENU_OR_240P_ADJUST_LINE * MENU_WIDTH + 24], buffer, 3);
 
-    return (MENU_OR_LAST_SELECT_LINE - remapResolution(CurrentResolution) - 1);
+    return (MENU_OR_LAST_SELECT_LINE - remapResolution(CurrentResolution));
 }, NULL, true);
 
 void storeResolutionData(uint8_t data) {
-    CurrentResolutionData = data;
+    if ((data & 0x1F) == 0) {
+        CurrentResolutionData = data;
+    } else {
+        DBG_OUTPUT_PORT.printf("   invalid resolution data: %02x\n", data);
+    }
 }
 
 uint8_t remapResolution(uint8_t resd) {
@@ -144,12 +149,18 @@ uint8_t remapResolution(uint8_t resd) {
 uint8_t mapResolution(uint8_t resd) {
     uint8_t targetres = remapResolution(resd);
 
-    // check add_line flag, so map 240p mode
-    if (CurrentResolutionData & 0x80) {
+    if (CurrentResolutionData & RESOLUTION_DATA_240P) {
         targetres |= RESOLUTION_MOD_240p;
-    // } else if(CurrentResolutionData & 0x40 && ) {
-    //     return 
+    } else if (CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER 
+            && CurrentDeinterlaceMode == DEINTERLACE_MODE_PASSTHRU) 
+    {
+        if (CurrentResolutionData & RESOLUTION_DATA_IS_PAL) {
+            targetres |= RESOLUTION_MOD_576i;
+        } else {
+            targetres |= RESOLUTION_MOD_480i;
+        }
     }
 
+    DBG_OUTPUT_PORT.printf("   mapResolution: %02x %02x %02x\n", targetres, CurrentResolutionData, CurrentDeinterlaceMode);
     return targetres;
 }

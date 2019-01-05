@@ -312,6 +312,14 @@ var term = $('#term').terminal(function(command, term) {
         startTransaction(null, function() {
             setResolution("1080p");
         });
+    } else if (command.match(/^\s*deinterlace_bob\s*$/)) {
+        startTransaction(null, function() {
+            setDeinterlace("bob");
+        });
+    } else if (command.match(/^\s*deinterlace_passthru\s*$/)) {
+        startTransaction(null, function() {
+            setDeinterlace("passthru");
+        });
     } else if (command.match(/^\s*generate_on\s*$/)) {
         startTransaction(null, function() {
             generateVideoAndTiming("on");
@@ -847,6 +855,14 @@ function setResolution(type) {
         endTransaction("Switched resolution to: " + type);
     }).fail(function() {
         endTransaction('Error switching resolution.', true);
+    });
+}
+
+function setDeinterlace(type) {
+    $.ajax("/deinterlace/" + type).done(function (data) {
+        endTransaction("Switched deinterlace mode to: " + type);
+    }).fail(function() {
+        endTransaction('Error switching deinterlace mode.', true);
     });
 }
 

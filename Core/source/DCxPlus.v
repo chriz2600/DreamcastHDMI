@@ -295,6 +295,7 @@ reg prev_resync_out = 0;
 reg resync_out = 0;
 reg resync_signal = 1;
 wire line_doubler_sync;
+wire line_doubler_sync2;
 wire add_line_sync;
 wire is_pal_sync;
 
@@ -320,15 +321,21 @@ Signal_CrossDomain lineDoubler(
     .SignalOut_clkB(line_doubler_sync)
 );
 
+Signal_CrossDomain lineDoubler2(
+    .SignalIn_clkA(_240p_480i_mode),
+    .clkB(control_clock),
+    .SignalOut_clkB(line_doubler_sync2)
+);
+
 Signal_CrossDomain addLine(
     .SignalIn_clkA(add_line_mode),
-    .clkB(hdmi_clock),
+    .clkB(control_clock),
     .SignalOut_clkB(add_line_sync)
 );
 
 Signal_CrossDomain isPAL(
     .SignalIn_clkA(is_pal_mode),
-    .clkB(hdmi_clock),
+    .clkB(control_clock),
     .SignalOut_clkB(is_pal_sync)
 );
 
@@ -369,40 +376,6 @@ text_ram text_ram_inst(
     .q(text_rddata)
 );
 
-i2cSlave i2cSlave(
-    .clk(hdmi_clock),
-    .rst(~ram2video_ready),
-    .sda(ESP_SDA),
-    .scl(ESP_SCL),
-    .ram_dataIn(text_wrdata),
-    .ram_wraddress(text_wraddr),
-    .ram_wren(text_wren),
-    .enable_osd(enable_osd),
-    //.debugData(debugData),
-    .controller_data(controller_data),
-    .highlight_line(highlight_line),
-    .reconf_data(reconf_data),
-    .hdmiVideoConfig(hdmiVideoConfig),
-    .scanline(scanline),
-    .reset_dc(reset_dc),
-    .reset_opt(reset_opt),
-    .reset_conf(reset_conf),
-    .pinok(pinok_out),
-    .timingInfo(timingInfo_out),
-    .rgbData(rgbData_out),
-    .conf240p(conf240p),
-    .add_line(add_line_sync),
-    .line_doubler(line_doubler_sync),
-    .is_pal(is_pal_sync)
-);
-
-maple mapleBus(
-    .clk(hdmi_clock),
-    .pin1(MAPLE_PIN1),
-    .pin5(MAPLE_PIN5),
-    .controller_data(controller_data)
-);
-
 ////////////////////////////////////////////////////////////////////////
 // dreamcast reset and control, also ADV7513 I2C control
 ////////////////////////////////////////////////////////////////////////
@@ -427,20 +400,6 @@ edge_detect pll_hdmi_lockloss_check(
     .rise(pll_hdmi_lockloss)
 );
 
-Flag_CrossDomain reset_trigger(
-    .clkA(hdmi_clock),
-    .FlagIn_clkA(reset_dc),
-    .clkB(control_clock),
-    .FlagOut_clkB(reset_dc_out)
-);
-
-Flag_CrossDomain opt_reset_trigger(
-    .clkA(hdmi_clock),
-    .FlagIn_clkA(reset_opt),
-    .clkB(control_clock),
-    .FlagOut_clkB(reset_opt_out)
-);
-
 data_cross reset_cross(
     .clkIn(hdmi_clock),
     .clkOut(control_clock),
@@ -450,27 +409,27 @@ data_cross reset_cross(
 
 info_cross pinok_cross(
     .clkIn(clock54_net),
-    .clkOut(hdmi_clock),
+    .clkOut(control_clock),
     .dataIn(pinok),
     .dataOut(pinok_out)
 );
 
 info_cross resolution_cross(
     .clkIn(clock54_net),
-    .clkOut(hdmi_clock),
+    .clkOut(control_clock),
     .dataIn(timingInfo),
     .dataOut(timingInfo_out)
 );
 
 info_cross rgbdata_cross(
     .clkIn(clock54_net),
-    .clkOut(hdmi_clock),
+    .clkOut(control_clock),
     .dataIn(rgbData),
     .dataOut(rgbData_out)
 );
 
 info_cross conf240p_cross(
-    .clkIn(hdmi_clock),
+    .clkIn(control_clock),
     .clkOut(clock54_net),
     .dataIn(conf240p),
     .dataOut(conf240p_out)
@@ -484,8 +443,6 @@ reg opt_nreset_reg = 1'b1;
 reg status_led_nreset_reg;
 reg control_resync_out;
 reg control_force_generate_out;
-wire reset_dc_out;
-wire reset_opt_out;
 
 assign DC_NRESET = (dc_nreset_reg ? 1'bz : 1'b0);
 assign status_led_nreset = status_led_nreset_reg;
@@ -551,7 +508,7 @@ always @(posedge control_clock) begin
 end
 
 always @(posedge control_clock) begin
-    if (reset_dc_out) begin
+    if (reset_dc) begin
         counter <= 0;
         dc_nreset_reg <= 1'b0;
     end else begin
@@ -563,7 +520,7 @@ always @(posedge control_clock) begin
 end
 
 always @(posedge control_clock) begin
-    if (reset_opt_out) begin
+    if (reset_opt) begin
         counter2 <= 0;
         opt_nreset_reg <= 1'b0;
     end else begin
@@ -573,6 +530,44 @@ always @(posedge control_clock) begin
         end
     end
 end
+
+i2cSlave i2cSlave(
+    .clk(control_clock),
+    .rst(1'b0),
+    .sda(ESP_SDA),
+    .scl(ESP_SCL),
+
+    .ram_dataIn(text_wrdata),
+    .ram_wraddress(text_wraddr),
+    .ram_wren(text_wren),
+    .enable_osd(enable_osd),
+    //.debugData(debugData),
+    .highlight_line(highlight_line),
+    .reconf_data(reconf_data),
+    .hdmiVideoConfig(hdmiVideoConfig),
+    .scanline(scanline),
+
+    .controller_data(controller_data),
+    .reset_dc(reset_dc),
+    .reset_opt(reset_opt),
+    .reset_conf(reset_conf),
+    .pinok(pinok_out),
+    .timingInfo(timingInfo_out),
+    .rgbData(rgbData_out),
+    .conf240p(conf240p),
+    .add_line(add_line_sync),
+    .line_doubler(line_doubler_sync2),
+    .is_pal(is_pal_sync)
+);
+
+maple mapleBus(
+    .clk(control_clock),
+    .reset(1'b0),
+    .pin1(MAPLE_PIN1),
+    .pin5(MAPLE_PIN5),
+    .controller_data(controller_data)
+);
+
 ////////////////////////////////////////////////////////////////////////
     // // I2C master clock divisions
     // // divider = (pixel_clock / bus_clk) / 4; bus_clk = 400_000

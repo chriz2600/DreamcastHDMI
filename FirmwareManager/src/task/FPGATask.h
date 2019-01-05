@@ -17,7 +17,7 @@ typedef std::function<void(uint8_t address, uint8_t* buffer, uint8_t len)> ReadC
 typedef std::function<void()> WriteOSDCallbackHandlerFunction;
 
 extern uint8_t CurrentResolution;
-void switchResolution(uint8_t newValue);
+void switchResolution();
 void storeResolutionData(uint8_t data);
 
 void setupI2C() {
@@ -163,18 +163,16 @@ class FPGATask : public Task {
                 buffer[0] = I2C_CONTROLLER_AND_DATA_BASE;
                 brzo_i2c_write(buffer, 1, false);
                 brzo_i2c_read(buffer2, I2C_CONTROLLER_AND_DATA_BASE_LENGTH, false);
+
                 // new controller data
                 if (buffer2[0] != data_out[0]
                  || buffer2[1] != data_out[1])
                 {
-                    // reset repeat
+                    DBG_OUTPUT_PORT.printf("I2C_CONTROLLER_AND_DATA_BASE, new controller data: %04x\n", buffer2[0] << 8 | buffer2[1]);
                     controller_handler(buffer2[0] << 8 | buffer2[1], false);
+                    // reset repeat
                     eTime = millis();
                     repeatCount = 0;
-                } else if (buffer2[2] != data_out[2]) {
-                    DBG_OUTPUT_PORT.printf("I2C_CONTROLLER_AND_DATA_BASE, switch to: %02x\n", buffer2[2]);
-                    storeResolutionData(buffer2[2]);
-                    switchResolution(CurrentResolution);
                 } else {
                     // check repeat
                     if (buffer2[0] != 0x00 || buffer2[1] != 0x00) {
@@ -185,6 +183,12 @@ class FPGATask : public Task {
                             repeatCount++;
                         }
                     }
+                }
+                // new meta data
+                if (buffer2[2] != data_out[2]) {
+                    DBG_OUTPUT_PORT.printf("I2C_CONTROLLER_AND_DATA_BASE, switch to: %02x\n", buffer2[2]);
+                    storeResolutionData(buffer2[2]);
+                    switchResolution();
                 }
                 memcpy(data_out, buffer2, I2C_CONTROLLER_AND_DATA_BASE_LENGTH);
             }
