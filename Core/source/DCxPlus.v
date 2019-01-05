@@ -216,7 +216,8 @@ trigger_reconf trigger_reconf(
     .wrfull(reconf_fifo_wrfull),
     .data_in(reconf_data),
     .data(reconf_fifo_data),
-    .wrreq(reconf_fifo_wrreq)
+    .wrreq(reconf_fifo_wrreq),
+    .hdmiVideoConfig(hdmiVideoConfig)
 );
 
 /////////////////////////////////
@@ -368,12 +369,14 @@ startup ram2video_startup_delay(
 );
 
 text_ram text_ram_inst(
-    .clock(hdmi_clock),
-    .data(text_wrdata),
+    .rdclock(hdmi_clock),
     .rdaddress(text_rdaddr),
+    .q(text_rddata),
+
+    .wrclock(control_clock),
     .wraddress(text_wraddr),
-    .wren(text_wren),
-    .q(text_rddata)
+    .data(text_wrdata),
+    .wren(text_wren)
 );
 
 ////////////////////////////////////////////////////////////////////////
@@ -507,13 +510,15 @@ always @(posedge control_clock) begin
     led_counter <= led_counter + 1'b1;
 end
 
+localparam RESET_HOLD_TIME = 32'd32_000_000;
+
 always @(posedge control_clock) begin
     if (reset_dc) begin
         counter <= 0;
         dc_nreset_reg <= 1'b0;
     end else begin
         counter <= counter + 1;
-        if (counter == 8_000_000) begin /* 100ms@80MHz, 133ms@60MHz, ... */
+        if (counter == RESET_HOLD_TIME) begin
             dc_nreset_reg <= 1'b1;
         end
     end
@@ -525,11 +530,36 @@ always @(posedge control_clock) begin
         opt_nreset_reg <= 1'b0;
     end else begin
         counter2 <= counter2 + 1;
-        if (counter2 == 8_000_000) begin /* 100ms@80MHz, 133ms@60MHz, ... */
+        if (counter2 == RESET_HOLD_TIME) begin
             opt_nreset_reg <= 1'b1;
         end
     end
 end
+
+wire [7:0] highlight_line_in;
+wire [7:0] reconf_data_in;
+Scanline scanline_in;
+
+data_cross highlight_line_cross(
+    .clkIn(control_clock),
+    .clkOut(hdmi_clock),
+    .dataIn(highlight_line_in),
+    .dataOut(highlight_line)
+);
+
+data_cross reconf_data_cross(
+    .clkIn(control_clock),
+    .clkOut(hdmi_clock),
+    .dataIn(reconf_data_in),
+    .dataOut(reconf_data)
+);
+
+info_cross scanline_cross(
+    .clkIn(control_clock),
+    .clkOut(hdmi_clock),
+    .dataIn({ 12'd0, scanline_in }),
+    .dataOut({ 12'dz, scanline })
+);
 
 i2cSlave i2cSlave(
     .clk(control_clock),
@@ -542,10 +572,9 @@ i2cSlave i2cSlave(
     .ram_wren(text_wren),
     .enable_osd(enable_osd),
     //.debugData(debugData),
-    .highlight_line(highlight_line),
-    .reconf_data(reconf_data),
-    .hdmiVideoConfig(hdmiVideoConfig),
-    .scanline(scanline),
+    .highlight_line(highlight_line_in),
+    .reconf_data(reconf_data_in),
+    .scanline(scanline_in),
 
     .controller_data(controller_data),
     .reset_dc(reset_dc),

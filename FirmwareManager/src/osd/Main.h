@@ -90,7 +90,7 @@ Menu dcResetConfirmMenu("DCResetConfirm", (uint8_t*) OSD_DC_RESET_CONFIRM_MENU, 
         currentMenu->startTransaction();
         fpgaTask.Write(I2C_DC_RESET, 0, [](uint8_t Address, uint8_t Value) {
             DBG_OUTPUT_PORT.printf("reset dreamcast callback: %u\n", Value);
-            waitForI2CRecover(true);
+            waitForI2CRecover(false);
             DBG_OUTPUT_PORT.printf("reset dreamcast recover!\n");
             currentMenu->endTransaction();
             currentMenu = &mainMenu;

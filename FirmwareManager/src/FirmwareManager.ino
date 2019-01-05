@@ -126,7 +126,8 @@ void setupOutputResolution() {
     DBG_OUTPUT_PORT.printf(">> Setting up output resolution: %x\n", ForceVGA | CurrentResolution);
     reflashNeccessary = !forceI2CWrite(
         I2C_OUTPUT_RESOLUTION, ForceVGA | mapResolution(CurrentResolution),
-        ForceVGA ? I2C_DC_RESET : I2C_PING, 0
+        //ForceVGA ? I2C_DC_RESET : I2C_PING, 0
+        I2C_DC_RESET, 0
     );
 }
 

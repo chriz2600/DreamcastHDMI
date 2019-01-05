@@ -61,7 +61,6 @@ module registerInterface (
     output[7:0] highlight_line,
     output[7:0] reconf_data,
     output[7:0] video_gen_data,
-    output HDMIVideoConfig hdmiVideoConfig,
     output Scanline scanline,
     output [23:0] conf240p,
     output reset_dc,
@@ -87,16 +86,9 @@ reg [7:0] video_gen_data_reg;
 reg reset_dc_reg = 1'b0;
 reg reset_opt_reg = 1'b0;
 
-`include "../config/hdmi_config.v"
-
-HDMIVideoConfig hdmiVideoConfig_reg;
 Scanline scanline_reg = { 9'h100, 1'b0, 1'b0, 1'b0 };
 reg [23:0] conf240p_reg = 24'd20;
 reg [7:0] reset_conf_reg = 0;
-
-initial begin
-    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_1080P;
-end
 
 assign dataOut = dataOut_reg;
 assign ram_wraddress = wraddress_reg;
@@ -104,7 +96,6 @@ assign ram_dataIn = dataIn;
 assign ram_wren = wren;
 assign enable_osd = enable_osd_reg;
 assign highlight_line = highlight_line_reg;
-assign hdmiVideoConfig = hdmiVideoConfig_reg;
 assign scanline = scanline_reg;
 assign reconf_data = reconf_data_reg;
 assign video_gen_data = video_gen_data_reg;
@@ -176,29 +167,6 @@ always @(posedge clk) begin
         // output mode reconfiguration
         end else if (addr == 8'h83) begin
             reconf_data_reg <= dataIn;
-            //wrreq_reg <= 1'b1;
-            case (dataIn[6:0])
-                // 480p input
-                7'h00: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_1080P;
-                7'h01: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_960P;
-                7'h02: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_480P;
-                7'h03: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_VGA;
-
-                7'h10: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240P_1080P;
-                7'h11: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240P_960P;
-                7'h12: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240P_480P;
-                7'h13: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240P_VGA;
-
-                7'h20: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_480I;
-                7'h21: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_480I;
-                7'h22: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_480I;
-                7'h23: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_480I;
-
-                7'h40: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_576I;
-                7'h41: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_576I;
-                7'h42: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_576I;
-                7'h43: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_576I;
-            endcase
         // generate video reconfiguration
         end else if (addr == 8'h84) begin
             video_gen_data_reg <= dataIn;
