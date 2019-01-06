@@ -69,7 +69,8 @@ set_global_assignment -name VERILOG_FILE source/i2c_slave/registerInterface.v
 set_global_assignment -name VERILOG_FILE source/maple_bus/maple.v
 set_global_assignment -name VERILOG_FILE source/maple_bus/maple_in.v
 set_global_assignment -name VERILOG_FILE source/pll_hdmi/reconf_rom.v
-set_global_assignment -name VERILOG_FILE source/pll_hdmi/trigger_reconf.v
+set_global_assignment -name VERILOG_FILE source/hdmi_video_config.v
+set_global_assignment -name VERILOG_FILE source/dc_video_config.v
 set_global_assignment -name VERILOG_FILE source/misc/Signal_CrossDomain.v
 set_global_assignment -name VERILOG_FILE source/misc/Flag_CrossDomain.v
 set_global_assignment -name VERILOG_FILE source/misc/startup.v

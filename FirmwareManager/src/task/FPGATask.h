@@ -168,7 +168,7 @@ class FPGATask : public Task {
                 if (buffer2[0] != data_out[0]
                  || buffer2[1] != data_out[1])
                 {
-                    DBG_OUTPUT_PORT.printf("I2C_CONTROLLER_AND_DATA_BASE, new controller data: %04x\n", buffer2[0] << 8 | buffer2[1]);
+                    //DBG_OUTPUT_PORT.printf("I2C_CONTROLLER_AND_DATA_BASE, new controller data: %04x\n", buffer2[0] << 8 | buffer2[1]);
                     controller_handler(buffer2[0] << 8 | buffer2[1], false);
                     // reset repeat
                     eTime = millis();

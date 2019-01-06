@@ -54,9 +54,9 @@ class InfoTask : public Task {
                         "   %c  %c  %c  %c  %c  %c  %c  %c  %c  %c  %c  %c   "
                         "                                        "
                         "Raw Input Resolution: %03ux%03u           "
-                        "                                        "
-                        "Raw data:                               "
-                        "  %02x %02x %02x %02x %02x %02x %04x %04x           ",
+                        "Output Mode re-m/map: %02x %02x             "
+                        "Res data/deint data : %02x %02x             "
+                        "Raw data: %02x %02x %02x %02x %02x %02x %04x %04x ",
                         checkPin(pinok1, pinok2, 0, 0),
                         checkPin(pinok1, pinok2, 0, 1),
                         checkPin(pinok1, pinok2, 1, 2),
@@ -70,6 +70,8 @@ class InfoTask : public Task {
                         checkPin(pinok1, pinok2, 9, 10),
                         checkPin(pinok1, pinok2, 10, 10),
                         (resolX + 1) / 2, (resolY + 1),
+                        remapResolution(CurrentResolution), mapResolution(CurrentResolution),
+                        CurrentResolutionData, CurrentDeinterlaceMode,
                         buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5],
                         pinok1, pinok2
                     );

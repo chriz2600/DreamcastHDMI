@@ -16,7 +16,7 @@ uint8_t remapResolution(uint8_t resd);
 
 void switchResolution(uint8_t newValue) {
     CurrentResolution = mapResolution(newValue);
-    DBG_OUTPUT_PORT.printf("   switchResolution: %02x %02x\n", newValue, CurrentResolution);
+    DBG_OUTPUT_PORT.printf("   switchResolution: %02x -> %02x\n", newValue, CurrentResolution);
     fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
 }
 
@@ -143,7 +143,7 @@ void storeResolutionData(uint8_t data) {
 }
 
 uint8_t remapResolution(uint8_t resd) {
-    return resd & 0x0F;
+    return (resd & 0x0F);
 }
 
 uint8_t mapResolution(uint8_t resd) {
@@ -151,16 +151,14 @@ uint8_t mapResolution(uint8_t resd) {
 
     if (CurrentResolutionData & RESOLUTION_DATA_240P) {
         targetres |= RESOLUTION_MOD_240p;
-    } else if (CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER 
-            && CurrentDeinterlaceMode == DEINTERLACE_MODE_PASSTHRU) 
-    {
+    } else if (CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER) {
         if (CurrentResolutionData & RESOLUTION_DATA_IS_PAL) {
             targetres |= RESOLUTION_MOD_576i;
-        } else {
+        } else if (CurrentDeinterlaceMode == DEINTERLACE_MODE_PASSTHRU) {
             targetres |= RESOLUTION_MOD_480i;
         }
     }
 
-    DBG_OUTPUT_PORT.printf("   mapResolution: %02x %02x %02x\n", targetres, CurrentResolutionData, CurrentDeinterlaceMode);
+    DBG_OUTPUT_PORT.printf("   mapResolution: resd: %02x tres: %02x crd: %02x cdm: %02x\n", resd, targetres, CurrentResolutionData, CurrentDeinterlaceMode);
     return targetres;
 }
