@@ -18,6 +18,7 @@ fpga-firmware:
   only:
     - develop
     - master
+    - experimental
 
 esp-firmware:
   stage: build-esp
@@ -43,6 +44,7 @@ esp-firmware:
   only:
     - develop
     - master
+    - experimental
 
 fpga-publish:
   stage: deploy
@@ -56,6 +58,7 @@ fpga-publish:
   only:
     - develop
     - master
+    - experimental
 
 esp-publish:
   stage: deploy
@@ -69,3 +72,4 @@ esp-publish:
   only:
     - develop
     - master
+    - experimental
