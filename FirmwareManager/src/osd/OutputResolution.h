@@ -111,7 +111,6 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
         return;
     }
 }, [](uint8_t* menu_text, uint8_t menu_activeLine) {
-    char buffer[MENU_WIDTH] = "";
     // restore original menu text
     for (int i = (MENU_OR_LAST_SELECT_LINE-3) ; i <= MENU_OR_LAST_SELECT_LINE ; i++) {
         menu_text[i * MENU_WIDTH] = '-';
@@ -129,7 +128,8 @@ void storeResolutionData(uint8_t data) {
 }
 
 uint8_t remapResolution(uint8_t resd) {
-    return (resd & 0x0F);
+    // only store base data
+    return (resd & 0x07);
 }
 
 uint8_t mapResolution(uint8_t resd) {

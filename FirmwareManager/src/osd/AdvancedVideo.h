@@ -60,7 +60,7 @@ Menu advancedVideoMenu("AdvancedVideoMenu", (uint8_t*) OSD_ADVANCED_VIDEO_MENU, 
 
     snprintf(buffer, 9, "%8s", (CurrentDeinterlaceMode == DEINTERLACE_MODE_BOB ? DEINTERLACE_MODE_STR_BOB : DEINTERLACE_MODE_STR_PASSTHRU));
     memcpy(&menu_text[MENU_AV_DEINT * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
-    snprintf(buffer, 9, "%8d", offset_240p == 20 ? "On" : "Off");
+    snprintf(buffer, 9, "%8s", offset_240p == 20 ? "On" : "Off");
     memcpy(&menu_text[MENU_AV_240POS * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
 
     return MENU_AV_FIRST_SELECT_LINE;

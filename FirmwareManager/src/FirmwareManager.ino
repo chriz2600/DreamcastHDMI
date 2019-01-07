@@ -720,7 +720,7 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
+        fpgaTask.Write(I2C_VIDEO_GEN, 0, NULL);
         request->send(200);
     });
 

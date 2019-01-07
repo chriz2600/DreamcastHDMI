@@ -101,7 +101,7 @@ module data(
 
     `define RAW_WIDTH 1716
     `define RAW_HEIGHT 525
-    `define HORIZONTAL_OFFSET 44
+    `define HORIZONTAL_OFFSET 40
 
     always @(posedge clock or posedge reset) begin
         if (reset) begin
