@@ -1,4 +1,4 @@
-module reconf_rom (
+module pll_hdmi_reconfig (
     input clock,
     input [7:0] address,
     input read_ena,
@@ -38,8 +38,8 @@ module reconf_rom (
             trigger_read <= 1'b0;
         end
 
-        // RECONF
         case (data_req[6:0])
+            // RECONF
             7'h00: begin `include "config/1080p.v" end
             7'h01: begin `include "config/960p.v" end
             7'h02: begin `include "config/480p.v" end

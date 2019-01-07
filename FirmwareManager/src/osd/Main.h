@@ -4,6 +4,7 @@
 
 extern Menu outputResMenu;
 extern Menu videoModeMenu;
+extern Menu advancedVideoMenu;
 extern Menu scanlinesMenu;
 extern Menu firmwareMenu;
 extern Menu wifiMenu;
@@ -14,12 +15,10 @@ extern Menu infoMenu;
 extern Menu *currentMenu;
 extern uint8_t CurrentResetMode;
 extern uint8_t CurrentDeinterlaceMode;
-extern uint8_t offset_240p;
 extern uint8_t CurrentResolutionData;
 
 void closeOSD();
 void waitForI2CRecover(bool waitForError);
-void write240pOffset();
 
 Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, MENU_M_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
@@ -31,6 +30,10 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
         switch (menu_activeLine) {
             case MENU_M_OR:
                 currentMenu = &outputResMenu;
+                currentMenu->Display();
+                break;
+            case MENU_M_AVS:
+                currentMenu = &advancedVideoMenu;
                 currentMenu->Display();
                 break;
             case MENU_M_VM:
@@ -49,10 +52,6 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
                 currentMenu = &wifiMenu;
                 currentMenu->Display();
                 break;
-            // case MENU_M_RST:
-            //     currentMenu = &resetMenu;
-            //     currentMenu->Display();
-            //     break;
             case MENU_M_INF:
                 currentMenu = &infoMenu;
                 currentMenu->Display();

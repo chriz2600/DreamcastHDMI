@@ -1,4 +1,4 @@
-module hdmi_video_config(
+module hdmi_video_reconfig(
     input clock,
     input [7:0] data_in,
     output HDMIVideoConfig hdmiVideoConfig
@@ -19,11 +19,16 @@ module hdmi_video_config(
 
         if (data_in_reg != data_in) begin
             case (data_in[6:0])
-                // 480p input
+                // RECONF
                 7'h00: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_1080P;
                 7'h01: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_960P;
                 7'h02: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_480P;
                 7'h03: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_VGA;
+
+                7'h08: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_576P;
+                7'h09: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_576P;
+                7'h0A: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_576P;
+                7'h0B: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_576P;
 
                 7'h10: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240P_1080P;
                 7'h11: hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240P_960P;

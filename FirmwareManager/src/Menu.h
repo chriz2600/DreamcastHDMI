@@ -24,25 +24,24 @@
 #define MENU_CANCEL_STR "L"
 
 #define MENU_M_OR 2
-#define MENU_M_SL 3
-#define MENU_M_VM 4
-#define MENU_M_FW 5
-#define MENU_M_WIFI 6
-//#define MENU_M_RST 7
-#define MENU_M_INF 7
+#define MENU_M_AVS 3
+#define MENU_M_SL 4
+#define MENU_M_VM 5
+#define MENU_M_FW 6
+#define MENU_M_WIFI 7
+#define MENU_M_INF 8
 #define MENU_M_FIRST_SELECT_LINE 2
 #define MENU_M_LAST_SELECT_LINE MENU_M_INF
 char OSD_MAIN_MENU[521] = (
     "Main Menu                               "
     "                                        "
     "- Output Resolution                     "
+    "- Advanced Video Settings               "
     "- Scanlines                             "
     "- Video Mode Settings                   "
     "- Firmware Upgrade                      "
     "- WiFi Setup                            "
-    //"- Reset Options                         "
     "- Test/Info                             "
-    "                                        "
     "                                        "
     "                                        "
     "                                        "
@@ -51,7 +50,6 @@ char OSD_MAIN_MENU[521] = (
 
 #define MENU_OR_LAST_SELECT_LINE 5
 #define MENU_OR_FIRST_SELECT_LINE (MENU_OR_LAST_SELECT_LINE-3)
-#define MENU_OR_240P_ADJUST_LINE 6
 char OSD_OUTPUT_RES_MENU[521] = (
     "Output Resolution                       "
     "                                        "
@@ -59,13 +57,34 @@ char OSD_OUTPUT_RES_MENU[521] = (
     "- 480p                                  "
     "- 960p                                  "
     "- 1080p                                 "
-    "- 240p adjust position:                 "
     "                                        "
     "  '>' marks the stored setting          "
-    "  left/right to change 240p position    "
+    "                                        "
+    "                                        "
     "                                        "
     "                                        "
     "          " MENU_OK_STR ": Apply   " MENU_CANCEL_STR ": Back            "
+);
+
+#define MENU_AV_DEINT 2
+#define MENU_AV_240POS 3
+#define MENU_AV_FIRST_SELECT_LINE 2
+#define MENU_AV_LAST_SELECT_LINE MENU_AV_240POS
+#define MENU_AV_COLUMN 23
+char OSD_ADVANCED_VIDEO_MENU[521] = (
+    "Advanced Video Settings                 "
+    "                                        "
+    "- Deinterlacer:         _______         "
+    "- 240p adjust position: _______         "
+    "                                        "
+    "                                        "
+    "                                        "
+    "  left/right (d-pad): change value.     "
+    "  " MENU_OK_STR ": save settings and exit.            "
+    "  " MENU_CANCEL_STR ": discard changes and exit.          "
+    "                                        "
+    "                                        "
+    "          " MENU_OK_STR ": Save  " MENU_CANCEL_STR ": Cancel            "
 );
 
 #define MENU_SS_RESULT_LINE 4
@@ -258,6 +277,7 @@ char OSD_FIRMWARE_RESET_MENU[521] = (
 #define MENU_SL_THICKNESS 5
 #define MENU_SL_FIRST_SELECT_LINE 2
 #define MENU_SL_LAST_SELECT_LINE 5
+#define MENU_SL_COLUMN 12
 char OSD_SCANLINES_MENU[521] = (
     "Scanlines                               "
     "                                        "
@@ -467,6 +487,7 @@ void displayProgress(int read, int total, int line) {
 
 #include "osd/Main.h"
 #include "osd/OutputResolution.h"
+#include "osd/AdvancedVideo.h"
 #include "osd/VideoMode.h"
 #include "osd/Firmware.h"
 #include "osd/FirmwareCheck.h"

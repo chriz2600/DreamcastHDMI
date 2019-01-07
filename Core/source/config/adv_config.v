@@ -37,6 +37,16 @@ const ADV7513Config ADV7513_CONFIG_480P = {
     8'h_02  // adv_reg_3c
 };
 
+const ADV7513Config ADV7513_CONFIG_576P = {
+    8'h_00, // adv_reg_01
+    8'h_18, // adv_reg_02
+    8'h_80, // adv_reg_03
+    8'h_00, // adv_reg_17
+    8'h_18, // adv_reg_56
+    8'h_80, // adv_reg_3b
+    8'h_11  // adv_reg_3c
+};
+
 const ADV7513Config ADV7513_CONFIG_VGA = {
     8'h_00, // adv_reg_01
     8'h_18, // adv_reg_02
@@ -106,5 +116,5 @@ const ADV7513Config ADV7513_CONFIG_576I = {
     8'h_00, // adv_reg_17 sync
     8'h_18, // adv_reg_56 aspect ratio
     8'h_80, // adv_reg_3b pxl repetition
-    8'h_11  // adv_reg_3c VIC
+    8'h_15  // adv_reg_3c VIC
 };

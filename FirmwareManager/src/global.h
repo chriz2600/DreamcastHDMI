@@ -6,7 +6,7 @@
 
 //////////////////////////////////////////////////////////////////////////////////
 
-#define DCHDMI_VERSION "v1.2.2"
+#define DCHDMI_VERSION "v2.0.0"
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -81,6 +81,7 @@
 #define RESOLUTION_960p (0x01)
 #define RESOLUTION_480p (0x02)
 #define RESOLUTION_VGA (0x03)
+#define RESOLUTION_MOD_576p (0x08)
 #define RESOLUTION_MOD_240p (0x10)
 #define RESOLUTION_MOD_480i (0x20)
 #define RESOLUTION_MOD_576i (0x40)

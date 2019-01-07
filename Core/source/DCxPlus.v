@@ -195,7 +195,7 @@ pll_hdmi_reconf	pll_hdmi_reconf(
 //     .dataOut(reconf_data_x)
 // );
 
-reconf_rom reconf_rom(
+pll_hdmi_reconfig reconf_rom(
     .clock(control_clock),
     .address(pll_hdmi_rom_address_out),
     .read_ena(pll_hdmi_write_rom_ena),
@@ -226,7 +226,7 @@ data_cross reconf_data_clock54_cross(
     .dataOut(reconf_data_clock54)
 );
 
-dc_video_config dc_video_configurator(
+dc_video_reconfig dc_video_configurator(
     .clock(clock54_net),
     .data_in(reconf_data_clock54),
     .dcVideoConfig(dcVideoConfig),
@@ -334,7 +334,7 @@ data_cross reconfDataHdmi(
     .dataOut(reconf_data_hdmi)
 );
 
-hdmi_video_config hdmi_video_configurator(
+hdmi_video_reconfig hdmi_video_configurator(
     .clock(hdmi_clock),
     .data_in(reconf_data_hdmi),
     .hdmiVideoConfig(hdmiVideoConfig)
@@ -649,7 +649,7 @@ startup adv7513_startup_delay(
 );
 
 wire adv7513_reconf;
-reconf_adv reconf_adv(
+adv7513_reconfig reconf_adv(
     .clock(control_clock),
     .data_in(reconf_data),
     .adv7513Config(adv7513Config),
@@ -659,7 +659,7 @@ reconf_adv reconf_adv(
 ADV7513 adv7513(
     .clk(control_clock),
     .reset(adv7513_reset),
-    .hdmi_int(HDMI_INT_N & ~adv7513_reconf),
+    .hdmi_int(HDMI_INT_N & ~adv7513_reconf), // ? is adv7513_reconf really needed ?
     .output_ready(pll_hdmi_ready && ram2video_fullcycle),
     .sda(SDAT),
     .scl(SCLK),

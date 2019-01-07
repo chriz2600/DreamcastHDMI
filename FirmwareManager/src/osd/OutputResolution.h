@@ -110,16 +110,6 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
         }
         return;
     }
-    if (!isRepeat && (CHECK_CTRLR_MASK(controller_data, CTRLR_PAD_LEFT) || CHECK_CTRLR_MASK(controller_data, CTRLR_PAD_RIGHT))) {
-        offset_240p = (offset_240p == 20 ? 0 : 20);
-        write240pOffset();
-        fpgaTask.Write(I2C_240P_OFFSET, offset_240p, [](uint8_t Address, uint8_t Value) {
-            char buffer[MENU_WIDTH] = "";
-            snprintf(buffer, 4, "%s    ", Value == 20 ? "On" : "Off");
-            fpgaTask.DoWriteToOSD(24, MENU_OFFSET + MENU_OR_240P_ADJUST_LINE, (uint8_t*) buffer);
-        });
-        return;
-    }
 }, [](uint8_t* menu_text, uint8_t menu_activeLine) {
     char buffer[MENU_WIDTH] = "";
     // restore original menu text
@@ -127,10 +117,6 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
         menu_text[i * MENU_WIDTH] = '-';
     }
     menu_text[(MENU_OR_LAST_SELECT_LINE - cfgRes2Int(configuredResolution)) * MENU_WIDTH] = '>';
-
-    snprintf(buffer, 4, "%s    ", offset_240p == 20 ? "On" : "Off");
-    memcpy(&menu_text[MENU_OR_240P_ADJUST_LINE * MENU_WIDTH + 24], buffer, 3);
-
     return (MENU_OR_LAST_SELECT_LINE - remapResolution(CurrentResolution));
 }, NULL, true);
 
@@ -149,14 +135,18 @@ uint8_t remapResolution(uint8_t resd) {
 uint8_t mapResolution(uint8_t resd) {
     uint8_t targetres = remapResolution(resd);
 
-    if (CurrentResolutionData & RESOLUTION_DATA_240P) {
-        targetres |= RESOLUTION_MOD_240p;
-    } else if (CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER) {
+    if (CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER
+     && CurrentDeinterlaceMode == DEINTERLACE_MODE_PASSTHRU)
+    {
         if (CurrentResolutionData & RESOLUTION_DATA_IS_PAL) {
             targetres |= RESOLUTION_MOD_576i;
-        } else if (CurrentDeinterlaceMode == DEINTERLACE_MODE_PASSTHRU) {
+        } else {
             targetres |= RESOLUTION_MOD_480i;
         }
+    } else if (CurrentResolutionData & RESOLUTION_DATA_240P) {
+        targetres |= RESOLUTION_MOD_240p;
+    } else if (CurrentResolutionData & RESOLUTION_DATA_IS_PAL) {
+        targetres |= RESOLUTION_MOD_576p;
     }
 
     DBG_OUTPUT_PORT.printf("   mapResolution: resd: %02x tres: %02x crd: %02x cdm: %02x\n", resd, targetres, CurrentResolutionData, CurrentDeinterlaceMode);

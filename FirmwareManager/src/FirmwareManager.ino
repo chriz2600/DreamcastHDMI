@@ -658,38 +658,6 @@ void setupHTTPServer() {
         request->send(200);
     });
 
-    server.on("/res/240p_VGA", HTTP_GET, [](AsyncWebServerRequest *request) {
-        if(!_isAuthenticated(request)) {
-            return request->requestAuthentication();
-        }
-        switchResolution(RESOLUTION_VGA | RESOLUTION_MOD_240p);
-        request->send(200);
-    });
-
-    server.on("/res/240p_480p", HTTP_GET, [](AsyncWebServerRequest *request) {
-        if(!_isAuthenticated(request)) {
-            return request->requestAuthentication();
-        }
-        switchResolution(RESOLUTION_480p | RESOLUTION_MOD_240p);
-        request->send(200);
-    });
-
-    server.on("/res/240p_960p", HTTP_GET, [](AsyncWebServerRequest *request) {
-        if(!_isAuthenticated(request)) {
-            return request->requestAuthentication();
-        }
-        switchResolution(RESOLUTION_960p | RESOLUTION_MOD_240p);
-        request->send(200);
-    });
-
-    server.on("/res/240p_1080p", HTTP_GET, [](AsyncWebServerRequest *request) {
-        if(!_isAuthenticated(request)) {
-            return request->requestAuthentication();
-        }
-        switchResolution(RESOLUTION_1080p | RESOLUTION_MOD_240p);
-        request->send(200);
-    });
-
     server.on("/res/VGA", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();

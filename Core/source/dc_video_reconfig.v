@@ -1,4 +1,4 @@
-module dc_video_config(
+module dc_video_reconfig(
     input clock,
     input [7:0] data_in,
     output DCVideoConfig dcVideoConfig,
@@ -23,11 +23,17 @@ module dc_video_config(
         if (data_in_reg != data_in) begin
             forceVGAMode_reg <= data_in[7];
             case (data_in[6:0])
+                // RECONF
                 7'h00: dcVideoConfig_reg <= DC_VIDEO_CONFIG_1080P;
                 7'h01: dcVideoConfig_reg <= DC_VIDEO_CONFIG_960P;
                 7'h02: dcVideoConfig_reg <= DC_VIDEO_CONFIG_480P;
                 7'h03: dcVideoConfig_reg <= DC_VIDEO_CONFIG_VGA;
                 
+                7'h08: dcVideoConfig_reg <= DC_VIDEO_CONFIG_576P;
+                7'h09: dcVideoConfig_reg <= DC_VIDEO_CONFIG_576P;
+                7'h0A: dcVideoConfig_reg <= DC_VIDEO_CONFIG_576P;
+                7'h0B: dcVideoConfig_reg <= DC_VIDEO_CONFIG_576P;
+
                 7'h10: dcVideoConfig_reg <= DC_VIDEO_CONFIG_240P_1080P;
                 7'h11: dcVideoConfig_reg <= DC_VIDEO_CONFIG_240P_960P;
                 7'h12: dcVideoConfig_reg <= DC_VIDEO_CONFIG_240P_480P;
