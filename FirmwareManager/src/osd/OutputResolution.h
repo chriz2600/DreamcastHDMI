@@ -120,7 +120,7 @@ Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRS
 }, NULL, true);
 
 void storeResolutionData(uint8_t data) {
-    if ((data & 0x1F) == 0) {
+    if ((data & 0x0F) == 0) {
         CurrentResolutionData = data;
     } else {
         DBG_OUTPUT_PORT.printf("   invalid resolution data: %02x\n", data);
@@ -135,7 +135,9 @@ uint8_t remapResolution(uint8_t resd) {
 uint8_t mapResolution(uint8_t resd) {
     uint8_t targetres = remapResolution(resd);
 
-    if (CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER
+    if (CurrentResolutionData & FORCE_GENERATE_TIMING_AND_VIDEO) {
+        targetres = RESOLUTION_1080p;
+    } else if (CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER
      && CurrentDeinterlaceMode == DEINTERLACE_MODE_PASSTHRU)
     {
         if (CurrentResolutionData & RESOLUTION_DATA_IS_PAL) {

@@ -600,7 +600,8 @@ i2cSlave i2cSlave(
     .add_line(add_line_sync),
     .line_doubler(line_doubler_sync2),
     .is_pal(is_pal_sync),
-    .video_gen_data(video_gen_data)
+    .video_gen_data(video_gen_data),
+    .force_generate(control_force_generate_out)
 );
 
 maple mapleBus(

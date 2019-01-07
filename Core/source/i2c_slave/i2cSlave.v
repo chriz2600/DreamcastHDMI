@@ -69,6 +69,7 @@ module i2cSlave (
   input add_line,
   input line_doubler,
   input is_pal,
+  input force_generate,
   input ControllerData controller_data
 );
 
@@ -193,7 +194,8 @@ registerInterface u_registerInterface(
   .rgbData(rgbData),
   .add_line(add_line),
   .line_doubler(line_doubler),
-  .is_pal(is_pal)
+  .is_pal(is_pal),
+  .force_generate(force_generate)
 );
 
 serialInterface u_serialInterface (
