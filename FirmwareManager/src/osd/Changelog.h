@@ -7,7 +7,7 @@
 File changelogFile;
 int changelogFileSize = 0;
 int changelogCurrentSeek = 0;
-char changelogBuffer[CHNGL_BUFFER_SIZE] = "";
+char *changelogBuffer;
 int changelogBytesRead = 0;
 
 void changelogDisplay() {
@@ -34,6 +34,7 @@ void changelogDisplay() {
 Menu changelogMenu("ChangelogMenu", (uint8_t*) OSD_CHANGELOG_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         changelogFile.close();
+        free(changelogBuffer);
         currentMenu = &firmwareCheckMenu;
         currentMenu->Display();
         return;
@@ -61,6 +62,7 @@ Menu changelogMenu("ChangelogMenu", (uint8_t*) OSD_CHANGELOG_MENU, NO_SELECT_LIN
         return;
     }
 }, [](uint8_t* menu_text, uint8_t menu_activeLine) {
+    changelogBuffer = (char*) malloc(CHNGL_BUFFER_SIZE);
     changelogCurrentSeek = 0;
 
     DBG_OUTPUT_PORT.printf("ChangelogMenu started");
