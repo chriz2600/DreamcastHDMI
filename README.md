@@ -1,5 +1,25 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2018-01-08 *Firmware v2.0.0*
+
+- Bob deinterlacing can be deactivated via new `Advanced Video Settings`.
+
+    Set `Deinterlacer` to `passthru` to output 480i/576i.
+
+- PAL support (576p bob deinterlaced or 576i passthru)
+
+- OSD can show changelog after `Check` for new firmware.
+
+- Web interface `setup` procedure shows available options and checks for valid input.
+
+- GDEMU reset was available in main menu, even when disabled.
+
+- Full reset (DC, ESP, FPGA) now available in `Reset DC`
+
+- Video Mode can be changed by holding dpad up/down (`ForceVGA`/`CableDetect`) on startup/full reset.
+
+- Lots of FPGA firmware improvements and refactoring.
+
 #### 2018-12-18 *Firmware v1.2.0*
 
 - All output modes (*VGA/480p/960p/1080p*) now support dreamcast 240p games.
