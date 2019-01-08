@@ -526,6 +526,7 @@ void setOSD(bool value, WriteCallbackHandlerFunction handler) {
     } else {
         fpgaTask.Write(I2C_OSD_ENABLE, value, [](uint8_t Address, uint8_t Value) {
             OSDOpen = Value;
+            DEBUG("setOSD: %u\n", OSDOpen);
         });
     }
 }
@@ -535,6 +536,7 @@ void openOSD() {
     setOSD(true, [](uint8_t Address, uint8_t Value) {
         currentMenu->Display();
         OSDOpen = Value;
+        DEBUG("setOSD: %u\n", OSDOpen);
     });
 }
 

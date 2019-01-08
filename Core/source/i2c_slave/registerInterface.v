@@ -134,7 +134,7 @@ always @(posedge clk) begin
             03: trigger_default_resolution
         */
         8'h86: dataOut_reg <= { controller_data[4:0], 2'b00, controller_data.valid_packet };
-        8'h87: dataOut_reg <= { add_line, line_doubler, is_pal, force_generate, 4'b0000 };
+        8'h87: dataOut_reg <= { add_line, line_doubler, is_pal, force_generate, enable_osd_reg, 3'b000 };
 
         // scanline data
         8'h88: dataOut_reg <= scanline_reg.intensity[8:1];

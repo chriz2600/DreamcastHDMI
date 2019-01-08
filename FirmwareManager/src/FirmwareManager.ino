@@ -753,7 +753,6 @@ void setupHTTPServer() {
         .setDefaultFile("index.html");
     // set authentication by configured user/pass later
     handler->setAuthentication(httpAuthUser, httpAuthPass);
-    handler->setCacheControl("max-age=0");
 
     server.onNotFound([](AsyncWebServerRequest *request){
         if (request->url().endsWith(".md5")) {

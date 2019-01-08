@@ -582,15 +582,15 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_576P = {
 
     12'd190,        // osd_bg_offset_x_start
     12'd530,        // osd_bg_offset_x_end
-    11'd33,         // osd_bg_offset_y_start
-    11'd447,        // osd_bg_offset_y_end
+    11'd80,         // osd_bg_offset_y_start
+    11'd498,        // osd_bg_offset_y_end
 
     12'd200,        // osd_text_x_start
     12'd520,        // osd_text_x_end
-    11'd48,         // osd_text_y_start
-    11'd432,        // osd_text_y_end
+    11'd96,         // osd_text_y_start
+    11'd480,        // osd_text_y_end
 
-    11'd3,          // text_offset_character_y
+    11'd6,          // text_offset_character_y
 
     15'd720,        // buffer_line_length
     15'd720,        // ram_numwords
