@@ -25,6 +25,7 @@ esp-firmware:
   script:
     - "cd FirmwareManager"
     - "./local/prepare-index-html"
+    - "cat data.in/changelog.in | tr -d '\n\t' > data/changelog"
     - "export SOURCE_DATE_EPOCH=$(git --no-pager log -1 --pretty='format:%ct' src)"
     - "echo $SOURCE_DATE_EPOCH"
     - "pio run -t clean"
@@ -37,6 +38,7 @@ esp-firmware:
     - FirmwareManager/.pioenvs/esp07s/firmware.bin
     - FirmwareManager/.pioenvs/esp07s/spiffs.bin
     - FirmwareManager/data/index.html.gz
+    - FirmwareManager/data/changelog
   dependencies:
     - fpga-firmware
   tags:

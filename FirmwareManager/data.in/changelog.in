@@ -1,0 +1,11 @@
+v2.0.0                                  
+- PAL support                           
+- 480i/576i passthru                    
+- view changelog from OSD               
+- change video mode by holding dpad     
+  up/down (ForceVGA / CableDetect)      
+  on startup/full reset                 
+                                        
+v1.2.0                                  
+- 240p upscaling                        
+                                        
