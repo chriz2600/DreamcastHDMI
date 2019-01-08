@@ -56,7 +56,7 @@ class FlashESPTask : public Task {
 
                 if (!Update.begin(totalLength, U_FLASH)) { //start with max available size
                     Update.printError(DBG_OUTPUT_PORT);
-                    DBG_OUTPUT_PORT.println("ERROR");
+                    DEBUG("ERROR");
                     last_error = ERROR_FILE_SIZE;
                     InvokeCallback(false);
                     return false;
@@ -109,7 +109,7 @@ class FlashESPTask : public Task {
                 _writeFile("/etc/last_esp_flash_md5", md5sum.c_str(), md5sum.length());
             }
             InvokeCallback(true);
-            DBG_OUTPUT_PORT.printf("2: flashing ESP finished.\n");
+            DEBUG("2: flashing ESP finished.\n");
         }
 
         void InvokeCallback(bool done) {

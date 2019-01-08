@@ -98,7 +98,7 @@ class FlashESPIndexTask : public Task {
                 _writeFile("/index.html.gz.md5", md5sum.c_str(), md5sum.length());
             }
             InvokeCallback(true);
-            DBG_OUTPUT_PORT.printf("2: flashing ESP index finished.\n");
+            DEBUG("2: flashing ESP index finished.\n");
         }
 
         void InvokeCallback(bool done) {

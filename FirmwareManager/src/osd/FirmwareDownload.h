@@ -33,7 +33,7 @@ Menu firmwareDownloadMenu("FirmwareDownloadMenu", (uint8_t*) OSD_FIRMWARE_DOWNLO
 }, true);
 
 void downloadCascade(int pos, bool forceDownload) {
-    DBG_OUTPUT_PORT.printf("downloadCascade: %i\n", pos);
+    DEBUG("downloadCascade: %i\n", pos);
     switch (pos) {
         case 0:
             currentMenu->startTransaction();

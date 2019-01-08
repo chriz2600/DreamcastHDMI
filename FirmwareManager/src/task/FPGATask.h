@@ -21,7 +21,7 @@ void switchResolution();
 void storeResolutionData(uint8_t data);
 
 void setupI2C() {
-    DBG_OUTPUT_PORT.printf(">> Setting up I2C master...\n");
+    DEBUG(">> Setting up I2C master...\n");
     brzo_i2c_setup(FPGA_I2C_SDA, FPGA_I2C_SCL, CLOCK_STRETCH_TIMEOUT);
 }
 
@@ -41,7 +41,7 @@ class FPGATask : public Task {
         }
 
         virtual void DoWriteToOSD(uint8_t column, uint8_t row, uint8_t charData[], WriteOSDCallbackHandlerFunction handler) {
-            //DBG_OUTPUT_PORT.printf("DoWriteToOSD: %u %u %u\n", column, row, strlen((char*) charData));
+            //DEBUG("DoWriteToOSD: %u %u %u\n", column, row, strlen((char*) charData));
             if (column > 39) { column = 39; }
             if (row > 23) { row = 23; }
 
@@ -113,7 +113,7 @@ class FPGATask : public Task {
         virtual void OnUpdate(uint32_t deltaTime) {
             brzo_i2c_start_transaction(FPGA_I2C_ADDR, FPGA_I2C_FREQ_KHZ);
             if (updateOSDContent) {
-                //DBG_OUTPUT_PORT.printf("updateOSDContent: stringLength: %u, left: %u\n", stringLength, left);
+                //DEBUG("updateOSDContent: stringLength: %u, left: %u\n", stringLength, left);
                 if (left > 0) {
                     upperAddress = localAddress / MAX_ADDR_SPACE;
                     lowerAddress = localAddress % MAX_ADDR_SPACE;
@@ -135,7 +135,7 @@ class FPGATask : public Task {
                     }
                 }
             } else if (Update) {
-                //DBG_OUTPUT_PORT.printf("Write: %x %x\n", Address, Value);
+                //DEBUG("Write: %x %x\n", Address, Value);
                 uint8_t buffer[2];
                 buffer[0] = Address;
                 buffer[1] = Value;
@@ -146,7 +146,7 @@ class FPGATask : public Task {
                 }
             } else if (DoRead) {
                 // Value is read len here
-                //DBG_OUTPUT_PORT.printf("Read: %x %x\n", Address, Value);
+                //DEBUG("Read: %x %x\n", Address, Value);
                 uint8_t buffer[1];
                 uint8_t buffer2[Value];
                 buffer[0] = Address;
@@ -168,7 +168,7 @@ class FPGATask : public Task {
                 if (buffer2[0] != data_out[0]
                  || buffer2[1] != data_out[1])
                 {
-                    //DBG_OUTPUT_PORT.printf("I2C_CONTROLLER_AND_DATA_BASE, new controller data: %04x\n", buffer2[0] << 8 | buffer2[1]);
+                    //DEBUG("I2C_CONTROLLER_AND_DATA_BASE, new controller data: %04x\n", buffer2[0] << 8 | buffer2[1]);
                     controller_handler(buffer2[0] << 8 | buffer2[1], false);
                     // reset repeat
                     eTime = millis();
@@ -186,7 +186,7 @@ class FPGATask : public Task {
                 }
                 // new meta data
                 if (buffer2[2] != data_out[2]) {
-                    DBG_OUTPUT_PORT.printf("I2C_CONTROLLER_AND_DATA_BASE, switch to: %02x\n", buffer2[2]);
+                    DEBUG("I2C_CONTROLLER_AND_DATA_BASE, switch to: %02x\n", buffer2[2]);
                     storeResolutionData(buffer2[2]);
                     switchResolution();
                 }
@@ -195,20 +195,20 @@ class FPGATask : public Task {
             if (brzo_i2c_end_transaction()) {
                 if (!GotError) {
                     last_error = ERROR_END_I2C_TRANSACTION;
-                    DBG_OUTPUT_PORT.printf("--> ERROR_END_I2C_TRANSACTION\n");
+                    DEBUG("--> ERROR_END_I2C_TRANSACTION\n");
                 }
                 GotError = true;
             } else {
                 if (GotError) {
                     last_error = NO_ERROR;
-                    DBG_OUTPUT_PORT.printf("<-- FINISHED_I2C_TRANSACTION\n");
+                    DEBUG("<-- FINISHED_I2C_TRANSACTION\n");
                 }
                 GotError = false;
             }
         }
 
         virtual void OnStop() {
-            DBG_OUTPUT_PORT.printf("OnStop\n");
+            DEBUG("OnStop\n");
             if (data_in != NULL) {
                 free(data_in); data_in = NULL;
             }

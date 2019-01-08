@@ -10,6 +10,14 @@
 
 //////////////////////////////////////////////////////////////////////////////////
 
+#define DBG_OUTPUT_PORT Serial
+//#define DEBUG(...) DBG_OUTPUT_PORT.printf(__VA_ARGS__)
+#define DEBUG(...) void(0)
+//#define DEBUG2(...) DBG_OUTPUT_PORT.printf(__VA_ARGS__)
+#define DEBUG2(_1, ...) DBG_OUTPUT_PORT.printf_P(PSTR(_1), ##__VA_ARGS__)
+
+//////////////////////////////////////////////////////////////////////////////////
+
 #define DEFAULT_SSID ""
 #define DEFAULT_PASSWORD ""
 #define DEFAULT_OTA_PASSWORD ""
@@ -37,7 +45,6 @@
 #define CS 16
 #define NCE 4
 #define NCONFIG 5
-#define DBG_OUTPUT_PORT Serial
 
 #define FPGA_I2C_ADDR 0x3c
 #define FPGA_I2C_FREQ_KHZ 733
@@ -55,7 +62,6 @@
 #define ESP_INDEX_STAGING_FILE "/esp.index.html.gz"
 
 #define PAGES 8192 // 8192 pages x 256 bytes = 2MB = 16MBit
-#define DEBUG true
 #define DEFAULT_MD5_SUM "00000000000000000000000000000000"
 
 #define NO_ERROR 0

@@ -17,7 +17,7 @@ class InfoTask : public Task {
         bool isRunning = false;
 
         virtual bool OnStart() {
-            DBG_OUTPUT_PORT.printf("InfoTask: OnStart\n");
+            DEBUG("InfoTask: OnStart\n");
             isRunning = true;
             return true;
         }
@@ -26,7 +26,7 @@ class InfoTask : public Task {
             fpgaTask.Read(I2C_TESTDATA_BASE, I2C_TESTDATA_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
                 // leave, if task is no longer running
                 if (!isRunning) {
-                    DBG_OUTPUT_PORT.printf("DebugTask: in callback: no longer running\n");
+                    DEBUG("DebugTask: in callback: no longer running\n");
                     return;
                 }
 
@@ -82,7 +82,7 @@ class InfoTask : public Task {
         }
 
         virtual void OnStop() {
-            DBG_OUTPUT_PORT.printf("InfoTask: OnStop\n");
+            DEBUG("InfoTask: OnStop\n");
             isRunning = false;
         }
 

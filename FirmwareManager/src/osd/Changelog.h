@@ -65,7 +65,7 @@ Menu changelogMenu("ChangelogMenu", (uint8_t*) OSD_CHANGELOG_MENU, NO_SELECT_LIN
     changelogBuffer = (char*) malloc(CHNGL_BUFFER_SIZE);
     changelogCurrentSeek = 0;
 
-    DBG_OUTPUT_PORT.printf("ChangelogMenu started");
+    DEBUG("ChangelogMenu started");
     changelogFile = SPIFFS.open(CHANGELOG_FILE, "r");
     changelogFileSize = changelogFile.size();
     changelogBytesRead = changelogFile.readBytes((char *) changelogBuffer, CHNGL_BUFFER_SIZE - 1);

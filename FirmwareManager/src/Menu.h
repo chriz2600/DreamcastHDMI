@@ -436,14 +436,14 @@ class Menu
             menu_activeLine = pre_hook(menu_text, menu_activeLine);
         }
         fpgaTask.DoWriteToOSD(0, 9, menu_text, [&]() {
-            //DBG_OUTPUT_PORT.printf("%i %i\n", menu_activeLine, MENU_OFFSET + menu_activeLine);
+            //DEBUG("%i %i\n", menu_activeLine, MENU_OFFSET + menu_activeLine);
             fpgaTask.Write(I2C_OSD_ACTIVE_LINE, MENU_OFFSET + menu_activeLine, display_callback);
         });
     }
 
     void HandleClick(uint16_t controller_data, bool isRepeat) {
         if (inTransaction) {
-            DBG_OUTPUT_PORT.printf("%s in transaction!\n", name);
+            DEBUG("%s in transaction!\n", name);
             return;
         }
 
@@ -549,13 +549,13 @@ FPGATask fpgaTask(1, [](uint16_t controller_data, bool isRepeat) {
             return;
         }
         if (CHECK_BIT(controller_data, CTRLR_TRIGGER_DEFAULT_RESOLUTION)) {
-            DBG_OUTPUT_PORT.printf("FPGATask: switchResolution\n");
+            DEBUG("FPGATask: switchResolution\n");
             switchResolution(RESOLUTION_VGA);
             return;
         }
     }
     if (OSDOpen) {
-        //DBG_OUTPUT_PORT.printf("Menu: %s %x\n", currentMenu->Name(), controller_data);
+        //DEBUG("Menu: %s %x\n", currentMenu->Name(), controller_data);
         currentMenu->HandleClick(controller_data, isRepeat);
     }
 });

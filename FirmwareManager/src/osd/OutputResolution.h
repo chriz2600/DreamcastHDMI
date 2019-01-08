@@ -16,7 +16,7 @@ uint8_t remapResolution(uint8_t resd);
 
 void switchResolution(uint8_t newValue) {
     CurrentResolution = mapResolution(newValue);
-    DBG_OUTPUT_PORT.printf("   switchResolution: %02x -> %02x\n", newValue, CurrentResolution);
+    DEBUG("   switchResolution: %02x -> %02x\n", newValue, CurrentResolution);
     fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
 }
 
@@ -29,14 +29,14 @@ void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler) {
     bool valueChanged = (value != CurrentResolution);
     PrevCurrentResolution = CurrentResolution;
     CurrentResolution = value;
-    DBG_OUTPUT_PORT.printf("setting output resolution: %02x\n", (ForceVGA | CurrentResolution));
+    DEBUG("setting output resolution: %02x\n", (ForceVGA | CurrentResolution));
     currentMenu->startTransaction();
     fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, [ handler, valueChanged ](uint8_t Address, uint8_t Value) {
-        DBG_OUTPUT_PORT.printf("safe switch resolution callback: %02x\n", Value);
+        DEBUG("safe switch resolution callback: %02x\n", Value);
         if (valueChanged) {
             waitForI2CRecover(false);
         }
-        DBG_OUTPUT_PORT.printf("Turn FOLLOWUP save menu on!\n");
+        DEBUG("Turn FOLLOWUP save menu on!\n");
         currentMenu->endTransaction();
         handler(Address, Value);
     });
@@ -123,7 +123,7 @@ void storeResolutionData(uint8_t data) {
     if ((data & 0x0F) == 0) {
         CurrentResolutionData = data;
     } else {
-        DBG_OUTPUT_PORT.printf("   invalid resolution data: %02x\n", data);
+        DEBUG("   invalid resolution data: %02x\n", data);
     }
 }
 
@@ -151,6 +151,6 @@ uint8_t mapResolution(uint8_t resd) {
         targetres |= RESOLUTION_MOD_576p;
     }
 
-    DBG_OUTPUT_PORT.printf("   mapResolution: resd: %02x tres: %02x crd: %02x cdm: %02x\n", resd, targetres, CurrentResolutionData, CurrentDeinterlaceMode);
+    DEBUG("   mapResolution: resd: %02x tres: %02x crd: %02x cdm: %02x\n", resd, targetres, CurrentResolutionData, CurrentDeinterlaceMode);
     return targetres;
 }

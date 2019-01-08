@@ -58,7 +58,7 @@ Menu firmwareCheckMenu("FirmwareCheckMenu", (uint8_t*) OSD_FIRMWARE_CHECK_MENU, 
 }, true);
 
 void md5Cascade(int pos) {
-    DBG_OUTPUT_PORT.printf("md5Cascade: %i\n", pos);
+    DEBUG("md5Cascade: %i\n", pos);
     switch (pos) {
         case 0:
             currentMenu->startTransaction();

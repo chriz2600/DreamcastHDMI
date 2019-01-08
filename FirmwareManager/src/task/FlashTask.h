@@ -199,7 +199,7 @@ class FlashTask : public Task {
         }
 
         virtual void OnStop() {
-            DBG_OUTPUT_PORT.printf("FlashTask.OnStop: wrote %u pages.\n", page);
+            DEBUG("FlashTask.OnStop: wrote %u pages.\n", page);
             flash.disable();
             flashFile.close();
             // store md5 sum of last flashed firmware file
