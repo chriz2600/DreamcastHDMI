@@ -65,7 +65,7 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
         currentMenu->Display();
         return;
     }
-    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, CTRLR_BUTTON_Y)) {
+    if (!isRepeat && CurrentResetMode == RESET_MODE_GDEMU && CHECK_CTRLR_MASK(controller_data, CTRLR_BUTTON_Y)) {
         currentMenu = &optResetConfirmMenu;
         currentMenu->Display();
         return;
