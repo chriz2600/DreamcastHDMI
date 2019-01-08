@@ -13,7 +13,28 @@ void md5Cascade(int pos);
 void readStoredMD5Sum(int pos, int line, const char* fname, char* md5sum);
 ContentCallback createMD5Callback(int pos, int line, char* storedMD5Sum);
 void getMD5SumFromServer(String host, String url, ContentCallback contentCallback);
+void handleChangelogDownload(AsyncWebServerRequest *request, ProgressCallback progressCallback);
 void _readFile(const char *filename, char *target, unsigned int len, const char* defaultValue);
+
+ProgressCallback createCheckProgressCallback(int pos, int line) {
+    return [ pos, line ](int read, int total, bool done, int error) {
+        if (error != NO_ERROR) {
+            fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "[ ERROR DOWNLOADING  ] done.", [ pos ]() {
+                md5Cascade(pos + 1);
+            });
+            return;
+        }
+
+        if (done) {
+            fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "[********************] done.", [ pos ]() {
+                md5Cascade(pos + 1);
+            });
+            return;
+        }
+
+        displayProgress(read, total, line);
+    };
+}
 
 Menu firmwareCheckMenu("FirmwareCheckMenu", (uint8_t*) OSD_FIRMWARE_CHECK_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
@@ -26,6 +47,9 @@ Menu firmwareCheckMenu("FirmwareCheckMenu", (uint8_t*) OSD_FIRMWARE_CHECK_MENU, 
             firmwareCheckStarted = true;
             md5CheckResult = false;
             md5Cascade(0);
+        } else {
+            currentMenu = &changelogMenu;
+            currentMenu->Display();
         }
         return;
     }
@@ -64,6 +88,9 @@ void md5Cascade(int pos) {
             getMD5SumFromServer(REMOTE_ESP_HOST, REMOTE_ESP_INDEX_MD5, createMD5Callback(pos, MENU_FWC_INDEXHTML_LINE, md5IndexHtml));
             break;
         case 8:
+            handleChangelogDownload(NULL, createCheckProgressCallback(pos, MENU_FWC_CHANGELOG_LINE));
+            break;
+        case 9:
             const char* result;
             if (md5CheckResult) {
                 result = (
@@ -76,7 +103,9 @@ void md5Cascade(int pos) {
                 );
             }
             fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_FWC_RESULT_LINE, (uint8_t*) result, [ pos ]() {
-                md5Cascade(pos + 1);
+                fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_BUTTON_LINE, (uint8_t*) MENU_FWC_VIEW_CHANGELOG, [ pos ]() {
+                    md5Cascade(pos + 1);
+                });
             });
             break;
         default:

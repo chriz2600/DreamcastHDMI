@@ -45,6 +45,7 @@
 #define FPGA_I2C_SDA 2
 #define CLOCK_STRETCH_TIMEOUT 200
 
+#define CHANGELOG_FILE "/changelog"
 #define FIRMWARE_FILE "/firmware.dc"
 #define FIRMWARE_EXTENSION "dc"
 

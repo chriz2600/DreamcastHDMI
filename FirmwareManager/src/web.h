@@ -60,6 +60,15 @@ void handleESPIndexDownload(AsyncWebServerRequest *request) {
     handleESPIndexDownload(request, NULL);
 }
 
+void handleChangelogDownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
+    String httpGet = "GET /" 
+        + String(firmwareVersion) 
+        + "/changelog"
+        + " HTTP/1.0\r\nHost: esp.i74.de\r\n\r\n";
+
+    _handleDownload(request, CHANGELOG_FILE, httpGet, progressCallback);
+}
+
 void handleFPGADownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
     String httpGet = "GET /fw/" 
         + String(firmwareVersion) 

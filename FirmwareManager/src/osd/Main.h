@@ -12,6 +12,7 @@ extern Menu resetMenu;
 extern Menu dcResetConfirmMenu;
 extern Menu optResetConfirmMenu;
 extern Menu infoMenu;
+extern Menu changelogMenu;
 extern Menu *currentMenu;
 extern uint8_t CurrentResetMode;
 extern uint8_t CurrentDeinterlaceMode;

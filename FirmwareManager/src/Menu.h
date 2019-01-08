@@ -195,10 +195,12 @@ char OSD_FIRMWARE_MENU[521] = (
     "          " MENU_OK_STR ": Select  " MENU_CANCEL_STR ": Exit            "
 );
 
+#define MENU_FWC_VIEW_CHANGELOG "       " MENU_OK_STR ": View changelog  " MENU_CANCEL_STR ": Back       "
 #define MENU_FWC_FPGA_LINE 4
 #define MENU_FWC_ESP_LINE 5
 #define MENU_FWC_INDEXHTML_LINE 6
-#define MENU_FWC_RESULT_LINE 8
+#define MENU_FWC_CHANGELOG_LINE 7
+#define MENU_FWC_RESULT_LINE 9
 char OSD_FIRMWARE_CHECK_MENU[521] = (
     "Check Firmware                          "
     "                                        "
@@ -207,7 +209,7 @@ char OSD_FIRMWARE_CHECK_MENU[521] = (
     "FPGA        ________  ________          "
     "ESP         ________  ________          "
     "index.html  ________  ________          "
-    "                                        "
+    "changelog   [                    ]      "
     "                                        "
     "                                        "
     "                                        "
@@ -309,6 +311,24 @@ char OSD_INFO_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
+    "                " MENU_CANCEL_STR ": Back                 "
+);
+
+#define MENU_CHNGL_RESULT_LINE 2
+#define MENU_CHNGL_RESULT_HEIGHT 9
+char OSD_CHANGELOG_MENU[521] = (
+    "Changelog                               "
+    "----------------------------------------"
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "----------------------------------------"
     "                " MENU_CANCEL_STR ": Back                 "
 );
 
@@ -491,6 +511,7 @@ void displayProgress(int read, int total, int line) {
 #include "osd/VideoMode.h"
 #include "osd/Firmware.h"
 #include "osd/FirmwareCheck.h"
+#include "osd/Changelog.h"
 #include "osd/FirmwareDownload.h"
 #include "osd/FirmwareFlash.h"
 #include "osd/FirmwareReset.h"
