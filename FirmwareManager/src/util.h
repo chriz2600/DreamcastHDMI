@@ -12,7 +12,7 @@ void enableFPGA();
 void resetFPGAConfiguration();
 
 void resetall() {
-    DEBUG("all reset requested...\n");
+    DEBUG2("resetall...\n");
     taskManager.StopTask(&fpgaTask);
     enableFPGA();
     resetFPGAConfiguration();
@@ -37,13 +37,13 @@ void _readFile(const char *filename, char *target, unsigned int len, const char*
         if (f) {
             f.readBytes(target, len);
             f.close();
-            DEBUG(">> _readFile: %s:[%s]\n", filename, target);
+            DEBUG2(">> _readFile: %s:[%s]\n", filename, target);
             readFromFile = true;
         }
     }
     if (!readFromFile) {
         snprintf(target, len, "%s", defaultValue);
-        DEBUG(">> _readFile: %s:[%s] (default)\n", filename, target);
+        DEBUG2(">> _readFile: %s:[%s] (default)\n", filename, target);
     }
 }
 

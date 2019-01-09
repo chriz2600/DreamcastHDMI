@@ -16,7 +16,7 @@ uint8_t remapResolution(uint8_t resd);
 
 void switchResolution(uint8_t newValue) {
     CurrentResolution = mapResolution(newValue);
-    DEBUG("   switchResolution: %02x -> %02x\n", newValue, CurrentResolution);
+    DEBUG2("   switchResolution: %02x -> %02x\n", newValue, CurrentResolution);
     fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
 }
 
@@ -153,6 +153,6 @@ uint8_t mapResolution(uint8_t resd) {
         targetres |= RESOLUTION_MOD_576p;
     }
 
-    DEBUG("   mapResolution: resd: %02x tres: %02x crd: %02x cdm: %02x\n", resd, targetres, CurrentResolutionData, CurrentDeinterlaceMode);
+    DEBUG2("   mapResolution: resd: %02x tres: %02x crd: %02x cdm: %02x\n", resd, targetres, CurrentResolutionData, CurrentDeinterlaceMode);
     return targetres;
 }

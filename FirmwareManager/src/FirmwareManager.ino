@@ -98,7 +98,7 @@ Menu *previousMenu;
 //////////////////////////////////////////////////////////////////////////////////
 
 void setupSPIFFS() {
-    DEBUG(">> Setting up SPIFFS...\n");
+    DEBUG2(">> Setting up SPIFFS...\n");
     if (!SPIFFS.begin()) {
         DEBUG(">> SPIFFS begin failed, trying to format...");
         if (SPIFFS.format()) {
@@ -111,7 +111,7 @@ void setupSPIFFS() {
 
 void setupResetMode() {
     readCurrentResetMode();
-    DEBUG(">> Setting up reset mode: %x\n", CurrentResetMode);
+    DEBUG2(">> Setting up reset mode: %x\n", CurrentResetMode);
     reflashNeccessary3 = !forceI2CWrite(
         I2C_RESET_CONF, CurrentResetMode, 
         I2C_PING, 0
@@ -123,7 +123,7 @@ void setupOutputResolution() {
     readCurrentResolution();
     readCurrentDeinterlaceMode();
 
-    DEBUG(">> Setting up output resolution: %x\n", ForceVGA | CurrentResolution);
+    DEBUG2(">> Setting up output resolution: %x\n", ForceVGA | CurrentResolution);
     reflashNeccessary = !forceI2CWrite(
         I2C_OUTPUT_RESOLUTION, ForceVGA | mapResolution(CurrentResolution),
         //ForceVGA ? I2C_DC_RESET : I2C_PING, 0
@@ -140,7 +140,7 @@ void setupScanlines() {
     uint8_t upper = getScanlinesUpperPart();
     uint8_t lower = getScanlinesLowerPart();
 
-    DEBUG(">> Setting up scanlines:\n");
+    DEBUG2(">> Setting up scanlines:\n");
     reflashNeccessary2 = !forceI2CWrite(
         I2C_SCANLINE_UPPER, upper, 
         I2C_SCANLINE_LOWER, lower
@@ -156,13 +156,13 @@ void setup240pOffset() {
 }
 
 void setupTaskManager() {
-    DEBUG(">> Setting up task manager...\n");
+    DEBUG2(">> Setting up task manager...\n");
     taskManager.Setup();
     taskManager.StartTask(&fpgaTask);
 }
 
 void setupCredentials(void) {
-    DEBUG(">> Reading stored values...\n");
+    DEBUG2(">> Reading stored values...\n");
 
     _readFile("/etc/ssid", ssid, 64, DEFAULT_SSID);
     _readFile("/etc/password", password, 64, DEFAULT_PASSWORD);
@@ -202,10 +202,10 @@ void setupAPMode(void) {
 
 void setupWiFi() {
     if (strlen(ssid) == 0) {
-        DEBUG(">> No ssid, starting AP mode...\n");
+        DEBUG2(">> No ssid, starting AP mode...\n");
         setupAPMode();
     } else {
-        DEBUG(">> Trying to connect in client mode first...\n");
+        DEBUG2(">> Trying to connect in client mode first...\n");
         setupWiFiStation();
     }
 }
@@ -295,7 +295,7 @@ void setupWiFiStation() {
 }
 
 void setupHTTPServer() {
-    DEBUG(">> Setting up HTTP server...\n");
+    DEBUG2(">> Setting up HTTP server...\n");
 
     server.on("/upload/fpga", HTTP_POST, [](AsyncWebServerRequest *request){
         if(!_isAuthenticated(request)) {
@@ -801,21 +801,21 @@ void setupArduinoOTA() {
 void waitForController() {
     bool gotValidPacket = false;
     uint8_t _ForceVGA = ForceVGA;
-    DEBUG(">> Checking video mode controller override...\n");
+    DEBUG2(">> Checking video mode controller override...\n");
 
     for (int i = 0 ; i < 3333 ; i++) {
         // stop, if we got a valid packet
         if (gotValidPacket) {
-            DEBUG("   found valid controller packet at %i\n", i);
+            DEBUG2("   found valid controller packet at %i\n", i);
             if (_ForceVGA != ForceVGA) {
                 ForceVGA = _ForceVGA;
                 writeVideoMode();
-                DEBUG("   performing a resetall\n");
+                DEBUG2("   performing a resetall\n");
                 resetall();
             } else {
                 switchResolution();
                 fpgaTask.ForceLoop();
-                DEBUG("   video mode NOT changed: %u\n", ForceVGA);
+                DEBUG2("   video mode NOT changed: %u\n", ForceVGA);
             }
             return;
         }
@@ -838,7 +838,7 @@ void waitForController() {
         fpgaTask.ForceLoop();
         delay(1);
     }
-    DEBUG("no valid controller packet found within timeout\n");
+    DEBUG2("no valid controller packet found within timeout\n");
 }
 
 void setup(void) {
