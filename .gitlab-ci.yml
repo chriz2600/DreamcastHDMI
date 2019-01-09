@@ -35,11 +35,11 @@ esp-firmware:
     - "md5sum data/firmware.dc | awk '{print $1;}' > data/etc/last_flash_md5"
     - "md5sum data/firmware.dc | awk '{print $1;}' > data/firmware.dc.md5"
     # firmware.bin
-    - "md5sum FirmwareManager/.pioenvs/esp07s/firmware.bin | awk '{print $1;}' > data/etc/last_esp_flash_md5"
-    - "md5sum FirmwareManager/.pioenvs/esp07s/firmware.bin | awk '{print $1;}' > data/firmware.bin.md5"
+    - "md5sum .pioenvs/esp07s/firmware.bin | awk '{print $1;}' > data/etc/last_esp_flash_md5"
+    - "md5sum .pioenvs/esp07s/firmware.bin | awk '{print $1;}' > data/firmware.bin.md5"
     # index.html
-    - "md5sum FirmwareManager/data/index.html.gz | awk '{print $1;}' > data/index.html.gz.md5"
-    - "md5sum FirmwareManager/data/index.html.gz | awk '{print $1;}' > data/esp.index.html.gz.md5"
+    - "md5sum data/index.html.gz | awk '{print $1;}' > data/index.html.gz.md5"
+    - "md5sum data/index.html.gz | awk '{print $1;}' > data/esp.index.html.gz.md5"
     # finally build spiffs
     - "pio run -t buildfs"
   artifacts:
