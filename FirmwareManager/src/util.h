@@ -16,7 +16,7 @@ void resetall() {
     taskManager.StopTask(&fpgaTask);
     enableFPGA();
     resetFPGAConfiguration();
-    //ESP.eraseConfig();
+    ESP.eraseConfig();
     ESP.restart();
 }
 
