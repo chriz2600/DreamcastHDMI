@@ -869,6 +869,9 @@ void setup(void) {
 
     setOSD(false, NULL); fpgaTask.ForceLoop();
     fpgaTask.DoWriteToOSD(33, 24, (uint8_t*) " " DCHDMI_VERSION); fpgaTask.ForceLoop();
+    char buff[16]; osd_get_resolution(buff);
+    fpgaTask.DoWriteToOSD(0, 24, (uint8_t*) buff); fpgaTask.ForceLoop();
+
     if (reflashNeccessary && reflashNeccessary2 && reflashNeccessary3) {
         DEBUG2("FPGA firmware missing or broken, reflash needed.\n");
         disableFPGA();

@@ -13,11 +13,16 @@ void writeCurrentResolution();
 void waitForI2CRecover(bool waitForError);
 uint8_t cfgRes2Int(char* intResolution);
 uint8_t remapResolution(uint8_t resd);
+void osd_get_resolution(char* buffer);
 
 void switchResolution(uint8_t newValue) {
     CurrentResolution = mapResolution(newValue);
     DEBUG2("   switchResolution: %02x -> %02x\n", newValue, CurrentResolution);
-    fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
+    fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, [](uint8_t Address, uint8_t Value) {
+        char buff[16];
+        osd_get_resolution(buff);
+        fpgaTask.DoWriteToOSD(0, 24, (uint8_t*) buff);
+    });
 }
 
 void switchResolution() {
@@ -37,8 +42,12 @@ void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler) {
             waitForI2CRecover(false);
         }
         DEBUG("Turn FOLLOWUP save menu on!\n");
-        currentMenu->endTransaction();
-        handler(Address, Value);
+        char buff[16];
+        osd_get_resolution(buff);
+        fpgaTask.DoWriteToOSD(0, 24, (uint8_t*) buff, [ handler, Address, Value ]() {
+            currentMenu->endTransaction();
+            handler(Address, Value);
+        });
     });
 }
 
@@ -155,4 +164,34 @@ uint8_t mapResolution(uint8_t resd) {
 
     DEBUG2("   mapResolution: resd: %02x tres: %02x crd: %02x cdm: %02x\n", resd, targetres, CurrentResolutionData, CurrentDeinterlaceMode);
     return targetres;
+}
+
+void osd_get_resolution(char* buffer) {
+    uint8_t res = mapResolution(CurrentResolution);
+    char data[14];
+
+    switch (res) {
+        case 0x00: sprintf(data, "1080p"); break;
+        case 0x01: sprintf(data, "960p"); break;
+        case 0x02: sprintf(data, "480p"); break;
+        case 0x03: sprintf(data, "VGA"); break;
+        case 0x08: sprintf(data, "576p"); break;
+        case 0x09: sprintf(data, "576p"); break;
+        case 0x0A: sprintf(data, "576p"); break;
+        case 0x0B: sprintf(data, "576p"); break;
+        case 0x10: sprintf(data, "240p_1080p"); break;
+        case 0x11: sprintf(data, "240p_960p"); break;
+        case 0x12: sprintf(data, "240p_480p"); break;
+        case 0x13: sprintf(data, "240p_VGA"); break;
+        case 0x20: sprintf(data, "480i"); break;
+        case 0x21: sprintf(data, "480i"); break;
+        case 0x22: sprintf(data, "480i"); break;
+        case 0x23: sprintf(data, "480i"); break;
+        case 0x40: sprintf(data, "576i"); break;
+        case 0x41: sprintf(data, "576i"); break;
+        case 0x42: sprintf(data, "576i"); break;
+        case 0x43: sprintf(data, "576i"); break;
+    }
+
+    snprintf(buffer, 13, "%.*s%*s", 10, data, 2, " \x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07");
 }
