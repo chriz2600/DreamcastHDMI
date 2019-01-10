@@ -82,7 +82,7 @@ wire _240p_480i_mode;
 wire add_line_mode;
 wire is_pal_mode;
 
-wire ram2video_ready;
+//wire ram2video_ready;
 
 wire [9:0] text_rdaddr;
 wire [7:0] text_rddata;
@@ -351,7 +351,7 @@ Flag_CrossDomain enable_osd_cross(
 ram2video ram2video(
     .starttrigger(output_trigger),
     .clock(hdmi_clock),
-    .reset(~pll_hdmi_locked || ~ram2video_ready || resync_signal),
+    .reset(~pll_hdmi_locked /*|| ~ram2video_ready*/ || resync_signal),
     .line_doubler(line_doubler_sync),
     .rddata(ram_rddata),
     .hsync(HSYNC),
@@ -368,12 +368,12 @@ ram2video ram2video(
     .fullcycle(fullcycle)
 );
 
-startup ram2video_startup_delay(
-    .clock(hdmi_clock),
-    .nreset(pll_hdmi_locked),
-    .ready(ram2video_ready),
-    .startup_delay(32'd255/*hdmiVideoConfig.startup_delay*/)
-);
+// startup ram2video_startup_delay(
+//     .clock(hdmi_clock),
+//     .nreset(pll_hdmi_locked),
+//     .ready(ram2video_ready),
+//     .startup_delay(32'd255/*hdmiVideoConfig.startup_delay*/)
+// );
 
 text_ram text_ram_inst(
     .rdclock(hdmi_clock),
@@ -390,15 +390,15 @@ text_ram text_ram_inst(
 // dreamcast reset and control, also ADV7513 I2C control
 ////////////////////////////////////////////////////////////////////////
 // reset clock circuit
+wire _clock_;
 osc control_clock_gen(
     .oscena(1'b1),
-    .clkout(control_clock)
+    .clkout(_clock_)
 );
-
-// divide control_clock by 2 for pll reconfiguration
-// always @(posedge control_clock) begin
-//     control_clock_2 <= ~control_clock_2;
-// end
+always @(posedge _clock_) begin
+    control_clock <= ~control_clock;
+end
+////////////////////////////////////////////////////////
 
 reg pll54_lockloss;
 reg pll_hdmi_lockloss;
@@ -661,9 +661,9 @@ adv7513_reconfig reconf_adv(
 
 ADV7513 adv7513(
     .clk(control_clock),
-    .reset(adv7513_reset),
+    .reset(adv7513_reset || ~activateHDMIoutput),
     .hdmi_int(HDMI_INT_N & ~adv7513_reconf), // ? is adv7513_reconf really needed ?
-    .output_ready(pll_hdmi_ready && ram2video_fullcycle && activateHDMIoutput),
+    .output_ready(pll_hdmi_ready && ram2video_fullcycle),
     .sda(SDAT),
     .scl(SCLK),
     .ready(adv7513_ready),
