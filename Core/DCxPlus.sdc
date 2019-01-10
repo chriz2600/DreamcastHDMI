@@ -25,8 +25,8 @@ set_false_path -from [get_ports {video_mode_480p_n}]
 set_clock_groups -asynchronous -group datain_clock -group data_clock
 set_clock_groups -asynchronous -group datain_clock -group clock_clock
 set_clock_groups -asynchronous -group datain_clock -group output_clock
-set_clock_groups -asynchronous -group datain_clock -group int_osc_clk
-set_clock_groups -asynchronous -group data_clock -group int_osc_clk
+#set_clock_groups -asynchronous -group datain_clock -group int_osc_clk
+#set_clock_groups -asynchronous -group data_clock -group int_osc_clk
 
 derive_clock_uncertainty
 
