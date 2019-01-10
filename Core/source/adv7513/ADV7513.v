@@ -130,7 +130,7 @@ always @ (posedge clk) begin
                     subcmd_counter <= scs_start;
                 end else if (hdmi_int_reg) begin
                     state <= s_start;
-                    cmd_counter <= cs_init;
+                    cmd_counter <= cs_pwrdown;
                     subcmd_counter <= scs_start;
                     hdmi_int_reg = 1'b0;
                 end else if (counter == 32'd_16_000_000) begin
