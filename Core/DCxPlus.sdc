@@ -15,7 +15,7 @@ create_generated_clock -name output_clock -source {pll_hdmi|altpll_component|aut
 ##################
 #create_clock -name int_osc_clk -period 80MHz {control_clock_gen|int_osc_0|wire_sd1_clkout}
 #create_generated_clock -name pll_reconfig_clock -source {control_clock_gen|int_osc_0|wire_sd1_clkout} -divide_by 2 -multiply_by 1 "control_clock_2"
-create_clock -name int_osc_clk -period 40MHz "control_clock"
+#create_clock -name int_osc_clk -period 80MHz "control_clock"
 
 set_false_path -from [get_ports {HDMI_INT_N}]
 set_false_path -from [get_ports {video_mode_480p_n}]

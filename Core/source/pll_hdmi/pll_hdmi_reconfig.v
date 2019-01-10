@@ -17,7 +17,7 @@ module pll_hdmi_reconfig (
     reg doReconfig_2;
     reg doReconfig_3;
 
-    reg [7:0] data_req = 8'h_00;
+    reg [7:0] data_req = 8'h_FF;
 
     assign q = q_reg_2;
     assign reconfig = doReconfig_3;
@@ -31,7 +31,7 @@ module pll_hdmi_reconfig (
             doReconfig <= 0;
         end
 
-        if (~pll_reconf_busy && data != data_req) begin
+        if (~pll_reconf_busy && data_req != data) begin
             data_req <= data;
             trigger_read <= 1'b1;
         end else begin

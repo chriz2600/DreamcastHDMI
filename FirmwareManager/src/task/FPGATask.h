@@ -17,6 +17,7 @@ typedef std::function<void(uint8_t address, uint8_t* buffer, uint8_t len)> ReadC
 typedef std::function<void()> WriteOSDCallbackHandlerFunction;
 
 extern uint8_t CurrentResolution;
+extern uint8_t CurrentResolutionData;
 void switchResolution();
 void storeResolutionData(uint8_t data);
 
@@ -185,7 +186,7 @@ class FPGATask : public Task {
                     }
                 }
                 // new meta data
-                if (buffer2[2] != data_out[2]) {
+                if (buffer2[2] != CurrentResolutionData /*data_out[2]*/) {
                     DEBUG1("I2C_CONTROLLER_AND_DATA_BASE, switch to: %02x\n", buffer2[2]);
                     storeResolutionData(buffer2[2]);
                     switchResolution();

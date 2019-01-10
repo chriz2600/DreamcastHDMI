@@ -188,20 +188,17 @@ pll_hdmi_reconf	pll_hdmi_reconf(
     .write_rom_ena(pll_hdmi_write_rom_ena)
 );
 
-// wire [7:0] reconf_data_x;
-// data_cross reconf_data_x_cross(
-//     .clkIn(control_clock),
-//     .clkOut(control_clock_2),
-//     .dataIn(reconf_data),
-//     .dataOut(reconf_data_x)
-// );
+wire is_pll54_locked;
+wire is_pll_hdmi_locked;
+Signal_CrossDomain isPll54Locked(.SignalIn_clkA(pll54_locked), .clkB(control_clock), .SignalOut_clkB(is_pll54_locked));
+Signal_CrossDomain isPllHdmiLocked(.SignalIn_clkA(pll_hdmi_locked), .clkB(control_clock), .SignalOut_clkB(is_pll_hdmi_locked));
 
 pll_hdmi_reconfig reconf_rom(
     .clock(control_clock),
     .address(pll_hdmi_rom_address_out),
     .read_ena(pll_hdmi_write_rom_ena),
-    .pll_reconf_busy(pll_reconf_busy),
-    .data(reconf_data),
+    .pll_reconf_busy(pll_reconf_busy || ~is_pll54_locked || ~is_pll_hdmi_locked),
+    .data(reconf_data/*reconf_data_clock54*/),
 
     .q(pll_hdmi_rom_data_in),
     .reconfig(pll_hdmi_reconfig),
@@ -390,14 +387,10 @@ text_ram text_ram_inst(
 // dreamcast reset and control, also ADV7513 I2C control
 ////////////////////////////////////////////////////////////////////////
 // reset clock circuit
-wire _clock_;
 osc control_clock_gen(
     .oscena(1'b1),
-    .clkout(_clock_)
+    .clkout(control_clock)
 );
-always @(posedge _clock_) begin
-    control_clock <= ~control_clock;
-end
 ////////////////////////////////////////////////////////
 
 reg pll54_lockloss;
@@ -661,7 +654,7 @@ adv7513_reconfig reconf_adv(
 
 ADV7513 adv7513(
     .clk(control_clock),
-    .reset(adv7513_reset || ~activateHDMIoutput),
+    .reset(adv7513_reset /*|| ~activateHDMIoutput*/),
     .hdmi_int(HDMI_INT_N & ~adv7513_reconf), // ? is adv7513_reconf really needed ?
     .output_ready(pll_hdmi_ready && ram2video_fullcycle),
     .sda(SDAT),
