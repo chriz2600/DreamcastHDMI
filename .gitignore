@@ -14,7 +14,7 @@ Core/*.qws
 Core/DCx.sld
 Core/DCx.sof
 Core/c5_pin_model_dump.txt
-Core/greybox_tmp
+Core/greybox_tmp/
 Core/DCx.ipregen.rpt
 Core/aldec/
 Core/cadence/

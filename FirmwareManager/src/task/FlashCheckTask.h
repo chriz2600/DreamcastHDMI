@@ -30,7 +30,7 @@ class FlashCheckTask : public Task {
         uint8_t buffer[256];
 
         virtual bool OnStart() {
-            DBG_OUTPUT_PORT.printf("SPI flash check starting...\n");
+            DEBUG("SPI flash check starting...\n");
             page = 0;
             _readFile("/etc/last_flash_spi_md5", storedMD5Sum, 33, DEFAULT_MD5_SUM);
             char _pages[8];
@@ -54,7 +54,7 @@ class FlashCheckTask : public Task {
         }
 
         void InvokeCallback(bool isOk) {
-            DBG_OUTPUT_PORT.printf("SPI flash check finished: %u\n", isOk);
+            DEBUG("SPI flash check finished: %u\n", isOk);
             if (flashCheckCallback != NULL) {
                 flashCheckCallback(isOk);
             }
@@ -64,7 +64,7 @@ class FlashCheckTask : public Task {
             flash.disable();
             spiMD5.calculate();
             String actualMD5 = spiMD5.toString();
-            DBG_OUTPUT_PORT.printf("Pages: %u\nComparing MD5 stored/actual:\n  [%s]\n  [%s]\n", page, storedMD5Sum, actualMD5.c_str());
+            DEBUG("Pages: %u\nComparing MD5 stored/actual:\n  [%s]\n  [%s]\n", page, storedMD5Sum, actualMD5.c_str());
             InvokeCallback(strncmp(storedMD5Sum, actualMD5.c_str(), 32) == 0);
         }
 

@@ -6,7 +6,16 @@
 
 //////////////////////////////////////////////////////////////////////////////////
 
-#define DCHDMI_VERSION "v1.2.2"
+#define DCHDMI_VERSION "v2.0.0"
+
+//////////////////////////////////////////////////////////////////////////////////
+
+#define DBG_OUTPUT_PORT Serial
+//#define DEBUG(...) DBG_OUTPUT_PORT.printf(__VA_ARGS__)
+#define DEBUG(...) void(0)
+#define DEBUG1(...) DBG_OUTPUT_PORT.printf(__VA_ARGS__)
+//#define DEBUG2(...) DBG_OUTPUT_PORT.printf(__VA_ARGS__)
+#define DEBUG2(_1, ...) DBG_OUTPUT_PORT.printf_P(PSTR(_1), ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -30,13 +39,13 @@
 #define DEFAULT_SCANLINES_ODDEVEN SCANLINES_EVEN
 #define DEFAULT_SCANLINES_THICKNESS SCANLINES_THIN
 #define DEFAULT_RESET_MODE RESET_MODE_STR_LED
+#define DEFAULT_DEINTERLACE_MODE DEINTERLACE_MODE_STR_BOB
 
 //////////////////////////////////////////////////////////////////////////////////
 
 #define CS 16
 #define NCE 4
 #define NCONFIG 5
-#define DBG_OUTPUT_PORT Serial
 
 #define FPGA_I2C_ADDR 0x3c
 #define FPGA_I2C_FREQ_KHZ 733
@@ -44,6 +53,7 @@
 #define FPGA_I2C_SDA 2
 #define CLOCK_STRETCH_TIMEOUT 200
 
+#define CHANGELOG_FILE "/changelog"
 #define FIRMWARE_FILE "/firmware.dc"
 #define FIRMWARE_EXTENSION "dc"
 
@@ -53,7 +63,6 @@
 #define ESP_INDEX_STAGING_FILE "/esp.index.html.gz"
 
 #define PAGES 8192 // 8192 pages x 256 bytes = 2MB = 16MBit
-#define DEBUG true
 #define DEFAULT_MD5_SUM "00000000000000000000000000000000"
 
 #define NO_ERROR 0
@@ -80,17 +89,15 @@
 #define RESOLUTION_960p (0x01)
 #define RESOLUTION_480p (0x02)
 #define RESOLUTION_VGA (0x03)
-#define RESOLUTION_240Px3 (0x04)
-#define RESOLUTION_240Px4 (0x05)
-#define RESOLUTION_240P1080P (0x06)
+#define RESOLUTION_MOD_576p (0x08)
+#define RESOLUTION_MOD_240p (0x10)
+#define RESOLUTION_MOD_480i (0x20)
+#define RESOLUTION_MOD_576i (0x40)
 
 #define RESOLUTION_STR_1080p "1080p"
 #define RESOLUTION_STR_960p "960p"
 #define RESOLUTION_STR_480p "480p"
 #define RESOLUTION_STR_VGA "VGA"
-#define RESOLUTION_STR_240Px3 "240p_x3"
-#define RESOLUTION_STR_240Px4 "240p_x4"
-#define RESOLUTION_STR_240P1080P "240p_1080p"
 
 #define VIDEO_MODE_STR_FORCE_VGA "ForceVGA"
 #define VIDEO_MODE_STR_CABLE_DETECT "CableDetect"
@@ -99,19 +106,25 @@
 #define VGA_OFF (0x00)
 #define VGA_ON (0x80)
 
-#define PLL_RESET_OFF (0x00)
-#define PLL_RESET_ON (0x40)
-#define GENERATE_TIMING_AND_VIDEO (0x30)
+#define RESOLUTION_DATA_240P (0x80)
+#define RESOLUTION_DATA_LINE_DOUBLER (0x40)
+#define RESOLUTION_DATA_IS_PAL (0x20)
+#define RESOLUTION_DATA_OSD_STATE (0x08)
+
+#define GENERATE_TIMING_AND_VIDEO (0x03)
+#define FORCE_GENERATE_TIMING_AND_VIDEO (0x10)
 
 #define I2C_OSD_ADDR_OFFSET (0x80)
 #define I2C_OSD_ENABLE (0x81)
 #define I2C_OSD_ACTIVE_LINE (0x82)
 #define I2C_OUTPUT_RESOLUTION (0x83)
+#define I2C_VIDEO_GEN (0x84)
 #define I2C_CONTROLLER_AND_DATA_BASE (0x85)
 #define I2C_METADATA (0x87)
 #define I2C_SCANLINE_UPPER (0x88)
 #define I2C_SCANLINE_LOWER (0x89)
 #define I2C_240P_OFFSET (0x90)
+#define I2C_ACTIVATE_HDMI (0x91)
 #define I2C_DC_RESET (0xF0)
 #define I2C_OPT_RESET (0xF1)
 #define I2C_RESET_CONF (0xF2)
@@ -212,5 +225,11 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 #define RESET_MODE_LED (0x00)
 #define RESET_MODE_GDEMU (0x01)
 #define RESET_MODE_USBGDROM (0x02)
+
+#define DEINTERLACE_MODE_BOB (0x00)
+#define DEINTERLACE_MODE_PASSTHRU (0x01)
+#define DEINTERLACE_MODE_STR_BOB "bob"
+#define DEINTERLACE_MODE_STR_PASSTHRU "passthru"
+
 
 #endif

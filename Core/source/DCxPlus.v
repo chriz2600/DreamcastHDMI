@@ -57,7 +57,6 @@ wire pll_hdmi_write_rom_ena;
 wire reconf_fifo_rdempty;
 wire [7:0] reconf_fifo_q;
 wire reconf_fifo_rdreq;
-wire [7:0] reconf_fifo_data;
 wire reconf_fifo_wrreq;
 wire reconf_fifo_wrfull;
 
@@ -71,7 +70,6 @@ wire [7:0] dc_green;
 wire [7:0] dc_red;
 
 wire ram_wren;
-wire ram_wrclock;
 wire [14:0] ram_wraddress;
 wire [23:0] ram_wrdata;
 wire [14:0] ram_rdaddress;
@@ -82,8 +80,9 @@ wire output_trigger;
 
 wire _240p_480i_mode;
 wire add_line_mode;
+wire is_pal_mode;
 
-wire ram2video_ready;
+//wire ram2video_ready;
 
 wire [9:0] text_rdaddr;
 wire [7:0] text_rddata;
@@ -91,6 +90,7 @@ wire [9:0] text_wraddr;
 wire [7:0] text_wrdata;
 wire text_wren;
 wire enable_osd;
+wire enable_osd_out;
 wire [7:0] highlight_line;
 //DebugData debugData;
 ControllerData controller_data;
@@ -98,7 +98,6 @@ HDMIVideoConfig hdmiVideoConfig;
 DCVideoConfig dcVideoConfig;
 Scanline scanline;
 wire forceVGAMode;
-wire resetPLL;
 wire resync;
 wire [23:0] pinok;
 wire [23:0] pinok_out;
@@ -112,12 +111,15 @@ wire force_generate;
 
 wire generate_video;
 wire generate_timing;
+wire [7:0] video_gen_data;
+wire activateHDMIoutput;
 wire fullcycle;
 wire reset_dc;
 wire reset_opt;
 wire [7:0] reset_conf;
 
 wire control_clock;
+//wire control_clock_2;
 wire hdmi_int_reg;
 wire hpd_detected;
 wire config_changed;
@@ -161,14 +163,16 @@ pll_hdmi pll_hdmi(
     .scandone(pll_hdmi_scandone)
 );
 
+wire pll_reconf_busy;
 pll_hdmi_reconf	pll_hdmi_reconf(
-    .clock(clock54_net),
+    .clock(control_clock),
     .reconfig(pll_hdmi_reconfig),
+    .busy(pll_reconf_busy),
     .data_in(9'b0),
     .counter_type(4'b0),
     .counter_param(3'b0),
 
-    .pll_areset_in(resetPLL || pll54_lockloss || pll_hdmi_lockloss),
+    .pll_areset_in(pll54_lockloss || pll_hdmi_lockloss),
 
     .pll_scandataout(pll_hdmi_scandataout),
     .pll_scandone(pll_hdmi_scandone),
@@ -184,45 +188,49 @@ pll_hdmi_reconf	pll_hdmi_reconf(
     .write_rom_ena(pll_hdmi_write_rom_ena)
 );
 
-reconf_rom reconf_rom(
-    .clock(clock54_net),
+wire is_pll54_locked;
+wire is_pll_hdmi_locked;
+Signal_CrossDomain isPll54Locked(.SignalIn_clkA(pll54_locked), .clkB(control_clock), .SignalOut_clkB(is_pll54_locked));
+Signal_CrossDomain isPllHdmiLocked(.SignalIn_clkA(pll_hdmi_locked), .clkB(control_clock), .SignalOut_clkB(is_pll_hdmi_locked));
+
+pll_hdmi_reconfig reconf_rom(
+    .clock(control_clock),
     .address(pll_hdmi_rom_address_out),
     .read_ena(pll_hdmi_write_rom_ena),
+    .pll_reconf_busy(pll_reconf_busy || ~is_pll54_locked || ~is_pll_hdmi_locked),
+    .data(reconf_data/*reconf_data_clock54*/),
+
     .q(pll_hdmi_rom_data_in),
     .reconfig(pll_hdmi_reconfig),
-    .rdempty(reconf_fifo_rdempty),
-    .fdata(reconf_fifo_q),
-    .rdreq(reconf_fifo_rdreq),
-    .trigger_read(pll_hdmi_write_from_rom),
-    .forceVGAMode(forceVGAMode),
-    .resetPLL(resetPLL),
-    .dcVideoConfig(dcVideoConfig),
-    .generate_video(generate_video),
-    .generate_timing(generate_timing)
-);
-
-reconf_fifo	reconf_fifo(
-    .rdclk(clock54_net),
-    .rdreq(reconf_fifo_rdreq),
-    .rdempty(reconf_fifo_rdempty),
-    .q(reconf_fifo_q),
-
-    .wrclk(hdmi_clock),
-    .data(reconf_fifo_data),
-    .wrreq(reconf_fifo_wrreq),
-    .wrfull(reconf_fifo_wrfull)
-);
-
-trigger_reconf trigger_reconf(
-    .clock(hdmi_clock),
-    .wrfull(reconf_fifo_wrfull),
-    .data_in(reconf_data),
-    .data(reconf_fifo_data),
-    .wrreq(reconf_fifo_wrreq)
+    .trigger_read(pll_hdmi_write_from_rom)
 );
 
 /////////////////////////////////
 // 54/27 MHz area
+
+data_cross video_gen_data_cross(
+    .clkIn(control_clock),
+    .clkOut(clock54_net),
+    .dataIn(video_gen_data),
+    .dataOut({ 6'bzzzzzz, generate_video, generate_timing })
+);
+
+wire [7:0] reconf_data_clock54;
+
+data_cross reconf_data_clock54_cross(
+    .clkIn(control_clock),
+    .clkOut(clock54_net),
+    .dataIn(reconf_data),
+    .dataOut(reconf_data_clock54)
+);
+
+dc_video_reconfig dc_video_configurator(
+    .clock(clock54_net),
+    .data_in(reconf_data_clock54),
+    .dcVideoConfig(dcVideoConfig),
+    .forceVGAMode(forceVGAMode)
+);
+
 data video_input(
     .clock(clock54_net),
     .reset(~pll54_locked || config_changed),
@@ -233,6 +241,7 @@ data video_input(
     .generate_timing(generate_timing),
     .indata(data),
     .add_line(add_line_mode),
+    .is_pal(is_pal_mode),
     .resync(resync),
     .force_generate(force_generate),
     .blue(dc_blue),
@@ -250,13 +259,13 @@ video2ram video2ram(
     .clock(clock54_net),
     .nreset(~resync),
     .line_doubler(_240p_480i_mode),
+    .is_pal(is_pal_mode),
     .B(dc_blue),
     .counterX(data_in_counter_x),
     .counterY(data_in_counter_y),
     .G(dc_green),
     .R(dc_red),
     .wren(ram_wren),
-    .wrclock(ram_wrclock),
     .starttrigger(buffer_ready_trigger),
     .wraddr(ram_wraddress),
     .wrdata(ram_wrdata),
@@ -266,17 +275,18 @@ video2ram video2ram(
 /////////////////////////////////
 // clock domain crossing
 ram video_buffer(
+    .wrclock(clock54_net),
     .wren(ram_wren),
-    .wrclock(ram_wrclock),
-    .rdclock(hdmi_clock),
-    .data(ram_wrdata),
-    .rdaddress(ram_rdaddress),
     .wraddress(ram_wraddress),
+    .data(ram_wrdata),
+
+    .rdclock(hdmi_clock),
+    .rdaddress(ram_rdaddress),
     .q(ram_rddata)
 );
 
 Flag_CrossDomain trigger(
-    .clkA(ram_wrclock),
+    .clkA(clock54_net),
     .FlagIn_clkA(buffer_ready_trigger),
     .clkB(hdmi_clock),
     .FlagOut_clkB(output_trigger)
@@ -288,7 +298,10 @@ reg prev_resync_out = 0;
 reg resync_out = 0;
 reg resync_signal = 1;
 wire line_doubler_sync;
+wire line_doubler_sync2;
 wire add_line_sync;
+wire is_pal_sync;
+wire [7:0] reconf_data_hdmi;
 
 Flag_CrossDomain rsync_trigger(
     .clkA(clock54_net),
@@ -312,18 +325,31 @@ Signal_CrossDomain lineDoubler(
     .SignalOut_clkB(line_doubler_sync)
 );
 
-Signal_CrossDomain addLine(
-    .SignalIn_clkA(add_line_mode),
+data_cross reconfDataHdmi(
+    .clkIn(control_clock),
+    .clkOut(hdmi_clock),
+    .dataIn(reconf_data),
+    .dataOut(reconf_data_hdmi)
+);
+
+hdmi_video_reconfig hdmi_video_configurator(
+    .clock(hdmi_clock),
+    .data_in(reconf_data_hdmi),
+    .hdmiVideoConfig(hdmiVideoConfig)
+);
+
+Flag_CrossDomain enable_osd_cross(
+    .clkA(control_clock),
+    .FlagIn_clkA(enable_osd),
     .clkB(hdmi_clock),
-    .SignalOut_clkB(add_line_sync)
+    .FlagOut_clkB(enable_osd_out)
 );
 
 ram2video ram2video(
     .starttrigger(output_trigger),
     .clock(hdmi_clock),
-    .reset(~pll_hdmi_locked || ~ram2video_ready || resync_signal),
+    .reset(~pll_hdmi_locked /*|| ~ram2video_ready*/ || resync_signal),
     .line_doubler(line_doubler_sync),
-    .add_line(add_line_sync),
     .rddata(ram_rddata),
     .hsync(HSYNC),
     .vsync(VSYNC),
@@ -332,59 +358,29 @@ ram2video ram2video(
     .text_rddata(text_rddata),
     .text_rdaddr(text_rdaddr),
     .video_out(VIDEO),
-    .enable_osd(enable_osd),
+    .enable_osd(enable_osd_out),
     .highlight_line(highlight_line),
     .hdmiVideoConfig(hdmiVideoConfig),
     .scanline(scanline),
     .fullcycle(fullcycle)
 );
 
-startup ram2video_startup_delay(
-    .clock(hdmi_clock),
-    .nreset(pll_hdmi_locked),
-    .ready(ram2video_ready),
-    .startup_delay(32'd255/*hdmiVideoConfig.startup_delay*/)
-);
+// startup ram2video_startup_delay(
+//     .clock(hdmi_clock),
+//     .nreset(pll_hdmi_locked),
+//     .ready(ram2video_ready),
+//     .startup_delay(32'd255/*hdmiVideoConfig.startup_delay*/)
+// );
 
 text_ram text_ram_inst(
-    .clock(hdmi_clock),
-    .data(text_wrdata),
+    .rdclock(hdmi_clock),
     .rdaddress(text_rdaddr),
+    .q(text_rddata),
+
+    .wrclock(control_clock),
     .wraddress(text_wraddr),
-    .wren(text_wren),
-    .q(text_rddata)
-);
-
-i2cSlave i2cSlave(
-    .clk(hdmi_clock),
-    .rst(~ram2video_ready),
-    .sda(ESP_SDA),
-    .scl(ESP_SCL),
-    .ram_dataIn(text_wrdata),
-    .ram_wraddress(text_wraddr),
-    .ram_wren(text_wren),
-    .enable_osd(enable_osd),
-    //.debugData(debugData),
-    .controller_data(controller_data),
-    .highlight_line(highlight_line),
-    .reconf_data(reconf_data),
-    .hdmiVideoConfig(hdmiVideoConfig),
-    .scanline(scanline),
-    .reset_dc(reset_dc),
-    .reset_opt(reset_opt),
-    .reset_conf(reset_conf),
-    .pinok(pinok_out),
-    .timingInfo(timingInfo_out),
-    .rgbData(rgbData_out),
-    .conf240p(conf240p),
-    .add_line(add_line_sync)
-);
-
-maple mapleBus(
-    .clk(hdmi_clock),
-    .pin1(MAPLE_PIN1),
-    .pin5(MAPLE_PIN5),
-    .controller_data(controller_data)
+    .data(text_wrdata),
+    .wren(text_wren)
 );
 
 ////////////////////////////////////////////////////////////////////////
@@ -395,6 +391,7 @@ osc control_clock_gen(
     .oscena(1'b1),
     .clkout(control_clock)
 );
+////////////////////////////////////////////////////////
 
 reg pll54_lockloss;
 reg pll_hdmi_lockloss;
@@ -411,56 +408,52 @@ edge_detect pll_hdmi_lockloss_check(
     .rise(pll_hdmi_lockloss)
 );
 
-Flag_CrossDomain reset_trigger(
-    .clkA(hdmi_clock),
-    .FlagIn_clkA(reset_dc),
-    .clkB(control_clock),
-    .FlagOut_clkB(reset_dc_out)
-);
-
-Flag_CrossDomain opt_reset_trigger(
-    .clkA(hdmi_clock),
-    .FlagIn_clkA(reset_opt),
-    .clkB(control_clock),
-    .FlagOut_clkB(reset_opt_out)
-);
-
-data_cross reset_cross(
-    .clkIn(hdmi_clock),
-    .clkOut(control_clock),
-    .dataIn(reset_conf),
-    .dataOut(reset_conf_out)
-);
-
 info_cross pinok_cross(
     .clkIn(clock54_net),
-    .clkOut(hdmi_clock),
+    .clkOut(control_clock),
     .dataIn(pinok),
     .dataOut(pinok_out)
 );
 
 info_cross resolution_cross(
     .clkIn(clock54_net),
-    .clkOut(hdmi_clock),
+    .clkOut(control_clock),
     .dataIn(timingInfo),
     .dataOut(timingInfo_out)
 );
 
 info_cross rgbdata_cross(
     .clkIn(clock54_net),
-    .clkOut(hdmi_clock),
+    .clkOut(control_clock),
     .dataIn(rgbData),
     .dataOut(rgbData_out)
 );
 
 info_cross conf240p_cross(
-    .clkIn(hdmi_clock),
+    .clkIn(control_clock),
     .clkOut(clock54_net),
     .dataIn(conf240p),
     .dataOut(conf240p_out)
 );
 
-reg[7:0] reset_conf_out;
+Signal_CrossDomain lineDoubler2(
+    .SignalIn_clkA(_240p_480i_mode),
+    .clkB(control_clock),
+    .SignalOut_clkB(line_doubler_sync2)
+);
+
+Signal_CrossDomain addLine(
+    .SignalIn_clkA(add_line_mode),
+    .clkB(control_clock),
+    .SignalOut_clkB(add_line_sync)
+);
+
+Signal_CrossDomain isPAL(
+    .SignalIn_clkA(is_pal_mode),
+    .clkB(control_clock),
+    .SignalOut_clkB(is_pal_sync)
+);
+
 reg[31:0] counter = 0;
 reg[31:0] counter2 = 0;
 reg dc_nreset_reg = 1'b1;
@@ -468,8 +461,6 @@ reg opt_nreset_reg = 1'b1;
 reg status_led_nreset_reg;
 reg control_resync_out;
 reg control_force_generate_out;
-wire reset_dc_out;
-wire reset_opt_out;
 
 assign DC_NRESET = (dc_nreset_reg ? 1'bz : 1'b0);
 assign status_led_nreset = status_led_nreset_reg;
@@ -508,9 +499,9 @@ Flag_CrossDomain control_force_generate(
 reg [31:0] led_counter = 0;
 
 always @(posedge control_clock) begin
-    if (reset_conf_out == 2'd2) begin
+    if (reset_conf == 2'd2) begin
         status_led_nreset_reg <= (dc_nreset_reg ? 1'bz : 1'b0);
-    end else if (reset_conf_out == 2'd0) begin
+    end else if (reset_conf == 2'd0) begin
         if (!pll_hdmi_ready) begin
             status_led_nreset_reg <= 1'b1;
         end else if (control_resync_out) begin
@@ -534,29 +525,88 @@ always @(posedge control_clock) begin
     led_counter <= led_counter + 1'b1;
 end
 
+localparam RESET_HOLD_TIME = 32'd32_000_000;
+
 always @(posedge control_clock) begin
-    if (reset_dc_out) begin
+    if (reset_dc) begin
         counter <= 0;
         dc_nreset_reg <= 1'b0;
     end else begin
         counter <= counter + 1;
-        if (counter == 8_000_000) begin /* 100ms@80MHz, 133ms@60MHz, ... */
+        if (counter == RESET_HOLD_TIME) begin
             dc_nreset_reg <= 1'b1;
         end
     end
 end
 
 always @(posedge control_clock) begin
-    if (reset_opt_out) begin
+    if (reset_opt) begin
         counter2 <= 0;
         opt_nreset_reg <= 1'b0;
     end else begin
         counter2 <= counter2 + 1;
-        if (counter2 == 8_000_000) begin /* 100ms@80MHz, 133ms@60MHz, ... */
+        if (counter2 == RESET_HOLD_TIME) begin
             opt_nreset_reg <= 1'b1;
         end
     end
 end
+
+wire [7:0] highlight_line_in;
+Scanline scanline_in;
+
+data_cross highlight_line_cross(
+    .clkIn(control_clock),
+    .clkOut(hdmi_clock),
+    .dataIn(highlight_line_in),
+    .dataOut(highlight_line)
+);
+
+info_cross scanline_cross(
+    .clkIn(control_clock),
+    .clkOut(hdmi_clock),
+    .dataIn({ 12'd0, scanline_in }),
+    .dataOut({ 12'dz, scanline })
+);
+
+i2cSlave i2cSlave(
+    .clk(control_clock),
+    .rst(1'b0),
+    .sda(ESP_SDA),
+    .scl(ESP_SCL),
+
+    .ram_dataIn(text_wrdata),
+    .ram_wraddress(text_wraddr),
+    .ram_wren(text_wren),
+    .enable_osd(enable_osd),
+    //.debugData(debugData),
+    .highlight_line(highlight_line_in),
+    .reconf_data(reconf_data),
+    .scanline(scanline_in),
+
+    .controller_data(controller_data),
+    .reset_dc(reset_dc),
+    .reset_opt(reset_opt),
+    .reset_conf(reset_conf),
+    .pinok(pinok_out),
+    .timingInfo(timingInfo_out),
+    .rgbData(rgbData_out),
+    .conf240p(conf240p),
+    .add_line(add_line_sync),
+    .line_doubler(line_doubler_sync2),
+    .is_pal(is_pal_sync),
+    .video_gen_data(video_gen_data),
+    .activateHDMIoutput(activateHDMIoutput),
+    .force_generate(control_force_generate_out)
+);
+
+maple mapleBus(
+    .clk(control_clock),
+    .reset(1'b0),
+    .pin1(MAPLE_PIN1),
+    .pin5(MAPLE_PIN5),
+    .controller_data(controller_data)
+);
+
 ////////////////////////////////////////////////////////////////////////
     // // I2C master clock divisions
     // // divider = (pixel_clock / bus_clk) / 4; bus_clk = 400_000
@@ -591,33 +641,21 @@ startup adv7513_startup_delay(
     .clock(control_clock),
     .nreset(1'b1),
     .ready(adv7513_reset),
-    .startup_delay(32'd_32_000_000)
+    .startup_delay(32'd_64_000_000)
 );
 
-reconf_fifo	reconf_fifo_adv(
-    .rdclk(control_clock),
-    .rdreq(reconf_fifo2_rdreq),
-    .rdempty(reconf_fifo2_rdempty),
-    .q(reconf_fifo2_q),
-
-    .wrclk(hdmi_clock),
-    .data(reconf_fifo_data),
-    .wrreq(reconf_fifo_wrreq),
-    .wrfull(reconf_fifo_wrfull)
-);
-
-reconf_adv reconf_adv(
+wire adv7513_reconf;
+adv7513_reconfig reconf_adv(
     .clock(control_clock),
-    .rdempty(reconf_fifo2_rdempty),
-    .fdata(reconf_fifo2_q),
-    .rdreq(reconf_fifo2_rdreq),
-    .adv7513Config(adv7513Config)
+    .data_in(reconf_data),
+    .adv7513Config(adv7513Config),
+    .adv7513_reconf(adv7513_reconf)
 );
 
 ADV7513 adv7513(
     .clk(control_clock),
-    .reset(adv7513_reset),
-    .hdmi_int(HDMI_INT_N),
+    .reset(adv7513_reset /*|| ~activateHDMIoutput*/),
+    .hdmi_int(HDMI_INT_N & ~adv7513_reconf), // ? is adv7513_reconf really needed ?
     .output_ready(pll_hdmi_ready && ram2video_fullcycle),
     .sda(SDAT),
     .scl(SCLK),

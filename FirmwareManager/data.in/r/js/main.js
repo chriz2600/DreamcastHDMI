@@ -280,18 +280,6 @@ var term = $('#term').terminal(function(command, term) {
         startTransaction(null, function() {
             getConfig(false, downloadESPIndex);
         });
-    } else if (command.match(/^\s*res_240p_x3\s*$/)) {
-        startTransaction(null, function() {
-            setResolution("240p_x3");
-        });
-    } else if (command.match(/^\s*res_240p_x4\s*$/)) {
-        startTransaction(null, function() {
-            setResolution("240p_x4");
-        });
-    } else if (command.match(/^\s*res_240p_1080p\s*$/)) {
-        startTransaction(null, function() {
-            setResolution("240p_1080p");
-        });
     } else if (command.match(/^\s*res_vga\s*$/)) {
         startTransaction(null, function() {
             setResolution("VGA");
@@ -307,6 +295,14 @@ var term = $('#term').terminal(function(command, term) {
     } else if (command.match(/^\s*res_1080p\s*$/)) {
         startTransaction(null, function() {
             setResolution("1080p");
+        });
+    } else if (command.match(/^\s*deinterlace_bob\s*$/)) {
+        startTransaction(null, function() {
+            setDeinterlace("bob");
+        });
+    } else if (command.match(/^\s*deinterlace_passthru\s*$/)) {
+        startTransaction(null, function() {
+            setDeinterlace("passthru");
         });
     } else if (command.match(/^\s*generate_on\s*$/)) {
         startTransaction(null, function() {
@@ -679,24 +675,30 @@ function upload(isRetry, uri, dataFile, successCallback) {
     client.send(formData);
 }
 
+var defaultCheck = /^(.+)$/;
+var default2nd = "    Please check your input> ";
+var domainCheck = /^([a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+)$/;
+var ipCheck = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))$/;
+var validIpMsg = "[[ib;lightblue;]valid IPv4 address]"
 var setupData = {};
 var currentConfigData = {};
 var setupDataMapping = {
     ssid:             [ "WiFi SSID        ", "empty" ],
     password:         [ "WiFi Password    ", "empty" ],
     ota_pass:         [ "OTA Password     ", "empty" ],
-    firmware_server:  [ "Firmware Server  ", "dc.i74.de" ],
-    firmware_version: [ "Firmware Version ", "master" ],
+    firmware_server:  [ "Firmware Server  ", "dc.i74.de", "[[ib;lightblue;]valid domain name]", domainCheck ],
+    firmware_version: [ "Firmware Version ", "master", "[[b;lightblue;]master] / [[b;lightblue;]develop]", /^(master|develop|experimental)$/ ],
     http_auth_user:   [ "HTTP User        ", "Test" ],
     http_auth_pass:   [ "HTTP Password    ", "testtest" ],
-    conf_ip_addr:     [ "IP address       ", "empty" ],
-    conf_ip_gateway:  [ "Gateway          ", "empty" ],
-    conf_ip_mask:     [ "Netmask          ", "empty" ],
-    conf_ip_dns:      [ "DNS              ", "empty" ],
+    conf_ip_addr:     [ "IP address       ", "empty", validIpMsg, ipCheck ],
+    conf_ip_gateway:  [ "Gateway          ", "empty", validIpMsg, ipCheck ],
+    conf_ip_mask:     [ "Netmask          ", "empty", validIpMsg, ipCheck ],
+    conf_ip_dns:      [ "DNS              ", "empty", validIpMsg, ipCheck ],
     hostname:         [ "Hostname         ", "dc-firmware-manager" ],
-    video_resolution: [ "Video output     ", "VGA" ],
-    video_mode:       [ "Video mode       ", "CableDetect" ],
-    reset_mode:       [ "Opt. reset mode  ", "led" ]
+    video_resolution: [ "Video output     ", "VGA", "[[b;lightblue;]VGA] / [[b;lightblue;]480p] / [[b;lightblue;]960p] / [[b;lightblue;]1080p]", /^(VGA|480p|960p|1080p)$/ ],
+    video_mode:       [ "Video mode       ", "CableDetect", "[[b;lightblue;]ForceVGA] / [[b;lightblue;]CableDetect] / [[b;lightblue;]SwitchTrick]", /^(ForceVGA|CableDetect|SwitchTrick)$/ ],
+    reset_mode:       [ "Opt. reset mode  ", "led", "[[b;lightblue;]led] / [[b;lightblue;]gdemu] / [[b;lightblue;]usb-gdrom]", /^(led|gdemu|usb-gdrom)$/ ],
+    deinterlace_mode: [ "Deinterlacer     ", "bob", "[[b;lightblue;]bob] / [[b;lightblue;]passthru]", /^(bob|passthru)$/ ],
 };
 var dataExcludeMap = {
     "flash_chip_size":"",
@@ -731,9 +733,22 @@ function prepareQuestion(pos, total, field) {
             : "[[b;red;]not yet set]"
         )
         + ")"
-        + " \n    New value? ", 
-        cb: function(value) { 
-            setupData[field] = value; 
+        + (setupDataMapping[field][2] != null ? " \n    (available options: " + setupDataMapping[field][2] + ")" : "")
+        + " \n    New value> ",
+        q2 : (setupDataMapping[field][4] != null ? setupDataMapping[field][4] : default2nd),
+        cb: function(command) {
+            var value = command;
+            // special values: <empty>, " " (reset)
+            if (value == "" || value == " ") {
+                return true;
+            }
+            var lm = command.match(setupDataMapping[field][3] != null ? setupDataMapping[field][3] : defaultCheck);
+            if (lm) {
+                value = $.trim(lm[0]);
+                setupData[field] = value;
+                return true;
+            }
+            return false;
         }
     };
 }
@@ -842,6 +857,14 @@ function setResolution(type) {
         endTransaction("Switched resolution to: " + type);
     }).fail(function() {
         endTransaction('Error switching resolution.', true);
+    });
+}
+
+function setDeinterlace(type) {
+    $.ajax("/deinterlace/" + type).done(function (data) {
+        endTransaction("Switched deinterlace mode to: " + type);
+    }).fail(function() {
+        endTransaction('Error switching deinterlace mode.', true);
     });
 }
 
@@ -1043,7 +1066,15 @@ function setupMode(doResetConfiguration) {
                     + ' \nreset this application by typing: [[b;#fff;]reset].'
                     + ' \nSave changes (y)es/(n)o? ';
             },
-            cb: function(value) {
+            q2 : function() {
+                return 'Save changes (y)es/(n)o? ';
+            },
+            cb: function(command) {
+                var value = "";
+                var lm = command.match(/^(.+)$/i);
+                if (lm) {
+                    value = $.trim(lm[0]);
+                }
                 if (value.match(/^(y|yes)$/)) {
                     // start saving transaction
                     startTransaction("saving setup...", function() {
@@ -1057,11 +1088,15 @@ function setupMode(doResetConfiguration) {
                             endTransaction('Error saving setup data.', true);
                         });
                     });
-                } else {
+                    return true;
+                } else if (value.match(/^(n|no)$/)) {
                     term.error("discarded setup");
+                    // reset setupData
+                    setupData = {};
+                    return true;
+                } else {
+                    return false;
                 }
-                // reset setupData
-                setupData = {};
             }
         }
     ];
@@ -1082,11 +1117,10 @@ function setupMode(doResetConfiguration) {
             if (n.pc()) {
                 term.push(function(command) {
                     term.pop();
-                    var lm = command.match(/^(.+)$/i);
-                    if (lm) {
-                        lm[0] = $.trim(lm[0]);
-                        if (n.cb) {
-                            n.cb(lm[0]);
+                    if (n.cb) {
+                        if (!n.cb(command)) {
+                            n.q = (n.q2 ? n.q2 : n.q);
+                            questions.unshift(n);
                         }
                     }
                     next();
@@ -1102,8 +1136,8 @@ function setupMode(doResetConfiguration) {
     }
 
     term.echo(" \n[[b;#fff;]This will guide you through the setup process:]\n"
-        + "- Just hit return to leave the value unchanged.\n"
-        + "- Enter a single space to reset value to firmware default.\n"
+        + "- Just hit [[ib;white;]return] to leave the value unchanged.\n"
+        + "- Enter a [[ib;white;]single space] to reset value to firmware default.\n"
         + "- CTRL-D to abort.\n"
     );
     next();

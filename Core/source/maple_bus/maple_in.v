@@ -140,7 +140,7 @@ module maple_in(
         end
     end
 
-    always @(posedge clk) begin
+    always @(posedge clk or posedge rst) begin
         if (rst) begin
             in_p1_q <= 1'b1;
             in_p5_q <= 1'b1;

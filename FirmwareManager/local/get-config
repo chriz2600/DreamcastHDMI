@@ -1,0 +1,6 @@
+#!/bin/bash
+
+hostname=${ESP_HOSTNAME:-dc-firmware-manager.local}
+
+curl --digest --user Test:testtest \
+    -s "http://${hostname}/config" | jq .

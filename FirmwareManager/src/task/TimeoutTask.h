@@ -28,7 +28,7 @@ class TimeoutTask : public Task {
         TimeoutCallbackHandler handler;
 
         virtual bool OnStart() {
-            DBG_OUTPUT_PORT.printf("TimeoutTask: OnStart\n");
+            DEBUG("TimeoutTask: OnStart\n");
             return true;
         }
 
@@ -45,7 +45,7 @@ class TimeoutTask : public Task {
         }
 
         virtual void OnStop() {
-            DBG_OUTPUT_PORT.printf("TimeoutTask: OnStop\n");
+            DEBUG("TimeoutTask: OnStop\n");
         }
 };
 

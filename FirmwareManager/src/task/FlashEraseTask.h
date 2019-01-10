@@ -23,7 +23,7 @@ class FlashEraseTask : public Task {
             readLength = 0;
             last_error = NO_ERROR;
 
-            DBG_OUTPUT_PORT.printf("erasing spi flash ... ");
+            DEBUG("erasing spi flash ... ");
             flash.enable();
             flash.chip_erase_async();
             return true;
@@ -40,7 +40,7 @@ class FlashEraseTask : public Task {
             totalLength = 1;
             readLength = 1;
             last_error = NO_ERROR;
-            DBG_OUTPUT_PORT.printf("done.\n");
+            DEBUG("done.\n");
         }
 };
 

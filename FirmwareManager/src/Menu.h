@@ -24,33 +24,32 @@
 #define MENU_CANCEL_STR "L"
 
 #define MENU_M_OR 2
-#define MENU_M_SL 3
-#define MENU_M_VM 4
-#define MENU_M_FW 5
-#define MENU_M_WIFI 6
-//#define MENU_M_RST 7
-#define MENU_M_INF 7
+#define MENU_M_AVS 3
+#define MENU_M_SL 4
+#define MENU_M_VM 5
+#define MENU_M_FW 6
+#define MENU_M_WIFI 7
+#define MENU_M_INF 8
 #define MENU_M_FIRST_SELECT_LINE 2
 #define MENU_M_LAST_SELECT_LINE MENU_M_INF
 char OSD_MAIN_MENU[521] = (
     "Main Menu                               "
     "                                        "
     "- Output Resolution                     "
+    "- Advanced Video Settings               "
     "- Scanlines                             "
     "- Video Mode Settings                   "
     "- Firmware Upgrade                      "
     "- WiFi Setup                            "
-    //"- Reset Options                         "
     "- Test/Info                             "
-    "                                        "
     "                                        "
     "                                        "
     "                                        "
     "          " MENU_OK_STR ": Select  " MENU_CANCEL_STR ": Exit            "
 );
 
-#define MENU_OR_LAST_SELECT_LINE 6
-#define MENU_OR_FIRST_SELECT_LINE (MENU_OR_LAST_SELECT_LINE-4)
+#define MENU_OR_LAST_SELECT_LINE 5
+#define MENU_OR_FIRST_SELECT_LINE (MENU_OR_LAST_SELECT_LINE-3)
 char OSD_OUTPUT_RES_MENU[521] = (
     "Output Resolution                       "
     "                                        "
@@ -58,13 +57,34 @@ char OSD_OUTPUT_RES_MENU[521] = (
     "- 480p                                  "
     "- 960p                                  "
     "- 1080p                                 "
-    "- 240p adjust position:                 "
     "                                        "
     "  '>' marks the stored setting          "
-    "  left/right to change 240p position    "
+    "                                        "
+    "                                        "
     "                                        "
     "                                        "
     "          " MENU_OK_STR ": Apply   " MENU_CANCEL_STR ": Back            "
+);
+
+#define MENU_AV_DEINT 2
+#define MENU_AV_240POS 3
+#define MENU_AV_FIRST_SELECT_LINE 2
+#define MENU_AV_LAST_SELECT_LINE MENU_AV_240POS
+#define MENU_AV_COLUMN 23
+char OSD_ADVANCED_VIDEO_MENU[521] = (
+    "Advanced Video Settings                 "
+    "                                        "
+    "- Deinterlacer:         _______         "
+    "- 240p adjust position: _______         "
+    "                                        "
+    "                                        "
+    "                                        "
+    "  left/right (d-pad): change value.     "
+    "  " MENU_OK_STR ": save settings and exit.            "
+    "  " MENU_CANCEL_STR ": discard changes and exit.          "
+    "                                        "
+    "                                        "
+    "          " MENU_OK_STR ": Save  " MENU_CANCEL_STR ": Cancel            "
 );
 
 #define MENU_SS_RESULT_LINE 4
@@ -133,7 +153,7 @@ char OSD_DC_RESET_CONFIRM_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "                                        "
+    "             Y: Full Reset              "
     "         " MENU_OK_STR ": Reset  " MENU_CANCEL_STR ": Not now           "
 );
 
@@ -175,10 +195,12 @@ char OSD_FIRMWARE_MENU[521] = (
     "          " MENU_OK_STR ": Select  " MENU_CANCEL_STR ": Exit            "
 );
 
+#define MENU_FWC_VIEW_CHANGELOG "       " MENU_OK_STR ": View changelog  " MENU_CANCEL_STR ": Back       "
 #define MENU_FWC_FPGA_LINE 4
 #define MENU_FWC_ESP_LINE 5
 #define MENU_FWC_INDEXHTML_LINE 6
-#define MENU_FWC_RESULT_LINE 8
+#define MENU_FWC_CHANGELOG_LINE 7
+#define MENU_FWC_RESULT_LINE 9
 char OSD_FIRMWARE_CHECK_MENU[521] = (
     "Check Firmware                          "
     "                                        "
@@ -187,7 +209,7 @@ char OSD_FIRMWARE_CHECK_MENU[521] = (
     "FPGA        ________  ________          "
     "ESP         ________  ________          "
     "index.html  ________  ________          "
-    "                                        "
+    "changelog   [                    ]      "
     "                                        "
     "                                        "
     "                                        "
@@ -257,6 +279,7 @@ char OSD_FIRMWARE_RESET_MENU[521] = (
 #define MENU_SL_THICKNESS 5
 #define MENU_SL_FIRST_SELECT_LINE 2
 #define MENU_SL_LAST_SELECT_LINE 5
+#define MENU_SL_COLUMN 12
 char OSD_SCANLINES_MENU[521] = (
     "Scanlines                               "
     "                                        "
@@ -288,6 +311,24 @@ char OSD_INFO_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
+    "                " MENU_CANCEL_STR ": Back                 "
+);
+
+#define MENU_CHNGL_RESULT_LINE 2
+#define MENU_CHNGL_RESULT_HEIGHT 9
+char OSD_CHANGELOG_MENU[521] = (
+    "Changelog                               "
+    "----------------------------------------"
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "----------------------------------------"
     "                " MENU_CANCEL_STR ": Back                 "
 );
 
@@ -395,14 +436,14 @@ class Menu
             menu_activeLine = pre_hook(menu_text, menu_activeLine);
         }
         fpgaTask.DoWriteToOSD(0, 9, menu_text, [&]() {
-            //DBG_OUTPUT_PORT.printf("%i %i\n", menu_activeLine, MENU_OFFSET + menu_activeLine);
+            //DEBUG("%i %i\n", menu_activeLine, MENU_OFFSET + menu_activeLine);
             fpgaTask.Write(I2C_OSD_ACTIVE_LINE, MENU_OFFSET + menu_activeLine, display_callback);
         });
     }
 
     void HandleClick(uint16_t controller_data, bool isRepeat) {
         if (inTransaction) {
-            DBG_OUTPUT_PORT.printf("%s in transaction!\n", name);
+            DEBUG("%s in transaction!\n", name);
             return;
         }
 
@@ -466,9 +507,11 @@ void displayProgress(int read, int total, int line) {
 
 #include "osd/Main.h"
 #include "osd/OutputResolution.h"
+#include "osd/AdvancedVideo.h"
 #include "osd/VideoMode.h"
 #include "osd/Firmware.h"
 #include "osd/FirmwareCheck.h"
+#include "osd/Changelog.h"
 #include "osd/FirmwareDownload.h"
 #include "osd/FirmwareFlash.h"
 #include "osd/FirmwareReset.h"
@@ -478,14 +521,22 @@ void displayProgress(int read, int total, int line) {
 #include "osd/Wifi.h"
 
 void setOSD(bool value, WriteCallbackHandlerFunction handler) {
-    OSDOpen = value;
-    fpgaTask.Write(I2C_OSD_ENABLE, value, handler);
+    if (handler != NULL) {
+        fpgaTask.Write(I2C_OSD_ENABLE, value, handler);
+    } else {
+        fpgaTask.Write(I2C_OSD_ENABLE, value, [](uint8_t Address, uint8_t Value) {
+            OSDOpen = Value;
+            DEBUG("setOSD: %u\n", OSDOpen);
+        });
+    }
 }
 
 void openOSD() {
     currentMenu = &mainMenu;
     setOSD(true, [](uint8_t Address, uint8_t Value) {
         currentMenu->Display();
+        OSDOpen = Value;
+        DEBUG("setOSD: %u\n", OSDOpen);
     });
 }
 
@@ -500,12 +551,13 @@ FPGATask fpgaTask(1, [](uint16_t controller_data, bool isRepeat) {
             return;
         }
         if (CHECK_BIT(controller_data, CTRLR_TRIGGER_DEFAULT_RESOLUTION)) {
+            DEBUG("FPGATask: switchResolution\n");
             switchResolution(RESOLUTION_VGA);
             return;
         }
     }
     if (OSDOpen) {
-        //DBG_OUTPUT_PORT.printf("Menu: %s %x\n", currentMenu->Name(), controller_data);
+        //DEBUG("Menu: %s %x\n", currentMenu->Name(), controller_data);
         currentMenu->HandleClick(controller_data, isRepeat);
     }
 });

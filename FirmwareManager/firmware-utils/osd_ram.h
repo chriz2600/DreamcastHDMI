@@ -6,7 +6,7 @@
 #define MAX_ADDR_SPACE 128
 
 void setupI2C() {
-    DBG_OUTPUT_PORT.printf(">> Setting up I2C master...\n");
+    DEBUG(">> Setting up I2C master...\n");
     brzo_i2c_setup(FPGA_I2C_SDA, FPGA_I2C_SCL, CLOCK_STRETCH_TIMEOUT);
 }
 

@@ -18,24 +18,36 @@ fpga-firmware:
   only:
     - develop
     - master
+    - experimental
 
 esp-firmware:
   stage: build-esp
   script:
     - "cd FirmwareManager"
     - "./local/prepare-index-html"
+    - "cat data.in/changelog.in | tr -d '\n\t' > data/changelog"
     - "export SOURCE_DATE_EPOCH=$(git --no-pager log -1 --pretty='format:%ct' src)"
     - "echo $SOURCE_DATE_EPOCH"
     - "pio run -t clean"
     - "pio run"
+    # firmware.dc
     - "cp ../Core/output_files/DCxPlus-default.dc data/firmware.dc"
+    - "md5sum data/firmware.dc | awk '{print $1;}' > data/etc/last_flash_md5"
     - "md5sum data/firmware.dc | awk '{print $1;}' > data/firmware.dc.md5"
+    # firmware.bin
+    - "md5sum .pioenvs/esp07s/firmware.bin | awk '{print $1;}' > data/etc/last_esp_flash_md5"
+    - "md5sum .pioenvs/esp07s/firmware.bin | awk '{print $1;}' > data/firmware.bin.md5"
+    # index.html
+    - "md5sum data/index.html.gz | awk '{print $1;}' > data/index.html.gz.md5"
+    - "md5sum data/index.html.gz | awk '{print $1;}' > data/esp.index.html.gz.md5"
+    # finally build spiffs
     - "pio run -t buildfs"
   artifacts:
     paths:
     - FirmwareManager/.pioenvs/esp07s/firmware.bin
     - FirmwareManager/.pioenvs/esp07s/spiffs.bin
     - FirmwareManager/data/index.html.gz
+    - FirmwareManager/data/changelog
   dependencies:
     - fpga-firmware
   tags:
@@ -43,6 +55,7 @@ esp-firmware:
   only:
     - develop
     - master
+    - experimental
 
 fpga-publish:
   stage: deploy
@@ -56,6 +69,7 @@ fpga-publish:
   only:
     - develop
     - master
+    - experimental
 
 esp-publish:
   stage: deploy
@@ -69,3 +83,4 @@ esp-publish:
   only:
     - develop
     - master
+    - experimental
