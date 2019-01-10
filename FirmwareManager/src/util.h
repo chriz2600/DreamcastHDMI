@@ -68,26 +68,26 @@ bool forceI2CWrite(uint8_t addr1, uint8_t val1, uint8_t addr2, uint8_t val2) {
         retries++;
         fpgaTask.Write(addr1, val1, NULL); fpgaTask.ForceLoop();
         if (last_error == NO_ERROR) { // only try second command, if first was successful
-            DEBUG("   success 1st command: %02x %02x (%i)\n", addr1, val1, retries);
+            DEBUG2("   success 1st command: %02x %02x (%i)\n", addr1, val1, retries);
             fpgaTask.Write(addr2, val2, NULL); fpgaTask.ForceLoop();
         }
         retryCount--;
         if (last_error == NO_ERROR) {
-            DEBUG("   success 2nd command: %02x %02x (%i)\n", addr2, val2, retries);
+            DEBUG2("   success 2nd command: %02x %02x (%i)\n", addr2, val2, retries);
             success = true;
             break;
         }
         delayMicroseconds(500);
         yield();
     }
-    DEBUG("   retry loops needed: %i\n", retries);
+    DEBUG2("   retry loops needed: %i\n", retries);
     return success;
 }
 
 void waitForI2CRecover(bool waitForError) {
     int retryCount = I2C_RECOVER_TRIES;
     int prev_last_error = NO_ERROR;
-    DEBUG("... PRE: prev_last_error/last_error %i (%u/%u)\n", retryCount, prev_last_error, last_error);
+    DEBUG2("... PRE: prev_last_error/last_error %i (%u/%u)\n", retryCount, prev_last_error, last_error);
     while (retryCount >= 0) {
         fpgaTask.Read(I2C_PING, 1, NULL); 
         fpgaTask.ForceLoop();
@@ -101,7 +101,7 @@ void waitForI2CRecover(bool waitForError) {
         delayMicroseconds(I2C_RECOVER_RETRY_INTERVAL_US);
         yield();
     }
-    DEBUG("... POST: prev_last_error/last_error %i (%u/%u)\n", retryCount, prev_last_error, last_error);
+    DEBUG2("... POST: prev_last_error/last_error %i (%u/%u)\n", retryCount, prev_last_error, last_error);
 }
 
 void disableFPGA() {

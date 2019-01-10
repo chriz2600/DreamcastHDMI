@@ -13,6 +13,7 @@
 #define DBG_OUTPUT_PORT Serial
 //#define DEBUG(...) DBG_OUTPUT_PORT.printf(__VA_ARGS__)
 #define DEBUG(...) void(0)
+#define DEBUG1(...) DBG_OUTPUT_PORT.printf(__VA_ARGS__)
 //#define DEBUG2(...) DBG_OUTPUT_PORT.printf(__VA_ARGS__)
 #define DEBUG2(_1, ...) DBG_OUTPUT_PORT.printf_P(PSTR(_1), ##__VA_ARGS__)
 

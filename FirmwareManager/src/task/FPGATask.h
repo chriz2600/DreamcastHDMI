@@ -186,7 +186,7 @@ class FPGATask : public Task {
                 }
                 // new meta data
                 if (buffer2[2] != data_out[2]) {
-                    DEBUG("I2C_CONTROLLER_AND_DATA_BASE, switch to: %02x\n", buffer2[2]);
+                    DEBUG1("I2C_CONTROLLER_AND_DATA_BASE, switch to: %02x\n", buffer2[2]);
                     storeResolutionData(buffer2[2]);
                     switchResolution();
                 }
@@ -195,13 +195,13 @@ class FPGATask : public Task {
             if (brzo_i2c_end_transaction()) {
                 if (!GotError) {
                     last_error = ERROR_END_I2C_TRANSACTION;
-                    DEBUG("--> ERROR_END_I2C_TRANSACTION\n");
+                    DEBUG1("--> ERROR_END_I2C_TRANSACTION\n");
                 }
                 GotError = true;
             } else {
                 if (GotError) {
                     last_error = NO_ERROR;
-                    DEBUG("<-- FINISHED_I2C_TRANSACTION\n");
+                    DEBUG1("<-- FINISHED_I2C_TRANSACTION\n");
                 }
                 GotError = false;
             }
