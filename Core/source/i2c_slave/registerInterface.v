@@ -66,6 +66,7 @@ module registerInterface (
     output reset_dc,
     output reset_opt,
     output[7:0] reset_conf,
+    output activateHDMIoutput,
     input [23:0] pinok,
     input [23:0] timingInfo,
     input [23:0] rgbData,
@@ -90,6 +91,7 @@ reg reset_opt_reg = 1'b0;
 Scanline scanline_reg = { 9'h100, 1'b0, 1'b0, 1'b0 };
 reg [23:0] conf240p_reg = 24'd20;
 reg [7:0] reset_conf_reg = 0;
+reg activateHDMIoutput_reg = 0;
 
 assign dataOut = dataOut_reg;
 assign ram_wraddress = wraddress_reg;
@@ -104,6 +106,7 @@ assign reset_dc = reset_dc_reg;
 assign reset_opt = reset_opt_reg;
 assign reset_conf = reset_conf_reg;
 assign conf240p = conf240p_reg;
+assign activateHDMIoutput = activateHDMIoutput_reg;
 
 // --- I2C Read
 always @(posedge clk) begin
@@ -182,6 +185,8 @@ always @(posedge clk) begin
         // 240p config
         end else if (addr == 8'h90) begin
             conf240p_reg <= { 16'd0, dataIn };
+        end else if (addr == 8'h91) begin
+            activateHDMIoutput_reg <= dataIn[0];
         // reset dreamcast
         end else if (addr == 8'hF0) begin
             reset_dc_reg <= 1'b1;

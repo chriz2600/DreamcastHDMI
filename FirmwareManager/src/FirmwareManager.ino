@@ -858,6 +858,7 @@ void setup(void) {
     setupTaskManager();
     setupCredentials();
     waitForController();
+    fpgaTask.Write(I2C_ACTIVATE_HDMI, 1, NULL); fpgaTask.ForceLoop();
     setupWiFi();
     setupHTTPServer();
     

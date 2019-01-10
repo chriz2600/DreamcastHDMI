@@ -112,6 +112,7 @@ wire force_generate;
 wire generate_video;
 wire generate_timing;
 wire [7:0] video_gen_data;
+wire activateHDMIoutput;
 wire fullcycle;
 wire reset_dc;
 wire reset_opt;
@@ -601,6 +602,7 @@ i2cSlave i2cSlave(
     .line_doubler(line_doubler_sync2),
     .is_pal(is_pal_sync),
     .video_gen_data(video_gen_data),
+    .activateHDMIoutput(activateHDMIoutput),
     .force_generate(control_force_generate_out)
 );
 
@@ -646,7 +648,7 @@ startup adv7513_startup_delay(
     .clock(control_clock),
     .nreset(1'b1),
     .ready(adv7513_reset),
-    .startup_delay(32'd_32_000_000)
+    .startup_delay(32'd_64_000_000)
 );
 
 wire adv7513_reconf;
@@ -661,7 +663,7 @@ ADV7513 adv7513(
     .clk(control_clock),
     .reset(adv7513_reset),
     .hdmi_int(HDMI_INT_N & ~adv7513_reconf), // ? is adv7513_reconf really needed ?
-    .output_ready(pll_hdmi_ready && ram2video_fullcycle),
+    .output_ready(pll_hdmi_ready && ram2video_fullcycle && activateHDMIoutput),
     .sda(SDAT),
     .scl(SCLK),
     .ready(adv7513_ready),

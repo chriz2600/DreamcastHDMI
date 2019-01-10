@@ -63,6 +63,7 @@ module i2cSlave (
   output reset_dc,
   output reset_opt,
   output[7:0] reset_conf,
+  output activateHDMIoutput,
   input [23:0] pinok,
   input [23:0] timingInfo,
   input [23:0] rgbData,
@@ -195,7 +196,8 @@ registerInterface u_registerInterface(
   .add_line(add_line),
   .line_doubler(line_doubler),
   .is_pal(is_pal),
-  .force_generate(force_generate)
+  .force_generate(force_generate),
+  .activateHDMIoutput(activateHDMIoutput)
 );
 
 serialInterface u_serialInterface (
