@@ -71,7 +71,11 @@ module i2cSlave (
   input line_doubler,
   input is_pal,
   input force_generate,
-  input ControllerData controller_data
+  input ControllerData controller_data,
+  input [31:0] pll_adv_lockloss_count,
+  input [31:0] hpd_low_count,
+  input [31:0] pll54_lockloss_count,
+  input [31:0] pll_hdmi_lockloss_count
 );
 
 // local wires and regs
@@ -171,33 +175,37 @@ end
 
 
 registerInterface u_registerInterface(
-  .clk(clk),
-  .addr(regAddr),
-  .dataIn(dataToRegIF),
-  .writeEn(writeEn),
-  .dataOut(dataFromRegIF),
-  .ram_dataIn(ram_dataIn),
-  .ram_wraddress(ram_wraddress),
-  .ram_wren(ram_wren),
-  .enable_osd(enable_osd),
-  //.debugData(debugData),
-  .controller_data(controller_data),
-  .highlight_line(highlight_line),
-  .reconf_data(reconf_data),
-  .video_gen_data(video_gen_data),
-  .scanline(scanline),
-  .conf240p(conf240p),
-  .reset_dc(reset_dc),
-  .reset_opt(reset_opt),
-  .reset_conf(reset_conf),
-  .pinok(pinok),
-  .timingInfo(timingInfo),
-  .rgbData(rgbData),
-  .add_line(add_line),
-  .line_doubler(line_doubler),
-  .is_pal(is_pal),
-  .force_generate(force_generate),
-  .activateHDMIoutput(activateHDMIoutput)
+    .clk(clk),
+    .addr(regAddr),
+    .dataIn(dataToRegIF),
+    .writeEn(writeEn),
+    .dataOut(dataFromRegIF),
+    .ram_dataIn(ram_dataIn),
+    .ram_wraddress(ram_wraddress),
+    .ram_wren(ram_wren),
+    .enable_osd(enable_osd),
+    //.debugData(debugData),
+    .controller_data(controller_data),
+    .highlight_line(highlight_line),
+    .reconf_data(reconf_data),
+    .video_gen_data(video_gen_data),
+    .scanline(scanline),
+    .conf240p(conf240p),
+    .reset_dc(reset_dc),
+    .reset_opt(reset_opt),
+    .reset_conf(reset_conf),
+    .pinok(pinok),
+    .timingInfo(timingInfo),
+    .rgbData(rgbData),
+    .add_line(add_line),
+    .line_doubler(line_doubler),
+    .is_pal(is_pal),
+    .force_generate(force_generate),
+    .activateHDMIoutput(activateHDMIoutput),
+    .pll_adv_lockloss_count(pll_adv_lockloss_count),
+    .hpd_low_count(hpd_low_count),
+    .pll54_lockloss_count(pll54_lockloss_count),
+    .pll_hdmi_lockloss_count(pll_hdmi_lockloss_count)
 );
 
 serialInterface u_serialInterface (

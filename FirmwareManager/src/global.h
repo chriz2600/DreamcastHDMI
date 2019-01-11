@@ -137,8 +137,8 @@
 #define I2C_CONTROLLER_AND_DATA_BASE_LENGTH 3
 
 // pinok data
-#define I2C_TESTDATA_BASE (0xB0)
-#define I2C_TESTDATA_LENGTH 9
+#define I2C_TESTDATA_BASE (0xA0)
+#define I2C_TESTDATA_LENGTH 25
 
 // // controller data, int16
 // /*

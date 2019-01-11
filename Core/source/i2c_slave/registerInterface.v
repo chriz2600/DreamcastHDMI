@@ -74,7 +74,11 @@ module registerInterface (
     input line_doubler,
     input is_pal,
     input force_generate,
-    input ControllerData controller_data
+    input ControllerData controller_data,
+    input [31:0] pll_adv_lockloss_count,
+    input [31:0] hpd_low_count,
+    input [31:0] pll54_lockloss_count,
+    input [31:0] pll_hdmi_lockloss_count
 );
 
 reg [2:0] addr_offset = 3'b000;
@@ -142,6 +146,30 @@ always @(posedge clk) begin
         // scanline data
         8'h88: dataOut_reg <= scanline_reg.intensity[8:1];
         8'h89: dataOut_reg <= { scanline_reg.intensity[0], scanline_reg.thickness, scanline_reg.oddeven, scanline_reg.active, 4'b0000 };
+
+        // pll_adv_lockloss_count
+        8'hA0: dataOut_reg <= pll_adv_lockloss_count[31:24];
+        8'hA1: dataOut_reg <= pll_adv_lockloss_count[23:16];
+        8'hA2: dataOut_reg <= pll_adv_lockloss_count[15:8];
+        8'hA3: dataOut_reg <= pll_adv_lockloss_count[7:0];
+
+        // hpd_low_count
+        8'hA4: dataOut_reg <= hpd_low_count[31:24];
+        8'hA5: dataOut_reg <= hpd_low_count[23:16];
+        8'hA6: dataOut_reg <= hpd_low_count[15:8];
+        8'hA7: dataOut_reg <= hpd_low_count[7:0];
+
+        // pll54_lockloss_count
+        8'hA8: dataOut_reg <= pll54_lockloss_count[31:24];
+        8'hA9: dataOut_reg <= pll54_lockloss_count[23:16];
+        8'hAA: dataOut_reg <= pll54_lockloss_count[15:8];
+        8'hAB: dataOut_reg <= pll54_lockloss_count[7:0];
+
+        // pll_hdmi_lockloss_count
+        8'hAC: dataOut_reg <= pll_hdmi_lockloss_count[31:24];
+        8'hAD: dataOut_reg <= pll_hdmi_lockloss_count[23:16];
+        8'hAE: dataOut_reg <= pll_hdmi_lockloss_count[15:8];
+        8'hAF: dataOut_reg <= pll_hdmi_lockloss_count[7:0];
 
         8'hB0: dataOut_reg <= { 2'b0, pinok[21:16] };
         8'hB1: dataOut_reg <= pinok[15:8];

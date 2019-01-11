@@ -11,6 +11,8 @@ module ADV7513(
     output reg ready,
     output reg hdmi_int_reg,
     output reg hpd_detected,
+    output reg [31:0] pll_adv_lockloss_count,
+    output reg [31:0] hpd_low_count,
 
     input ADV7513Config adv7513Config
 );
@@ -67,6 +69,8 @@ reg hdmi_int_prev = 1;
 
 initial begin
     ready <= 0;
+    pll_adv_lockloss_count <= 0;
+    hpd_low_count <= 0;
 end
 
 reg [32:0] counter = 0;
@@ -182,8 +186,17 @@ task adv7513_monitor_hpd;
     begin
         case (subcmd_counter)
             0: write_i2c(CHIP_ADDR, 16'h_96_F6); // -> clears interrupt state, mark all interrupts as detected
-            1: read_i2c(CHIP_ADDR, 8'h_42);
+            // check pll status
+            1: read_i2c(CHIP_ADDR, 8'h_9E);
             2: begin
+                if (~i2c_data[4]) begin
+                    pll_adv_lockloss_count <= pll_adv_lockloss_count + 1'b1;
+                end
+                subcmd_counter <= subcmd_counter + 1'b1;
+            end
+            // monitor HPD State/Monitor Sense State
+            3: read_i2c(CHIP_ADDR, 8'h_42);
+            4: begin
                 if (i2c_data[6] && i2c_data[5]) begin
                     cmd_counter <= success_cmd;
                     subcmd_counter <= scs_start;
@@ -192,6 +205,7 @@ task adv7513_monitor_hpd;
                     cmd_counter <= failure_cmd;
                     subcmd_counter <= scs_start;
                     hpd_detected <= 1'b0;
+                    hpd_low_count <= hpd_low_count + 1'b1;
                 end
             end
         endcase

@@ -143,7 +143,7 @@ uint8_t remapResolution(uint8_t resd) {
     return (resd & 0x07);
 }
 
-uint8_t mapResolution(uint8_t resd) {
+uint8_t mapResolution(uint8_t resd, bool skipDebug) {
     uint8_t targetres = remapResolution(resd);
 
     if (CurrentResolutionData & RESOLUTION_DATA_240P) {
@@ -162,8 +162,14 @@ uint8_t mapResolution(uint8_t resd) {
         targetres |= RESOLUTION_MOD_576p;
     }
 
-    DEBUG2("   mapResolution: resd: %02x tres: %02x crd: %02x cdm: %02x\n", resd, targetres, CurrentResolutionData, CurrentDeinterlaceMode);
+    if (!skipDebug) {
+        DEBUG2("   mapResolution: resd: %02x tres: %02x crd: %02x cdm: %02x\n", resd, targetres, CurrentResolutionData, CurrentDeinterlaceMode);
+    }
     return targetres;
+}
+
+uint8_t mapResolution(uint8_t resd) {
+    return mapResolution(resd, false);
 }
 
 void osd_get_resolution(char* buffer) {
@@ -195,3 +201,4 @@ void osd_get_resolution(char* buffer) {
 
     snprintf(buffer, 13, "%.*s%*s", 10, data, 2, " \x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07");
 }
+

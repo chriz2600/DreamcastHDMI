@@ -596,7 +596,12 @@ i2cSlave i2cSlave(
     .is_pal(is_pal_sync),
     .video_gen_data(video_gen_data),
     .activateHDMIoutput(activateHDMIoutput),
-    .force_generate(control_force_generate_out)
+    .force_generate(control_force_generate_out),
+
+    .pll_adv_lockloss_count(pll_adv_lockloss_count),
+    .hpd_low_count(hpd_low_count),
+    .pll54_lockloss_count(pll54_lockloss_count),
+    .pll_hdmi_lockloss_count(pll_hdmi_lockloss_count)
 );
 
 maple mapleBus(
@@ -606,6 +611,27 @@ maple mapleBus(
     .pin5(MAPLE_PIN5),
     .controller_data(controller_data)
 );
+
+
+////////////////////////////////////////////////////////////////////////
+
+wire [31:0] pll_adv_lockloss_count;
+wire [31:0] hpd_low_count;
+reg [31:0] pll54_lockloss_count = 0;
+reg [31:0] pll_hdmi_lockloss_count = 0;
+
+always @(posedge control_clock) begin
+    if (pll54_lockloss) begin
+        pll54_lockloss_count <= pll54_lockloss_count + 1'b1;
+    end
+    if (pll_hdmi_lockloss) begin
+        pll_hdmi_lockloss_count <= pll_hdmi_lockloss_count + 1'b1;
+    end
+end
+
+
+
+
 
 ////////////////////////////////////////////////////////////////////////
     // // I2C master clock divisions
@@ -662,7 +688,10 @@ ADV7513 adv7513(
     .ready(adv7513_ready),
     .adv7513Config(adv7513Config),
     .hdmi_int_reg(hdmi_int_reg),
-    .hpd_detected(hpd_detected)
+    .hpd_detected(hpd_detected),
+    .pll_adv_lockloss_count(pll_adv_lockloss_count),
+    .hpd_low_count(hpd_low_count),
+
 );
 
 endmodule
