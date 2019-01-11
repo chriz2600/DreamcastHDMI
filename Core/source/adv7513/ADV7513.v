@@ -66,6 +66,8 @@ localparam  cs_pwrdown  = 3'd0,
 localparam  scs_start = 6'd0;
 
 reg hdmi_int_prev = 1;
+reg prev_pll_adv_lockloss = 0;
+reg prev_hpd_state = 0;
 
 initial begin
     ready <= 0;
@@ -189,7 +191,8 @@ task adv7513_monitor_hpd;
             // check pll status
             1: read_i2c(CHIP_ADDR, 8'h_9E);
             2: begin
-                if (~i2c_data[4]) begin
+                prev_pll_adv_lockloss <= ~i2c_data[4];
+                if (~prev_pll_adv_lockloss && ~i2c_data[4]) begin
                     pll_adv_lockloss_count <= pll_adv_lockloss_count + 1'b1;
                 end
                 subcmd_counter <= subcmd_counter + 1'b1;
@@ -197,6 +200,7 @@ task adv7513_monitor_hpd;
             // monitor HPD State/Monitor Sense State
             3: read_i2c(CHIP_ADDR, 8'h_42);
             4: begin
+                prev_hpd_state <= ~i2c_data[6] || ~i2c_data[5];
                 if (i2c_data[6] && i2c_data[5]) begin
                     cmd_counter <= success_cmd;
                     subcmd_counter <= scs_start;
@@ -205,7 +209,9 @@ task adv7513_monitor_hpd;
                     cmd_counter <= failure_cmd;
                     subcmd_counter <= scs_start;
                     hpd_detected <= 1'b0;
-                    hpd_low_count <= hpd_low_count + 1'b1;
+                    if (~prev_hpd_state) begin
+                        hpd_low_count <= hpd_low_count + 1'b1;
+                    end
                 end
             end
         endcase

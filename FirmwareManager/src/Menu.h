@@ -311,7 +311,7 @@ char OSD_INFO_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "                " MENU_CANCEL_STR ": Back                 "
+    "       " MENU_CANCEL_STR ": Back  " MENU_OK_STR ": Zero counters        "
 );
 
 #define MENU_CHNGL_RESULT_LINE 2

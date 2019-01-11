@@ -78,7 +78,8 @@ module registerInterface (
     input [31:0] pll_adv_lockloss_count,
     input [31:0] hpd_low_count,
     input [31:0] pll54_lockloss_count,
-    input [31:0] pll_hdmi_lockloss_count
+    input [31:0] pll_hdmi_lockloss_count,
+    input [31:0] control_resync_out_count
 );
 
 reg [2:0] addr_offset = 3'b000;
@@ -180,6 +181,13 @@ always @(posedge clk) begin
         8'hB6: dataOut_reg <= rgbData[23:16]; // red
         8'hB7: dataOut_reg <= rgbData[15:8];  // green
         8'hB8: dataOut_reg <= rgbData[7:0];   // blue
+
+        // control_resync_out_count
+        8'hB9: dataOut_reg <= control_resync_out_count[31:24];
+        8'hBA: dataOut_reg <= control_resync_out_count[23:16];
+        8'hBB: dataOut_reg <= control_resync_out_count[15:8];
+        8'hBC: dataOut_reg <= control_resync_out_count[7:0];
+
         default: dataOut_reg <= 0;
     endcase
 end

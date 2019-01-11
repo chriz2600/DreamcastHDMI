@@ -601,7 +601,8 @@ i2cSlave i2cSlave(
     .pll_adv_lockloss_count(pll_adv_lockloss_count),
     .hpd_low_count(hpd_low_count),
     .pll54_lockloss_count(pll54_lockloss_count),
-    .pll_hdmi_lockloss_count(pll_hdmi_lockloss_count)
+    .pll_hdmi_lockloss_count(pll_hdmi_lockloss_count),
+    .control_resync_out_count(control_resync_out_count)
 );
 
 maple mapleBus(
@@ -619,6 +620,8 @@ wire [31:0] pll_adv_lockloss_count;
 wire [31:0] hpd_low_count;
 reg [31:0] pll54_lockloss_count = 0;
 reg [31:0] pll_hdmi_lockloss_count = 0;
+reg [31:0] control_resync_out_count = 0;
+reg prev_control_resync_out = 0;
 
 always @(posedge control_clock) begin
     if (pll54_lockloss) begin
@@ -627,11 +630,11 @@ always @(posedge control_clock) begin
     if (pll_hdmi_lockloss) begin
         pll_hdmi_lockloss_count <= pll_hdmi_lockloss_count + 1'b1;
     end
+    prev_control_resync_out <= control_resync_out;
+    if (~prev_control_resync_out && control_resync_out) begin
+        control_resync_out_count <= control_resync_out_count + 1'b1;
+    end
 end
-
-
-
-
 
 ////////////////////////////////////////////////////////////////////////
     // // I2C master clock divisions
