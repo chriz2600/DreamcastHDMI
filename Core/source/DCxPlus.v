@@ -602,7 +602,8 @@ i2cSlave i2cSlave(
     .hpd_low_count(hpd_low_count),
     .pll54_lockloss_count(pll54_lockloss_count),
     .pll_hdmi_lockloss_count(pll_hdmi_lockloss_count),
-    .control_resync_out_count(control_resync_out_count)
+    .control_resync_out_count(control_resync_out_count),
+    .monitor_sense_low_count(monitor_sense_low_count)
 );
 
 maple mapleBus(
@@ -618,6 +619,7 @@ maple mapleBus(
 
 wire [31:0] pll_adv_lockloss_count;
 wire [31:0] hpd_low_count;
+wire [31:0] monitor_sense_low_count;
 reg [31:0] pll54_lockloss_count = 0;
 reg [31:0] pll_hdmi_lockloss_count = 0;
 reg [31:0] control_resync_out_count = 0;
@@ -694,7 +696,7 @@ ADV7513 adv7513(
     .hpd_detected(hpd_detected),
     .pll_adv_lockloss_count(pll_adv_lockloss_count),
     .hpd_low_count(hpd_low_count),
-
+    .monitor_sense_low_count(monitor_sense_low_count)
 );
 
 endmodule

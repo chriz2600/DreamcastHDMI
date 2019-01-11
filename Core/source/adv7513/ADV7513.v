@@ -13,6 +13,7 @@ module ADV7513(
     output reg hpd_detected,
     output reg [31:0] pll_adv_lockloss_count,
     output reg [31:0] hpd_low_count,
+    output reg [31:0] monitor_sense_low_count,
 
     input ADV7513Config adv7513Config
 );
@@ -68,11 +69,13 @@ localparam  scs_start = 6'd0;
 reg hdmi_int_prev = 1;
 reg prev_pll_adv_lockloss = 0;
 reg prev_hpd_state = 0;
+reg prev_monitor_sense_state = 0;
 
 initial begin
     ready <= 0;
     pll_adv_lockloss_count <= 0;
     hpd_low_count <= 0;
+    monitor_sense_low_count <= 0;
 end
 
 reg [32:0] counter = 0;
@@ -200,7 +203,16 @@ task adv7513_monitor_hpd;
             // monitor HPD State/Monitor Sense State
             3: read_i2c(CHIP_ADDR, 8'h_42);
             4: begin
-                prev_hpd_state <= ~i2c_data[6] || ~i2c_data[5];
+                // debug
+                prev_hpd_state <= i2c_data[6];
+                prev_monitor_sense_state <= i2c_data[5];
+                if (prev_hpd_state && ~i2c_data[6]) begin
+                    hpd_low_count <= hpd_low_count + 1'b1;
+                end
+                if (prev_monitor_sense_state && ~i2c_data[5]) begin
+                    monitor_sense_low_count <= monitor_sense_low_count + 1'b1;
+                end
+
                 if (i2c_data[6] && i2c_data[5]) begin
                     cmd_counter <= success_cmd;
                     subcmd_counter <= scs_start;
@@ -209,9 +221,6 @@ task adv7513_monitor_hpd;
                     cmd_counter <= failure_cmd;
                     subcmd_counter <= scs_start;
                     hpd_detected <= 1'b0;
-                    if (~prev_hpd_state) begin
-                        hpd_low_count <= hpd_low_count + 1'b1;
-                    end
                 end
             end
         endcase

@@ -26,6 +26,7 @@ class InfoTask : public Task {
         uint32_t pll54_lockloss_offset = 0;
         uint32_t pll_hdmi_lockloss_offset = 0;
         uint32_t control_resync_out_offset = 0;
+        uint32_t monitor_sense_low_offset = 0;
 
         virtual bool OnStart() {
             DEBUG("InfoTask: OnStart\n");
@@ -81,12 +82,18 @@ class InfoTask : public Task {
                         buffer[26]:  |__ control_resync_out_count
                         buffer[27]:  |   MSB first
                         buffer[28]: /
+
+                        buffer[29]: \
+                        buffer[30]:  |__ monitor_sense_low_count
+                        buffer[31]:  |   MSB first
+                        buffer[32]: /
                     */
                     uint32_t pll_adv_lockloss_count = (buffer[0] << 24 | buffer[1] << 16 | buffer[2] << 8 | buffer[3]);
                     uint32_t hpd_low_count = (buffer[4] << 24 | buffer[5] << 16 | buffer[6] << 8 | buffer[7]);
                     uint32_t pll54_lockloss_count = (buffer[8] << 24 | buffer[9] << 16 | buffer[10] << 8 | buffer[11]);
                     uint32_t pll_hdmi_lockloss_count = (buffer[12] << 24 | buffer[13] << 16 | buffer[14] << 8 | buffer[15]);
                     uint32_t control_resync_out_count = (buffer[25] << 24 | buffer[26] << 16 | buffer[27] << 8 | buffer[28]);
+                    uint32_t monitor_sense_low_count = (buffer[29] << 24 | buffer[30] << 16 | buffer[31] << 8 | buffer[32]);
 
                     if (resetCounters) {
                         resetCounters = false;
@@ -95,6 +102,7 @@ class InfoTask : public Task {
                         pll54_lockloss_offset = pll54_lockloss_count;
                         pll_hdmi_lockloss_offset = pll_hdmi_lockloss_count;
                         control_resync_out_offset = control_resync_out_count;
+                        monitor_sense_low_offset = monitor_sense_low_count;
                     }
 
                     uint16_t pinok1 = (buffer[16] << 5) | (buffer[17] >> 3);
@@ -109,8 +117,8 @@ class InfoTask : public Task {
                         "Output Mode re-m/map: %02x %02x             "
                         "Res data/deint data : %02x %02x             "
                         "Raw data: %02x %02x %02x %02x %02x %02x %04x %04x   "
-                        "advll: %05u   hpdl: %05u  rsyc: %05u "
-                        "p54ll: %05u  phdll: %05u              ",
+                        "advll: %05u   hpdl: %05u  msen: %05u "
+                        "p54ll: %05u  phdll: %05u  rsyc: %05u ",
                         checkPin(pinok1, pinok2, 0, 0),
                         checkPin(pinok1, pinok2, 0, 1),
                         checkPin(pinok1, pinok2, 1, 2),
@@ -130,9 +138,10 @@ class InfoTask : public Task {
                         pinok1, pinok2,
                         pll_adv_lockloss_count - pll_adv_lockloss_offset,
                         hpd_low_count - hpd_low_offset,
-                        control_resync_out_count - control_resync_out_offset,
+                        monitor_sense_low_count - monitor_sense_low_offset,
                         pll54_lockloss_count - pll54_lockloss_offset,
-                        pll_hdmi_lockloss_count - pll_hdmi_lockloss_offset
+                        pll_hdmi_lockloss_count - pll_hdmi_lockloss_offset,
+                        control_resync_out_count - control_resync_out_offset
                     );
 
                     fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_INF_RESULT_LINE, (uint8_t*) result);

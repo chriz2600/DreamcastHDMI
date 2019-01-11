@@ -79,7 +79,8 @@ module registerInterface (
     input [31:0] hpd_low_count,
     input [31:0] pll54_lockloss_count,
     input [31:0] pll_hdmi_lockloss_count,
-    input [31:0] control_resync_out_count
+    input [31:0] control_resync_out_count,
+    input [31:0] monitor_sense_low_count
 );
 
 reg [2:0] addr_offset = 3'b000;
@@ -188,6 +189,12 @@ always @(posedge clk) begin
         8'hBB: dataOut_reg <= control_resync_out_count[15:8];
         8'hBC: dataOut_reg <= control_resync_out_count[7:0];
 
+        // monitor_sense_low_count
+        8'hBD: dataOut_reg <= monitor_sense_low_count[31:24];
+        8'hBE: dataOut_reg <= monitor_sense_low_count[23:16];
+        8'hBF: dataOut_reg <= monitor_sense_low_count[15:8];
+        8'hC0: dataOut_reg <= monitor_sense_low_count[7:0];
+        
         default: dataOut_reg <= 0;
     endcase
 end
