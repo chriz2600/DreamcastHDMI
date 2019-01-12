@@ -5,6 +5,14 @@ extern char ssid[64];
 extern char password[64];
 extern Menu wifiEditMenu;
 
+extern bool inInitialSetupMode;
+extern bool isHhttpAuthPassGenerated;
+extern char httpAuthPass[64];
+extern char httpAuthUser[64];
+extern char AP_NameChar[64];
+extern char WiFiAPPSK[12];
+
+bool showPW = false;
 char wifiEdit_Name[MENU_WIDTH];
 char wifiEdit_Value[MENU_WIDTH];
 uint8_t wifiEdit_CursorPos = 0;
@@ -12,10 +20,18 @@ uint8_t wifiEdit_activeLine = NO_SELECT_LINE;
 
 Menu wifiMenu("WiFiMenu", (uint8_t*) OSD_WIFI_MENU, MENU_WIFI_FIRST_SELECT_LINE, MENU_WIFI_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
+        showPW = false;
         currentMenu = &mainMenu;
         currentMenu->Display();
         return;
     }
+
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, CTRLR_BUTTON_Y)) {
+        showPW = true;
+        currentMenu->Display();
+        return;
+    }
+
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         switch (menu_activeLine) {
             case MENU_WIFI_SSID_LINE:
@@ -40,12 +56,46 @@ Menu wifiMenu("WiFiMenu", (uint8_t*) OSD_WIFI_MENU, MENU_WIFI_FIRST_SELECT_LINE,
     }
 }, [](uint8_t* menu_text, uint8_t menu_activeLine) {
     // write current values to menu
-    char buffer[MENU_WIDTH] = "";
+    char buffer[MENU_WIDTH+1] = "";
 
     snprintf(buffer, 28, "%-27s", ssid);
     memcpy(&menu_text[MENU_WIFI_SSID_LINE * MENU_WIDTH + 12], buffer, 27);
     snprintf(buffer, 28, "%-27s", strlen(password) > 0 ? "<password-set>" : "<password-not-set>");
     memcpy(&menu_text[MENU_WIFI_PASSWORD_LINE * MENU_WIDTH + 12], buffer, 27);
+
+    snprintf(buffer, 16, "%15s", WiFi.status() == WL_CONNECTED ? "[Connected]" : inInitialSetupMode ? "[Access point]" : "[Error]");
+    memcpy(&menu_text[25], buffer, 15);
+
+    uint8_t i = 3;
+    IPAddress ipAddress = WiFi.localIP();
+
+    if (inInitialSetupMode) {
+        snprintf(buffer, 39, "Access point SSID:     %-15s", AP_NameChar);
+        memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, 38);
+
+        snprintf(buffer, 39, "Access point password: %-15s", showPW ? WiFiAPPSK : "<hidden>");
+        memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, 38);
+
+        snprintf(buffer, 39, "IP address:            192.168.4.1");
+    } else {
+        snprintf(buffer, 39, "IP address:            %d.%d.%d.%d", ipAddress[0], ipAddress[1], ipAddress[2], ipAddress[3]);
+    }
+
+    memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, strlen(buffer));
+
+    if (inInitialSetupMode || isHhttpAuthPassGenerated) {
+        snprintf(buffer, 39, "Web login username:    %-15s", httpAuthUser);
+        memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, 38);
+
+        snprintf(buffer, 39, "Web login password:    %-15s", isHhttpAuthPassGenerated ? showPW ? httpAuthPass : "<hidden>" : "<password-set>");
+        memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, 38);
+
+        snprintf(buffer, 41, "%-40s", "   " MENU_OK_STR ": Select  Y: Reveal pw  " MENU_CANCEL_STR ": Back     ");
+    } else {
+        snprintf(buffer, 41, "%-40s", "          " MENU_OK_STR ": Select  " MENU_CANCEL_STR ": Back            ");
+    }
+
+    memcpy(&menu_text[MENU_BUTTON_LINE * MENU_WIDTH], buffer, strlen(buffer));
 
     return menu_activeLine;
 }, NULL, true);

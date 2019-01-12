@@ -26,7 +26,7 @@ void _writeFile(const char *filename, const char *towrite, unsigned int len) {
     if (f) {
         f.write((const uint8_t*) towrite, len);
         f.close();
-        DEBUG(">> _writeFile: %s:[%s]\n", filename, towrite);
+        DEBUG2(">> _writeFile: %s:[%s]\n", filename, towrite);
     }
 }
 

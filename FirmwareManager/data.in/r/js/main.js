@@ -688,8 +688,8 @@ var setupDataMapping = {
     ota_pass:         [ "OTA Password     ", "empty" ],
     firmware_server:  [ "Firmware Server  ", "dc.i74.de", "[[ib;lightblue;]valid domain name]", domainCheck ],
     firmware_version: [ "Firmware Version ", "master", "[[b;lightblue;]master] / [[b;lightblue;]develop]", /^(master|develop|experimental)$/ ],
-    http_auth_user:   [ "HTTP User        ", "Test" ],
-    http_auth_pass:   [ "HTTP Password    ", "testtest" ],
+    http_auth_user:   [ "HTTP User        ", "dchdmi" ],
+    http_auth_pass:   [ "HTTP Password    ", "generated", null, null, null, "[[b;red;]It's essential that this is a password, you will remember!]\n    [[b;red;]It can only be reset by flashing a new firmwarev via serial port!]\n" ],
     conf_ip_addr:     [ "IP address       ", "empty", validIpMsg, ipCheck ],
     conf_ip_gateway:  [ "Gateway          ", "empty", validIpMsg, ipCheck ],
     conf_ip_mask:     [ "Netmask          ", "empty", validIpMsg, ipCheck ],
@@ -734,12 +734,17 @@ function prepareQuestion(pos, total, field) {
         )
         + ")"
         + (setupDataMapping[field][2] != null ? " \n    (available options: " + setupDataMapping[field][2] + ")" : "")
+        + (setupDataMapping[field][5] != null ? " \n    " + setupDataMapping[field][5] : "")
         + " \n    New value> ",
         q2 : (setupDataMapping[field][4] != null ? setupDataMapping[field][4] : default2nd),
         cb: function(command) {
             var value = command;
             // special values: <empty>, " " (reset)
-            if (value == "" || value == " ") {
+            if (value == "") {
+                return true;
+            }
+            if (value == " ") {
+                setupData[field] = "";
                 return true;
             }
             var lm = command.match(setupDataMapping[field][3] != null ? setupDataMapping[field][3] : defaultCheck);

@@ -357,7 +357,7 @@ char OSD_RESET_MENU[521] = (
 #define MENU_WIFI_PASSWORD_LINE 3
 #define MENU_WIFI_RESTART_LINE 4
 #define MENU_WIFI_FIRST_SELECT_LINE 2
-#define MENU_WIFI_LAST_SELECT_LINE 4
+#define MENU_WIFI_LAST_SELECT_LINE MENU_WIFI_RESTART_LINE
 char OSD_WIFI_MENU[521] = (
     "WiFi Setup                              "
     "                                        "
@@ -371,7 +371,7 @@ char OSD_WIFI_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "          " MENU_OK_STR ": Select  " MENU_CANCEL_STR ": Back            "
+    "   " MENU_OK_STR ": Select  Y: Reveal pw  " MENU_CANCEL_STR ": Back     "
 );
 
 #define MENU_WIFI_EDIT_NAME_LINE 2

@@ -29,8 +29,11 @@
 #include "data.h"
 #include "web.h"
 #include "Menu.h"
+#include "pwgen.h"
 
 //////////////////////////////////////////////////////////////////////////////////
+
+bool isHhttpAuthPassGenerated = false;
 
 char ssid[64] = DEFAULT_SSID;
 char password[64] = DEFAULT_PASSWORD;
@@ -38,7 +41,7 @@ char otaPassword[64] = DEFAULT_OTA_PASSWORD;
 char firmwareServer[1024] = DEFAULT_FW_SERVER;
 char firmwareVersion[64] = DEFAULT_FW_VERSION;
 char httpAuthUser[64] = DEFAULT_HTTP_USER;
-char httpAuthPass[64] = DEFAULT_HTTP_PASS;
+char httpAuthPass[64] = "";
 char confIPAddr[24] = DEFAULT_CONF_IP_ADDR;
 char confIPGateway[24] = DEFAULT_CONF_IP_GATEWAY;
 char confIPMask[24] = DEFAULT_CONF_IP_MASK;
@@ -48,7 +51,8 @@ char videoMode[16] = "";
 char configuredResolution[16] = "";
 char resetMode[16] = "";
 char deinterlaceMode[16] = "";
-const char* WiFiAPPSK = "geheim1234";
+char AP_NameChar[64];
+char WiFiAPPSK[12] = "";
 IPAddress ipAddress( 192, 168, 4, 1 );
 bool inInitialSetupMode = false;
 AsyncWebServer server(80);
@@ -176,6 +180,16 @@ void setupCredentials(void) {
     _readFile("/etc/conf_ip_mask", confIPMask, 24, DEFAULT_CONF_IP_MASK);
     _readFile("/etc/conf_ip_dns", confIPDNS, 24, DEFAULT_CONF_IP_DNS);
     _readFile("/etc/hostname", host, 64, DEFAULT_HOST);
+
+    if (strlen(httpAuthPass) == 0) {
+        generate_password(httpAuthPass);
+        isHhttpAuthPassGenerated = true;
+    }
+}
+
+void generateWiFiPassword() {
+    generate_password(WiFiAPPSK);
+    DEBUG2("AP password: %s\n", WiFiAPPSK);
 }
 
 void setupAPMode(void) {
@@ -185,15 +199,18 @@ void setupAPMode(void) {
     String macID = String(mac[WL_MAC_ADDR_LENGTH - 2], HEX) +
     String(mac[WL_MAC_ADDR_LENGTH - 1], HEX);
     macID.toUpperCase();
-    String AP_NameString = String(host) + String("-") + macID;
+    String AP_NameString = String("DCHDMI") + String("-") + macID;
 
-    char AP_NameChar[AP_NameString.length() + 1];
     memset(AP_NameChar, 0, AP_NameString.length() + 1);
-    
+
     for (uint i=0; i<AP_NameString.length(); i++) {
-        AP_NameChar[i] = AP_NameString.charAt(i);
+        if (i < 63) {
+            AP_NameChar[i] = AP_NameString.charAt(i);
+        }
     }
 
+    DEBUG2("AP_NameChar: %s\n", AP_NameChar);
+    generateWiFiPassword();
     WiFi.softAP(AP_NameChar, WiFiAPPSK);
     DEBUG2(">> SSID:   %s\n", AP_NameChar);
     DEBUG2(">> AP-PSK: %s\n", WiFiAPPSK);
@@ -536,8 +553,8 @@ void setupHTTPServer() {
         writeSetupParameter(request, "ota_pass", otaPassword, 64, DEFAULT_OTA_PASSWORD);
         writeSetupParameter(request, "firmware_server", firmwareServer, 1024, DEFAULT_FW_SERVER);
         writeSetupParameter(request, "firmware_version", firmwareVersion, 64, DEFAULT_FW_VERSION);
-        writeSetupParameter(request, "http_auth_user", httpAuthUser, 64, DEFAULT_HTTP_USER);
-        writeSetupParameter(request, "http_auth_pass", httpAuthPass, 64, DEFAULT_HTTP_PASS);
+        writeSetupParameter(request, "http_auth_user", httpAuthUser, 64, DEFAULT_HTTP_USER, true);
+        writeSetupParameter(request, "http_auth_pass", httpAuthPass, 64, DEFAULT_HTTP_PASS, true);
         writeSetupParameter(request, "conf_ip_addr", confIPAddr, 24, DEFAULT_CONF_IP_ADDR);
         writeSetupParameter(request, "conf_ip_gateway", confIPGateway, 24, DEFAULT_CONF_IP_GATEWAY);
         writeSetupParameter(request, "conf_ip_mask", confIPMask, 24, DEFAULT_CONF_IP_MASK);
@@ -887,6 +904,7 @@ void setup(void) {
             resetall();
         }
     }
+    DEBUG2("httpAuthPass: %s\n", httpAuthPass);
     DEBUG2(">> Ready.\n");
 }
 
