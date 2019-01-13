@@ -755,7 +755,7 @@ void setupHTTPServer() {
     handler->setAuthentication(httpAuthUser, httpAuthPass);
 
     server.onNotFound([](AsyncWebServerRequest *request){
-        if (request->url().endsWith(".md5")) {
+        if (request->url().endsWith("md5")) {
            request->send(200, "text/plain", DEFAULT_MD5_SUM"\n");
            return;
         }
