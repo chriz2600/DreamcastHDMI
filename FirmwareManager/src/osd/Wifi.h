@@ -83,15 +83,20 @@ Menu wifiMenu("WiFiMenu", (uint8_t*) OSD_WIFI_MENU, MENU_WIFI_FIRST_SELECT_LINE,
 
     memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, strlen(buffer));
 
-    if (inInitialSetupMode || isHhttpAuthPassGenerated) {
+    if (inInitialSetupMode || isHhttpAuthPassGenerated || CurrentProtectedMode == PROTECTED_MODE_OFF) {
         snprintf(buffer, 39, "Web login username:    %-15s", httpAuthUser);
         memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, 38);
 
-        snprintf(buffer, 39, "Web login password:    %-15s", isHhttpAuthPassGenerated ? showPW ? httpAuthPass : "<hidden>" : "<password-set>");
+        snprintf(buffer, 39, "Web login password:    %-15s", (isHhttpAuthPassGenerated || CurrentProtectedMode == PROTECTED_MODE_OFF) ? showPW ? httpAuthPass : "<hidden>" : "<password-set>");
         memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, 38);
 
         snprintf(buffer, 41, "%-40s", "   " MENU_OK_STR ": Select  Y: Reveal pw  " MENU_CANCEL_STR ": Back     ");
     } else {
+        snprintf(buffer, 39, "%-38s", "");
+        memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, 38);
+        snprintf(buffer, 39, "%-38s", "");
+        memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, 38);
+
         snprintf(buffer, 41, "%-40s", "          " MENU_OK_STR ": Select  " MENU_CANCEL_STR ": Back            ");
     }
 

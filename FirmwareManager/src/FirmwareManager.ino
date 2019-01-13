@@ -51,6 +51,7 @@ char videoMode[16] = "";
 char configuredResolution[16] = "";
 char resetMode[16] = "";
 char deinterlaceMode[16] = "";
+char protectedMode[8] = "";
 char AP_NameChar[64];
 char WiFiAPPSK[12] = "";
 IPAddress ipAddress( 192, 168, 4, 1 );
@@ -69,6 +70,7 @@ uint8_t CurrentResolutionData = 0;
 uint8_t ForceVGA = VGA_ON;
 uint8_t CurrentResetMode = RESET_MODE_LED;
 uint8_t CurrentDeinterlaceMode = DEINTERLACE_MODE_BOB;
+uint8_t CurrentProtectedMode = PROTECTED_MODE_OFF;
 uint8_t offset_240p;
 
 char md5FPGA[48];
@@ -180,6 +182,7 @@ void setupCredentials(void) {
     _readFile("/etc/conf_ip_mask", confIPMask, 24, DEFAULT_CONF_IP_MASK);
     _readFile("/etc/conf_ip_dns", confIPDNS, 24, DEFAULT_CONF_IP_DNS);
     _readFile("/etc/hostname", host, 64, DEFAULT_HOST);
+    readCurrentProtectedMode();
 
     if (strlen(httpAuthPass) == 0) {
         generate_password(httpAuthPass);
@@ -564,6 +567,8 @@ void setupHTTPServer() {
         writeSetupParameter(request, "video_mode", videoMode, "/etc/video/mode", 16, DEFAULT_VIDEO_MODE);
         writeSetupParameter(request, "reset_mode", resetMode, "/etc/reset/mode", 16, DEFAULT_RESET_MODE);
         writeSetupParameter(request, "deinterlace_mode", deinterlaceMode, "/etc/deinterlace/mode", 16, DEFAULT_DEINTERLACE_MODE);
+        writeSetupParameter(request, "protected_mode", protectedMode, "/etc/protected/mode", 8, DEFAULT_PROTECTED_MODE);
+        readCurrentProtectedMode(true);
 
         request->send(200, "text/plain", "OK\n");
     });
@@ -595,6 +600,7 @@ void setupHTTPServer() {
         root["video_mode"] = videoMode;
         root["reset_mode"] = resetMode;
         root["deinterlace_mode"] = deinterlaceMode;
+        root["protected_mode"] = protectedMode;
 
         root.printTo(*response);
         request->send(response);
@@ -754,10 +760,16 @@ void setupHTTPServer() {
             return request->requestAuthentication();
         }
         fpgaTask.Read(I2C_TESTDATA_BASE, I2C_TESTDATA_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
-            char msg[64];
             if (len == I2C_TESTDATA_LENGTH) {
-                sprintf(msg, "%02x %02x %02x %02x %02x %02x %02x %02x %02x\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7], buffer[8]);
-                request->send(200, "text/plain", msg);
+                request->send("text/plain", I2C_TESTDATA_LENGTH * 3 + 1, [ buffer ](uint8_t *buffer_out, size_t maxLen, size_t index) -> size_t {
+                    int p = 0;
+                    for (int i = 0 ; i < I2C_TESTDATA_LENGTH ; i++) {
+                        sprintf((char*) &buffer_out[p], "%02x ", buffer[i]);
+                        p = p + 3;
+                    }
+                    sprintf((char*) &buffer_out[p], "\n");
+                    return I2C_TESTDATA_LENGTH * 3 + 1;
+                });
             } else {
                 request->send(200, "text/plain", "SOMETHING_IS_WRONG\n");
             }
@@ -904,8 +916,8 @@ void setup(void) {
             resetall();
         }
     }
-    DEBUG2("httpAuthPass: %s\n", httpAuthPass);
     DEBUG2(">> Ready.\n");
+    DEBUG2(">> httpAuthPass: %s\n", httpAuthPass);
 }
 
 void loop(void){

@@ -6,7 +6,7 @@
 
 //////////////////////////////////////////////////////////////////////////////////
 
-#define DCHDMI_VERSION "v2.0.1"
+#define DCHDMI_VERSION "v2.1.0"
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -40,6 +40,7 @@
 #define DEFAULT_SCANLINES_THICKNESS SCANLINES_THIN
 #define DEFAULT_RESET_MODE RESET_MODE_STR_LED
 #define DEFAULT_DEINTERLACE_MODE DEINTERLACE_MODE_STR_BOB
+#define DEFAULT_PROTECTED_MODE PROTECTED_MODE_STR_OFF
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -231,5 +232,9 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 #define DEINTERLACE_MODE_STR_BOB "bob"
 #define DEINTERLACE_MODE_STR_PASSTHRU "passthru"
 
+#define PROTECTED_MODE_ON (0x01)
+#define PROTECTED_MODE_OFF (0x00)
+#define PROTECTED_MODE_STR_ON "on"
+#define PROTECTED_MODE_STR_OFF "off"
 
 #endif

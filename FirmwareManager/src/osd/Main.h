@@ -17,6 +17,7 @@ extern Menu *currentMenu;
 extern uint8_t CurrentResetMode;
 extern uint8_t CurrentDeinterlaceMode;
 extern uint8_t CurrentResolutionData;
+extern uint8_t CurrentProtectedMode;
 
 void closeOSD();
 void waitForI2CRecover(bool waitForError);

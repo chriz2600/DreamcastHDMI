@@ -7,11 +7,13 @@
 extern uint8_t ForceVGA;
 extern char resetMode[16];
 extern char deinterlaceMode[16];
+extern char protectedMode[8];
 
 bool DelayVGA = false;
 
 uint8_t cfgRst2Int(char* rstMode);
 uint8_t cfgDeint2Int(char* dMode);
+uint8_t cfgProtcd2Int(char* pMode);
 
 void readVideoMode() {
     _readFile("/etc/video/mode", videoMode, 16, DEFAULT_VIDEO_MODE);
@@ -69,6 +71,17 @@ void readCurrentDeinterlaceMode() {
     CurrentDeinterlaceMode = cfgDeint2Int(deinterlaceMode);
 }
 
+void readCurrentProtectedMode(bool skipRead) {
+    if (!skipRead) {
+        _readFile("/etc/protected/mode", protectedMode, 8, DEFAULT_PROTECTED_MODE);
+    }
+    CurrentProtectedMode = cfgProtcd2Int(protectedMode);
+}
+
+void readCurrentProtectedMode() {
+    readCurrentProtectedMode(false);
+}
+
 void writeCurrentDeinterlaceMode() {
     String cfgDeint = DEINTERLACE_MODE_STR_BOB;
 
@@ -95,6 +108,16 @@ uint8_t cfgRst2Int(char* rstMode) {
     }
     // default is LED
     return RESET_MODE_LED;
+}
+
+uint8_t cfgProtcd2Int(char* pMode) {
+    String cfgProtcd = String(pMode);
+
+    if (cfgProtcd == PROTECTED_MODE_STR_ON) {
+        return PROTECTED_MODE_ON;
+    }
+    // default is bob deinterlacing
+    return PROTECTED_MODE_OFF;
 }
 
 uint8_t cfgDeint2Int(char* dMode) {
