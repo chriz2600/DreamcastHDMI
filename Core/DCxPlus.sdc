@@ -31,8 +31,10 @@ set_clock_groups -asynchronous -group datain_clock -group output_clock
 derive_clock_uncertainty
 
 # input delays
-set tSU 2.0 # orig: 1.3
-set tH 2.0  # orig: 1.0
+# orig: 1.3
+set tSU 2.0
+# orig: 1.0
+set tH 2.0
 set dcinputs [get_ports {data* _hsync _vsync}]
 set_input_delay -max -clock virtual54 $tSU $dcinputs
 set_input_delay -min -clock virtual54 -$tH $dcinputs
@@ -42,8 +44,10 @@ set_false_path -hold -rise_from [get_clocks virtual54] -rise_to [get_clocks data
 set_false_path -hold -fall_from [get_clocks virtual54] -fall_to [get_clocks datain_clock]
 
 # output delays
-set tSU 2.0 # orig: 1.3, adv ds: 1.0
-set tH 2.0  # orig: 1.0, adv ds: 0.7
+# orig: 1.3, adv ds: 1.0
+set tSU 2.0
+# orig: 1.0, adv ds: 0.7
+set tH 2.0
 set adv_clock_delay 0.0
 set hdmi_outputs [get_ports {VIDEO* DE HSYNC VSYNC}]
 set_output_delay -clock output_clock -reference_pin [get_ports CLOCK] -max [expr $tSU - $adv_clock_delay] $hdmi_outputs
