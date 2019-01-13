@@ -15,6 +15,7 @@ module ADV7513(
     output reg [31:0] hpd_low_count,
     output reg [31:0] monitor_sense_low_count,
 
+    input [7:0] clock_data,
     input ADV7513Config adv7513Config
 );
 
@@ -279,7 +280,7 @@ task adv7513_init;
                                                 // [1]:   HDMI/DVI mode select = 0b1, HDMI mode
                                                 // [0]:   fixed = 0b0
             20: write_i2c(CHIP_ADDR, 16'h_DE_10); // ADI recommended write
-            21: write_i2c(CHIP_ADDR, 16'h_BA_60); // [7:5]: clock delay, 0b011 no delay
+            21: write_i2c(CHIP_ADDR, 16'h_BA_00 | clock_data); // [7:5]: clock delay, 0b011 no delay
                                                 // [4]:   hdcp eprom, 0b1 internal
                                                 // [3]:   fixed, 0b0
                                                 // [2]:   display aksv, 0b0 don't show

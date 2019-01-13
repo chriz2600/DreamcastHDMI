@@ -77,7 +77,8 @@ module i2cSlave (
   input [31:0] pll54_lockloss_count,
   input [31:0] pll_hdmi_lockloss_count,
   input [31:0] control_resync_out_count,
-  input [31:0] monitor_sense_low_count
+  input [31:0] monitor_sense_low_count,
+  output [7:0] clock_config_data
 );
 
 // local wires and regs
@@ -209,7 +210,8 @@ registerInterface u_registerInterface(
     .pll54_lockloss_count(pll54_lockloss_count),
     .pll_hdmi_lockloss_count(pll_hdmi_lockloss_count),
     .control_resync_out_count(control_resync_out_count),
-    .monitor_sense_low_count(monitor_sense_low_count)
+    .monitor_sense_low_count(monitor_sense_low_count),
+    .clock_config_data(clock_config_data)
 );
 
 serialInterface u_serialInterface (

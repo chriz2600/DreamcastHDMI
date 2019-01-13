@@ -45,7 +45,7 @@ set_false_path -hold -fall_from [get_clocks virtual54] -fall_to [get_clocks data
 
 # output delays
 # orig: 1.3, adv ds: 1.0
-set tSU 2.0
+set tSU 2.5
 # orig: 1.0, adv ds: 0.7
 set tH 2.0
 set adv_clock_delay 0.0

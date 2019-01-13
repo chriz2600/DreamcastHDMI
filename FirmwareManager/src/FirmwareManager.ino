@@ -755,6 +755,27 @@ void setupHTTPServer() {
         request->send(200);
     });
 
+    server.on("/clock/config/get", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        fpgaTask.Read(0xD0, 1, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+            char msg[16];
+            sprintf(msg, "%u\n", buffer[0]);
+            request->send(200, "text/plain", msg);
+        });
+    });
+
+    server.on("/clock/config/set", HTTP_POST, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+
+        AsyncWebParameter *s_value = request->getParam("value", true);
+        fpgaTask.Write(0xD0, atoi(s_value->value().c_str()), NULL);
+        request->send(200);
+    });
+
     server.on("/testdata", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
@@ -784,7 +805,7 @@ void setupHTTPServer() {
     handler->setAuthentication(httpAuthUser, httpAuthPass);
 
     server.onNotFound([](AsyncWebServerRequest *request){
-        if (request->url().endsWith(".md5")) {
+        if (request->url().endsWith("md5")) {
            request->send(200, "text/plain", DEFAULT_MD5_SUM"\n");
            return;
         }
