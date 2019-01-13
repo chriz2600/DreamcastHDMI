@@ -150,6 +150,7 @@ void getMD5SumFromServer(String host, String url, ContentCallback contentCallbac
 }
 
 void _handleDownload(AsyncWebServerRequest *request, const char *filename, String httpGet, ProgressCallback progressCallback) {
+    DEBUG2("_handleDownload: [%s] [%s]\n", filename, httpGet.c_str());
     headerFound = false;
     responseHeader.clear();
     totalLength = -1;
@@ -224,7 +225,7 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
             client->write(httpGet.c_str());
         }, NULL);
 
-        DEBUG("Trying to connect");
+        DEBUG2("Trying to connect");
         if (!aClient->connect(firmwareServer, FW_PORT)) {
             DEBUG("Connect Fail");
             AsyncClient *client = aClient;
@@ -235,6 +236,7 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
 
         if (request != NULL) { request->send(200); }
     } else {
+        DEBUG2("Flash file error!");
         if (request != NULL) { request->send(500); }
         PROGRESS_CALLBACK(false, UNKNOWN_ERROR);
     }
@@ -244,7 +246,7 @@ void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char
     if(request->hasParam(param, true)) {
         AsyncWebParameter *p = request->getParam(param, true);
         if (p->value() == "") {
-            DEBUG("SPIFFS.remove: %s\n", filename);
+            DEBUG2("SPIFFS.remove: %s\n", filename);
             if (!skipSettingNow) {
                 snprintf(target, maxlen, "%s", resetValue);
             }
@@ -258,7 +260,7 @@ void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char
             }
         }
     } else {
-        DEBUG("no such param: %s\n", param);
+        DEBUG2("no such param: %s\n", param);
     }
 }
 
