@@ -76,7 +76,7 @@ esp-publish:
     - tags
 
 finish-publish:
-  stage: deploy
+  stage: publish
   script: dc-atomic-move
   artifacts:
     expire_in: 1 sec
