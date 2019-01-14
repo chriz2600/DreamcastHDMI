@@ -260,7 +260,11 @@ var term = $('#term').terminal(function(command, term) {
         });
     } else if (command.match(/^\s*cleanup\s*$/)) {
         startTransaction(null, function() {
-            doDeleteFirmwareFile();
+            doRequest("cleanup", "Remove firmware files.");
+        });
+    } else if (command.match(/^\s*resetconfig\s*$/)) {
+        startTransaction(null, function() {
+            doRequest("resetconfig", "Reset configuration to factory defaults.");
         });
     } else if (command.match(/^\s*flash_chip_size\s*$/)) {
         startTransaction(null, function() {
@@ -771,9 +775,12 @@ function prepareQuestion(pos, total, field) {
     };
 }
 
-function doDeleteFirmwareFile() {
-    $.ajax("/cleanup");
-    endTransaction('firmware file removed.');
+function doRequest(req, msg) {
+    $.ajax("/" + req).done(function() {
+        endTransaction("SUCCESS: " + msg);
+    }).fail(function() {
+        endTransaction("FAILED: " + msg, true);
+    });
 }
 
 function listFiles() {

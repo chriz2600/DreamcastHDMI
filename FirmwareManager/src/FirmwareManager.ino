@@ -463,14 +463,33 @@ void setupHTTPServer() {
         request->send(200);
     });
 
-    server.on("/cleanupconfig", HTTP_GET, [](AsyncWebServerRequest *request) {
+    server.on("/resetconfig", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        SPIFFS.remove("/etc/video/resolution");
-        SPIFFS.remove("/etc/video/mode");
-        SPIFFS.remove("/etc/reset/mode");
-        SPIFFS.remove("/etc/deinterlace/mode");
+        SPIFFS.remove("/etc/ssid");
+        SPIFFS.remove("/etc/password");
+        SPIFFS.remove("/etc/ota_pass");
+        SPIFFS.remove("/etc/http_auth_user");
+        SPIFFS.remove("/etc/http_auth_pass");
+        SPIFFS.remove("/etc/conf_ip_addr");
+        SPIFFS.remove("/etc/conf_ip_gateway");
+        SPIFFS.remove("/etc/conf_ip_mask");
+        SPIFFS.remove("/etc/conf_ip_dns");
+        SPIFFS.remove("/etc/hostname");
+
+        ssid[0] = '\0';
+        password[0] = '\0';
+        otaPassword[0] = '\0';
+        // keep passwords alive until power off
+        //httpAuthUser[0] = '\0';
+        //httpAuthPass[0] = '\0';
+        confIPAddr[0] = '\0';
+        confIPGateway[0] = '\0';
+        confIPMask[0] = '\0';
+        confIPDNS[0] = '\0';
+        host[0] = '\0';
+
         request->send(200);
     });
 
