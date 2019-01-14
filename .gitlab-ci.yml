@@ -2,6 +2,7 @@ stages:
   - build-fpga
   - build-esp
   - deploy
+  - publish
 
 fpga-firmware:
   stage: build-fpga
@@ -81,6 +82,22 @@ esp-publish:
     expire_in: 1 sec
   dependencies:
     - esp-firmware
+  tags:
+    - index-gen
+  only:
+    - develop
+    - master
+    - experimental
+    - tags
+
+finish-publish:
+  stage: publish
+  script: dc-atomic-move
+  artifacts:
+    expire_in: 1 sec
+  dependencies:
+    - fpga-publish
+    - esp-publish
   tags:
     - index-gen
   only:
