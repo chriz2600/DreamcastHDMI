@@ -47,7 +47,7 @@ set_false_path -hold -fall_from [get_clocks virtual54] -fall_to [get_clocks data
 # orig: 1.3, adv ds: 1.0
 set tSU 2.5
 # orig: 1.0, adv ds: 0.7
-set tH 2.0
+set tH 2.5
 set adv_clock_delay 0.0
 set hdmi_outputs [get_ports {VIDEO* DE HSYNC VSYNC}]
 set_output_delay -clock output_clock -reference_pin [get_ports CLOCK] -max [expr $tSU - $adv_clock_delay] $hdmi_outputs
