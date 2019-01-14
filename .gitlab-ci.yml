@@ -88,3 +88,19 @@ esp-publish:
     - master
     - experimental
     - tags
+
+finish-publish:
+  stage: deploy
+  script: dc-atomic-move
+  artifacts:
+    expire_in: 1 sec
+  dependencies:
+    - fpga-publish
+    - esp-publish
+  tags:
+    - index-gen
+  only:
+    - develop
+    - master
+    - experimental
+    - tags
