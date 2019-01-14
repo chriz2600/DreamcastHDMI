@@ -957,6 +957,7 @@ void setup(void) {
         }
     }
     DEBUG2(">> Ready.\n");
+    DEBUG2(">> httpAuthUser: %s\n", httpAuthUser);
     DEBUG2(">> httpAuthPass: %s\n", httpAuthPass);
 }
 
