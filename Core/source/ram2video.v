@@ -84,6 +84,11 @@ module ram2video(
 
     reg isScanline = 0;
 
+    reg [23:0] _d_video_out;
+    reg _d_hsync;
+    reg _d_vsync;
+    reg _d_DrawArea;
+
     reg [14:0] d_rdaddr;
     reg [23:0] d_video_out;
     reg d_hsync;
@@ -365,21 +370,32 @@ module ram2video(
             // OUTPUT
             d_rdaddr <= `GetAddr(counterX_reg, counterY_reg);
             if (fullcycle || _fullcycle >= 4'b0001) begin
-                d_video_out <= `GetData(counterX_reg_q_q_q, counterY_reg_q_q_q, counterX_osd_reg_q5);
-                d_DrawArea <= `IsDrawAreaHDMI(counterX_reg_q_q_q, counterY_reg_q_q_q);
-                d_hsync <= hsync_reg_q_q;
-                d_vsync <= vsync_reg_q_q;
+                _d_video_out <= `GetData(counterX_reg_q_q_q, counterY_reg_q_q_q, counterX_osd_reg_q5);
+                _d_DrawArea <= `IsDrawAreaHDMI(counterX_reg_q_q_q, counterY_reg_q_q_q);
+                _d_hsync <= hsync_reg_q_q;
+                _d_vsync <= vsync_reg_q_q;
                 if (_fullcycle == 4'b1111) begin
                     fullcycle <= 1;
                 end
             end else begin
-                d_video_out <= 24'd0;
-                d_DrawArea <= 1'b0;
-                d_hsync <= ~hdmiVideoConfig.horizontal_sync_on_polarity;
-                d_vsync <= ~hdmiVideoConfig.vertical_sync_on_polarity;
+                _d_video_out <= 24'd0;
+                _d_DrawArea <= 1'b0;
+                _d_hsync <= ~hdmiVideoConfig.horizontal_sync_on_polarity;
+                _d_vsync <= ~hdmiVideoConfig.vertical_sync_on_polarity;
             end
+
         end
     end
+
+
+    delayline #(
+        .CYCLES(2),
+        .WIDTH(27)
+    ) vout_delay (
+        .clock(clock),
+        .in({ _d_video_out, _d_DrawArea, _d_hsync, _d_vsync }),
+        .out({ d_video_out, d_DrawArea, d_hsync, d_vsync })
+    );
 
     assign text_rdaddr = text_rdaddr_x + text_rdaddr_y;
     assign char_addr = (text_rddata << 4) + charPixelRow_reg;
