@@ -691,16 +691,16 @@ adv7513_reconfig reconf_adv(
 wire adv7513_reconf_delay_out;
 startup adv7513_reconf_delay(
     .clock(control_clock),
-    .nreset(~adv7513_reconf),
+    .nreset(~adv7513_reconf || ~pll_hdmi_ready || ~ram2video_fullcycle),
     .ready(adv7513_reconf_delay_out),
-    .startup_delay(32'd_64_000_000)
+    .startup_delay(32'd_54_321_123)
 );
 
 ADV7513 adv7513(
     .clk(control_clock),
     .reset(adv7513_reset /*|| ~activateHDMIoutput*/),
     .hdmi_int(HDMI_INT_N /*& ~adv7513_reconf*/), // ? is adv7513_reconf really needed ?
-    .output_ready(pll_hdmi_ready && ram2video_fullcycle && adv7513_reconf_delay_out),
+    .output_ready(adv7513_reconf_delay_out),
     .sda(SDAT),
     .scl(SCLK),
     .ready(adv7513_ready),

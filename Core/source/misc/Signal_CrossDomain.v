@@ -6,10 +6,14 @@ module Signal_CrossDomain(
     output SignalOut_clkB
 );
 
-// We use a two-stages shift-register to synchronize SignalIn_clkA to the clkB clock domain
-reg [1:0] SyncA_clkB;
-always @(posedge clkB) SyncA_clkB[0] <= SignalIn_clkA;   // notice that we use clkB
-always @(posedge clkB) SyncA_clkB[1] <= SyncA_clkB[0];   // notice that we use clkB
+// We use a four-stages shift-register to synchronize SignalIn_clkA to the clkB clock domain
+reg [3:0] SyncA_clkB;
+always @(posedge clkB) begin 
+    SyncA_clkB[0] <= SignalIn_clkA;
+    SyncA_clkB[1] <= SyncA_clkB[0];
+    SyncA_clkB[2] <= SyncA_clkB[1];
+    SyncA_clkB[3] <= SyncA_clkB[2];
+end
 
-assign SignalOut_clkB = SyncA_clkB[1];  // new signal synchronized to (=ready to be used in) clkB domain
+assign SignalOut_clkB = SyncA_clkB[3];  // new signal synchronized to (=ready to be used in) clkB domain
 endmodule
