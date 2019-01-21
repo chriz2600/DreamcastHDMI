@@ -29,8 +29,11 @@
 #include "data.h"
 #include "web.h"
 #include "Menu.h"
+#include "pwgen.h"
 
 //////////////////////////////////////////////////////////////////////////////////
+
+bool isHhttpAuthPassGenerated = false;
 
 char ssid[64] = DEFAULT_SSID;
 char password[64] = DEFAULT_PASSWORD;
@@ -38,7 +41,7 @@ char otaPassword[64] = DEFAULT_OTA_PASSWORD;
 char firmwareServer[1024] = DEFAULT_FW_SERVER;
 char firmwareVersion[64] = DEFAULT_FW_VERSION;
 char httpAuthUser[64] = DEFAULT_HTTP_USER;
-char httpAuthPass[64] = DEFAULT_HTTP_PASS;
+char httpAuthPass[64] = "";
 char confIPAddr[24] = DEFAULT_CONF_IP_ADDR;
 char confIPGateway[24] = DEFAULT_CONF_IP_GATEWAY;
 char confIPMask[24] = DEFAULT_CONF_IP_MASK;
@@ -48,7 +51,9 @@ char videoMode[16] = "";
 char configuredResolution[16] = "";
 char resetMode[16] = "";
 char deinterlaceMode[16] = "";
-const char* WiFiAPPSK = "geheim1234";
+char protectedMode[8] = "";
+char AP_NameChar[64];
+char WiFiAPPSK[12] = "";
 IPAddress ipAddress( 192, 168, 4, 1 );
 bool inInitialSetupMode = false;
 AsyncWebServer server(80);
@@ -65,6 +70,7 @@ uint8_t CurrentResolutionData = 0;
 uint8_t ForceVGA = VGA_ON;
 uint8_t CurrentResetMode = RESET_MODE_LED;
 uint8_t CurrentDeinterlaceMode = DEINTERLACE_MODE_BOB;
+uint8_t CurrentProtectedMode = PROTECTED_MODE_OFF;
 uint8_t offset_240p;
 
 char md5FPGA[48];
@@ -176,6 +182,17 @@ void setupCredentials(void) {
     _readFile("/etc/conf_ip_mask", confIPMask, 24, DEFAULT_CONF_IP_MASK);
     _readFile("/etc/conf_ip_dns", confIPDNS, 24, DEFAULT_CONF_IP_DNS);
     _readFile("/etc/hostname", host, 64, DEFAULT_HOST);
+    readCurrentProtectedMode();
+
+    if (strlen(httpAuthPass) == 0) {
+        generate_password(httpAuthPass);
+        isHhttpAuthPassGenerated = true;
+    }
+}
+
+void generateWiFiPassword() {
+    generate_password(WiFiAPPSK);
+    DEBUG2("AP password: %s\n", WiFiAPPSK);
 }
 
 void setupAPMode(void) {
@@ -185,15 +202,18 @@ void setupAPMode(void) {
     String macID = String(mac[WL_MAC_ADDR_LENGTH - 2], HEX) +
     String(mac[WL_MAC_ADDR_LENGTH - 1], HEX);
     macID.toUpperCase();
-    String AP_NameString = String(host) + String("-") + macID;
+    String AP_NameString = String("DCHDMI") + String("-") + macID;
 
-    char AP_NameChar[AP_NameString.length() + 1];
     memset(AP_NameChar, 0, AP_NameString.length() + 1);
-    
+
     for (uint i=0; i<AP_NameString.length(); i++) {
-        AP_NameChar[i] = AP_NameString.charAt(i);
+        if (i < 63) {
+            AP_NameChar[i] = AP_NameString.charAt(i);
+        }
     }
 
+    DEBUG2("AP_NameChar: %s\n", AP_NameChar);
+    generateWiFiPassword();
     WiFi.softAP(AP_NameChar, WiFiAPPSK);
     DEBUG2(">> SSID:   %s\n", AP_NameChar);
     DEBUG2(">> AP-PSK: %s\n", WiFiAPPSK);
@@ -443,14 +463,33 @@ void setupHTTPServer() {
         request->send(200);
     });
 
-    server.on("/cleanupconfig", HTTP_GET, [](AsyncWebServerRequest *request) {
+    server.on("/resetconfig", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        SPIFFS.remove("/etc/video/resolution");
-        SPIFFS.remove("/etc/video/mode");
-        SPIFFS.remove("/etc/reset/mode");
-        SPIFFS.remove("/etc/deinterlace/mode");
+        SPIFFS.remove("/etc/ssid");
+        SPIFFS.remove("/etc/password");
+        SPIFFS.remove("/etc/ota_pass");
+        SPIFFS.remove("/etc/http_auth_user");
+        SPIFFS.remove("/etc/http_auth_pass");
+        SPIFFS.remove("/etc/conf_ip_addr");
+        SPIFFS.remove("/etc/conf_ip_gateway");
+        SPIFFS.remove("/etc/conf_ip_mask");
+        SPIFFS.remove("/etc/conf_ip_dns");
+        SPIFFS.remove("/etc/hostname");
+
+        ssid[0] = '\0';
+        password[0] = '\0';
+        otaPassword[0] = '\0';
+        // keep passwords alive until power off
+        //httpAuthUser[0] = '\0';
+        //httpAuthPass[0] = '\0';
+        confIPAddr[0] = '\0';
+        confIPGateway[0] = '\0';
+        confIPMask[0] = '\0';
+        confIPDNS[0] = '\0';
+        host[0] = '\0';
+
         request->send(200);
     });
 
@@ -536,8 +575,8 @@ void setupHTTPServer() {
         writeSetupParameter(request, "ota_pass", otaPassword, 64, DEFAULT_OTA_PASSWORD);
         writeSetupParameter(request, "firmware_server", firmwareServer, 1024, DEFAULT_FW_SERVER);
         writeSetupParameter(request, "firmware_version", firmwareVersion, 64, DEFAULT_FW_VERSION);
-        writeSetupParameter(request, "http_auth_user", httpAuthUser, 64, DEFAULT_HTTP_USER);
-        writeSetupParameter(request, "http_auth_pass", httpAuthPass, 64, DEFAULT_HTTP_PASS);
+        writeSetupParameter(request, "http_auth_user", httpAuthUser, 64, DEFAULT_HTTP_USER, true);
+        writeSetupParameter(request, "http_auth_pass", httpAuthPass, 64, DEFAULT_HTTP_PASS, true);
         writeSetupParameter(request, "conf_ip_addr", confIPAddr, 24, DEFAULT_CONF_IP_ADDR);
         writeSetupParameter(request, "conf_ip_gateway", confIPGateway, 24, DEFAULT_CONF_IP_GATEWAY);
         writeSetupParameter(request, "conf_ip_mask", confIPMask, 24, DEFAULT_CONF_IP_MASK);
@@ -547,6 +586,8 @@ void setupHTTPServer() {
         writeSetupParameter(request, "video_mode", videoMode, "/etc/video/mode", 16, DEFAULT_VIDEO_MODE);
         writeSetupParameter(request, "reset_mode", resetMode, "/etc/reset/mode", 16, DEFAULT_RESET_MODE);
         writeSetupParameter(request, "deinterlace_mode", deinterlaceMode, "/etc/deinterlace/mode", 16, DEFAULT_DEINTERLACE_MODE);
+        writeSetupParameter(request, "protected_mode", protectedMode, "/etc/protected/mode", 8, DEFAULT_PROTECTED_MODE);
+        readCurrentProtectedMode(true);
 
         request->send(200, "text/plain", "OK\n");
     });
@@ -578,6 +619,7 @@ void setupHTTPServer() {
         root["video_mode"] = videoMode;
         root["reset_mode"] = resetMode;
         root["deinterlace_mode"] = deinterlaceMode;
+        root["protected_mode"] = protectedMode;
 
         root.printTo(*response);
         request->send(response);
@@ -732,15 +774,42 @@ void setupHTTPServer() {
         request->send(200);
     });
 
+    server.on("/clock/config/get", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        fpgaTask.Read(0xD0, 1, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+            char msg[16];
+            sprintf(msg, "%u\n", buffer[0]);
+            request->send(200, "text/plain", msg);
+        });
+    });
+
+    server.on("/clock/config/set", HTTP_POST, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+
+        AsyncWebParameter *s_value = request->getParam("value", true);
+        fpgaTask.Write(0xD0, atoi(s_value->value().c_str()), NULL);
+        request->send(200);
+    });
+
     server.on("/testdata", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
         fpgaTask.Read(I2C_TESTDATA_BASE, I2C_TESTDATA_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
-            char msg[64];
             if (len == I2C_TESTDATA_LENGTH) {
-                sprintf(msg, "%02x %02x %02x %02x %02x %02x %02x %02x %02x\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7], buffer[8]);
-                request->send(200, "text/plain", msg);
+                request->send("text/plain", I2C_TESTDATA_LENGTH * 3 + 1, [ buffer ](uint8_t *buffer_out, size_t maxLen, size_t index) -> size_t {
+                    int p = 0;
+                    for (int i = 0 ; i < I2C_TESTDATA_LENGTH ; i++) {
+                        sprintf((char*) &buffer_out[p], "%02x ", buffer[i]);
+                        p = p + 3;
+                    }
+                    sprintf((char*) &buffer_out[p], "\n");
+                    return I2C_TESTDATA_LENGTH * 3 + 1;
+                });
             } else {
                 request->send(200, "text/plain", "SOMETHING_IS_WRONG\n");
             }
@@ -888,6 +957,8 @@ void setup(void) {
         }
     }
     DEBUG2(">> Ready.\n");
+    DEBUG2(">> httpAuthUser: %s\n", httpAuthUser);
+    DEBUG2(">> httpAuthPass: %s\n", httpAuthPass);
 }
 
 void loop(void){

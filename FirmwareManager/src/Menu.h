@@ -70,7 +70,7 @@ char OSD_OUTPUT_RES_MENU[521] = (
 #define MENU_AV_240POS 3
 #define MENU_AV_FIRST_SELECT_LINE 2
 #define MENU_AV_LAST_SELECT_LINE MENU_AV_240POS
-#define MENU_AV_COLUMN 23
+#define MENU_AV_COLUMN 24
 char OSD_ADVANCED_VIDEO_MENU[521] = (
     "Advanced Video Settings                 "
     "                                        "
@@ -311,7 +311,7 @@ char OSD_INFO_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "                " MENU_CANCEL_STR ": Back                 "
+    "       " MENU_CANCEL_STR ": Back  " MENU_OK_STR ": Zero counters        "
 );
 
 #define MENU_CHNGL_RESULT_LINE 2
@@ -357,7 +357,7 @@ char OSD_RESET_MENU[521] = (
 #define MENU_WIFI_PASSWORD_LINE 3
 #define MENU_WIFI_RESTART_LINE 4
 #define MENU_WIFI_FIRST_SELECT_LINE 2
-#define MENU_WIFI_LAST_SELECT_LINE 4
+#define MENU_WIFI_LAST_SELECT_LINE MENU_WIFI_RESTART_LINE
 char OSD_WIFI_MENU[521] = (
     "WiFi Setup                              "
     "                                        "
@@ -371,7 +371,7 @@ char OSD_WIFI_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "          " MENU_OK_STR ": Select  " MENU_CANCEL_STR ": Back            "
+    "   " MENU_OK_STR ": Select  Y: Reveal pw  " MENU_CANCEL_STR ": Back     "
 );
 
 #define MENU_WIFI_EDIT_NAME_LINE 2

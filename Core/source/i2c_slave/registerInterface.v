@@ -74,7 +74,14 @@ module registerInterface (
     input line_doubler,
     input is_pal,
     input force_generate,
-    input ControllerData controller_data
+    input ControllerData controller_data,
+    input [31:0] pll_adv_lockloss_count,
+    input [31:0] hpd_low_count,
+    input [31:0] pll54_lockloss_count,
+    input [31:0] pll_hdmi_lockloss_count,
+    input [31:0] control_resync_out_count,
+    input [31:0] monitor_sense_low_count,
+    output [7:0] clock_config_data
 );
 
 reg [2:0] addr_offset = 3'b000;
@@ -92,6 +99,7 @@ Scanline scanline_reg = { 9'h100, 1'b0, 1'b0, 1'b0 };
 reg [23:0] conf240p_reg = 24'd20;
 reg [7:0] reset_conf_reg = 0;
 reg activateHDMIoutput_reg = 0;
+reg [7:0] clock_config_data_reg = 3;
 
 assign dataOut = dataOut_reg;
 assign ram_wraddress = wraddress_reg;
@@ -107,6 +115,7 @@ assign reset_opt = reset_opt_reg;
 assign reset_conf = reset_conf_reg;
 assign conf240p = conf240p_reg;
 assign activateHDMIoutput = activateHDMIoutput_reg;
+assign clock_config_data = clock_config_data_reg;
 
 // --- I2C Read
 always @(posedge clk) begin
@@ -143,6 +152,30 @@ always @(posedge clk) begin
         8'h88: dataOut_reg <= scanline_reg.intensity[8:1];
         8'h89: dataOut_reg <= { scanline_reg.intensity[0], scanline_reg.thickness, scanline_reg.oddeven, scanline_reg.active, 4'b0000 };
 
+        // pll_adv_lockloss_count
+        8'hA0: dataOut_reg <= pll_adv_lockloss_count[31:24];
+        8'hA1: dataOut_reg <= pll_adv_lockloss_count[23:16];
+        8'hA2: dataOut_reg <= pll_adv_lockloss_count[15:8];
+        8'hA3: dataOut_reg <= pll_adv_lockloss_count[7:0];
+
+        // hpd_low_count
+        8'hA4: dataOut_reg <= hpd_low_count[31:24];
+        8'hA5: dataOut_reg <= hpd_low_count[23:16];
+        8'hA6: dataOut_reg <= hpd_low_count[15:8];
+        8'hA7: dataOut_reg <= hpd_low_count[7:0];
+
+        // pll54_lockloss_count
+        8'hA8: dataOut_reg <= pll54_lockloss_count[31:24];
+        8'hA9: dataOut_reg <= pll54_lockloss_count[23:16];
+        8'hAA: dataOut_reg <= pll54_lockloss_count[15:8];
+        8'hAB: dataOut_reg <= pll54_lockloss_count[7:0];
+
+        // pll_hdmi_lockloss_count
+        8'hAC: dataOut_reg <= pll_hdmi_lockloss_count[31:24];
+        8'hAD: dataOut_reg <= pll_hdmi_lockloss_count[23:16];
+        8'hAE: dataOut_reg <= pll_hdmi_lockloss_count[15:8];
+        8'hAF: dataOut_reg <= pll_hdmi_lockloss_count[7:0];
+
         8'hB0: dataOut_reg <= { 2'b0, pinok[21:16] };
         8'hB1: dataOut_reg <= pinok[15:8];
         8'hB2: dataOut_reg <= pinok[7:0];
@@ -152,6 +185,22 @@ always @(posedge clk) begin
         8'hB6: dataOut_reg <= rgbData[23:16]; // red
         8'hB7: dataOut_reg <= rgbData[15:8];  // green
         8'hB8: dataOut_reg <= rgbData[7:0];   // blue
+
+        // control_resync_out_count
+        8'hB9: dataOut_reg <= control_resync_out_count[31:24];
+        8'hBA: dataOut_reg <= control_resync_out_count[23:16];
+        8'hBB: dataOut_reg <= control_resync_out_count[15:8];
+        8'hBC: dataOut_reg <= control_resync_out_count[7:0];
+
+        // monitor_sense_low_count
+        8'hBD: dataOut_reg <= monitor_sense_low_count[31:24];
+        8'hBE: dataOut_reg <= monitor_sense_low_count[23:16];
+        8'hBF: dataOut_reg <= monitor_sense_low_count[15:8];
+        8'hC0: dataOut_reg <= monitor_sense_low_count[7:0];
+
+        // clock_config_data
+        8'hD0: dataOut_reg <= clock_config_data;
+
         default: dataOut_reg <= 0;
     endcase
 end
@@ -187,6 +236,9 @@ always @(posedge clk) begin
             conf240p_reg <= { 16'd0, dataIn };
         end else if (addr == 8'h91) begin
             activateHDMIoutput_reg <= dataIn[0];
+        // clock_config_data
+        end else if (addr == 8'hD0) begin
+            clock_config_data_reg <= dataIn;
         // reset dreamcast
         end else if (addr == 8'hF0) begin
             reset_dc_reg <= 1'b1;

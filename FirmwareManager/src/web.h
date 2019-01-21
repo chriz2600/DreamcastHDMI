@@ -235,30 +235,45 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
 
         if (request != NULL) { request->send(200); }
     } else {
+        DEBUG2("Flash file error: %s\n", filename);
         if (request != NULL) { request->send(500); }
         PROGRESS_CALLBACK(false, UNKNOWN_ERROR);
     }
 }
 
-void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char* target, unsigned int maxlen, const char* resetValue) {
-    String _tmp = "/etc/" + String(param);
-    writeSetupParameter(request, param, target, _tmp.c_str(), maxlen, resetValue);
-}
-
-void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char* target, const char* filename, unsigned int maxlen, const char* resetValue) {
+void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char* target, const char* filename, unsigned int maxlen, const char* resetValue, bool skipSettingNow) {
     if(request->hasParam(param, true)) {
         AsyncWebParameter *p = request->getParam(param, true);
         if (p->value() == "") {
             DEBUG("SPIFFS.remove: %s\n", filename);
-            snprintf(target, maxlen, "%s", resetValue);
+            if (!skipSettingNow) {
+                snprintf(target, maxlen, "%s", resetValue);
+            }
             SPIFFS.remove(filename);
         } else {
-            snprintf(target, maxlen, "%s", p->value().c_str());
-            _writeFile(filename, target, maxlen);
+            if (skipSettingNow) {
+                _writeFile(filename, p->value().c_str(), maxlen);
+            } else {
+                snprintf(target, maxlen, "%s", p->value().c_str());
+                _writeFile(filename, target, maxlen);
+            }
         }
     } else {
         DEBUG("no such param: %s\n", param);
     }
+}
+
+void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char* target, const char* filename, unsigned int maxlen, const char* resetValue) {
+    writeSetupParameter(request, param, target, filename, maxlen, resetValue, false);
+}
+
+void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char* target, unsigned int maxlen, const char* resetValue, bool skipSettingNow) {
+    String _tmp = "/etc/" + String(param);
+    writeSetupParameter(request, param, target, _tmp.c_str(), maxlen, resetValue, skipSettingNow);
+}
+
+void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char* target, unsigned int maxlen, const char* resetValue) {
+    writeSetupParameter(request, param, target, maxlen, resetValue, false);
 }
 
 void handleFlash(AsyncWebServerRequest *request, const char *filename) {

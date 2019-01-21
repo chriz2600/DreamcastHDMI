@@ -40,7 +40,7 @@ Menu advancedVideoMenu("AdvancedVideoMenu", (uint8_t*) OSD_ADVANCED_VIDEO_MENU, 
                 CurrentDeinterlaceMode = (CurrentDeinterlaceMode == DEINTERLACE_MODE_BOB ? DEINTERLACE_MODE_PASSTHRU : DEINTERLACE_MODE_BOB);
                 safeSwitchResolution(CurrentResolution, [](uint8_t Address, uint8_t Value) {
                     char buffer[MENU_WIDTH] = "";
-                    snprintf(buffer, 9, "%8s", (CurrentDeinterlaceMode == DEINTERLACE_MODE_BOB ? DEINTERLACE_MODE_STR_BOB : DEINTERLACE_MODE_STR_PASSTHRU));
+                    snprintf(buffer, 9, "%-8s", (CurrentDeinterlaceMode == DEINTERLACE_MODE_BOB ? DEINTERLACE_MODE_STR_BOB : DEINTERLACE_MODE_STR_PASSTHRU));
                     fpgaTask.DoWriteToOSD(MENU_AV_COLUMN, MENU_OFFSET + MENU_AV_DEINT, (uint8_t*) buffer);
                 });
                 break;
@@ -48,7 +48,7 @@ Menu advancedVideoMenu("AdvancedVideoMenu", (uint8_t*) OSD_ADVANCED_VIDEO_MENU, 
                 offset_240p = (offset_240p == 20 ? 0 : 20);
                 fpgaTask.Write(I2C_240P_OFFSET, offset_240p, [](uint8_t Address, uint8_t Value) {
                     char buffer[MENU_WIDTH] = "";
-                    snprintf(buffer, 9, "%8s", Value == 20 ? "On" : "Off");
+                    snprintf(buffer, 9, "%-8s", Value == 20 ? "On" : "Off");
                     fpgaTask.DoWriteToOSD(MENU_AV_COLUMN, MENU_OFFSET + MENU_AV_240POS, (uint8_t*) buffer);
                 });
                 break;
@@ -58,9 +58,9 @@ Menu advancedVideoMenu("AdvancedVideoMenu", (uint8_t*) OSD_ADVANCED_VIDEO_MENU, 
     // write current values to menu
     char buffer[MENU_WIDTH] = "";
 
-    snprintf(buffer, 9, "%8s", (CurrentDeinterlaceMode == DEINTERLACE_MODE_BOB ? DEINTERLACE_MODE_STR_BOB : DEINTERLACE_MODE_STR_PASSTHRU));
+    snprintf(buffer, 9, "%-8s", (CurrentDeinterlaceMode == DEINTERLACE_MODE_BOB ? DEINTERLACE_MODE_STR_BOB : DEINTERLACE_MODE_STR_PASSTHRU));
     memcpy(&menu_text[MENU_AV_DEINT * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
-    snprintf(buffer, 9, "%8s", offset_240p == 20 ? "On" : "Off");
+    snprintf(buffer, 9, "%-8s", offset_240p == 20 ? "On" : "Off");
     memcpy(&menu_text[MENU_AV_240POS * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
 
     return MENU_AV_FIRST_SELECT_LINE;

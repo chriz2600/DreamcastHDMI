@@ -6,7 +6,7 @@
 
 //////////////////////////////////////////////////////////////////////////////////
 
-#define DCHDMI_VERSION "v2.0.2"
+#define DCHDMI_VERSION "v2.1.0"
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -24,8 +24,8 @@
 #define DEFAULT_OTA_PASSWORD ""
 #define DEFAULT_FW_SERVER "dc.i74.de"
 #define DEFAULT_FW_VERSION "master"
-#define DEFAULT_HTTP_USER "Test"
-#define DEFAULT_HTTP_PASS "testtest"
+#define DEFAULT_HTTP_USER "dchdmi"
+#define DEFAULT_HTTP_PASS ""
 #define DEFAULT_CONF_IP_ADDR ""
 #define DEFAULT_CONF_IP_GATEWAY ""
 #define DEFAULT_CONF_IP_MASK ""
@@ -40,6 +40,7 @@
 #define DEFAULT_SCANLINES_THICKNESS SCANLINES_THIN
 #define DEFAULT_RESET_MODE RESET_MODE_STR_LED
 #define DEFAULT_DEINTERLACE_MODE DEINTERLACE_MODE_STR_BOB
+#define DEFAULT_PROTECTED_MODE PROTECTED_MODE_STR_OFF
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -137,8 +138,8 @@
 #define I2C_CONTROLLER_AND_DATA_BASE_LENGTH 3
 
 // pinok data
-#define I2C_TESTDATA_BASE (0xB0)
-#define I2C_TESTDATA_LENGTH 9
+#define I2C_TESTDATA_BASE (0xA0)
+#define I2C_TESTDATA_LENGTH 33
 
 // // controller data, int16
 // /*
@@ -231,5 +232,9 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 #define DEINTERLACE_MODE_STR_BOB "bob"
 #define DEINTERLACE_MODE_STR_PASSTHRU "passthru"
 
+#define PROTECTED_MODE_ON (0x01)
+#define PROTECTED_MODE_OFF (0x00)
+#define PROTECTED_MODE_STR_ON "on"
+#define PROTECTED_MODE_STR_OFF "off"
 
 #endif

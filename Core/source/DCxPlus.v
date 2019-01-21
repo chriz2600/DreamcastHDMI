@@ -596,7 +596,15 @@ i2cSlave i2cSlave(
     .is_pal(is_pal_sync),
     .video_gen_data(video_gen_data),
     .activateHDMIoutput(activateHDMIoutput),
-    .force_generate(control_force_generate_out)
+    .force_generate(control_force_generate_out),
+
+    .pll_adv_lockloss_count(pll_adv_lockloss_count),
+    .hpd_low_count(hpd_low_count),
+    .pll54_lockloss_count(pll54_lockloss_count),
+    .pll_hdmi_lockloss_count(pll_hdmi_lockloss_count),
+    .control_resync_out_count(control_resync_out_count),
+    .monitor_sense_low_count(monitor_sense_low_count),
+    .clock_config_data(clock_config_data)
 );
 
 maple mapleBus(
@@ -606,6 +614,30 @@ maple mapleBus(
     .pin5(MAPLE_PIN5),
     .controller_data(controller_data)
 );
+
+
+////////////////////////////////////////////////////////////////////////
+
+wire [31:0] pll_adv_lockloss_count;
+wire [31:0] hpd_low_count;
+wire [31:0] monitor_sense_low_count;
+reg [31:0] pll54_lockloss_count = 0;
+reg [31:0] pll_hdmi_lockloss_count = 0;
+reg [31:0] control_resync_out_count = 0;
+reg prev_control_resync_out = 0;
+
+always @(posedge control_clock) begin
+    if (pll54_lockloss) begin
+        pll54_lockloss_count <= pll54_lockloss_count + 1'b1;
+    end
+    if (pll_hdmi_lockloss) begin
+        pll_hdmi_lockloss_count <= pll_hdmi_lockloss_count + 1'b1;
+    end
+    prev_control_resync_out <= control_resync_out;
+    if (~prev_control_resync_out && control_resync_out) begin
+        control_resync_out_count <= control_resync_out_count + 1'b1;
+    end
+end
 
 ////////////////////////////////////////////////////////////////////////
     // // I2C master clock divisions
@@ -645,24 +677,40 @@ startup adv7513_startup_delay(
 );
 
 wire adv7513_reconf;
+wire [7:0] clock_config_data;
+wire [7:0] clock_data;
 adv7513_reconfig reconf_adv(
     .clock(control_clock),
     .data_in(reconf_data),
+    .clock_config_data(clock_config_data),
     .adv7513Config(adv7513Config),
+    .clock_data_out(clock_data),
     .adv7513_reconf(adv7513_reconf)
+);
+
+wire adv7513_reconf_delay_out;
+startup adv7513_reconf_delay(
+    .clock(control_clock),
+    .nreset(~adv7513_reconf || ~pll_hdmi_ready || ~ram2video_fullcycle),
+    .ready(adv7513_reconf_delay_out),
+    .startup_delay(32'd_54_321_123)
 );
 
 ADV7513 adv7513(
     .clk(control_clock),
     .reset(adv7513_reset /*|| ~activateHDMIoutput*/),
-    .hdmi_int(HDMI_INT_N & ~adv7513_reconf), // ? is adv7513_reconf really needed ?
-    .output_ready(pll_hdmi_ready && ram2video_fullcycle),
+    .hdmi_int(HDMI_INT_N /*& ~adv7513_reconf*/), // ? is adv7513_reconf really needed ?
+    .output_ready(adv7513_reconf_delay_out),
     .sda(SDAT),
     .scl(SCLK),
     .ready(adv7513_ready),
     .adv7513Config(adv7513Config),
+    .clock_data(clock_data),
     .hdmi_int_reg(hdmi_int_reg),
-    .hpd_detected(hpd_detected)
+    .hpd_detected(hpd_detected),
+    .pll_adv_lockloss_count(pll_adv_lockloss_count),
+    .hpd_low_count(hpd_low_count),
+    .monitor_sense_low_count(monitor_sense_low_count)
 );
 
 endmodule

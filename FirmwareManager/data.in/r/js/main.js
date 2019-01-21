@@ -260,7 +260,11 @@ var term = $('#term').terminal(function(command, term) {
         });
     } else if (command.match(/^\s*cleanup\s*$/)) {
         startTransaction(null, function() {
-            doDeleteFirmwareFile();
+            doRequest("cleanup", "Remove firmware files.");
+        });
+    } else if (command.match(/^\s*resetconfig\s*$/)) {
+        startTransaction(null, function() {
+            doRequest("resetconfig", "Reset configuration to factory defaults.");
         });
     } else if (command.match(/^\s*flash_chip_size\s*$/)) {
         startTransaction(null, function() {
@@ -459,7 +463,15 @@ var term = $('#term').terminal(function(command, term) {
             return false;
         }
         if (testloop) {
-            endTestloop();
+            console.log("["+e.key+"]");
+            if (e.key) {
+                var k = e.key.toUpperCase();
+                if (k == 'ENTER') {
+                    endTestloop();
+                } else if (k == ' ') {
+                    zeroTestvalues();
+                }
+            }
             return false;
         }
     }
@@ -687,9 +699,9 @@ var setupDataMapping = {
     password:         [ "WiFi Password    ", "empty" ],
     ota_pass:         [ "OTA Password     ", "empty" ],
     firmware_server:  [ "Firmware Server  ", "dc.i74.de", "[[ib;lightblue;]valid domain name]", domainCheck ],
-    firmware_version: [ "Firmware Version ", "master", "[[b;lightblue;]master] / [[b;lightblue;]develop]", /^(master|develop|experimental)$/ ],
-    http_auth_user:   [ "HTTP User        ", "Test" ],
-    http_auth_pass:   [ "HTTP Password    ", "testtest" ],
+    firmware_version: [ "Firmware Version ", "master", "[[b;lightblue;]master] / [[b;lightblue;]develop] / [[b;lightblue;]vX.Y.Z]", /^(master|develop|experimental|v\d+\.\d+\.\d+)$/ ],
+    http_auth_user:   [ "HTTP User        ", "dchdmi" ],
+    http_auth_pass:   [ "HTTP Password    ", "generated", null, null, null, "[[b;red;]If you do not set a password, a new one will be]\n    [[b;red;]generated each time DCHDMI starts!]" ],
     conf_ip_addr:     [ "IP address       ", "empty", validIpMsg, ipCheck ],
     conf_ip_gateway:  [ "Gateway          ", "empty", validIpMsg, ipCheck ],
     conf_ip_mask:     [ "Netmask          ", "empty", validIpMsg, ipCheck ],
@@ -699,6 +711,11 @@ var setupDataMapping = {
     video_mode:       [ "Video mode       ", "CableDetect", "[[b;lightblue;]ForceVGA] / [[b;lightblue;]CableDetect] / [[b;lightblue;]SwitchTrick]", /^(ForceVGA|CableDetect|SwitchTrick)$/ ],
     reset_mode:       [ "Opt. reset mode  ", "led", "[[b;lightblue;]led] / [[b;lightblue;]gdemu] / [[b;lightblue;]usb-gdrom]", /^(led|gdemu|usb-gdrom)$/ ],
     deinterlace_mode: [ "Deinterlacer     ", "bob", "[[b;lightblue;]bob] / [[b;lightblue;]passthru]", /^(bob|passthru)$/ ],
+    protected_mode:   [ "Protected mode   ", "off", "[[b;lightblue;]on] / [[b;lightblue;]off]", /^(on|off)$/, null, 
+          "[[b;red;]If you set protected mode to 'on', you will not be able]\n    "
+        + "[[b;red;]to reveal your HTTP Password in the OSD!]\n    "
+        + "[[b;red;]While setting to 'on' is recommended, you will need]\n    "
+        + "[[b;red;]access to the serial port to recover your password, if forgotten.]" ]
 };
 var dataExcludeMap = {
     "flash_chip_size":"",
@@ -734,12 +751,17 @@ function prepareQuestion(pos, total, field) {
         )
         + ")"
         + (setupDataMapping[field][2] != null ? " \n    (available options: " + setupDataMapping[field][2] + ")" : "")
+        + (setupDataMapping[field][5] != null ? " \n    " + setupDataMapping[field][5] : "")
         + " \n    New value> ",
         q2 : (setupDataMapping[field][4] != null ? setupDataMapping[field][4] : default2nd),
         cb: function(command) {
             var value = command;
             // special values: <empty>, " " (reset)
-            if (value == "" || value == " ") {
+            if (value == "") {
+                return true;
+            }
+            if (value == " ") {
+                setupData[field] = "";
                 return true;
             }
             var lm = command.match(setupDataMapping[field][3] != null ? setupDataMapping[field][3] : defaultCheck);
@@ -753,9 +775,12 @@ function prepareQuestion(pos, total, field) {
     };
 }
 
-function doDeleteFirmwareFile() {
-    $.ajax("/cleanup");
-    endTransaction('firmware file removed.');
+function doRequest(req, msg) {
+    $.ajax("/" + req).done(function() {
+        endTransaction("SUCCESS: " + msg);
+    }).fail(function() {
+        endTransaction("FAILED: " + msg, true);
+    });
 }
 
 function listFiles() {
@@ -923,6 +948,7 @@ function testdata(check) {
 
 var testrefresh = 0;
 var testdatares;
+var counterdata;
 
 function initTestdatares() {
     testdatares = {
@@ -940,17 +966,46 @@ function initTestdatares() {
 }
 initTestdatares();
 
+function initCounterdata() {
+    counterdata = {
+        advll      : 0,
+        hpdl       : 0,
+        msen       : 0,
+        p54ll      : 0,
+        phdll      : 0,
+        rsyc       : 0,
+        advll_offs : 0,
+        hpdl_offs  : 0,
+        msen_offs  : 0,
+        p54ll_offs : 0,
+        phdll_offs : 0,
+        rsyc_offs  : 0
+    };
+}
+initCounterdata();
+
+function parse_uint32_t(buffer, pos) {
+    return (parseInt(buffer[pos], 16) << 24) | (parseInt(buffer[pos+1], 16) << 16) | (parseInt(buffer[pos+2], 16) << 8) | parseInt(buffer[pos+3], 16);
+}
+
 function createTestData(rawdata) {
-    var msg = rawdata.replace(/\n/g, "");
+    var msg = rawdata.replace(/\n/g, "").trim();
     var buffer = msg.split(/\ /);
-    if (buffer.length == 9) {
-        var pinok1 = (parseInt(buffer[0], 16) << 5) | (parseInt(buffer[1], 16) >> 3);
-        var pinok2 = ((parseInt(buffer[1], 16) & 0x7) << 8) | parseInt(buffer[2], 16);
-        var resolX = (parseInt(buffer[3], 16) << 4) | (parseInt(buffer[4], 16) >> 4);
-        var resolY = ((parseInt(buffer[4], 16) & 0xF) << 8) | parseInt(buffer[5], 16);
-        var red    = parseInt(buffer[6], 16);
-        var green  = parseInt(buffer[7], 16);
-        var blue   = parseInt(buffer[8], 16);
+    if (buffer.length == 33) {
+        counterdata.advll = parse_uint32_t(buffer, 0);
+        counterdata.hpdl = parse_uint32_t(buffer, 4);
+        counterdata.p54ll = parse_uint32_t(buffer, 8);
+        counterdata.phdll = parse_uint32_t(buffer, 12);
+        counterdata.rsyc = parse_uint32_t(buffer, 25);
+        counterdata.msen = parse_uint32_t(buffer, 29);
+
+        var pinok1 = (parseInt(buffer[16], 16) << 5) | (parseInt(buffer[17], 16) >> 3);
+        var pinok2 = ((parseInt(buffer[17], 16) & 0x7) << 8) | parseInt(buffer[18], 16);
+        var resolX = (parseInt(buffer[19], 16) << 4) | (parseInt(buffer[20], 16) >> 4);
+        var resolY = ((parseInt(buffer[20], 16) & 0xF) << 8) | parseInt(buffer[21], 16);
+        var red    = parseInt(buffer[22], 16);
+        var green  = parseInt(buffer[23], 16);
+        var blue   = parseInt(buffer[24], 16);
 
         var rawWidth = (resolX + 1);
         var rawHeight = (resolY + 1);
@@ -996,14 +1051,22 @@ function createTestData(rawdata) {
             + "    min./max. green: [[b;#fff;]" + testdatares.gmin + " " + testdatares.gmax + "]\n"
             + "     min./max. blue: [[b;#fff;]" + testdatares.bmin + " " + testdatares.bmax + "]\n"
             + " \n"
-            + "Raw data:"
+            /*+ "Raw data:"
             + "  " + msg + " "
                 + String('0000' + pinok1.toString(16)).slice(-4)
                 + " "
                 + String('0000' + pinok2.toString(16)).slice(-4)
-            + "\n"
+            + " \n \n"*/
+            + "advll: [[b;#fff;]" + String('00000' + (counterdata.advll - counterdata.advll_offs).toString(10)).slice(-5) + "]"
+            + "   hpdl: [[b;#fff;]" + String('00000' + (counterdata.hpdl - counterdata.hpdl_offs).toString(10)).slice(-5) + "]"
+            + "  msen: [[b;#fff;]" + String('00000' + (counterdata.msen - counterdata.msen_offs).toString(10)).slice(-5) + "]"
             + " \n"
-            + "Press any key to stop."
+            + "p54ll: [[b;#fff;]" + String('00000' + (counterdata.p54ll - counterdata.p54ll_offs).toString(10)).slice(-5) + "]"
+            + "  phdll: [[b;#fff;]" + String('00000' + (counterdata.phdll - counterdata.phdll_offs).toString(10)).slice(-5) + "]"
+            + "  rsyc: [[b;#fff;]" + String('00000' + (counterdata.rsyc - counterdata.rsyc_offs).toString(10)).slice(-5) + "]"
+            + " \n \n"
+            + "[Space] to zero counters.\n"
+            + "[Return] to stop.\n"
         );
     }
 
@@ -1021,6 +1084,16 @@ function checkPin(pinok1, pinok2, pos1, pos2) {
     return '[[b;#fff;]' + (isOk ? '\u2665' : 'X') + ']';
 }
 
+function zeroTestvalues() {
+    initTestdatares();
+    counterdata.advll_offs = counterdata.advll;
+    counterdata.hpdl_offs  = counterdata.hpdl;
+    counterdata.msen_offs  = counterdata.msen;
+    counterdata.p54ll_offs = counterdata.p54ll;
+    counterdata.phdll_offs = counterdata.phdll;
+    counterdata.rsyc_offs  = counterdata.rsyc;
+}
+
 function endTestloop() {
     if (testloop) {
         clearTimeout(testtimeout);
@@ -1031,6 +1104,7 @@ function endTestloop() {
         term.find('.cursor').show();
         testrefresh = 0;
         initTestdatares();
+        initCounterdata();
     }
 }
 
