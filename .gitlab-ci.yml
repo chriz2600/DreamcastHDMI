@@ -10,6 +10,7 @@ fpga-firmware:
     - ./Core/source/ram/create_text_ram.pl
     - script -qfc "$(printf "%q " "/root/build")" /dev/null
   artifacts:
+    name: "fpga-firmware-${CI_COMMIT_REF_NAME}"
     paths:
     - Core/output_files/*.jic
     - Core/output_files/*.rbf
@@ -45,6 +46,7 @@ esp-firmware:
     # finally build spiffs
     - "pio run -t buildfs"
   artifacts:
+    name: "esp-firmware-${CI_COMMIT_REF_NAME}"
     paths:
     - FirmwareManager/.pioenvs/esp07s/firmware.bin
     - FirmwareManager/.pioenvs/esp07s/spiffs.bin
