@@ -15,12 +15,12 @@ ContentCallback createMD5DownloadCallback(int pos, bool forceDownload, int line,
 void displayProgress(int read, int total, int line);
 
 Menu firmwareDownloadMenu("FirmwareDownloadMenu", (uint8_t*) OSD_FIRMWARE_DOWNLOAD_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_CANCEL)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         currentMenu = &firmwareMenu;
         currentMenu->Display();
         return;
     }
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_OK)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         if (!firmwareDownloadStarted) {
             firmwareDownloadStarted = true;
             newFWDownloaded = false;
@@ -33,7 +33,7 @@ Menu firmwareDownloadMenu("FirmwareDownloadMenu", (uint8_t*) OSD_FIRMWARE_DOWNLO
 }, true);
 
 void downloadCascade(int pos, bool forceDownload) {
-    DBG_OUTPUT_PORT.printf("downloadCascade: %i\n", pos);
+    DEBUG("downloadCascade: %i\n", pos);
     switch (pos) {
         case 0:
             currentMenu->startTransaction();

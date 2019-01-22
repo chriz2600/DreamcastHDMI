@@ -29,8 +29,11 @@
 #include "data.h"
 #include "web.h"
 #include "Menu.h"
+#include "pwgen.h"
 
 //////////////////////////////////////////////////////////////////////////////////
+
+bool isHhttpAuthPassGenerated = false;
 
 char ssid[64] = DEFAULT_SSID;
 char password[64] = DEFAULT_PASSWORD;
@@ -38,7 +41,7 @@ char otaPassword[64] = DEFAULT_OTA_PASSWORD;
 char firmwareServer[1024] = DEFAULT_FW_SERVER;
 char firmwareVersion[64] = DEFAULT_FW_VERSION;
 char httpAuthUser[64] = DEFAULT_HTTP_USER;
-char httpAuthPass[64] = DEFAULT_HTTP_PASS;
+char httpAuthPass[64] = "";
 char confIPAddr[24] = DEFAULT_CONF_IP_ADDR;
 char confIPGateway[24] = DEFAULT_CONF_IP_GATEWAY;
 char confIPMask[24] = DEFAULT_CONF_IP_MASK;
@@ -47,7 +50,10 @@ char host[64] = DEFAULT_HOST;
 char videoMode[16] = "";
 char configuredResolution[16] = "";
 char resetMode[16] = "";
-const char* WiFiAPPSK = "geheim1234";
+char deinterlaceMode[16] = "";
+char protectedMode[8] = "";
+char AP_NameChar[64];
+char WiFiAPPSK[12] = "";
 IPAddress ipAddress( 192, 168, 4, 1 );
 bool inInitialSetupMode = false;
 AsyncWebServer server(80);
@@ -63,6 +69,8 @@ uint8_t PrevCurrentResolution;
 uint8_t CurrentResolutionData = 0;
 uint8_t ForceVGA = VGA_ON;
 uint8_t CurrentResetMode = RESET_MODE_LED;
+uint8_t CurrentDeinterlaceMode = DEINTERLACE_MODE_BOB;
+uint8_t CurrentProtectedMode = PROTECTED_MODE_OFF;
 uint8_t offset_240p;
 
 char md5FPGA[48];
@@ -96,20 +104,20 @@ Menu *previousMenu;
 //////////////////////////////////////////////////////////////////////////////////
 
 void setupSPIFFS() {
-    DBG_OUTPUT_PORT.printf(">> Setting up SPIFFS...\n");
+    DEBUG2(">> Setting up SPIFFS...\n");
     if (!SPIFFS.begin()) {
-        DBG_OUTPUT_PORT.printf(">> SPIFFS begin failed, trying to format...");
+        DEBUG(">> SPIFFS begin failed, trying to format...");
         if (SPIFFS.format()) {
-            DBG_OUTPUT_PORT.printf("done.\n");
+            DEBUG("done.\n");
         } else {
-            DBG_OUTPUT_PORT.printf("error.\n");
+            DEBUG("error.\n");
         }
     }
 }
 
 void setupResetMode() {
     readCurrentResetMode();
-    DBG_OUTPUT_PORT.printf(">> Setting up reset mode: %x\n", CurrentResetMode);
+    DEBUG2(">> Setting up reset mode: %x\n", CurrentResetMode);
     reflashNeccessary3 = !forceI2CWrite(
         I2C_RESET_CONF, CurrentResetMode, 
         I2C_PING, 0
@@ -119,10 +127,12 @@ void setupResetMode() {
 void setupOutputResolution() {
     readVideoMode();
     readCurrentResolution();
+    readCurrentDeinterlaceMode();
 
-    DBG_OUTPUT_PORT.printf(">> Setting up output resolution: %x\n", ForceVGA | CurrentResolution);
+    DEBUG2(">> Setting up output resolution: %x\n", ForceVGA | CurrentResolution);
     reflashNeccessary = !forceI2CWrite(
         I2C_OUTPUT_RESOLUTION, ForceVGA | mapResolution(CurrentResolution),
+        //ForceVGA ? I2C_DC_RESET : I2C_PING, 0
         I2C_DC_RESET, 0
     );
 }
@@ -136,7 +146,7 @@ void setupScanlines() {
     uint8_t upper = getScanlinesUpperPart();
     uint8_t lower = getScanlinesLowerPart();
 
-    DBG_OUTPUT_PORT.printf(">> Setting up scanlines:\n");
+    DEBUG2(">> Setting up scanlines:\n");
     reflashNeccessary2 = !forceI2CWrite(
         I2C_SCANLINE_UPPER, upper, 
         I2C_SCANLINE_LOWER, lower
@@ -152,13 +162,13 @@ void setup240pOffset() {
 }
 
 void setupTaskManager() {
-    DBG_OUTPUT_PORT.printf(">> Setting up task manager...\n");
+    DEBUG2(">> Setting up task manager...\n");
     taskManager.Setup();
     taskManager.StartTask(&fpgaTask);
 }
 
 void setupCredentials(void) {
-    DBG_OUTPUT_PORT.printf(">> Reading stored values...\n");
+    DEBUG2(">> Reading stored values...\n");
 
     _readFile("/etc/ssid", ssid, 64, DEFAULT_SSID);
     _readFile("/etc/password", password, 64, DEFAULT_PASSWORD);
@@ -172,6 +182,17 @@ void setupCredentials(void) {
     _readFile("/etc/conf_ip_mask", confIPMask, 24, DEFAULT_CONF_IP_MASK);
     _readFile("/etc/conf_ip_dns", confIPDNS, 24, DEFAULT_CONF_IP_DNS);
     _readFile("/etc/hostname", host, 64, DEFAULT_HOST);
+    readCurrentProtectedMode();
+
+    if (strlen(httpAuthPass) == 0) {
+        generate_password(httpAuthPass);
+        isHhttpAuthPassGenerated = true;
+    }
+}
+
+void generateWiFiPassword() {
+    generate_password(WiFiAPPSK);
+    DEBUG2("AP password: %s\n", WiFiAPPSK);
 }
 
 void setupAPMode(void) {
@@ -181,27 +202,30 @@ void setupAPMode(void) {
     String macID = String(mac[WL_MAC_ADDR_LENGTH - 2], HEX) +
     String(mac[WL_MAC_ADDR_LENGTH - 1], HEX);
     macID.toUpperCase();
-    String AP_NameString = String(host) + String("-") + macID;
+    String AP_NameString = String("DCHDMI") + String("-") + macID;
 
-    char AP_NameChar[AP_NameString.length() + 1];
     memset(AP_NameChar, 0, AP_NameString.length() + 1);
-    
+
     for (uint i=0; i<AP_NameString.length(); i++) {
-        AP_NameChar[i] = AP_NameString.charAt(i);
+        if (i < 63) {
+            AP_NameChar[i] = AP_NameString.charAt(i);
+        }
     }
 
+    DEBUG2("AP_NameChar: %s\n", AP_NameChar);
+    generateWiFiPassword();
     WiFi.softAP(AP_NameChar, WiFiAPPSK);
-    DBG_OUTPUT_PORT.printf(">> SSID:   %s\n", AP_NameChar);
-    DBG_OUTPUT_PORT.printf(">> AP-PSK: %s\n", WiFiAPPSK);
+    DEBUG2(">> SSID:   %s\n", AP_NameChar);
+    DEBUG2(">> AP-PSK: %s\n", WiFiAPPSK);
     inInitialSetupMode = true;
 }
 
 void setupWiFi() {
     if (strlen(ssid) == 0) {
-        DBG_OUTPUT_PORT.printf(">> No ssid, starting AP mode...\n");
+        DEBUG2(">> No ssid, starting AP mode...\n");
         setupAPMode();
     } else {
-        DBG_OUTPUT_PORT.printf(">> Trying to connect in client mode first...\n");
+        DEBUG2(">> Trying to connect in client mode first...\n");
         setupWiFiStation();
     }
 }
@@ -224,19 +248,19 @@ void setupWiFiStation() {
     WiFi.setAutoReconnect(true);
     WiFi.hostname(host);
 
-    DBG_OUTPUT_PORT.printf(">> Do static ip configuration: %i\n", doStaticIpConfig);
+    DEBUG(">> Do static ip configuration: %i\n", doStaticIpConfig);
     if (doStaticIpConfig) {
         WiFi.config(ipAddr, ipGateway, ipMask, ipDNS);
     }
 
     WiFi.mode(WIFI_STA);
     
-    DBG_OUTPUT_PORT.printf(">> WiFi.getAutoConnect: %i\n", WiFi.getAutoConnect());
-    DBG_OUTPUT_PORT.printf(">> Connecting to %s\n", ssid);
+    DEBUG(">> WiFi.getAutoConnect: %i\n", WiFi.getAutoConnect());
+    DEBUG(">> Connecting to %s\n", ssid);
 
     if (String(WiFi.SSID()) != String(ssid)) {
         WiFi.begin(ssid, password);
-        DBG_OUTPUT_PORT.printf(">> WiFi.begin: %s@%s\n", password, ssid);
+        DEBUG(">> WiFi.begin: %s@%s\n", password, ssid);
     }
     
     bool success = true;
@@ -252,7 +276,7 @@ void setupWiFiStation() {
         tries++;
     }
 
-    DBG_OUTPUT_PORT.printf(">> success: %i\n", success);
+    DEBUG2(">> success: %i\n", success);
 
     if (!success) {
         // setup AP mode to configure ssid and password
@@ -262,28 +286,28 @@ void setupWiFiStation() {
         IPAddress gateway = WiFi.gatewayIP();
         IPAddress subnet = WiFi.subnetMask();
 
-        DBG_OUTPUT_PORT.printf(
+        DEBUG2(
             ">> Connected!\n   IP address:      %d.%d.%d.%d\n",
             ipAddress[0], ipAddress[1], ipAddress[2], ipAddress[3]
         );
-        DBG_OUTPUT_PORT.printf(
+        DEBUG2(
             "   Gateway address: %d.%d.%d.%d\n",
             gateway[0], gateway[1], gateway[2], gateway[3]
         );
-        DBG_OUTPUT_PORT.printf(
+        DEBUG2(
             "   Subnet mask:     %d.%d.%d.%d\n",
             subnet[0], subnet[1], subnet[2], subnet[3]
         );
-        DBG_OUTPUT_PORT.printf(
+        DEBUG2(
             "   Hostname:        %s\n",
             WiFi.hostname().c_str()
         );
     }
     
     if (MDNS.begin(host, ipAddress)) {
-        DBG_OUTPUT_PORT.println(">> mDNS started");
+        DEBUG(">> mDNS started\n");
         MDNS.addService("http", "tcp", 80);
-        DBG_OUTPUT_PORT.printf(
+        DEBUG(
             ">> http://%s.local/\n", 
             host
         );
@@ -291,7 +315,7 @@ void setupWiFiStation() {
 }
 
 void setupHTTPServer() {
-    DBG_OUTPUT_PORT.printf(">> Setting up HTTP server...\n");
+    DEBUG2(">> Setting up HTTP server...\n");
 
     server.on("/upload/fpga", HTTP_POST, [](AsyncWebServerRequest *request){
         if(!_isAuthenticated(request)) {
@@ -439,13 +463,33 @@ void setupHTTPServer() {
         request->send(200);
     });
 
-    server.on("/cleanupconfig", HTTP_GET, [](AsyncWebServerRequest *request) {
+    server.on("/resetconfig", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        SPIFFS.remove("/etc/video/resolution");
-        SPIFFS.remove("/etc/video/mode");
-        SPIFFS.remove("/etc/reset/mode");
+        SPIFFS.remove("/etc/ssid");
+        SPIFFS.remove("/etc/password");
+        SPIFFS.remove("/etc/ota_pass");
+        SPIFFS.remove("/etc/http_auth_user");
+        SPIFFS.remove("/etc/http_auth_pass");
+        SPIFFS.remove("/etc/conf_ip_addr");
+        SPIFFS.remove("/etc/conf_ip_gateway");
+        SPIFFS.remove("/etc/conf_ip_mask");
+        SPIFFS.remove("/etc/conf_ip_dns");
+        SPIFFS.remove("/etc/hostname");
+
+        ssid[0] = '\0';
+        password[0] = '\0';
+        otaPassword[0] = '\0';
+        // keep passwords alive until power off
+        //httpAuthUser[0] = '\0';
+        //httpAuthPass[0] = '\0';
+        confIPAddr[0] = '\0';
+        confIPGateway[0] = '\0';
+        confIPMask[0] = '\0';
+        confIPDNS[0] = '\0';
+        host[0] = '\0';
+
         request->send(200);
     });
 
@@ -469,18 +513,18 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        DBG_OUTPUT_PORT.printf("progress requested...\n");
+        DEBUG("progress requested...\n");
         char msg[64];
         if (last_error) {
             sprintf(msg, "ERROR %i\n", last_error);
             request->send(200, "text/plain", msg);
-            DBG_OUTPUT_PORT.printf("...delivered: %s (%i).\n", msg, last_error);
+            DEBUG("...delivered: %s (%i).\n", msg, last_error);
             // clear last_error
             last_error = NO_ERROR;
         } else {
             sprintf(msg, "%i\n", totalLength <= 0 ? 0 : (int)(readLength * 100 / totalLength));
             request->send(200, "text/plain", msg);
-            DBG_OUTPUT_PORT.printf("...delivered: %s.\n", msg);
+            DEBUG("...delivered: %s.\n", msg);
         }
     });
 
@@ -497,11 +541,11 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        DBG_OUTPUT_PORT.printf("FPGA reset requested...\n");
+        DEBUG("FPGA reset requested...\n");
         enableFPGA();
         resetFPGAConfiguration();
         request->send(200, "text/plain", "OK\n");
-        DBG_OUTPUT_PORT.printf("...delivered.\n");
+        DEBUG("...delivered.\n");
     });
 
     server.on("/reset/all", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -531,8 +575,8 @@ void setupHTTPServer() {
         writeSetupParameter(request, "ota_pass", otaPassword, 64, DEFAULT_OTA_PASSWORD);
         writeSetupParameter(request, "firmware_server", firmwareServer, 1024, DEFAULT_FW_SERVER);
         writeSetupParameter(request, "firmware_version", firmwareVersion, 64, DEFAULT_FW_VERSION);
-        writeSetupParameter(request, "http_auth_user", httpAuthUser, 64, DEFAULT_HTTP_USER);
-        writeSetupParameter(request, "http_auth_pass", httpAuthPass, 64, DEFAULT_HTTP_PASS);
+        writeSetupParameter(request, "http_auth_user", httpAuthUser, 64, DEFAULT_HTTP_USER, true);
+        writeSetupParameter(request, "http_auth_pass", httpAuthPass, 64, DEFAULT_HTTP_PASS, true);
         writeSetupParameter(request, "conf_ip_addr", confIPAddr, 24, DEFAULT_CONF_IP_ADDR);
         writeSetupParameter(request, "conf_ip_gateway", confIPGateway, 24, DEFAULT_CONF_IP_GATEWAY);
         writeSetupParameter(request, "conf_ip_mask", confIPMask, 24, DEFAULT_CONF_IP_MASK);
@@ -541,6 +585,9 @@ void setupHTTPServer() {
         writeSetupParameter(request, "video_resolution", configuredResolution, "/etc/video/resolution", 16, DEFAULT_VIDEO_RESOLUTION);
         writeSetupParameter(request, "video_mode", videoMode, "/etc/video/mode", 16, DEFAULT_VIDEO_MODE);
         writeSetupParameter(request, "reset_mode", resetMode, "/etc/reset/mode", 16, DEFAULT_RESET_MODE);
+        writeSetupParameter(request, "deinterlace_mode", deinterlaceMode, "/etc/deinterlace/mode", 16, DEFAULT_DEINTERLACE_MODE);
+        writeSetupParameter(request, "protected_mode", protectedMode, "/etc/protected/mode", 8, DEFAULT_PROTECTED_MODE);
+        readCurrentProtectedMode(true);
 
         request->send(200, "text/plain", "OK\n");
     });
@@ -571,6 +618,8 @@ void setupHTTPServer() {
         root["video_resolution"] = configuredResolution;
         root["video_mode"] = videoMode;
         root["reset_mode"] = resetMode;
+        root["deinterlace_mode"] = deinterlaceMode;
+        root["protected_mode"] = protectedMode;
 
         root.printTo(*response);
         request->send(response);
@@ -651,30 +700,6 @@ void setupHTTPServer() {
         request->send(200);
     });
 
-    server.on("/res/240p_x3", HTTP_GET, [](AsyncWebServerRequest *request) {
-        if(!_isAuthenticated(request)) {
-            return request->requestAuthentication();
-        }
-        switchResolution(RESOLUTION_240Px3);
-        request->send(200);
-    });
-
-    server.on("/res/240p_x4", HTTP_GET, [](AsyncWebServerRequest *request) {
-        if(!_isAuthenticated(request)) {
-            return request->requestAuthentication();
-        }
-        switchResolution(RESOLUTION_240Px4);
-        request->send(200);
-    });
-
-    server.on("/res/240p_1080p", HTTP_GET, [](AsyncWebServerRequest *request) {
-        if(!_isAuthenticated(request)) {
-            return request->requestAuthentication();
-        }
-        switchResolution(RESOLUTION_240P1080P);
-        request->send(200);
-    });
-
     server.on("/res/VGA", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
@@ -707,11 +732,21 @@ void setupHTTPServer() {
         request->send(200);
     });
 
-    server.on("/reset/pll", HTTP_GET, [](AsyncWebServerRequest *request) {
+    server.on("/deinterlace/bob", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution | PLL_RESET_ON, NULL);
+        CurrentDeinterlaceMode = DEINTERLACE_MODE_BOB;
+        switchResolution(CurrentResolution);
+        request->send(200);
+    });
+
+    server.on("/deinterlace/passthru", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        CurrentDeinterlaceMode = DEINTERLACE_MODE_PASSTHRU;
+        switchResolution(CurrentResolution);
         request->send(200);
     });
 
@@ -719,7 +754,7 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution | GENERATE_TIMING_AND_VIDEO, NULL);
+        fpgaTask.Write(I2C_VIDEO_GEN, GENERATE_TIMING_AND_VIDEO, NULL);
         request->send(200);
     });
 
@@ -727,7 +762,7 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, NULL);
+        fpgaTask.Write(I2C_VIDEO_GEN, 0, NULL);
         request->send(200);
     });
 
@@ -739,15 +774,42 @@ void setupHTTPServer() {
         request->send(200);
     });
 
+    server.on("/clock/config/get", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        fpgaTask.Read(0xD0, 1, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+            char msg[16];
+            sprintf(msg, "%u\n", buffer[0]);
+            request->send(200, "text/plain", msg);
+        });
+    });
+
+    server.on("/clock/config/set", HTTP_POST, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+
+        AsyncWebParameter *s_value = request->getParam("value", true);
+        fpgaTask.Write(0xD0, atoi(s_value->value().c_str()), NULL);
+        request->send(200);
+    });
+
     server.on("/testdata", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
         fpgaTask.Read(I2C_TESTDATA_BASE, I2C_TESTDATA_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
-            char msg[64];
             if (len == I2C_TESTDATA_LENGTH) {
-                sprintf(msg, "%02x %02x %02x %02x %02x %02x %02x %02x %02x\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7], buffer[8]);
-                request->send(200, "text/plain", msg);
+                request->send("text/plain", I2C_TESTDATA_LENGTH * 3 + 1, [ buffer ](uint8_t *buffer_out, size_t maxLen, size_t index) -> size_t {
+                    int p = 0;
+                    for (int i = 0 ; i < I2C_TESTDATA_LENGTH ; i++) {
+                        sprintf((char*) &buffer_out[p], "%02x ", buffer[i]);
+                        p = p + 3;
+                    }
+                    sprintf((char*) &buffer_out[p], "\n");
+                    return I2C_TESTDATA_LENGTH * 3 + 1;
+                });
             } else {
                 request->send(200, "text/plain", "SOMETHING_IS_WRONG\n");
             }
@@ -773,42 +835,85 @@ void setupHTTPServer() {
 }
 
 void setupArduinoOTA() {
-    DBG_OUTPUT_PORT.printf(">> Setting up ArduinoOTA...\n");
+    DEBUG(">> Setting up ArduinoOTA...\n");
     
     ArduinoOTA.setPort(8266);
     ArduinoOTA.setHostname(host);
     ArduinoOTA.setPassword(otaPassword);
     
     ArduinoOTA.onStart([]() {
-        DBG_OUTPUT_PORT.println("ArduinoOTA >> Start");
+        DEBUG("ArduinoOTA >> Start\n");
     });
     ArduinoOTA.onEnd([]() {
-        DBG_OUTPUT_PORT.println("\nArduinoOTA >> End");
+        DEBUG("\nArduinoOTA >> End\n");
     });
     ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
-        DBG_OUTPUT_PORT.printf("ArduinoOTA >> Progress: %u%%\r", (progress / (total / 100)));
+        DEBUG("ArduinoOTA >> Progress: %u%%\r", (progress / (total / 100)));
     });
     ArduinoOTA.onError([](ota_error_t error) {
-        DBG_OUTPUT_PORT.printf("ArduinoOTA >> Error[%u]: ", error);
+        DEBUG("ArduinoOTA >> Error[%u]: ", error);
         if (error == OTA_AUTH_ERROR) {
-            DBG_OUTPUT_PORT.println("ArduinoOTA >> Auth Failed");
+            DEBUG("ArduinoOTA >> Auth Failed\n");
         } else if (error == OTA_BEGIN_ERROR) {
-            DBG_OUTPUT_PORT.println("ArduinoOTA >> Begin Failed");
+            DEBUG("ArduinoOTA >> Begin Failed\n");
         } else if (error == OTA_CONNECT_ERROR) {
-            DBG_OUTPUT_PORT.println("ArduinoOTA >> Connect Failed");
+            DEBUG("ArduinoOTA >> Connect Failed\n");
         } else if (error == OTA_RECEIVE_ERROR) {
-            DBG_OUTPUT_PORT.println("ArduinoOTA >> Receive Failed");
+            DEBUG("ArduinoOTA >> Receive Failed\n");
         } else if (error == OTA_END_ERROR) {
-            DBG_OUTPUT_PORT.println("ArduinoOTA >> End Failed");
+            DEBUG("ArduinoOTA >> End Failed\n");
         }
     });
     ArduinoOTA.begin();
 }
 
+void waitForController() {
+    bool gotValidPacket = false;
+    uint8_t _ForceVGA = ForceVGA;
+    DEBUG2(">> Checking video mode controller override...\n");
+
+    for (int i = 0 ; i < 3333 ; i++) {
+        // stop, if we got a valid packet
+        if (gotValidPacket) {
+            DEBUG2("   found valid controller packet at %i\n", i);
+            if (_ForceVGA != ForceVGA) {
+                ForceVGA = _ForceVGA;
+                writeVideoMode();
+                DEBUG2("   performing a resetall\n");
+                resetall();
+            } else {
+                switchResolution();
+                fpgaTask.ForceLoop();
+                DEBUG2("   video mode NOT changed: %u\n", ForceVGA);
+            }
+            return;
+        }
+        fpgaTask.Read(I2C_CONTROLLER_AND_DATA_BASE, I2C_CONTROLLER_AND_DATA_BASE_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+            if (len == I2C_CONTROLLER_AND_DATA_BASE_LENGTH) {
+                uint16_t cdata = (buffer[0] << 8 | buffer[1]);
+                uint8_t metadata = buffer[2];
+                if (CHECK_BIT(cdata, CTRLR_DATA_VALID)) {
+                    storeResolutionData(metadata);
+                    DEBUG("   %i: %04x %02x\n", i, cdata, metadata);
+                    if (CHECK_BIT(cdata, CTRLR_PAD_UP)) {
+                        _ForceVGA = VGA_ON;
+                    } else if (CHECK_BIT(cdata, CTRLR_PAD_DOWN)) {
+                        _ForceVGA = VGA_OFF;
+                    }
+                    gotValidPacket = true;
+                }
+            }
+        });
+        fpgaTask.ForceLoop();
+        delay(1);
+    }
+    DEBUG2("no valid controller packet found within timeout\n");
+}
+
 void setup(void) {
     DBG_OUTPUT_PORT.begin(115200);
-    DBG_OUTPUT_PORT.printf("\n>> FirmwareManager starting...\n");
-    DBG_OUTPUT_PORT.setDebugOutput(DEBUG);
+    DEBUG2("\n>> FirmwareManager starting...\n");
+    DBG_OUTPUT_PORT.setDebugOutput(false);
 
     pinMode(NCE, INPUT);
     pinMode(NCONFIG, INPUT);
@@ -821,6 +926,8 @@ void setup(void) {
     setup240pOffset();
     setupTaskManager();
     setupCredentials();
+    waitForController();
+    fpgaTask.Write(I2C_ACTIVATE_HDMI, 1, NULL); fpgaTask.ForceLoop();
     setupWiFi();
     setupHTTPServer();
     
@@ -831,22 +938,27 @@ void setup(void) {
 
     setOSD(false, NULL); fpgaTask.ForceLoop();
     fpgaTask.DoWriteToOSD(33, 24, (uint8_t*) " " DCHDMI_VERSION); fpgaTask.ForceLoop();
+    char buff[16]; osd_get_resolution(buff);
+    fpgaTask.DoWriteToOSD(0, 24, (uint8_t*) buff); fpgaTask.ForceLoop();
+
     if (reflashNeccessary && reflashNeccessary2 && reflashNeccessary3) {
-        DBG_OUTPUT_PORT.printf("FPGA firmware missing or broken, reflash needed.\n");
+        DEBUG2("FPGA firmware missing or broken, reflash needed.\n");
         disableFPGA();
         if (flashTask.doStart()) {
             // [](int read, int total, bool done, int error) {
             // }
-            DBG_OUTPUT_PORT.printf("   firmware flashing started.\n");
+            DEBUG2("   firmware flashing started.\n");
             while (!flashTask.doUpdate()) {
                 yield();
             }
             flashTask.doStop();
-            DBG_OUTPUT_PORT.printf("   firmware flashing done.\n");
+            DEBUG2("   firmware flashing done.\n");
             resetall();
         }
     }
-    DBG_OUTPUT_PORT.println(">> Ready.");
+    DEBUG2(">> Ready.\n");
+    DEBUG2(">> httpAuthUser: %s\n", httpAuthUser);
+    DEBUG2(">> httpAuthPass: %s\n", httpAuthPass);
 }
 
 void loop(void){

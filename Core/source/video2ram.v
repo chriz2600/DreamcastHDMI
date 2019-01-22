@@ -11,11 +11,11 @@ module video2ram(
     input [11:0] counterY,
     
     input line_doubler,
+    input is_pal,
     
     output [23:0] wrdata,
     output [14:0] wraddr,
     output wren,
-    output wrclock,
     
     output starttrigger,
 
@@ -33,9 +33,11 @@ module video2ram(
     reg [14:0] ram_addrY_reg;
     reg trigger;
     reg [11:0] counterX_prev;
+    reg line_doubler_reg = 0;
+    reg is_pal_reg = 0;
 
     always @(*) begin
-        if (line_doubler) begin
+        if (line_doubler_reg) begin
             H_CAPTURE_START = dcVideoConfig.i_horizontal_capture_start;
             H_CAPTURE_END   = dcVideoConfig.i_horizontal_capture_end;
             V_CAPTURE_START = dcVideoConfig.i_vertical_capture_start;
@@ -50,11 +52,13 @@ module video2ram(
 
     `define GetWriteAddr(x) (ram_addrY_reg + (x - H_CAPTURE_START))
     `define IsFirstBuffer(y)   ((y - V_CAPTURE_START) < dcVideoConfig.buffer_size)
-    `define IsTriggerPoint(y) (`IsFirstBuffer(y) && wraddr_reg == (line_doubler ? dcVideoConfig.trigger_address_i : dcVideoConfig.trigger_address_p))
+    `define IsTriggerPoint(y) (`IsFirstBuffer(y) && wraddr_reg == (line_doubler_reg ? dcVideoConfig.trigger_address_i : dcVideoConfig.trigger_address_p))
 
     `define IsVerticalCaptureTime(y) ( \
-        line_doubler \
-            ? (y < 240 || (y > 262 && y < V_CAPTURE_END)) \
+        line_doubler_reg \
+            ? (is_pal_reg \
+                ? (y < 288 || (y > 312 && y < V_CAPTURE_END)) \
+                : (y < 240 || (y > 262 && y < V_CAPTURE_END))) \
             : (y >= V_CAPTURE_START && y < V_CAPTURE_END) \
     )
     `define IsCaptureTime(x,y) ( \
@@ -76,7 +80,11 @@ module video2ram(
             wraddr_reg <= 0;
             ram_addrY_reg <= 0;
             trigger <= 0;
+            line_doubler_reg <= 0;
+            is_pal_reg <= 0;
         end else begin
+            line_doubler_reg <= line_doubler;
+            is_pal_reg <= is_pal;
             counterX_prev <= counterX;
 
             if (counterX_prev == H_CAPTURE_END && counterX == H_CAPTURE_END) begin // calculate ram_addrY_reg once per line
@@ -106,7 +114,6 @@ module video2ram(
     end
 
     assign wren = wren_reg;
-    assign wrclock = clock;
     assign wraddr = wraddr_reg;
     assign wrdata = wrdata_reg;
     assign starttrigger = trigger;

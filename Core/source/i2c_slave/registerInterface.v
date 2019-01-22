@@ -60,17 +60,28 @@ module registerInterface (
     output enable_osd,
     output[7:0] highlight_line,
     output[7:0] reconf_data,
-    output HDMIVideoConfig hdmiVideoConfig,
+    output[7:0] video_gen_data,
     output Scanline scanline,
     output [23:0] conf240p,
     output reset_dc,
     output reset_opt,
     output[7:0] reset_conf,
+    output activateHDMIoutput,
     input [23:0] pinok,
     input [23:0] timingInfo,
     input [23:0] rgbData,
     input add_line,
-    input ControllerData controller_data
+    input line_doubler,
+    input is_pal,
+    input force_generate,
+    input ControllerData controller_data,
+    input [31:0] pll_adv_lockloss_count,
+    input [31:0] hpd_low_count,
+    input [31:0] pll54_lockloss_count,
+    input [31:0] pll_hdmi_lockloss_count,
+    input [31:0] control_resync_out_count,
+    input [31:0] monitor_sense_low_count,
+    output [7:0] clock_config_data
 );
 
 reg [2:0] addr_offset = 3'b000;
@@ -80,19 +91,15 @@ reg wren;
 reg enable_osd_reg = 1'b0;
 reg [7:0] highlight_line_reg = 255;
 reg [7:0] reconf_data_reg;
+reg [7:0] video_gen_data_reg;
 reg reset_dc_reg = 1'b0;
 reg reset_opt_reg = 1'b0;
 
-`include "../config/hdmi_config.v"
-
-HDMIVideoConfig hdmiVideoConfig_reg;
 Scanline scanline_reg = { 9'h100, 1'b0, 1'b0, 1'b0 };
 reg [23:0] conf240p_reg = 24'd20;
 reg [7:0] reset_conf_reg = 0;
-
-initial begin
-    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_1080P;
-end
+reg activateHDMIoutput_reg = 0;
+reg [7:0] clock_config_data_reg = 3;
 
 assign dataOut = dataOut_reg;
 assign ram_wraddress = wraddress_reg;
@@ -100,13 +107,15 @@ assign ram_dataIn = dataIn;
 assign ram_wren = wren;
 assign enable_osd = enable_osd_reg;
 assign highlight_line = highlight_line_reg;
-assign hdmiVideoConfig = hdmiVideoConfig_reg;
 assign scanline = scanline_reg;
 assign reconf_data = reconf_data_reg;
+assign video_gen_data = video_gen_data_reg;
 assign reset_dc = reset_dc_reg;
 assign reset_opt = reset_opt_reg;
 assign reset_conf = reset_conf_reg;
 assign conf240p = conf240p_reg;
+assign activateHDMIoutput = activateHDMIoutput_reg;
+assign clock_config_data = clock_config_data_reg;
 
 // --- I2C Read
 always @(posedge clk) begin
@@ -116,6 +125,7 @@ always @(posedge clk) begin
         8'h81: dataOut_reg <= enable_osd_reg;
         8'h82: dataOut_reg <= highlight_line_reg;
         8'h83: dataOut_reg <= reconf_data_reg;
+        8'h84: dataOut_reg <= video_gen_data_reg;
         // controller data, int16
         /*
             15: a
@@ -135,12 +145,36 @@ always @(posedge clk) begin
             04: trigger_osd
             03: trigger_default_resolution
         */
-        8'h86: dataOut_reg <= { controller_data[4:0], 3'b000 };
-        8'h87: dataOut_reg <= { add_line, 7'b0000000 };
+        8'h86: dataOut_reg <= { controller_data[4:0], 2'b00, controller_data.valid_packet };
+        8'h87: dataOut_reg <= { add_line, line_doubler, is_pal, force_generate, enable_osd_reg, 3'b000 };
 
         // scanline data
         8'h88: dataOut_reg <= scanline_reg.intensity[8:1];
         8'h89: dataOut_reg <= { scanline_reg.intensity[0], scanline_reg.thickness, scanline_reg.oddeven, scanline_reg.active, 4'b0000 };
+
+        // pll_adv_lockloss_count
+        8'hA0: dataOut_reg <= pll_adv_lockloss_count[31:24];
+        8'hA1: dataOut_reg <= pll_adv_lockloss_count[23:16];
+        8'hA2: dataOut_reg <= pll_adv_lockloss_count[15:8];
+        8'hA3: dataOut_reg <= pll_adv_lockloss_count[7:0];
+
+        // hpd_low_count
+        8'hA4: dataOut_reg <= hpd_low_count[31:24];
+        8'hA5: dataOut_reg <= hpd_low_count[23:16];
+        8'hA6: dataOut_reg <= hpd_low_count[15:8];
+        8'hA7: dataOut_reg <= hpd_low_count[7:0];
+
+        // pll54_lockloss_count
+        8'hA8: dataOut_reg <= pll54_lockloss_count[31:24];
+        8'hA9: dataOut_reg <= pll54_lockloss_count[23:16];
+        8'hAA: dataOut_reg <= pll54_lockloss_count[15:8];
+        8'hAB: dataOut_reg <= pll54_lockloss_count[7:0];
+
+        // pll_hdmi_lockloss_count
+        8'hAC: dataOut_reg <= pll_hdmi_lockloss_count[31:24];
+        8'hAD: dataOut_reg <= pll_hdmi_lockloss_count[23:16];
+        8'hAE: dataOut_reg <= pll_hdmi_lockloss_count[15:8];
+        8'hAF: dataOut_reg <= pll_hdmi_lockloss_count[7:0];
 
         8'hB0: dataOut_reg <= { 2'b0, pinok[21:16] };
         8'hB1: dataOut_reg <= pinok[15:8];
@@ -151,6 +185,22 @@ always @(posedge clk) begin
         8'hB6: dataOut_reg <= rgbData[23:16]; // red
         8'hB7: dataOut_reg <= rgbData[15:8];  // green
         8'hB8: dataOut_reg <= rgbData[7:0];   // blue
+
+        // control_resync_out_count
+        8'hB9: dataOut_reg <= control_resync_out_count[31:24];
+        8'hBA: dataOut_reg <= control_resync_out_count[23:16];
+        8'hBB: dataOut_reg <= control_resync_out_count[15:8];
+        8'hBC: dataOut_reg <= control_resync_out_count[7:0];
+
+        // monitor_sense_low_count
+        8'hBD: dataOut_reg <= monitor_sense_low_count[31:24];
+        8'hBE: dataOut_reg <= monitor_sense_low_count[23:16];
+        8'hBF: dataOut_reg <= monitor_sense_low_count[15:8];
+        8'hC0: dataOut_reg <= monitor_sense_low_count[7:0];
+
+        // clock_config_data
+        8'hD0: dataOut_reg <= clock_config_data;
+
         default: dataOut_reg <= 0;
     endcase
 end
@@ -170,30 +220,9 @@ always @(posedge clk) begin
         // output mode reconfiguration
         end else if (addr == 8'h83) begin
             reconf_data_reg <= dataIn;
-            //wrreq_reg <= 1'b1;
-            case (dataIn[3:0])
-                0: begin // 1080p
-                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_1080P;
-                end
-                1: begin // 960
-                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_960P;
-                end
-                2: begin // 480
-                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_480P;
-                end
-                3: begin // VGA
-                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_VGA;
-                end
-                4: begin // 240p_x3
-                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240Px3;
-                end
-                5: begin // 240p_x4
-                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240Px4;
-                end
-                6: begin // 240p_1080p
-                    hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_240P_1080P;
-                end
-            endcase
+        // generate video reconfiguration
+        end else if (addr == 8'h84) begin
+            video_gen_data_reg <= dataIn;
         // scanline data
         end else if (addr == 8'h88) begin
             scanline_reg.intensity[8:1] <= dataIn;
@@ -205,6 +234,11 @@ always @(posedge clk) begin
         // 240p config
         end else if (addr == 8'h90) begin
             conf240p_reg <= { 16'd0, dataIn };
+        end else if (addr == 8'h91) begin
+            activateHDMIoutput_reg <= dataIn[0];
+        // clock_config_data
+        end else if (addr == 8'hD0) begin
+            clock_config_data_reg <= dataIn;
         // reset dreamcast
         end else if (addr == 8'hF0) begin
             reset_dc_reg <= 1'b1;

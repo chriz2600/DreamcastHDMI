@@ -14,12 +14,12 @@ void checkStoredMD5SumFlash(int pos, bool force, int line, const char* fname, ch
 ProgressCallback createFlashProgressCallback(int pos, bool force, int line);
 
 Menu firmwareFlashMenu("FirmwareFlashMenu", (uint8_t*) OSD_FIRMWARE_FLASH_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_CANCEL)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         currentMenu = &firmwareMenu;
         currentMenu->Display();
         return;
     }
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_OK)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         if (!firmwareFlashStarted) {
             firmwareFlashStarted = true;
             newFWFlashed = false;
@@ -32,7 +32,7 @@ Menu firmwareFlashMenu("FirmwareFlashMenu", (uint8_t*) OSD_FIRMWARE_FLASH_MENU, 
 }, true);
 
 void flashCascade(int pos, bool force) {
-    DBG_OUTPUT_PORT.printf("flashCascade: %i\n", pos);
+    DEBUG("flashCascade: %i\n", pos);
     switch (pos) {
         case 0:
             currentMenu->startTransaction();
@@ -132,7 +132,7 @@ void checkStoredMD5SumFlash(int pos, bool force, int line, const char* fname, ch
     char md5Sum[48] = "";
     _readFile(fname, md5Sum, 33, DEFAULT_MD5_SUM);
 
-    DBG_OUTPUT_PORT.printf("[%s] [%s] %i\n", storedMD5Sum, md5Sum, strncmp(storedMD5Sum, md5Sum, 32));
+    DEBUG("[%s] [%s] %i\n", storedMD5Sum, md5Sum, strncmp(storedMD5Sum, md5Sum, 32));
 
     if (strncmp(storedMD5Sum, DEFAULT_MD5_SUM, 32) == 0) {
         fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "No file to flash available. ", [ pos, force ]() {

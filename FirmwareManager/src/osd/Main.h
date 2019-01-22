@@ -1,8 +1,10 @@
 #include "../global.h"
 #include "../Menu.h"
+#include "../util.h"
 
 extern Menu outputResMenu;
 extern Menu videoModeMenu;
+extern Menu advancedVideoMenu;
 extern Menu scanlinesMenu;
 extern Menu firmwareMenu;
 extern Menu wifiMenu;
@@ -10,25 +12,30 @@ extern Menu resetMenu;
 extern Menu dcResetConfirmMenu;
 extern Menu optResetConfirmMenu;
 extern Menu infoMenu;
+extern Menu changelogMenu;
 extern Menu *currentMenu;
 extern uint8_t CurrentResetMode;
-extern uint8_t offset_240p;
+extern uint8_t CurrentDeinterlaceMode;
 extern uint8_t CurrentResolutionData;
+extern uint8_t CurrentProtectedMode;
 
 void closeOSD();
 void waitForI2CRecover(bool waitForError);
-void write240pOffset();
 
 Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, MENU_M_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_CANCEL)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         currentMenu->StoreMenuActiveLine(MENU_M_FIRST_SELECT_LINE);
         closeOSD();
         return;
     }
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_OK)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         switch (menu_activeLine) {
             case MENU_M_OR:
                 currentMenu = &outputResMenu;
+                currentMenu->Display();
+                break;
+            case MENU_M_AVS:
+                currentMenu = &advancedVideoMenu;
                 currentMenu->Display();
                 break;
             case MENU_M_VM:
@@ -47,10 +54,6 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
                 currentMenu = &wifiMenu;
                 currentMenu->Display();
                 break;
-            // case MENU_M_RST:
-            //     currentMenu = &resetMenu;
-            //     currentMenu->Display();
-            //     break;
             case MENU_M_INF:
                 currentMenu = &infoMenu;
                 currentMenu->Display();
@@ -58,12 +61,12 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
         }
         return;
     }
-    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_X)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, CTRLR_BUTTON_X)) {
         currentMenu = &dcResetConfirmMenu;
         currentMenu->Display();
         return;
     }
-    if (!isRepeat && CHECK_MASK(controller_data, CTRLR_BUTTON_Y)) {
+    if (!isRepeat && CurrentResetMode == RESET_MODE_GDEMU && CHECK_CTRLR_MASK(controller_data, CTRLR_BUTTON_Y)) {
         currentMenu = &optResetConfirmMenu;
         currentMenu->Display();
         return;
@@ -78,20 +81,25 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
 }, NULL, true);
 
 Menu dcResetConfirmMenu("DCResetConfirm", (uint8_t*) OSD_DC_RESET_CONFIRM_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_OK)) {
-        DBG_OUTPUT_PORT.printf("reset dreamcast!!!!! %x\n", controller_data);
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, CTRLR_BUTTON_Y)) {
+        DEBUG("full reset dreamcast!!!!! %x\n", controller_data);
+        resetall();
+        return;
+    }
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
+        DEBUG("reset dreamcast!!!!! %x\n", controller_data);
         currentMenu->startTransaction();
         fpgaTask.Write(I2C_DC_RESET, 0, [](uint8_t Address, uint8_t Value) {
-            DBG_OUTPUT_PORT.printf("reset dreamcast callback: %u\n", Value);
-            waitForI2CRecover(true);
-            DBG_OUTPUT_PORT.printf("reset dreamcast recover!\n");
+            DEBUG("reset dreamcast callback: %u\n", Value);
+            waitForI2CRecover(false);
+            DEBUG("reset dreamcast recover!\n");
             currentMenu->endTransaction();
             currentMenu = &mainMenu;
             closeOSD();
         });
         return;
     }
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_CANCEL)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         currentMenu = &mainMenu;
         currentMenu->Display();
         return;
@@ -99,20 +107,20 @@ Menu dcResetConfirmMenu("DCResetConfirm", (uint8_t*) OSD_DC_RESET_CONFIRM_MENU, 
 }, NULL, NULL, true);
 
 Menu optResetConfirmMenu("OptResetConfirm", (uint8_t*) OSD_OPT_RESET_CONFIRM_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_OK)) {
-        DBG_OUTPUT_PORT.printf("secondary reset!!!!! %x\n", controller_data);
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
+        DEBUG("secondary reset!!!!! %x\n", controller_data);
         currentMenu->startTransaction();
         fpgaTask.Write(I2C_OPT_RESET, 0, [](uint8_t Address, uint8_t Value) {
-            DBG_OUTPUT_PORT.printf("secondary reset callback: %u\n", Value);
+            DEBUG("secondary reset callback: %u\n", Value);
             waitForI2CRecover(false);
-            DBG_OUTPUT_PORT.printf("secondary reset recover!\n");
+            DEBUG("secondary reset recover!\n");
             currentMenu->endTransaction();
             currentMenu = &mainMenu;
             currentMenu->Display();
         });
         return;
     }
-    if (!isRepeat && CHECK_MASK(controller_data, MENU_CANCEL)) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         currentMenu = &mainMenu;
         currentMenu->Display();
         return;

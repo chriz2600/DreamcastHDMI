@@ -31,7 +31,7 @@ void handleUpload(AsyncWebServerRequest *request, String filename, size_t index,
         fname = filename.c_str();
         md5.begin();
         request->_tempFile = SPIFFS.open(filename, "w");
-        DBG_OUTPUT_PORT.printf(">> Receiving %s\n", filename.c_str());
+        DEBUG(">> Receiving %s\n", filename.c_str());
     }
     if (request->_tempFile) {
         if (len) {
@@ -39,7 +39,7 @@ void handleUpload(AsyncWebServerRequest *request, String filename, size_t index,
             md5.add(data, len);
         }
         if (final) {
-            DBG_OUTPUT_PORT.printf(">> MD5 calc for %s\n", fname.c_str());
+            DEBUG(">> MD5 calc for %s\n", fname.c_str());
             request->_tempFile.close();
             md5.calculate();
             String md5sum = md5.toString();
@@ -58,6 +58,15 @@ void handleESPDownload(AsyncWebServerRequest *request) {
 
 void handleESPIndexDownload(AsyncWebServerRequest *request) {
     handleESPIndexDownload(request, NULL);
+}
+
+void handleChangelogDownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
+    String httpGet = "GET /" 
+        + String(firmwareVersion) 
+        + "/changelog"
+        + " HTTP/1.0\r\nHost: esp.i74.de\r\n\r\n";
+
+    _handleDownload(request, CHANGELOG_FILE, httpGet, progressCallback);
 }
 
 void handleFPGADownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
@@ -114,7 +123,7 @@ void getMD5SumFromServer(String host, String url, ContentCallback contentCallbac
     
         client->onData([](void *arg, AsyncClient *c, void *data, size_t len) {
             std::string sData((char*) data);
-            DBG_OUTPUT_PORT.printf("--> write: %i, %i/%i %i\n", len, readLength, totalLength, headerFound);            
+            DEBUG("--> write: %i, %i/%i %i\n", len, readLength, totalLength, headerFound);            
             if (!headerFound) {
                 int idx = sData.find("\r\n\r\n");
                 if (idx == -1) {
@@ -128,7 +137,7 @@ void getMD5SumFromServer(String host, String url, ContentCallback contentCallbac
         }, NULL);
     
         //send the request
-        DBG_OUTPUT_PORT.printf("Requesting: %s\n", httpGet.c_str());
+        DEBUG("Requesting: %s\n", httpGet.c_str());
         client->write(httpGet.c_str());
     });
 
@@ -153,7 +162,7 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
         aClient = new AsyncClient();
 
         aClient->onError([ progressCallback ](void *arg, AsyncClient *client, int error) {
-            DBG_OUTPUT_PORT.println("Connect Error");
+            DEBUG("Connect Error");
             last_error = UNKNOWN_ERROR;
             PROGRESS_CALLBACK(false, UNKNOWN_ERROR);
             aClient = NULL;
@@ -161,29 +170,29 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
         }, NULL);
     
         aClient->onConnect([ filename, httpGet, progressCallback ](void *arg, AsyncClient *client) {
-            DBG_OUTPUT_PORT.println("Connected");
+            DEBUG("Connected");
             //aClient->onError(NULL, NULL);
 
             client->onDisconnect([ filename, progressCallback ](void *arg, AsyncClient *c) {
-                DBG_OUTPUT_PORT.printf("\nonDisconnect\n");
+                DEBUG("\nonDisconnect\n");
                 flashFile.close();
                 md5.calculate();
                 String md5sum = md5.toString();
                 _writeFile((String(filename) + ".md5").c_str(), md5sum.c_str(), md5sum.length());
-                DBG_OUTPUT_PORT.println("Disconnected");
+                DEBUG("Disconnected");
                 PROGRESS_CALLBACK(true, NO_ERROR);
                 aClient = NULL;
                 delete c;
             }, NULL);
         
             client->onData([ progressCallback ](void *arg, AsyncClient *c, void *data, size_t len) {
-                DBG_OUTPUT_PORT.printf("--> write: %i, %i/%i %i\n", len, readLength, totalLength, headerFound);
+                DEBUG("--> write: %i, %i/%i %i\n", len, readLength, totalLength, headerFound);
                 uint8_t* d = (uint8_t*) data;
                 if (!headerFound) {
                     std::string sData((char*) data);
                     int idx = sData.find("\r\n\r\n");
                     if (idx == -1) {
-                        DBG_OUTPUT_PORT.printf("header not found. Storing buffer.\n");
+                        DEBUG("header not found. Storing buffer.\n");
                         responseHeader.append(sData.substr(0, len));
                         return;
                     } else {
@@ -200,24 +209,24 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
                         len = (len - (idx + 4));
                         headerFound = true;
                         readLength = 0;
-                        DBG_OUTPUT_PORT.printf("header content length found: %i\n", totalLength);
+                        DEBUG("header content length found: %i\n", totalLength);
                     }
                 }
                 readLength += len;
-                //DBG_OUTPUT_PORT.printf("write: %i, %i/%i\n", len, readLength, totalLength);
+                //DEBUG("write: %i, %i/%i\n", len, readLength, totalLength);
                 flashFile.write(d, len);
                 md5.add(d, len);
                 PROGRESS_CALLBACK(false, NO_ERROR);
             }, NULL);
 
             //send the request
-            DBG_OUTPUT_PORT.printf("Requesting: %s\n", httpGet.c_str());
+            DEBUG("Requesting: %s\n", httpGet.c_str());
             client->write(httpGet.c_str());
         }, NULL);
 
-        DBG_OUTPUT_PORT.println("Trying to connect");
+        DEBUG("Trying to connect");
         if (!aClient->connect(firmwareServer, FW_PORT)) {
-            DBG_OUTPUT_PORT.println("Connect Fail");
+            DEBUG("Connect Fail");
             AsyncClient *client = aClient;
             PROGRESS_CALLBACK(false, UNKNOWN_ERROR);
             aClient = NULL;
@@ -226,30 +235,45 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
 
         if (request != NULL) { request->send(200); }
     } else {
+        DEBUG2("Flash file error: %s\n", filename);
         if (request != NULL) { request->send(500); }
         PROGRESS_CALLBACK(false, UNKNOWN_ERROR);
     }
 }
 
-void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char* target, unsigned int maxlen, const char* resetValue) {
-    String _tmp = "/etc/" + String(param);
-    writeSetupParameter(request, param, target, _tmp.c_str(), maxlen, resetValue);
-}
-
-void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char* target, const char* filename, unsigned int maxlen, const char* resetValue) {
+void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char* target, const char* filename, unsigned int maxlen, const char* resetValue, bool skipSettingNow) {
     if(request->hasParam(param, true)) {
         AsyncWebParameter *p = request->getParam(param, true);
         if (p->value() == "") {
-            DBG_OUTPUT_PORT.printf("SPIFFS.remove: %s\n", filename);
-            snprintf(target, maxlen, "%s", resetValue);
+            DEBUG("SPIFFS.remove: %s\n", filename);
+            if (!skipSettingNow) {
+                snprintf(target, maxlen, "%s", resetValue);
+            }
             SPIFFS.remove(filename);
         } else {
-            snprintf(target, maxlen, "%s", p->value().c_str());
-            _writeFile(filename, target, maxlen);
+            if (skipSettingNow) {
+                _writeFile(filename, p->value().c_str(), maxlen);
+            } else {
+                snprintf(target, maxlen, "%s", p->value().c_str());
+                _writeFile(filename, target, maxlen);
+            }
         }
     } else {
-        DBG_OUTPUT_PORT.printf("no such param: %s\n", param);
+        DEBUG("no such param: %s\n", param);
     }
+}
+
+void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char* target, const char* filename, unsigned int maxlen, const char* resetValue) {
+    writeSetupParameter(request, param, target, filename, maxlen, resetValue, false);
+}
+
+void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char* target, unsigned int maxlen, const char* resetValue, bool skipSettingNow) {
+    String _tmp = "/etc/" + String(param);
+    writeSetupParameter(request, param, target, _tmp.c_str(), maxlen, resetValue, skipSettingNow);
+}
+
+void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char* target, unsigned int maxlen, const char* resetValue) {
+    writeSetupParameter(request, param, target, maxlen, resetValue, false);
 }
 
 void handleFlash(AsyncWebServerRequest *request, const char *filename) {

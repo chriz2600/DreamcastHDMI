@@ -3,4 +3,4 @@
 hostname=${ESP_HOSTNAME:-dc-firmware-manager.local}
 
 curl --digest --user dchdmi:testtest \
-    -s "http://${hostname}/testdata"
+    -s "http://${hostname}/config" | jq .

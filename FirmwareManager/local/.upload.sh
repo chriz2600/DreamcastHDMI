@@ -1,6 +1,6 @@
 #!/bin/bash
 
-username="Test"
+username="dchdmi"
 password="testtest"
 hostname=${ESP_HOSTNAME:-dc-firmware-manager.local}
 

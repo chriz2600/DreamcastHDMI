@@ -4,11 +4,11 @@ cd $(dirname $0)/..
 
 hostname=${ESP_HOSTNAME:-dc-firmware-manager.local}
 
-curl -s --basic --user Test:testtest \
+curl -s --basic --user dchdmi:testtest \
      -o /dev/null "http://${hostname}/flash/index"
 
 while (true) ; do
-    res=$(curl -s --basic --user Test:testtest "http://${hostname}/progress")
+    res=$(curl -s --basic --user dchdmi:testtest "http://${hostname}/progress")
     if [ "$res" == "100" ] ; then
         echo "done."
         exit 0

@@ -59,7 +59,7 @@ set_global_assignment -name VERILOG_FILE source/ram2video.v
 set_global_assignment -name VERILOG_FILE source/typedef.v
 set_global_assignment -name VERILOG_FILE source/adv7513/I2C.v
 set_global_assignment -name VERILOG_FILE source/adv7513/ADV7513.v
-set_global_assignment -name VERILOG_FILE source/adv7513/reconf_adv.v
+set_global_assignment -name VERILOG_FILE source/adv7513/adv7513_reconfig.v
 set_global_assignment -name VERILOG_FILE source/char_rom/char_rom.v
 set_global_assignment -name VERILOG_FILE source/i2c_slave/timescale.v
 set_global_assignment -name VERILOG_FILE source/i2c_slave/serialInterface.v
@@ -68,14 +68,16 @@ set_global_assignment -name VERILOG_FILE source/i2c_slave/i2cSlave.v
 set_global_assignment -name VERILOG_FILE source/i2c_slave/registerInterface.v
 set_global_assignment -name VERILOG_FILE source/maple_bus/maple.v
 set_global_assignment -name VERILOG_FILE source/maple_bus/maple_in.v
-set_global_assignment -name VERILOG_FILE source/pll_hdmi/reconf_rom.v
-set_global_assignment -name VERILOG_FILE source/pll_hdmi/trigger_reconf.v
+set_global_assignment -name VERILOG_FILE source/pll_hdmi/pll_hdmi_reconfig.v
+set_global_assignment -name VERILOG_FILE source/hdmi_video_reconfig.v
+set_global_assignment -name VERILOG_FILE source/dc_video_reconfig.v
 set_global_assignment -name VERILOG_FILE source/misc/Signal_CrossDomain.v
 set_global_assignment -name VERILOG_FILE source/misc/Flag_CrossDomain.v
 set_global_assignment -name VERILOG_FILE source/misc/startup.v
 set_global_assignment -name VERILOG_FILE source/misc/edge_detect.v
 set_global_assignment -name VERILOG_FILE source/misc/data_cross.v
 set_global_assignment -name VERILOG_FILE source/misc/info_cross.v
+set_global_assignment -name VERILOG_FILE source/misc/delayline.v
 set_global_assignment -name VERILOG_FILE source/misc/LEDglow.v
 set_global_assignment -name VERILOG_FILE source/configuration.v
 set_global_assignment -name VHDL_FILE source/adv7513/i2c_master.vhd

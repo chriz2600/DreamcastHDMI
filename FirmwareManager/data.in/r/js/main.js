@@ -260,7 +260,11 @@ var term = $('#term').terminal(function(command, term) {
         });
     } else if (command.match(/^\s*cleanup\s*$/)) {
         startTransaction(null, function() {
-            doDeleteFirmwareFile();
+            doRequest("cleanup", "Remove firmware files.");
+        });
+    } else if (command.match(/^\s*resetconfig\s*$/)) {
+        startTransaction(null, function() {
+            doRequest("resetconfig", "Reset configuration to factory defaults.");
         });
     } else if (command.match(/^\s*flash_chip_size\s*$/)) {
         startTransaction(null, function() {
@@ -280,18 +284,6 @@ var term = $('#term').terminal(function(command, term) {
         startTransaction(null, function() {
             getConfig(false, downloadESPIndex);
         });
-    } else if (command.match(/^\s*res_240p_x3\s*$/)) {
-        startTransaction(null, function() {
-            setResolution("240p_x3");
-        });
-    } else if (command.match(/^\s*res_240p_x4\s*$/)) {
-        startTransaction(null, function() {
-            setResolution("240p_x4");
-        });
-    } else if (command.match(/^\s*res_240p_1080p\s*$/)) {
-        startTransaction(null, function() {
-            setResolution("240p_1080p");
-        });
     } else if (command.match(/^\s*res_vga\s*$/)) {
         startTransaction(null, function() {
             setResolution("VGA");
@@ -307,6 +299,14 @@ var term = $('#term').terminal(function(command, term) {
     } else if (command.match(/^\s*res_1080p\s*$/)) {
         startTransaction(null, function() {
             setResolution("1080p");
+        });
+    } else if (command.match(/^\s*deinterlace_bob\s*$/)) {
+        startTransaction(null, function() {
+            setDeinterlace("bob");
+        });
+    } else if (command.match(/^\s*deinterlace_passthru\s*$/)) {
+        startTransaction(null, function() {
+            setDeinterlace("passthru");
         });
     } else if (command.match(/^\s*generate_on\s*$/)) {
         startTransaction(null, function() {
@@ -463,7 +463,15 @@ var term = $('#term').terminal(function(command, term) {
             return false;
         }
         if (testloop) {
-            endTestloop();
+            console.log("["+e.key+"]");
+            if (e.key) {
+                var k = e.key.toUpperCase();
+                if (k == 'ENTER') {
+                    endTestloop();
+                } else if (k == ' ') {
+                    zeroTestvalues();
+                }
+            }
             return false;
         }
     }
@@ -679,24 +687,35 @@ function upload(isRetry, uri, dataFile, successCallback) {
     client.send(formData);
 }
 
+var defaultCheck = /^(.+)$/;
+var default2nd = "    Please check your input> ";
+var domainCheck = /^([a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+)$/;
+var ipCheck = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?))$/;
+var validIpMsg = "[[ib;lightblue;]valid IPv4 address]"
 var setupData = {};
 var currentConfigData = {};
 var setupDataMapping = {
     ssid:             [ "WiFi SSID        ", "empty" ],
     password:         [ "WiFi Password    ", "empty" ],
     ota_pass:         [ "OTA Password     ", "empty" ],
-    firmware_server:  [ "Firmware Server  ", "dc.i74.de" ],
-    firmware_version: [ "Firmware Version ", "master" ],
-    http_auth_user:   [ "HTTP User        ", "Test" ],
-    http_auth_pass:   [ "HTTP Password    ", "testtest" ],
-    conf_ip_addr:     [ "IP address       ", "empty" ],
-    conf_ip_gateway:  [ "Gateway          ", "empty" ],
-    conf_ip_mask:     [ "Netmask          ", "empty" ],
-    conf_ip_dns:      [ "DNS              ", "empty" ],
+    firmware_server:  [ "Firmware Server  ", "dc.i74.de", "[[ib;lightblue;]valid domain name]", domainCheck ],
+    firmware_version: [ "Firmware Version ", "master", "[[b;lightblue;]master] / [[b;lightblue;]develop] / [[b;lightblue;]vX.Y.Z]", /^(master|develop|experimental|v\d+\.\d+\.\d+)$/ ],
+    http_auth_user:   [ "HTTP User        ", "dchdmi" ],
+    http_auth_pass:   [ "HTTP Password    ", "generated", null, null, null, "[[b;red;]If you do not set a password, a new one will be]\n    [[b;red;]generated each time DCHDMI starts!]" ],
+    conf_ip_addr:     [ "IP address       ", "empty", validIpMsg, ipCheck ],
+    conf_ip_gateway:  [ "Gateway          ", "empty", validIpMsg, ipCheck ],
+    conf_ip_mask:     [ "Netmask          ", "empty", validIpMsg, ipCheck ],
+    conf_ip_dns:      [ "DNS              ", "empty", validIpMsg, ipCheck ],
     hostname:         [ "Hostname         ", "dc-firmware-manager" ],
-    video_resolution: [ "Video output     ", "VGA" ],
-    video_mode:       [ "Video mode       ", "CableDetect" ],
-    reset_mode:       [ "Opt. reset mode  ", "led" ]
+    video_resolution: [ "Video output     ", "VGA", "[[b;lightblue;]VGA] / [[b;lightblue;]480p] / [[b;lightblue;]960p] / [[b;lightblue;]1080p]", /^(VGA|480p|960p|1080p)$/ ],
+    video_mode:       [ "Video mode       ", "CableDetect", "[[b;lightblue;]ForceVGA] / [[b;lightblue;]CableDetect] / [[b;lightblue;]SwitchTrick]", /^(ForceVGA|CableDetect|SwitchTrick)$/ ],
+    reset_mode:       [ "Opt. reset mode  ", "led", "[[b;lightblue;]led] / [[b;lightblue;]gdemu] / [[b;lightblue;]usb-gdrom]", /^(led|gdemu|usb-gdrom)$/ ],
+    deinterlace_mode: [ "Deinterlacer     ", "bob", "[[b;lightblue;]bob] / [[b;lightblue;]passthru]", /^(bob|passthru)$/ ],
+    protected_mode:   [ "Protected mode   ", "off", "[[b;lightblue;]on] / [[b;lightblue;]off]", /^(on|off)$/, null, 
+          "[[b;red;]If you set protected mode to 'on', you will not be able]\n    "
+        + "[[b;red;]to reveal your HTTP Password in the OSD!]\n    "
+        + "[[b;red;]While setting to 'on' is recommended, you will need]\n    "
+        + "[[b;red;]access to the serial port to recover your password, if forgotten.]" ]
 };
 var dataExcludeMap = {
     "flash_chip_size":"",
@@ -731,16 +750,37 @@ function prepareQuestion(pos, total, field) {
             : "[[b;red;]not yet set]"
         )
         + ")"
-        + " \n    New value? ", 
-        cb: function(value) { 
-            setupData[field] = value; 
+        + (setupDataMapping[field][2] != null ? " \n    (available options: " + setupDataMapping[field][2] + ")" : "")
+        + (setupDataMapping[field][5] != null ? " \n    " + setupDataMapping[field][5] : "")
+        + " \n    New value> ",
+        q2 : (setupDataMapping[field][4] != null ? setupDataMapping[field][4] : default2nd),
+        cb: function(command) {
+            var value = command;
+            // special values: <empty>, " " (reset)
+            if (value == "") {
+                return true;
+            }
+            if (value == " ") {
+                setupData[field] = "";
+                return true;
+            }
+            var lm = command.match(setupDataMapping[field][3] != null ? setupDataMapping[field][3] : defaultCheck);
+            if (lm) {
+                value = $.trim(lm[0]);
+                setupData[field] = value;
+                return true;
+            }
+            return false;
         }
     };
 }
 
-function doDeleteFirmwareFile() {
-    $.ajax("/cleanup");
-    endTransaction('firmware file removed.');
+function doRequest(req, msg) {
+    $.ajax("/" + req).done(function() {
+        endTransaction("SUCCESS: " + msg);
+    }).fail(function() {
+        endTransaction("FAILED: " + msg, true);
+    });
 }
 
 function listFiles() {
@@ -845,6 +885,14 @@ function setResolution(type) {
     });
 }
 
+function setDeinterlace(type) {
+    $.ajax("/deinterlace/" + type).done(function (data) {
+        endTransaction("Switched deinterlace mode to: " + type);
+    }).fail(function() {
+        endTransaction('Error switching deinterlace mode.', true);
+    });
+}
+
 function generateVideoAndTiming(state) {
     $.ajax("/generate/" + state).done(function (data) {
         endTransaction("Generate video and timing: " + state);
@@ -900,6 +948,7 @@ function testdata(check) {
 
 var testrefresh = 0;
 var testdatares;
+var counterdata;
 
 function initTestdatares() {
     testdatares = {
@@ -917,17 +966,46 @@ function initTestdatares() {
 }
 initTestdatares();
 
+function initCounterdata() {
+    counterdata = {
+        advll      : 0,
+        hpdl       : 0,
+        msen       : 0,
+        p54ll      : 0,
+        phdll      : 0,
+        rsyc       : 0,
+        advll_offs : 0,
+        hpdl_offs  : 0,
+        msen_offs  : 0,
+        p54ll_offs : 0,
+        phdll_offs : 0,
+        rsyc_offs  : 0
+    };
+}
+initCounterdata();
+
+function parse_uint32_t(buffer, pos) {
+    return (parseInt(buffer[pos], 16) << 24) | (parseInt(buffer[pos+1], 16) << 16) | (parseInt(buffer[pos+2], 16) << 8) | parseInt(buffer[pos+3], 16);
+}
+
 function createTestData(rawdata) {
-    var msg = rawdata.replace(/\n/g, "");
+    var msg = rawdata.replace(/\n/g, "").trim();
     var buffer = msg.split(/\ /);
-    if (buffer.length == 9) {
-        var pinok1 = (parseInt(buffer[0], 16) << 5) | (parseInt(buffer[1], 16) >> 3);
-        var pinok2 = ((parseInt(buffer[1], 16) & 0x7) << 8) | parseInt(buffer[2], 16);
-        var resolX = (parseInt(buffer[3], 16) << 4) | (parseInt(buffer[4], 16) >> 4);
-        var resolY = ((parseInt(buffer[4], 16) & 0xF) << 8) | parseInt(buffer[5], 16);
-        var red    = parseInt(buffer[6], 16);
-        var green  = parseInt(buffer[7], 16);
-        var blue   = parseInt(buffer[8], 16);
+    if (buffer.length == 33) {
+        counterdata.advll = parse_uint32_t(buffer, 0);
+        counterdata.hpdl = parse_uint32_t(buffer, 4);
+        counterdata.p54ll = parse_uint32_t(buffer, 8);
+        counterdata.phdll = parse_uint32_t(buffer, 12);
+        counterdata.rsyc = parse_uint32_t(buffer, 25);
+        counterdata.msen = parse_uint32_t(buffer, 29);
+
+        var pinok1 = (parseInt(buffer[16], 16) << 5) | (parseInt(buffer[17], 16) >> 3);
+        var pinok2 = ((parseInt(buffer[17], 16) & 0x7) << 8) | parseInt(buffer[18], 16);
+        var resolX = (parseInt(buffer[19], 16) << 4) | (parseInt(buffer[20], 16) >> 4);
+        var resolY = ((parseInt(buffer[20], 16) & 0xF) << 8) | parseInt(buffer[21], 16);
+        var red    = parseInt(buffer[22], 16);
+        var green  = parseInt(buffer[23], 16);
+        var blue   = parseInt(buffer[24], 16);
 
         var rawWidth = (resolX + 1);
         var rawHeight = (resolY + 1);
@@ -973,14 +1051,22 @@ function createTestData(rawdata) {
             + "    min./max. green: [[b;#fff;]" + testdatares.gmin + " " + testdatares.gmax + "]\n"
             + "     min./max. blue: [[b;#fff;]" + testdatares.bmin + " " + testdatares.bmax + "]\n"
             + " \n"
-            + "Raw data:"
+            /*+ "Raw data:"
             + "  " + msg + " "
                 + String('0000' + pinok1.toString(16)).slice(-4)
                 + " "
                 + String('0000' + pinok2.toString(16)).slice(-4)
-            + "\n"
+            + " \n \n"*/
+            + "advll: [[b;#fff;]" + String('00000' + (counterdata.advll - counterdata.advll_offs).toString(10)).slice(-5) + "]"
+            + "   hpdl: [[b;#fff;]" + String('00000' + (counterdata.hpdl - counterdata.hpdl_offs).toString(10)).slice(-5) + "]"
+            + "  msen: [[b;#fff;]" + String('00000' + (counterdata.msen - counterdata.msen_offs).toString(10)).slice(-5) + "]"
             + " \n"
-            + "Press any key to stop."
+            + "p54ll: [[b;#fff;]" + String('00000' + (counterdata.p54ll - counterdata.p54ll_offs).toString(10)).slice(-5) + "]"
+            + "  phdll: [[b;#fff;]" + String('00000' + (counterdata.phdll - counterdata.phdll_offs).toString(10)).slice(-5) + "]"
+            + "  rsyc: [[b;#fff;]" + String('00000' + (counterdata.rsyc - counterdata.rsyc_offs).toString(10)).slice(-5) + "]"
+            + " \n \n"
+            + "[Space] to zero counters.\n"
+            + "[Return] to stop.\n"
         );
     }
 
@@ -998,6 +1084,16 @@ function checkPin(pinok1, pinok2, pos1, pos2) {
     return '[[b;#fff;]' + (isOk ? '\u2665' : 'X') + ']';
 }
 
+function zeroTestvalues() {
+    initTestdatares();
+    counterdata.advll_offs = counterdata.advll;
+    counterdata.hpdl_offs  = counterdata.hpdl;
+    counterdata.msen_offs  = counterdata.msen;
+    counterdata.p54ll_offs = counterdata.p54ll;
+    counterdata.phdll_offs = counterdata.phdll;
+    counterdata.rsyc_offs  = counterdata.rsyc;
+}
+
 function endTestloop() {
     if (testloop) {
         clearTimeout(testtimeout);
@@ -1008,6 +1104,7 @@ function endTestloop() {
         term.find('.cursor').show();
         testrefresh = 0;
         initTestdatares();
+        initCounterdata();
     }
 }
 
@@ -1043,7 +1140,15 @@ function setupMode(doResetConfiguration) {
                     + ' \nreset this application by typing: [[b;#fff;]reset].'
                     + ' \nSave changes (y)es/(n)o? ';
             },
-            cb: function(value) {
+            q2 : function() {
+                return 'Save changes (y)es/(n)o? ';
+            },
+            cb: function(command) {
+                var value = "";
+                var lm = command.match(/^(.+)$/i);
+                if (lm) {
+                    value = $.trim(lm[0]);
+                }
                 if (value.match(/^(y|yes)$/)) {
                     // start saving transaction
                     startTransaction("saving setup...", function() {
@@ -1057,11 +1162,15 @@ function setupMode(doResetConfiguration) {
                             endTransaction('Error saving setup data.', true);
                         });
                     });
-                } else {
+                    return true;
+                } else if (value.match(/^(n|no)$/)) {
                     term.error("discarded setup");
+                    // reset setupData
+                    setupData = {};
+                    return true;
+                } else {
+                    return false;
                 }
-                // reset setupData
-                setupData = {};
             }
         }
     ];
@@ -1082,11 +1191,10 @@ function setupMode(doResetConfiguration) {
             if (n.pc()) {
                 term.push(function(command) {
                     term.pop();
-                    var lm = command.match(/^(.+)$/i);
-                    if (lm) {
-                        lm[0] = $.trim(lm[0]);
-                        if (n.cb) {
-                            n.cb(lm[0]);
+                    if (n.cb) {
+                        if (!n.cb(command)) {
+                            n.q = (n.q2 ? n.q2 : n.q);
+                            questions.unshift(n);
                         }
                     }
                     next();
@@ -1102,8 +1210,8 @@ function setupMode(doResetConfiguration) {
     }
 
     term.echo(" \n[[b;#fff;]This will guide you through the setup process:]\n"
-        + "- Just hit return to leave the value unchanged.\n"
-        + "- Enter a single space to reset value to firmware default.\n"
+        + "- Just hit [[ib;white;]return] to leave the value unchanged.\n"
+        + "- Enter a [[ib;white;]single space] to reset value to firmware default.\n"
         + "- CTRL-D to abort.\n"
     );
     next();

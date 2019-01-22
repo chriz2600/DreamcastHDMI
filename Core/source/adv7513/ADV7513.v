@@ -11,7 +11,11 @@ module ADV7513(
     output reg ready,
     output reg hdmi_int_reg,
     output reg hpd_detected,
+    output reg [31:0] pll_adv_lockloss_count,
+    output reg [31:0] hpd_low_count,
+    output reg [31:0] monitor_sense_low_count,
 
+    input [7:0] clock_data,
     input ADV7513Config adv7513Config
 );
 
@@ -64,9 +68,15 @@ localparam  cs_pwrdown  = 3'd0,
 localparam  scs_start = 6'd0;
 
 reg hdmi_int_prev = 1;
+reg prev_pll_adv_lockloss = 0;
+reg prev_hpd_state = 0;
+reg prev_monitor_sense_state = 0;
 
 initial begin
     ready <= 0;
+    pll_adv_lockloss_count <= 0;
+    hpd_low_count <= 0;
+    monitor_sense_low_count <= 0;
 end
 
 reg [32:0] counter = 0;
@@ -130,7 +140,7 @@ always @ (posedge clk) begin
                     subcmd_counter <= scs_start;
                 end else if (hdmi_int_reg) begin
                     state <= s_start;
-                    cmd_counter <= cs_init;
+                    cmd_counter <= cs_pwrdown;
                     subcmd_counter <= scs_start;
                     hdmi_int_reg = 1'b0;
                 end else if (counter == 32'd_16_000_000) begin
@@ -182,8 +192,28 @@ task adv7513_monitor_hpd;
     begin
         case (subcmd_counter)
             0: write_i2c(CHIP_ADDR, 16'h_96_F6); // -> clears interrupt state, mark all interrupts as detected
-            1: read_i2c(CHIP_ADDR, 8'h_42);
+            // check pll status
+            1: read_i2c(CHIP_ADDR, 8'h_9E);
             2: begin
+                prev_pll_adv_lockloss <= ~i2c_data[4];
+                if (~prev_pll_adv_lockloss && ~i2c_data[4]) begin
+                    pll_adv_lockloss_count <= pll_adv_lockloss_count + 1'b1;
+                end
+                subcmd_counter <= subcmd_counter + 1'b1;
+            end
+            // monitor HPD State/Monitor Sense State
+            3: read_i2c(CHIP_ADDR, 8'h_42);
+            4: begin
+                // debug
+                prev_hpd_state <= i2c_data[6];
+                prev_monitor_sense_state <= i2c_data[5];
+                if (prev_hpd_state && ~i2c_data[6]) begin
+                    hpd_low_count <= hpd_low_count + 1'b1;
+                end
+                if (prev_monitor_sense_state && ~i2c_data[5]) begin
+                    monitor_sense_low_count <= monitor_sense_low_count + 1'b1;
+                end
+
                 if (i2c_data[6] && i2c_data[5]) begin
                     cmd_counter <= success_cmd;
                     subcmd_counter <= scs_start;
@@ -250,7 +280,7 @@ task adv7513_init;
                                                 // [1]:   HDMI/DVI mode select = 0b1, HDMI mode
                                                 // [0]:   fixed = 0b0
             20: write_i2c(CHIP_ADDR, 16'h_DE_10); // ADI recommended write
-            21: write_i2c(CHIP_ADDR, 16'h_BA_60); // [7:5]: clock delay, 0b011 no delay
+            21: write_i2c(CHIP_ADDR, 16'h_BA_00 | clock_data); // [7:5]: clock delay, 0b011 no delay
                                                 // [4]:   hdcp eprom, 0b1 internal
                                                 // [3]:   fixed, 0b0
                                                 // [2]:   display aksv, 0b0 don't show
