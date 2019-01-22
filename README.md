@@ -1,5 +1,23 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2018-01-22 *Firmware v2.1.0*
+
+***Update is highly recommended!***
+
+- Improved WiFi security
+
+    - `WiFi Setup` OSD screen now displays the actual WiFi mode it's in (`Connected`/`Access point`)
+
+    - WiFi AP password is now being generated every time DCHDMI enters `Access point` mode.
+    
+    - Generated WiFi AP password password can be displayed in `WiFi Setup` OSD screen.
+
+    - If no *web console* `HTTP Password` is set, it's also generated every time DCHDMI starts.
+
+    - `HTTP User` now defaults to `dchdmi` instead of `Test`
+
+    - The `HTTP Password` set can also be displayed in `WiFi Setup` OSD screen, unless `Protected mode` is set to `on` during `setup` procedure. (In this case you need access to the serial console, if you have forgotten your `HTTP Password`)
+
 #### 2018-01-08 *Firmware v2.0.0*
 
 - Bob deinterlacing can be deactivated via new `Advanced Video Settings`.
