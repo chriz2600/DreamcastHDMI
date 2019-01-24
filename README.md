@@ -1,6 +1,6 @@
 # DreamcastHDMI / DCHDMI
 
-#### 2018-01-22 *Firmware v2.1.0*
+#### 2019-01-22 *Firmware v2.1.0*
 
 ***Update is highly recommended!***
 
@@ -18,7 +18,7 @@
 
     - The `HTTP Password` set can also be displayed in `WiFi Setup` OSD screen, unless `Protected mode` is set to `on` during `setup` procedure. (In this case you need access to the serial console, if you have forgotten your `HTTP Password`)
 
-#### 2018-01-08 *Firmware v2.0.0*
+#### 2019-01-08 *Firmware v2.0.0*
 
 - Bob deinterlacing can be deactivated via new `Advanced Video Settings`.
 
