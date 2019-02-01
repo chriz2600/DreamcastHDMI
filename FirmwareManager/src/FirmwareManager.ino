@@ -221,6 +221,7 @@ void setupAPMode(void) {
 }
 
 void setupWiFi() {
+    WiFi.persistent(false);
     if (strlen(ssid) == 0) {
         DEBUG2(">> No ssid, starting AP mode...\n");
         setupAPMode();

@@ -1,5 +1,19 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2019-02-01 *Firmware v2.1.1*
+
+- Improved HDMI compliance
+
+    - Use recommended values for 44.1kHz audio in 1080p mode
+
+    - Use limited RGB range for all output resolutions other than VGA
+
+- Improved reliability
+
+    - Removed `ESP.eraseConfig()` on full reset as this can lead to SPIFFS corruption in some rare cases.
+
+    - Disabled persisting WiFi credentials to ESP internal config area (they are already stored in flash file system), to reduce flash wear.
+
 #### 2019-01-22 *Firmware v2.1.0*
 
 ***Update is highly recommended!***
