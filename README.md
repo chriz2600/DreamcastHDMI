@@ -1,5 +1,12 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2019-02-05 *Firmware v2.2.0*
+
+- Fixed: It was possible to flash a firmware file from the OSD, which was only partially downloaded or corrupt.
+It was possible to brick DCHDMI with that, so access to the serial port was necessary to fix. Starting with v2.2.0 the checksum is verified before flashing to prevent flashing a broken firmware.
+
+  *this only affected the firmware upgrade via OSD, the web interface upgrade was already performing this check*
+
 #### 2019-02-01 *Firmware v2.1.1*
 
 - Improved HDMI compliance
