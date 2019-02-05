@@ -3,6 +3,7 @@
 
 bool firmwareDownloadStarted;
 bool newFWDownloaded;
+bool gotFWDownloadError;
 
 void handleFPGADownload(AsyncWebServerRequest *request, ProgressCallback progressCallback);
 void handleESPDownload(AsyncWebServerRequest *request, ProgressCallback progressCallback);
@@ -11,7 +12,7 @@ void handleESPIndexDownload(AsyncWebServerRequest *request, ProgressCallback pro
 void downloadCascade(int pos, bool forceDownload);
 void readStoredMD5SumDownload(int pos, bool forceDownload, const char* fname, char* md5sum);
 ProgressCallback createProgressCallback(int pos, bool forceDownload, int line);
-ContentCallback createMD5DownloadCallback(int pos, bool forceDownload, int line, char* storedMD5Sum);
+ContentCallback createMD5DownloadCallback(int pos, bool forceDownload, int line, char* storedMD5Sum, const char *filename);
 void displayProgress(int read, int total, int line);
 
 Menu firmwareDownloadMenu("FirmwareDownloadMenu", (uint8_t*) OSD_FIRMWARE_DOWNLOAD_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
@@ -24,6 +25,7 @@ Menu firmwareDownloadMenu("FirmwareDownloadMenu", (uint8_t*) OSD_FIRMWARE_DOWNLO
         if (!firmwareDownloadStarted) {
             firmwareDownloadStarted = true;
             newFWDownloaded = false;
+            gotFWDownloadError = false;
             downloadCascade(0, false);
         }
         return;
@@ -55,7 +57,7 @@ void downloadCascade(int pos, bool forceDownload) {
             }
             break;
         case 3:
-            getMD5SumFromServer(REMOTE_FPGA_HOST, REMOTE_FPGA_MD5, createMD5DownloadCallback(pos, forceDownload, MENU_FWD_FPGA_LINE, md5FPGA));
+            getMD5SumFromServer(REMOTE_FPGA_HOST, REMOTE_FPGA_MD5, createMD5DownloadCallback(pos, forceDownload, MENU_FWD_FPGA_LINE, md5FPGA, SERVER_FPGA_MD5));
             break;
         case 4: // Download FPGA firmware
             handleFPGADownload(NULL, createProgressCallback(pos, forceDownload, MENU_FWD_FPGA_LINE));
@@ -71,7 +73,7 @@ void downloadCascade(int pos, bool forceDownload) {
             }
             break;
         case 6:
-            getMD5SumFromServer(REMOTE_ESP_HOST, REMOTE_ESP_MD5, createMD5DownloadCallback(pos, forceDownload, MENU_FWD_ESP_LINE, md5ESP));
+            getMD5SumFromServer(REMOTE_ESP_HOST, REMOTE_ESP_MD5, createMD5DownloadCallback(pos, forceDownload, MENU_FWD_ESP_LINE, md5ESP, SERVER_ESP_MD5));
             break;
         case 7: // Download ESP firmware
             handleESPDownload(NULL, createProgressCallback(pos, forceDownload, MENU_FWD_ESP_LINE));
@@ -87,22 +89,29 @@ void downloadCascade(int pos, bool forceDownload) {
             }
             break;
         case 9:
-            getMD5SumFromServer(REMOTE_ESP_HOST, REMOTE_ESP_INDEX_MD5, createMD5DownloadCallback(pos, forceDownload, MENU_FWD_INDEXHTML_LINE, md5IndexHtml));
+            getMD5SumFromServer(REMOTE_ESP_HOST, REMOTE_ESP_INDEX_MD5, createMD5DownloadCallback(pos, forceDownload, MENU_FWD_INDEXHTML_LINE, md5IndexHtml, SERVER_ESP_INDEX_MD5));
             break;
         case 10: // Download ESP index.html
             handleESPIndexDownload(NULL, createProgressCallback(pos, forceDownload, MENU_FWD_INDEXHTML_LINE));
             break;
         case 11:
             const char* result;
-            if (newFWDownloaded) {
+            if (gotFWDownloadError) {
                 result = (
-                    "   Firmware successfully downloaded!    "
-                    "         Please flash firmware!"
+                    "      ERROR downloading firmware!       "
+                    "           Please try again!   "
                 );
             } else {
-                result = (
-                    "       Firmware is up to date!"
-                );
+                if (newFWDownloaded) {
+                    result = (
+                        "   Firmware successfully downloaded!    "
+                        "         Please flash firmware!"
+                    );
+                } else {
+                    result = (
+                        "       Firmware is up to date!"
+                    );
+                }
             }
             fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_FWD_RESULT_LINE, (uint8_t*) result, [ pos, forceDownload ]() {
                 downloadCascade(pos + 1, forceDownload);
@@ -125,6 +134,7 @@ void readStoredMD5SumDownload(int pos, bool forceDownload, const char* fname, ch
 ProgressCallback createProgressCallback(int pos, bool forceDownload, int line) {
     return [ pos, forceDownload, line ](int read, int total, bool done, int error) {
         if (error != NO_ERROR) {
+            gotFWDownloadError = true;
             fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "[ ERROR DOWNLOADING  ] done.", [ pos, forceDownload ]() {
                 downloadCascade(pos + 1, forceDownload);
             });
@@ -144,8 +154,8 @@ ProgressCallback createProgressCallback(int pos, bool forceDownload, int line) {
     };
 }
 
-ContentCallback createMD5DownloadCallback(int pos, bool forceDownload, int line, char* storedMD5Sum) {
-    return [pos, forceDownload, line, storedMD5Sum](std::string data, int error) {
+ContentCallback createMD5DownloadCallback(int pos, bool forceDownload, int line, char* storedMD5Sum, const char *filename) {
+    return [pos, forceDownload, line, storedMD5Sum, filename](std::string data, int error) {
         if (error != NO_ERROR) {
             fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "[ ERROR CHECKING MD5 ] done.", [ pos, forceDownload ]() {
                 downloadCascade(pos + 1, forceDownload);
@@ -155,6 +165,7 @@ ContentCallback createMD5DownloadCallback(int pos, bool forceDownload, int line,
 
         char md5Sum[33];
         data.copy(md5Sum, 33, 0);
+        _writeFile(filename, md5Sum, 33);
 
         if (strncmp(storedMD5Sum, md5Sum, 32) != 0) {
             // new firmware file available

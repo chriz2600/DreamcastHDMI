@@ -7,10 +7,16 @@ extern FlashESPIndexTask flashESPIndexTask;
 
 bool newFWFlashed;
 bool firmwareFlashStarted;
+bool gotFWFlashError;
+bool gotFWChecksumError;
+
+char md5FPGAServer[48];
+char md5ESPServer[48];
+char md5IndexHtmlServer[48];
 
 void flashCascade(int pos, bool force);
 void readStoredMD5SumFlash(int pos, bool force, const char* fname, char* md5sum);
-void checkStoredMD5SumFlash(int pos, bool force, int line, const char* fname, char* storedMD5Sum);
+void checkStoredMD5SumFlash(int pos, bool force, int line, const char* fname, char* storedMD5Sum, char* serverMD5Sum);
 ProgressCallback createFlashProgressCallback(int pos, bool force, int line);
 
 Menu firmwareFlashMenu("FirmwareFlashMenu", (uint8_t*) OSD_FIRMWARE_FLASH_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
@@ -23,6 +29,8 @@ Menu firmwareFlashMenu("FirmwareFlashMenu", (uint8_t*) OSD_FIRMWARE_FLASH_MENU, 
         if (!firmwareFlashStarted) {
             firmwareFlashStarted = true;
             newFWFlashed = false;
+            gotFWFlashError = false;
+            gotFWChecksumError = false;
             flashCascade(0, false);
         }
         return;
@@ -50,11 +58,12 @@ void flashCascade(int pos, bool force) {
             if (force) {
                 flashCascade(pos + 2, force);
             } else {
+                _readFile(SERVER_FPGA_MD5, md5FPGAServer, 33, DEFAULT_MD5_SUM);
                 readStoredMD5SumFlash(pos, force, STAGED_FPGA_MD5, md5FPGA);
             }
             break;
         case 3:
-            checkStoredMD5SumFlash(pos, force, MENU_FWF_FPGA_LINE, LOCAL_FPGA_MD5, md5FPGA);
+            checkStoredMD5SumFlash(pos, force, MENU_FWF_FPGA_LINE, LOCAL_FPGA_MD5, md5FPGA, md5FPGAServer);
             break;
         case 4: // Flash FPGA firmware
             flashTask.SetProgressCallback(createFlashProgressCallback(pos, force, MENU_FWF_FPGA_LINE));
@@ -68,11 +77,12 @@ void flashCascade(int pos, bool force) {
             if (force) {
                 flashCascade(pos + 2, force);
             } else {
+                _readFile(SERVER_ESP_MD5, md5ESPServer, 33, DEFAULT_MD5_SUM);
                 readStoredMD5SumFlash(pos, force, STAGED_ESP_MD5, md5ESP);
             }
             break;
         case 6:
-            checkStoredMD5SumFlash(pos, force, MENU_FWF_ESP_LINE, LOCAL_ESP_MD5, md5ESP);
+            checkStoredMD5SumFlash(pos, force, MENU_FWF_ESP_LINE, LOCAL_ESP_MD5, md5ESP, md5ESPServer);
             break;
         case 7: // Flash ESP firmware
             flashESPTask.SetProgressCallback(createFlashProgressCallback(pos, force, MENU_FWF_ESP_LINE));
@@ -86,11 +96,12 @@ void flashCascade(int pos, bool force) {
             if (force) {
                 flashCascade(pos + 2, force);
             } else {
+                _readFile(SERVER_ESP_INDEX_MD5, md5IndexHtmlServer, 33, DEFAULT_MD5_SUM);
                 readStoredMD5SumFlash(pos, force, STAGED_ESP_INDEX_MD5, md5IndexHtml);
             }
             break;
         case 9:
-            checkStoredMD5SumFlash(pos, force, MENU_FWF_INDEXHTML_LINE, LOCAL_ESP_INDEX_MD5, md5IndexHtml);
+            checkStoredMD5SumFlash(pos, force, MENU_FWF_INDEXHTML_LINE, LOCAL_ESP_INDEX_MD5, md5IndexHtml, md5IndexHtmlServer);
             break;
         case 10: // Flash ESP index.html
             flashESPIndexTask.SetProgressCallback(createFlashProgressCallback(pos, force, MENU_FWF_INDEXHTML_LINE));
@@ -99,15 +110,27 @@ void flashCascade(int pos, bool force) {
         case 11:
             flashESPIndexTask.ClearProgressCallback();
             const char* result;
-            if (newFWFlashed) {
+            if (gotFWFlashError) {
                 result = (
-                    "     Firmware successfully flashed!     "
-                    "         Please restart system!         "
+                    "        ERROR flashing firmware!        "
+                    " Please reflash! DO NOT restart system! "
+                );
+            } else if (gotFWChecksumError) {
+                result = (
+                    "  Checksum error on one or more files!  "
+                    "    Please download firmware again!     "
                 );
             } else {
-                result = (
-                    "    Firmware is already up to date!"
-                );
+                if (newFWFlashed) {
+                    result = (
+                        "     Firmware successfully flashed!     "
+                        "         Please restart system!         "
+                    );
+                } else {
+                    result = (
+                        "    Firmware is already up to date!"
+                    );
+                }
             }
             fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_FWF_RESULT_LINE, (uint8_t*) result, [ pos, force ]() {
                 flashCascade(pos + 1, force);
@@ -127,7 +150,7 @@ void readStoredMD5SumFlash(int pos, bool force, const char* fname, char* md5sum)
     });
 }
 
-void checkStoredMD5SumFlash(int pos, bool force, int line, const char* fname, char* storedMD5Sum) {
+void checkStoredMD5SumFlash(int pos, bool force, int line, const char* fname, char* storedMD5Sum, char* serverMD5Sum) {
     char value[9] = "";
     char md5Sum[48] = "";
     _readFile(fname, md5Sum, 33, DEFAULT_MD5_SUM);
@@ -136,6 +159,11 @@ void checkStoredMD5SumFlash(int pos, bool force, int line, const char* fname, ch
 
     if (strncmp(storedMD5Sum, DEFAULT_MD5_SUM, 32) == 0) {
         fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "No file to flash available. ", [ pos, force ]() {
+            flashCascade(pos + 2, force);
+        });
+    } else if (strncmp(storedMD5Sum, serverMD5Sum, 32) != 0) {
+        gotFWChecksumError = true;
+        fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "Checksum mismatch.          ", [ pos, force ]() {
             flashCascade(pos + 2, force);
         });
     } else if (strncmp(storedMD5Sum, md5Sum, 32) == 0) {
@@ -153,6 +181,7 @@ void checkStoredMD5SumFlash(int pos, bool force, int line, const char* fname, ch
 ProgressCallback createFlashProgressCallback(int pos, bool force, int line) {
     return [ pos, force, line ](int read, int total, bool done, int error) {
         if (error != NO_ERROR) {
+            gotFWFlashError = true;
             fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "[ ERROR FLASHING     ] done.", [ pos, force ]() {
                 flashCascade(pos + 1, force);
             });

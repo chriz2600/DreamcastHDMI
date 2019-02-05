@@ -171,14 +171,17 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 
 #define LOCAL_FPGA_MD5 "/etc/last_flash_md5"
 #define STAGED_FPGA_MD5 "/firmware.dc.md5"
+#define SERVER_FPGA_MD5 "/server/firmware.dc.md5"
 #define REMOTE_FPGA_MD5 ("/fw/" + String(firmwareVersion) + "/DCxPlus-default.dc.md5")
 
 #define LOCAL_ESP_MD5 "/etc/last_esp_flash_md5"
 #define STAGED_ESP_MD5 "/firmware.bin.md5"
+#define SERVER_ESP_MD5 "/server/firmware.bin.md5"
 #define REMOTE_ESP_MD5 ("/" + String(firmwareVersion) + "/4MB-firmware.bin.md5")
 
 #define LOCAL_ESP_INDEX_MD5 "/index.html.gz.md5"
 #define STAGED_ESP_INDEX_MD5 "/esp.index.html.gz.md5"
+#define SERVER_ESP_INDEX_MD5 "/server/esp.index.html.gz.md5"
 #define REMOTE_ESP_INDEX_MD5 ("/" + String(firmwareVersion) + "/esp.index.html.gz.md5")
 
 #define DEBUG_BASE_ADDRESS 0x90
