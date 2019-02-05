@@ -1,3 +1,7 @@
+v2.2.0                                  
+- Verify checksum before flashing to    
+  prevent possible firmware corruption  
+                                        
 v2.1.1                                  
 - Improved HDMI compliance              
 - Improved reliability                  
