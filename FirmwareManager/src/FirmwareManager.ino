@@ -221,6 +221,7 @@ void setupAPMode(void) {
 }
 
 void setupWiFi() {
+    WiFi.persistent(false);
     if (strlen(ssid) == 0) {
         DEBUG2(">> No ssid, starting AP mode...\n");
         setupAPMode();
@@ -454,6 +455,10 @@ void setupHTTPServer() {
         SPIFFS.remove(LOCAL_FPGA_MD5);
         SPIFFS.remove(LOCAL_ESP_MD5);
         SPIFFS.remove(LOCAL_ESP_INDEX_MD5);
+
+        SPIFFS.remove(SERVER_FPGA_MD5);
+        SPIFFS.remove(SERVER_ESP_MD5);
+        SPIFFS.remove(SERVER_ESP_INDEX_MD5);
 
         // remove legacy config data
         SPIFFS.remove("/etc/firmware_fpga");

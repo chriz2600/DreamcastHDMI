@@ -1,5 +1,26 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2019-02-06 *Firmware v2.2.0*
+
+- Fixed: It was possible to flash a firmware file from the OSD, which was only partially downloaded or corrupt.
+It was possible to brick DCHDMI with that, so access to the serial port was necessary to fix. Starting with v2.2.0 the checksum is verified before flashing to prevent flashing a broken firmware.
+
+  *this only affected the firmware upgrade via OSD, the web interface upgrade was already performing this check*
+
+#### 2019-02-01 *Firmware v2.1.1*
+
+- Improved HDMI compliance
+
+    - Use recommended values for 44.1kHz audio in 1080p mode
+
+    - Use limited RGB range for all output resolutions other than VGA
+
+- Improved reliability
+
+    - Removed `ESP.eraseConfig()` on full reset as this can lead to SPIFFS corruption in some rare cases.
+
+    - Disabled persisting WiFi credentials to ESP internal config area (they are already stored in flash file system), to reduce flash wear.
+
 #### 2019-01-22 *Firmware v2.1.0*
 
 ***Update is highly recommended!***

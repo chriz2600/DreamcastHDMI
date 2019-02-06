@@ -17,7 +17,7 @@ void resetall() {
     fpgaTask.Write(I2C_ACTIVATE_HDMI, 0, NULL); fpgaTask.ForceLoop();
     enableFPGA();
     resetFPGAConfiguration();
-    ESP.eraseConfig();
+    //ESP.eraseConfig();
     ESP.restart();
 }
 
