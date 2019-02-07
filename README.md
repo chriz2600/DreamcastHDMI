@@ -7,6 +7,8 @@ It was possible to brick DCHDMI with that, so access to the serial port was nece
 
   *this only affected the firmware upgrade via OSD, the web interface upgrade was already performing this check*
 
+  Instructions on how to recover can be found here: [How to recover from a corrupted ESP firmware](Recovery.md)
+
 #### 2019-02-01 *Firmware v2.1.1*
 
 - Improved HDMI compliance
