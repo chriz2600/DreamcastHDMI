@@ -40,15 +40,15 @@ module pll_hdmi_reconfig (
 
         case (data_req[6:0])
             // RECONF
-            7'h00: begin `include "config/1080p.v" end
-            7'h01: begin `include "config/960p.v" end
-            7'h02: begin `include "config/480p.v" end
-            7'h03: begin `include "config/VGA.v" end
-            7'h10: begin `include "config/240p_1080p.v" end
-            7'h11: begin `include "config/960p.v" end
-            7'h12: begin `include "config/480p.v" end
-            7'h13: begin `include "config/VGA.v" end
-            default: begin `include "config/480p.v" end
+            7'h00: begin `include "config/74.25_MHz.v" end
+            7'h01: begin `include "config/54_MHz.v" end
+            7'h02: begin `include "config/27_MHz.v" end
+            7'h03: begin `include "config/25.2_MHz.v" end
+            7'h10: begin `include "config/72_MHz.v" end
+            7'h11: begin `include "config/54_MHz.v" end
+            7'h12: begin `include "config/27_MHz.v" end
+            7'h13: begin `include "config/25.2_MHz.v" end
+            default: begin `include "config/27_MHz.v" end
         endcase
 
         // delay output, to match ROM based timing
