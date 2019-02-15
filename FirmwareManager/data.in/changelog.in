@@ -1,3 +1,7 @@
+v2.3.0                                  
+- Improved output resolution switching  
+  time                                  
+                                        
 v2.2.0                                  
 - Verify checksum before flashing to    
   prevent possible firmware corruption  

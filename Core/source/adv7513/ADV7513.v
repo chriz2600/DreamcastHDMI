@@ -134,11 +134,7 @@ always @ (posedge clk) begin
             end
 
             s_idle: begin
-                if (~output_ready) begin
-                    state <= s_start;
-                    cmd_counter <= cs_pwrdown;
-                    subcmd_counter <= scs_start;
-                end else if (hdmi_int_reg) begin
+                if (hdmi_int_reg) begin
                     state <= s_start;
                     cmd_counter <= cs_pwrdown;
                     subcmd_counter <= scs_start;
@@ -400,19 +396,6 @@ task adv7513_pllcheck;
             end
             1: write_i2c(CHIP_ADDR, 16'h_A1_00); // power up TMDS channels
             2: write_i2c(CHIP_ADDR, 16'h_D6_C0); // disable soft turn on
-            // 1: write_i2c(CHIP_ADDR, 16'h_D5_01);
-            // 2: write_i2c(CHIP_ADDR, 16'h_A1_00); // power up TMDS channels
-            // 3: write_i2c(CHIP_ADDR, 16'h_D6_C0); // disable soft turn on
-            // 4: read_i2c(CHIP_ADDR, 8'h_9E);
-            // 5: begin
-            //     if (i2c_data[4]) begin
-            //         subcmd_counter <= subcmd_counter + 1'b1;
-            //     end else begin
-            //         cmd_counter <= failure_cmd;
-            //         subcmd_counter <= scs_start;
-            //     end
-            // end
-            // 6: write_i2c(CHIP_ADDR, 16'h_D5_00);
             default: begin
                 cmd_counter <= success_cmd;
                 subcmd_counter <= scs_start;

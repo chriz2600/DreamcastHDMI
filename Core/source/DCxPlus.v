@@ -648,7 +648,7 @@ end
     // // divider[7:0]   = div1
     // reg [31:0] divider;
 
-wire adv7513_reset;
+wire startup_ready;
 wire adv7513_ready;
 ADV7513Config adv7513Config;
 wire reconf_fifo2_rdempty;
@@ -672,7 +672,7 @@ Signal_CrossDomain ram2video_fullcycle_check_adv(
 startup adv7513_startup_delay(
     .clock(control_clock),
     .nreset(1'b1),
-    .ready(adv7513_reset),
+    .ready(startup_ready),
     .startup_delay(32'd_64_000_000)
 );
 
@@ -688,19 +688,11 @@ adv7513_reconfig reconf_adv(
     .adv7513_reconf(adv7513_reconf)
 );
 
-wire adv7513_reconf_delay_out;
-startup adv7513_reconf_delay(
-    .clock(control_clock),
-    .nreset(~adv7513_reconf || ~pll_hdmi_ready || ~ram2video_fullcycle),
-    .ready(adv7513_reconf_delay_out),
-    .startup_delay(32'd_54_321_123)
-);
-
 ADV7513 adv7513(
     .clk(control_clock),
-    .reset(adv7513_reset /*|| ~activateHDMIoutput*/),
-    .hdmi_int(HDMI_INT_N /*& ~adv7513_reconf*/), // ? is adv7513_reconf really needed ?
-    .output_ready(adv7513_reconf_delay_out),
+    .reset(startup_ready),
+    .hdmi_int(HDMI_INT_N & ~adv7513_reconf),
+    .output_ready(startup_ready & pll_hdmi_ready & ram2video_fullcycle & ~adv7513_reconf),
     .sda(SDAT),
     .scl(SCLK),
     .ready(adv7513_ready),
