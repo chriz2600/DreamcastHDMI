@@ -1,6 +1,7 @@
 v2.3.0                                  
 - Improved output resolution switching  
   time                                  
+- Properly queue OSD write requests     
                                         
 v2.2.0                                  
 - Verify checksum before flashing to    

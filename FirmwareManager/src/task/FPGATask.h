@@ -6,6 +6,7 @@
 #include <inttypes.h>
 #include <string.h>
 #include <brzo_i2c.h>
+#include <queue>
 
 #define MAX_ADDR_SPACE 128
 #define REPEAT_DELAY 250
@@ -27,6 +28,13 @@ void setupI2C() {
     brzo_i2c_setup(FPGA_I2C_SDA, FPGA_I2C_SCL, CLOCK_STRETCH_TIMEOUT);
 }
 
+typedef struct osddata {
+    uint8_t column;
+    uint8_t row;
+    uint8_t *charData;
+    WriteOSDCallbackHandlerFunction handler;
+} osddata_t;
+
 extern TaskManager taskManager;
 uint8_t mapResolution(uint8_t data);
 
@@ -43,20 +51,21 @@ class FPGATask : public Task {
         }
 
         virtual void DoWriteToOSD(uint8_t column, uint8_t row, uint8_t charData[], WriteOSDCallbackHandlerFunction handler) {
-            //DEBUG("DoWriteToOSD: %u %u %u\n", column, row, strlen((char*) charData));
+            //DEBUG2("DoWriteToOSD: %u %u %u %u %s %u\n", column, row, strlen((char*) charData), left, (updateOSDContent ? "true" : "false"), counter++);
             if (column > 39) { column = 39; }
             if (row > 23) { row = 23; }
 
-            stringLength = strlen((char*) charData);
-            localAddress = row * 40 + column;
-            left = stringLength;
-            if (data_in != NULL) {
-                free(data_in); data_in = NULL;
-            }
-            data_in = (uint8_t*) malloc(stringLength);
-            memcpy(data_in, charData, stringLength);
-            updateOSDContent = true;
-            write_osd_callback = handler;
+            osddata_t data;
+            data.column = column;
+            data.row = row;
+
+            uint16_t len = strlen((char*) charData);
+            data.charData = (uint8_t*) malloc(len + 1);
+            memcpy(data.charData, charData, len);
+            data.charData[len] = '\0';
+
+            data.handler = handler;
+            osdqueue.push(data);
         }
 
         virtual void Write(uint8_t address, uint8_t value) {
@@ -108,11 +117,33 @@ class FPGATask : public Task {
         uint8_t repeatCount;
         bool GotError = false;
 
+        std::queue<osddata_t> osdqueue;
+
         virtual bool OnStart() {
             return true;
         }
 
+        void checkForOSDData() {
+            if (!updateOSDContent && !osdqueue.empty()) {
+                osddata_t data = osdqueue.front();
+
+                stringLength = strlen((char*) data.charData);
+                localAddress = data.row * 40 + data.column;
+                left = stringLength;
+                if (data_in != NULL) {
+                    free(data_in); data_in = NULL;
+                }
+                data_in = (uint8_t*) malloc(stringLength);
+                memcpy(data_in, data.charData, stringLength);
+                updateOSDContent = true;
+                write_osd_callback = data.handler;
+                free(data.charData);
+                osdqueue.pop();
+            }
+        }
+
         virtual void OnUpdate(uint32_t deltaTime) {
+            checkForOSDData();
             brzo_i2c_start_transaction(FPGA_I2C_ADDR, FPGA_I2C_FREQ_KHZ);
             if (updateOSDContent) {
                 //DEBUG("updateOSDContent: stringLength: %u, left: %u\n", stringLength, left);

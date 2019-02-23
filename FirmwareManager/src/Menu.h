@@ -499,9 +499,6 @@ void displayProgress(int read, int total, int line) {
         snprintf(result, 32, "[%.*s] %3d%% ", stars, "********************", percent);
     }
     fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) result);
-    if (last_progress != (percent / 10)) {
-        fpgaTask.ForceLoop();
-    }
     last_progress = (percent / 10);
 }
 
