@@ -44,7 +44,10 @@ esp-firmware:
     - "md5sum data/index.html.gz | awk '{print $1;}' > data/index.html.gz.md5"
     - "md5sum data/index.html.gz | awk '{print $1;}' > data/esp.index.html.gz.md5"
     # finally build spiffs
-    - "pio run -t buildfs"
+    #- "pio run -t buildfs"
+    # workaround, platformio fails determining sizes at the moment
+    - "pio run -t buildfs || true"
+    - "/root/.platformio/packages/tool-mkspiffs/mkspiffs -c data -p 256 -b 8192 -s 3125248 .pioenvs/esp07s/spiffs.bin"
   artifacts:
     name: "esp-firmware-${CI_COMMIT_REF_NAME}"
     paths:
