@@ -275,7 +275,9 @@ module ram2video(
                                     ram_addrY_reg <= 0;
                                 end
                             end else begin
-                                ram_addrY_reg <= 0;
+                                if (!line_doubler || counterY_reg[0]) begin
+                                    ram_addrY_reg <= 0;
+                                end
                             end
                         end
                     end
