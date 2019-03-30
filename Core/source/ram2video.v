@@ -217,8 +217,7 @@ module ram2video(
             if (counterX_reg < hdmiVideoConfig.horizontal_pixels_per_line - 1) begin
                 counterX_reg <= counterX_reg + 1'b1;
 
-                if (counterX_reg >= hdmiVideoConfig.horizontal_offset
-                 && ram_addrX_reg < hdmiVideoConfig.buffer_line_length - 1) begin
+                if (counterX_reg >= hdmiVideoConfig.horizontal_offset) begin
                     if (hdmiVideoConfig.pxl_rep_on) begin
                         if (pxl_rep_c_x == hdmiVideoConfig.pxl_rep_h - 1) begin
                             ram_addrX_reg <= ram_addrX_reg + hdmiVideoConfig.pxl_rep_addr_inr_h;
