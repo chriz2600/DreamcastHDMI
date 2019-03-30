@@ -315,6 +315,6 @@ endmodule
 // Retrieval info: GEN_FILE: TYPE_NORMAL pll54.cmp FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL pll54.bsf FALSE
 // Retrieval info: GEN_FILE: TYPE_NORMAL pll54_inst.v FALSE
-// Retrieval info: GEN_FILE: TYPE_NORMAL pll54_bb.v TRUE
+// Retrieval info: GEN_FILE: TYPE_NORMAL pll54_bb.v FALSE
 // Retrieval info: LIB_FILE: altera_mf
 // Retrieval info: CBX_MODULE_PREFIX: ON

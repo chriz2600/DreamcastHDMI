@@ -1,10 +1,10 @@
 
 const HDMIVideoConfig HDMI_VIDEO_CONFIG_1080P = {
     1'b1,           // horizontal_sync_on_polarity
-    12'd2000,       // horizontal_pixels_per_line
+    12'd2250,       // horizontal_pixels_per_line
     12'd1920,       // horizontal_pixels_visible
     12'd44,         // horizontal_sync_width
-    12'd1938,       // horizontal_sync_start
+    12'd2008,       // horizontal_sync_start
 
     1'b1,           // vertical_sync_on_polarity
     11'd1080,       // vertical_lines_visible
@@ -12,11 +12,11 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_1080P = {
 
     11'd1100,       // vertical_lines_1
     11'd1083,       // vertical_sync_start_1
-    12'd1938,       // vertical_sync_pixel_offset_1
+    12'd2008,       // vertical_sync_pixel_offset_1
 
     11'd1100,       // vertical_lines_2
     11'd1083,       // vertical_sync_start_2
-    12'd1938,       // vertical_sync_pixel_offset_2
+    12'd2008,       // vertical_sync_pixel_offset_2
 
     10'd320,        // horizontal_offset
     10'd60,         // vertical_offset
@@ -41,7 +41,7 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_1080P = {
     11'd5,          // text_offset_character_y
 
     14'd640,        // buffer_line_length
-    14'd14080,      // ram_numwords
+    14'd14720,      // ram_numwords
     1'b1,           // line_doubling
     1'b1,           // pixel_repetition
 
@@ -51,7 +51,7 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_1080P = {
     4'd4,           // pxl_rep_v_i
     2'd1,           // pxl_rep_addr_inr_h
 
-    32'd18_562_500  // startup_delay
+    32'd37_000_000  // startup_delay
 };
 
 const HDMIVideoConfig HDMI_VIDEO_CONFIG_960P = {

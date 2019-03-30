@@ -10,6 +10,7 @@ if (!defined($ARGV[0]) or $ARGV[0] =~ /^\s*$/ or !defined($ARGV[1]) or $ARGV[1] 
 open(MIF_OUT, "> " . $ARGV[1]);
 
 print MIF_OUT <<EOF
+    // generated from $ARGV[0]
     case (address)
 EOF
 ;

@@ -13,10 +13,10 @@ const DCVideoConfig DC_VIDEO_CONFIG_1080P = {
     10'd0,      // i_vertical_capture_start
     10'd504,    // i_vertical_capture_end
 
-    8'd22,      // buffer_size
-    14'd14080,  // ram_numwords
-    14'd13880,  // trigger_address (ram_numwords - 200) progressive
-    14'd13680,  // trigger_address (ram_numwords - 200) interlaced
+    8'd23,      // buffer_size
+    14'd14720,  // ram_numwords
+    14'd14520,  // trigger_address (ram_numwords - 200) progressive
+    14'd14320,  // trigger_address (ram_numwords - 200) interlaced
     14'd640     // buffer_line_length
 };
 
