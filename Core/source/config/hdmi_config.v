@@ -43,7 +43,7 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_1080P = {
     14'd640,        // buffer_line_length
     14'd14080,      // ram_numwords
     1'b1,           // line_doubling
-    1'b0,           // pixel_repetition
+    1'b1,           // pixel_repetition
 
     1'b1,           // pxl_rep_on
     4'd2,           // pxl_rep_h
@@ -58,19 +58,19 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_960P = {
     1'b1,           // horizontal_sync_on_polarity
     12'd1716,       // horizontal_pixels_per_line
     12'd1280,       // horizontal_pixels_visible
-    12'd124,        // horizontal_sync_width
+    12'd_62,        // horizontal_sync_width
     12'd1472,       // horizontal_sync_start
 
     1'b1,           // vertical_sync_on_polarity
     11'd960,        // vertical_lines_visible
-    11'd3,          // vertical_sync_width
+    11'd_6,         // vertical_sync_width
 
     11'd1050,       // vertical_lines_1
-    11'd960,        // vertical_sync_start_1
+    11'd976,        // vertical_sync_start_1
     12'd1472,       // vertical_sync_pixel_offset_1
 
     11'd1050,       // vertical_lines_2
-    11'd960,        // vertical_sync_start_2
+    11'd976,        // vertical_sync_start_2
     12'd1472,       // vertical_sync_pixel_offset_2
 
     10'd0,          // horizontal_offset
@@ -98,10 +98,10 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_960P = {
     14'd640,        // buffer_line_length
     14'd640,        // ram_numwords
     1'b1,           // line_doubling
-    1'b0,           // pixel_repetition
+    1'b1,           // pixel_repetition
 
     1'b1,           // pxl_rep_on
-    4'd1,           // pxl_rep_h
+    4'd2,           // pxl_rep_h
     4'd2,           // pxl_rep_v
     4'd4,           // pxl_rep_v_i
     2'd1,           // pxl_rep_addr_inr_h

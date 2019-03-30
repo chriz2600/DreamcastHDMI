@@ -21,8 +21,8 @@ const DCVideoConfig DC_VIDEO_CONFIG_1080P = {
 };
 
 const DCVideoConfig DC_VIDEO_CONFIG_960P = {
-    4'b1101,    // ICS644_settings_p
-    4'b0011,    // ICS644_settings_i
+    4'b1100,    // ICS644_settings_p
+    4'b0010,    // ICS644_settings_i
 
     10'd40,     // p_horizontal_capture_start
     10'd680,    // p_horizontal_capture_end
