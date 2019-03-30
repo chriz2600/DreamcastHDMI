@@ -52,7 +52,7 @@ else:
     print("| No compensation done, try to achieve: %05.2f Hz                            |" % (REF))
 
 print("+---------------------------------------------------------------------------+")
-print("| frequency: %3.1f -> %3.1f MHz                                             |" % (args.startfreq, args.endfreq))
+print("| frequency: %5.1f -> %5.1f MHz                                             |" % (args.startfreq, args.endfreq))
 print("|     width:  %4i ->  %4i pixel                                           |" % (args.minwidth, args.maxwidth))
 print("|    height:  %4i ->  %4i pixel                                           |" % (args.minheight, args.maxheight))
 print("|  hreffreq:     %10.4f kHz                                             |" % (reffreq))
@@ -64,7 +64,7 @@ intermediate = {}
 
 for freq in range(args.startfreq * FREQ_MULT, (args.endfreq * FREQ_MULT + 1)):
     if round(freq / FREQ_MULT, 1) == freq / FREQ_MULT:
-        print("| processing: %06.3f MHz (matches: %03i)                                    |" % ((freq / FREQ_MULT), found), end='\r')
+        print("| processing: %07.3f MHz (matches: %03i)                                    |" % ((freq / FREQ_MULT), found), end='\r')
     for horiz in range(args.minwidth, args.maxwidth + 1):
         for vert in range(args.minheight, args.maxheight + 1):
             test = (freq / DIV) / horiz / vert
@@ -110,14 +110,16 @@ for res in results:
             exact = ""
             extest = (round(xres, 3) - round(xres, 0))
             if (extest == 0 or extest == 0.25 or extest == 0.5 or extest == 0.75):
-                exact = "<-"
+                exact = "<--"
             hfreq = (res2 * 1000000 / data["horiz"])
             hfreqc = hfreq
             if args.compensated:
                 res3 = res3 / 1.001
                 hfreqc = hfreqc / 1.001
-            bufferneeded = round(abs((reffreq / hfreqc * 480) - 480), 0)
-            print("| %6.3f / %6.3f | %5g | %5g | %10.4f / %10.4f | %11i | %s" % (res2, res3, data["horiz"], data["vert"], hfreq, hfreqc, bufferneeded, exact))
+            bufferneeded = round(((reffreq / hfreqc * 480) - 480), 0)
+            if bufferneeded == 0:
+                exact = "<<<"
+            print("| %7.3f / %7.3f | %5g | %5g | %10.4f / %10.4f | %11i | %s" % (res2, res3, data["horiz"], data["vert"], hfreq, hfreqc, bufferneeded, exact))
             count = count + 1
     if (count == limit):
         break
@@ -132,3 +134,5 @@ print("+-------------------+-------+-------+-------------------------+----------
 # ./assets/find-freq.py --width 1716 --height 1050 --minwidth 1600 --maxwidth 1850 --minheight 950 --maxheight 1100 --startfreq 105 --endfreq 110 --ref 108
 # 240p -> 960p
 # ./assets/find-freq.py --width 1716 --height 1052 --minwidth 1600 --maxwidth 1850 --minheight 950 --maxheight 1100 --startfreq 105 --endfreq 110 --ref 108
+# VGA
+# ./assets/find-freq.py --width 858 --height 525 --minwidth 750 --maxwidth 900 --minheight 500 --maxheight 540 --startfreq 20 --endfreq 27 --ref 27 --compensate
