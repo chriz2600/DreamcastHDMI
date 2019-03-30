@@ -15,7 +15,7 @@ module ram2video(
     
     input line_doubler,
 
-    output [14:0] rdaddr,
+    output [13:0] rdaddr,
     input [7:0] text_rddata,
     output [9:0] text_rdaddr,
     output [23:0] video_out,
@@ -70,7 +70,7 @@ module ram2video(
     reg [3:0] charPixelRow_reg;
 
     reg [9:0] ram_addrX_reg;
-    reg [14:0] ram_addrY_reg;
+    reg [13:0] ram_addrY_reg;
     reg [3:0] pxl_rep_c_x;
     reg [3:0] pxl_rep_c_y;
 
@@ -89,7 +89,7 @@ module ram2video(
     reg _d_vsync;
     reg _d_DrawArea;
 
-    reg [14:0] d_rdaddr;
+    reg [13:0] d_rdaddr;
     reg [23:0] d_video_out;
     reg d_hsync;
     reg d_vsync;
@@ -147,7 +147,7 @@ module ram2video(
                                 && y >= hdmiVideoConfig.vertical_capture_start \
                                 && y < hdmiVideoConfig.vertical_capture_end)
 
-    `define GetAddr(x, y) (`IsDrawAreaVGA(x, y) ? ram_addrY_reg + ram_addrX_reg : 15'd0)
+    `define GetAddr(x, y) (`IsDrawAreaVGA(x, y) ? ram_addrY_reg + ram_addrX_reg : 14'd0)
 
     function [7:0] truncate_rddata(
         input[15:0] value

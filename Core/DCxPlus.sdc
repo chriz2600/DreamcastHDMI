@@ -6,8 +6,8 @@ create_generated_clock -name datain_clock -source {pll54|altpll_component|auto_g
 
 # output clocks
 create_clock -period 74.25Mhz -name clk74_175824 [get_ports clock74_175824]
-create_generated_clock -name data_clock -source {pll_hdmi|altpll_component|auto_generated|pll1|inclk[0]} {pll_hdmi|altpll_component|auto_generated|pll1|clk[0]}
-create_generated_clock -name clock_clock -source {pll_hdmi|altpll_component|auto_generated|pll1|inclk[0]} -phase 0 {pll_hdmi|altpll_component|auto_generated|pll1|clk[1]}
+create_generated_clock -name data_clock -multiply_by 16 -divide_by 9 -source {pll_hdmi|altpll_component|auto_generated|pll1|inclk[0]} {pll_hdmi|altpll_component|auto_generated|pll1|clk[0]}
+create_generated_clock -name clock_clock -multiply_by 16 -divide_by 9 -source {pll_hdmi|altpll_component|auto_generated|pll1|inclk[0]} -phase 0 {pll_hdmi|altpll_component|auto_generated|pll1|clk[1]}
 create_generated_clock -name output_clock -source {pll_hdmi|altpll_component|auto_generated|pll1|clk[1]} [get_ports CLOCK]
 
 ##################
@@ -32,9 +32,9 @@ derive_clock_uncertainty
 
 # input delays
 # orig: 1.3
-set tSU 2.0
+set tSU 1.3
 # orig: 1.0
-set tH 2.0
+set tH 1.0
 set dcinputs [get_ports {data* _hsync _vsync}]
 set_input_delay -max -clock virtual54 $tSU $dcinputs
 set_input_delay -min -clock virtual54 -$tH $dcinputs
@@ -45,9 +45,9 @@ set_false_path -hold -fall_from [get_clocks virtual54] -fall_to [get_clocks data
 
 # output delays
 # orig: 1.3, adv ds: 1.0
-set tSU 2.5
+set tSU 1.3
 # orig: 1.0, adv ds: 0.7
-set tH 2.5
+set tH 1.0
 set adv_clock_delay 0.0
 set hdmi_outputs [get_ports {VIDEO* DE HSYNC VSYNC}]
 set_output_delay -clock output_clock -reference_pin [get_ports CLOCK] -max [expr $tSU - $adv_clock_delay] $hdmi_outputs

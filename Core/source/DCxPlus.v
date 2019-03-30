@@ -70,9 +70,9 @@ wire [7:0] dc_green;
 wire [7:0] dc_red;
 
 wire ram_wren;
-wire [14:0] ram_wraddress;
+wire [13:0] ram_wraddress;
 wire [23:0] ram_wrdata;
-wire [14:0] ram_rdaddress;
+wire [13:0] ram_rdaddress;
 wire [23:0] ram_rddata;
 
 wire buffer_ready_trigger;
