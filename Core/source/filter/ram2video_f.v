@@ -46,7 +46,7 @@ module ram2video_f(
     Hq2x hq2x(
         .clk(clock),
         .ce_x4(1'b1),
-        .inputpixel(reset_frame_q_q | reset_line_q_q ? 24'h_00 : rddata),
+        .inputpixel(reset_frame_q_q | reset_line_q_q ? 24'h_00 : { rddata[7:0], rddata[15:8], rddata[23:16] }),
         .mono(1'b0),
         .disable_hq2x(1'b0),
         .reset_frame(reset_frame_q_q),
@@ -71,7 +71,7 @@ module ram2video_f(
                                 && y < hdmiVideoConfig.vertical_capture_end)
 
     `define GetAddr_f(x, y) (next_reset_frame | next_reset_line ? 14'b0 : ram_addrY_reg_hq2x + { 4'b0, ram_addrX_reg_hq2x })
-    `define GetData_f(x, y) (`IsDrawAreaHDMI_f(x, y) ? outpixel : 24'h00)
+    `define GetData_f(x, y) (`IsDrawAreaHDMI_f(x, y) ? { outpixel[7:0], outpixel[15:8], outpixel[23:16] } : 24'h00)
 
     reg [9:0] ram_addrX_reg_hq2x;
     reg [13:0] ram_addrY_reg_hq2x;
