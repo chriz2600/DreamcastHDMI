@@ -113,6 +113,8 @@ wire generate_video;
 wire generate_timing;
 wire [7:0] video_gen_data;
 wire activateHDMIoutput;
+wire hq2x;
+wire hq2x_out;
 wire fullcycle;
 wire reset_dc;
 wire reset_opt;
@@ -345,11 +347,19 @@ Flag_CrossDomain enable_osd_cross(
     .FlagOut_clkB(enable_osd_out)
 );
 
+Flag_CrossDomain enable_hq2x_cross(
+    .clkA(control_clock),
+    .FlagIn_clkA(hq2x),
+    .clkB(hdmi_clock),
+    .FlagOut_clkB(hq2x_out)
+);
+
 ram2video_f ram2video(
     .clock(hdmi_clock),
     .reset(~pll_hdmi_locked /*|| ~ram2video_ready*/ || resync_signal),
     .starttrigger(output_trigger),
     .fullcycle(fullcycle),
+    .hq2x(hq2x_out),
     
     .rdaddr(ram_rdaddress),
     .rddata(ram_rddata),
@@ -615,6 +625,7 @@ i2cSlave i2cSlave(
     .is_pal(is_pal_sync),
     .video_gen_data(video_gen_data),
     .activateHDMIoutput(activateHDMIoutput),
+    .hq2x(hq2x),
     .force_generate(control_force_generate_out),
 
     .pll_adv_lockloss_count(pll_adv_lockloss_count),

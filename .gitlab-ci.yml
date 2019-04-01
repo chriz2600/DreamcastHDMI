@@ -21,6 +21,7 @@ fpga-firmware:
     - develop
     - master
     - experimental
+    - hq2x
     - tags
 
 esp-firmware:
@@ -63,6 +64,7 @@ esp-firmware:
     - develop
     - master
     - experimental
+    - hq2x
     - tags
 
 fpga-publish:
@@ -78,6 +80,7 @@ fpga-publish:
     - develop
     - master
     - experimental
+    - hq2x
     - tags
 
 esp-publish:
@@ -93,6 +96,7 @@ esp-publish:
     - develop
     - master
     - experimental
+    - hq2x
     - tags
 
 finish-publish:
@@ -109,4 +113,5 @@ finish-publish:
     - develop
     - master
     - experimental
+    - hq2x
     - tags

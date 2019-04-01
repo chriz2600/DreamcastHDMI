@@ -357,6 +357,14 @@ var term = $('#term').terminal(function(command, term) {
                 osdControl("off");
             }
         });
+    } else if (match = command.match(/^\s*hq2x\s*(on|off)\s*$/)) {
+        startTransaction(null, function() {
+            if (match[1] == "on") {
+                hq2xControl("on");
+            } else {
+                hq2xControl("off");
+            }
+        });
     } else if (match = command.match(/^\s*osdwrite\s*([0-9]+)\s*([0-9]+)\s*"([^"]*)"\s*$/)) {
         startTransaction(null, function() {
             osdWrite(match[1], match[2], match[3]);
@@ -699,7 +707,7 @@ var setupDataMapping = {
     password:         [ "WiFi Password    ", "empty" ],
     ota_pass:         [ "OTA Password     ", "empty" ],
     firmware_server:  [ "Firmware Server  ", "dc.i74.de", "[[ib;lightblue;]valid domain name]", domainCheck ],
-    firmware_version: [ "Firmware Version ", "master", "[[b;lightblue;]master] / [[b;lightblue;]develop] / [[b;lightblue;]vX.Y.Z]", /^(master|develop|experimental|v\d+\.\d+\.\d+)$/ ],
+    firmware_version: [ "Firmware Version ", "master", "[[b;lightblue;]master] / [[b;lightblue;]develop] / [[b;lightblue;]vX.Y.Z]", /^(master|develop|experimental|hq2x|v\d+\.\d+\.\d+)$/ ],
     http_auth_user:   [ "HTTP User        ", "dchdmi" ],
     http_auth_pass:   [ "HTTP Password    ", "generated", null, null, null, "[[b;red;]If you do not set a password, a new one will be]\n    [[b;red;]generated each time DCHDMI starts!]" ],
     conf_ip_addr:     [ "IP address       ", "empty", validIpMsg, ipCheck ],
@@ -842,6 +850,14 @@ function osdControl(state) {
         endTransaction("OSD is " + state);
     }).fail(function() {
         endTransaction('Error switching OSD to ' + state, true);
+    });
+}
+
+function hq2xControl(state) {
+    $.ajax("/hq2x/" + state).done(function (data) {
+        endTransaction("Hq2x is " + state);
+    }).fail(function() {
+        endTransaction('Error switching Hq2x to ' + state, true);
     });
 }
 

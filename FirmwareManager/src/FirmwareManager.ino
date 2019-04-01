@@ -705,6 +705,22 @@ void setupHTTPServer() {
         request->send(200);
     });
 
+    server.on("/hq2x/on", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        fpgaTask.Write(I2C_ACTIVATE_HQ2X, 1, NULL);
+        request->send(200);
+    });
+
+    server.on("/hq2x/off", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        fpgaTask.Write(I2C_ACTIVATE_HQ2X, 0, NULL);
+        request->send(200);
+    });
+
     server.on("/res/VGA", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();

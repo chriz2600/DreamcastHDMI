@@ -126,6 +126,7 @@
 #define I2C_SCANLINE_LOWER (0x89)
 #define I2C_240P_OFFSET (0x90)
 #define I2C_ACTIVATE_HDMI (0x91)
+#define I2C_ACTIVATE_HQ2X (0x92)
 #define I2C_DC_RESET (0xF0)
 #define I2C_OPT_RESET (0xF1)
 #define I2C_RESET_CONF (0xF2)

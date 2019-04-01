@@ -2,6 +2,7 @@ module ram2video_f(
     input clock,
     input reset,
     input starttrigger,
+    input hq2x,
     output reg fullcycle,
     
     output [13:0] rdaddr,
@@ -43,12 +44,12 @@ module ram2video_f(
     localparam DATA_DELAY_END = 2;
 
     wire [23:0] outpixel;
-    Hq2x hq2x(
+    Hq2x hq2x_inst(
         .clk(clock),
         .ce_x4(1'b1),
         .inputpixel(reset_frame_q_q | reset_line_q_q ? 24'h_00 : { rddata[7:0], rddata[15:8], rddata[23:16] }),
         .mono(1'b0),
-        .disable_hq2x(1'b0),
+        .disable_hq2x(~hq2x),
         .reset_frame(reset_frame_q_q),
         .reset_line(reset_line_q_q),
         .read_y(read_y),
