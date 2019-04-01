@@ -245,7 +245,7 @@ module hq2x_buf #(parameter NUMWORDS, parameter AWIDTH, parameter DWIDTH)
 	output logic [DWIDTH:0] q
 );
 
-logic [DWIDTH:0] ram[0:NUMWORDS-1];
+(* max_depth = 1024 *) logic [DWIDTH:0] ram[0:NUMWORDS-1];
 
 always_ff@(posedge clock) begin
 	if(wren) ram[wraddress] <= data;
