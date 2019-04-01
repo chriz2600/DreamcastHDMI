@@ -80,6 +80,8 @@ set_global_assignment -name VERILOG_FILE source/misc/info_cross.v
 set_global_assignment -name VERILOG_FILE source/misc/delayline.v
 set_global_assignment -name VERILOG_FILE source/misc/LEDglow.v
 set_global_assignment -name VERILOG_FILE source/configuration.v
+set_global_assignment -name VERILOG_FILE source/filter/Hq2x.sv
+set_global_assignment -name VERILOG_FILE source/filter/ram2video_f.v
 set_global_assignment -name VHDL_FILE source/adv7513/i2c_master.vhd
 set_global_assignment -name SEARCH_PATH source/
 
@@ -94,7 +96,7 @@ set_instance_assignment -name PLL_COMPENSATE ON -to data
 set_instance_assignment -name PLL_COMPENSATE ON -to _hsync
 set_instance_assignment -name PLL_COMPENSATE ON -to _vsync
 
-set_global_assignment -name AUTO_RAM_RECOGNITION Off
+set_global_assignment -name AUTO_RAM_RECOGNITION On
 set_global_assignment -name AUTO_ROM_RECOGNITION Off
 
 #set_global_assignment -name ADVANCED_PHYSICAL_OPTIMIZATION ON

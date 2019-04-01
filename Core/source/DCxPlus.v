@@ -345,25 +345,44 @@ Flag_CrossDomain enable_osd_cross(
     .FlagOut_clkB(enable_osd_out)
 );
 
-ram2video ram2video(
-    .starttrigger(output_trigger),
+ram2video_f ram2video(
     .clock(hdmi_clock),
     .reset(~pll_hdmi_locked /*|| ~ram2video_ready*/ || resync_signal),
-    .line_doubler(line_doubler_sync),
+    .starttrigger(output_trigger),
+    .fullcycle(fullcycle),
+    
+    .rdaddr(ram_rdaddress),
     .rddata(ram_rddata),
+
+    //input line_doubler,
+    .hdmiVideoConfig(hdmiVideoConfig),
+
+    // video output
+    .video_out(VIDEO),
     .hsync(HSYNC),
     .vsync(VSYNC),
-    .DrawArea(DE),
-    .rdaddr(ram_rdaddress),
-    .text_rddata(text_rddata),
-    .text_rdaddr(text_rdaddr),
-    .video_out(VIDEO),
-    .enable_osd(enable_osd_out),
-    .highlight_line(highlight_line),
-    .hdmiVideoConfig(hdmiVideoConfig),
-    .scanline(scanline),
-    .fullcycle(fullcycle)
+    .DrawArea(DE)
 );
+
+// ram2video ram2video(
+//     .starttrigger(output_trigger),
+//     .clock(hdmi_clock),
+//     .reset(~pll_hdmi_locked /*|| ~ram2video_ready*/ || resync_signal),
+//     .line_doubler(line_doubler_sync),
+//     .rddata(ram_rddata),
+//     .hsync(HSYNC),
+//     .vsync(VSYNC),
+//     .DrawArea(DE),
+//     .rdaddr(ram_rdaddress),
+//     .text_rddata(text_rddata),
+//     .text_rdaddr(text_rdaddr),
+//     .video_out(VIDEO),
+//     .enable_osd(enable_osd_out),
+//     .highlight_line(highlight_line),
+//     .hdmiVideoConfig(hdmiVideoConfig),
+//     .scanline(scanline),
+//     .fullcycle(fullcycle)
+// );
 
 // startup ram2video_startup_delay(
 //     .clock(hdmi_clock),
