@@ -45,27 +45,27 @@ found = 0
 idx = 0
 reffreq = (args.ref / HORIZ) * 1000000 
 
-print("+---------------------------------------------------------------------------+")
+print("+-----------------------------------------------------------------------------+")
 
 if args.compensated:
-    print("| Compensation is done in PLL, treat reference for 2nd PLL as: %05.2f Hz     |" % (REF))
+    print("| Compensation is done in PLL, treat reference for 2nd PLL as: %05.2f Hz       |" % (REF))
 else:
-    print("| No compensation done, try to achieve: %05.2f Hz                            |" % (REF))
+    print("| No compensation done, try to achieve: %05.2f Hz                              |" % (REF))
 
-print("+---------------------------------------------------------------------------+")
-print("| frequency: %5.1f -> %5.1f MHz                                             |" % (args.startfreq, args.endfreq))
-print("|     width:  %4i ->  %4i pixel                                           |" % (args.minwidth, args.maxwidth))
-print("|    height:  %4i ->  %4i pixel                                           |" % (args.minheight, args.maxheight))
-print("|  hreffreq:     %10.4f kHz                                             |" % (reffreq))
-print("|  vreffreq:     %10.4f Hz                                              |" % (REF))
-print("|  freqmult:           %4i                                                 |" % (FREQ_MULT))
-print("+---------------------------------------------------------------------------+")
+print("+-----------------------------------------------------------------------------+")
+print("| frequency: %5.1f -> %5.1f MHz                                               |" % (args.startfreq, args.endfreq))
+print("|     width:  %4i ->  %4i pixel                                             |" % (args.minwidth, args.maxwidth))
+print("|    height:  %4i ->  %4i pixel                                             |" % (args.minheight, args.maxheight))
+print("|  hreffreq:     %10.4f kHz                                               |" % (reffreq))
+print("|  vreffreq:     %10.4f Hz                                                |" % (REF))
+print("|  freqmult:           %4i                                                   |" % (FREQ_MULT))
+print("+-----------------------------------------------------------------------------+")
 
 intermediate = {}
 
 for freq in range(args.startfreq * FREQ_MULT, (args.endfreq * FREQ_MULT + 1)):
     if round(freq / FREQ_MULT, 1) == freq / FREQ_MULT:
-        print("| processing: %07.3f MHz (matches: %03i)                                    |" % ((freq / FREQ_MULT), found), end='\r')
+        print("| processing: %07.3f MHz (matches: %03i)                                      |" % ((freq / FREQ_MULT), found), end='\r')
     for horiz in range(args.minwidth, args.maxwidth + 1):
         for vert in range(args.minheight, args.maxheight + 1):
             test = (freq / DIV) / horiz / vert
@@ -96,11 +96,11 @@ if limit > 0:
 
 count = 0
 print("", end='\n')
-print("+---------------------------------------------------------------------------+")
-print("| Possible matches, please verify!                                          |")
-print("+-------------------+-------+-------+-------------------------+-------------+")
-print("| Clock   /  (real) |    f1 |    f2 | horiz freq /     (real) | buffer size |")
-print("+-------------------+-------+-------+-------------------------+-------------+")
+print("+-----------------------------------------------------------------------------+")
+print("| Possible matches, please verify!                                            |")
+print("+---------------------+-------+-------+-------------------------+-------------+")
+print("| Clock    /   (real) |    f1 |    f2 | horiz freq /     (real) | buffer size |")
+print("+---------------------+-------+-------+-------------------------+-------------+")
 for res in results:
     data = results[res]
     xres = data['ref']
@@ -120,11 +120,11 @@ for res in results:
             bufferneeded = round(math.ceil(abs((reffreq / hfreqc * 480) - 480)), 0) + 1
             if bufferneeded == 1:
                 exact = "<<<"
-            print("| %7.3f / %7.3f | %5g | %5g | %10.4f / %10.4f | %11i | %s" % (res2, res3, data["horiz"], data["vert"], hfreq, hfreqc, bufferneeded, exact))
+            print("| %8.4f / %8.4f | %5g | %5g | %10.4f / %10.4f | %11i | %s" % (res2, res3, data["horiz"], data["vert"], hfreq, hfreqc, bufferneeded, exact))
             count = count + 1
     if (count == limit):
         break
-print("+-------------------+-------+-------+-------------------------+-------------+")
+print("+---------------------+-------+-------+-------------------------+-------------+")
 
 # 1080p variants with compensation
 # ./assets/find-freq.py --width 1716 --height 1050 --minwidth 1920 --maxwidth 2300 --minheight 1080 --maxheight 1200 --startfreq 120 --endfreq 150 --compensated --ref 108
