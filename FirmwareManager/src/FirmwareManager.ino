@@ -917,7 +917,7 @@ void waitForController() {
 
 void setup(void) {
     DBG_OUTPUT_PORT.begin(115200);
-    DEBUG2("\n>> FirmwareManager starting...\n");
+    DEBUG2("\n>> FirmwareManager starting... " DCHDMI_VERSION "\n");
     DBG_OUTPUT_PORT.setDebugOutput(false);
 
     pinMode(NCE, INPUT);
