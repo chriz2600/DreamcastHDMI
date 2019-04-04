@@ -18,7 +18,7 @@
 
 module Hq2x 
 #(
-	parameter LENGTH = 1280, 
+	parameter LENGTH = 858, 
 	parameter HALF_DEPTH = 0
 ) 
 (
@@ -31,12 +31,13 @@ module Hq2x
 	input             reset_line,
 	input       [1:0] read_y,
 	input             hblank,
-	output [DWIDTH:0] outpixel
+	output [DWIDTH:0] outpixel /*verilator public*/
 );
 
 localparam AWIDTH = $clog2(LENGTH)-1;
 localparam DWIDTH = HALF_DEPTH ? 11 : 23;
 localparam DWIDTH1 = DWIDTH+1;
+localparam EXACT_BUFFER = 1;
 
 wire [5:0] hqTable[256] = '{
 	19, 19, 26, 11, 19, 19, 26, 11, 23, 15, 47, 35, 23, 15, 55, 39,
@@ -124,11 +125,11 @@ reg  [DWIDTH1*2-1:0] outpixel_x2;
 
 assign outpixel = read_x[0] ? outpixel_x2[DWIDTH1*2-1:DWIDTH1] : outpixel_x2[DWIDTH:0];
 
-hq2x_buf #(.NUMWORDS(LENGTH*2), .AWIDTH(AWIDTH+1), .DWIDTH(DWIDTH1*4-1)) hq2x_out
+hq2x_buf #(.NUMWORDS(EXACT_BUFFER ? LENGTH : LENGTH*2), .AWIDTH(AWIDTH+1), .DWIDTH(DWIDTH1*4-1)) hq2x_out
 (
 	.clock(clk),
 
-	.rdaddress({read_x[AWIDTH+1:1],read_y[1]}),
+	.rdaddress(EXACT_BUFFER ? read_x[AWIDTH+1:1] : {read_x[AWIDTH+1:1],read_y[1]}),
 	.q(outpixel_x4),
 
 	.data(wrdata),
@@ -170,7 +171,7 @@ always @(posedge clk) begin
 
 			if(cyc==3) begin
 				offs <= offs + 1'd1;
-				wrout_addr <= {offs, curbuf};
+				wrout_addr <= EXACT_BUFFER ? offs : {offs, curbuf};
 				wrout_en <= 1;
 			end
 		end
@@ -238,11 +239,11 @@ endmodule
 module hq2x_buf #(parameter NUMWORDS, parameter AWIDTH, parameter DWIDTH)
 (
 	input                   clock,
-	input        [DWIDTH:0] data,
-	input        [AWIDTH:0] rdaddress,
-	input        [AWIDTH:0] wraddress,
-	input                   wren,
-	output logic [DWIDTH:0] q
+	input        [DWIDTH:0] data /*verilator public*/,
+	input        [AWIDTH:0] rdaddress /*verilator public*/,
+	input        [AWIDTH:0] wraddress /*verilator public*/,
+	input                   wren /*verilator public*/,
+	output logic [DWIDTH:0] q /*verilator public*/
 );
 
 (* max_depth = 1024 *) (* ramstyle = "no_rw_check" *) logic [DWIDTH:0] ram[0:NUMWORDS-1];
