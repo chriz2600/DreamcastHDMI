@@ -7,7 +7,6 @@
 //
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 `include "config.inc"
 
 // synopsys translate_off
@@ -133,8 +132,8 @@ hq2x_in #(.LENGTH(LENGTH), .DWIDTH(DWIDTH)) hq2x_in
 );
 
 reg     [AWIDTH+1:0] read_x /*verilator public*/;
-reg     [AWIDTH+1:0] wrout_addr, wrout_addr_q;
-reg                  wrout_en, wrout_en_q;
+reg     [AWIDTH+1:0] wrout_addr, wrout_addr_q, wrout_addr_q_q, wrout_addr_q_q_q, wrout_addr_q_q_q_q;
+reg                  wrout_en, wrout_en_q, wrout_en_q_q, wrout_en_q_q_q, wrout_en_q_q_q_q;
 reg  [DWIDTH1*4-1:0] wrdata, wrdata_pre;
 wire [DWIDTH1*4-1:0] outpixel_x4;
 reg  [DWIDTH1*2-1:0] outpixel_x2;
@@ -149,8 +148,8 @@ hq2x_buf #(.NUMWORDS(EXACT_BUFFER ? LENGTH : LENGTH*2), .AWIDTH(AWIDTH+1), .DWID
 	.q(outpixel_x4),
 
 	.data(wrdata),
-	.wraddress(wrout_addr_q),
-	.wren(wrout_en_q)
+	.wraddress(wrout_addr_q_q_q_q),
+	.wren(wrout_en_q_q_q_q)
 );
 
 wire [DWIDTH:0] blend_result = HALF_DEPTH ? rgb2h(blend_result_pre) : blend_result_pre[DWIDTH:0];
@@ -179,10 +178,10 @@ always @(posedge clk) begin
 			end
 
 			case({cyc[1],^cyc})
-				0: wrdata[DWIDTH1*2+DWIDTH:DWIDTH1*2] <= blend_result;
-				1: wrdata[DWIDTH:0]                   <= blend_result;
-				2: wrdata[DWIDTH1*3+DWIDTH:DWIDTH1*3] <= blend_result;
-				3: wrdata[DWIDTH1+DWIDTH:DWIDTH1]     <= blend_result;
+				0: wrdata[DWIDTH:0]                   <= blend_result;
+				1: wrdata[DWIDTH1+DWIDTH:DWIDTH1]     <= blend_result;
+				2: wrdata[DWIDTH1*2+DWIDTH:DWIDTH1*2] <= blend_result;
+				3: wrdata[DWIDTH1*3+DWIDTH:DWIDTH1*3] <= blend_result;
 			endcase
 
 			if(cyc==3) begin
@@ -223,7 +222,13 @@ always @(posedge clk) begin
 
 		old_reset_line  <= reset_line;
         wrout_addr_q <= wrout_addr;
+        wrout_addr_q_q <= wrout_addr_q;
+        wrout_addr_q_q_q <= wrout_addr_q_q;
+        wrout_addr_q_q_q_q <= wrout_addr_q_q_q;
         wrout_en_q <= wrout_en;
+        wrout_en_q_q <= wrout_en_q;
+        wrout_en_q_q_q <= wrout_en_q_q;
+        wrout_en_q_q_q_q <= wrout_en_q_q_q;
 	end
 end
 
@@ -307,6 +312,38 @@ module DiffCheck
     assign result = !(y_inside && u_inside && v_inside);
 endmodule
 
+module DiffCheckClk
+(
+    input clock,
+	input [23:0] rgb1,
+	input [23:0] rgb2,
+	output reg result
+);
+
+	wire [7:0] r = rgb1[7:1]   - rgb2[7:1];
+	wire [7:0] g = rgb1[15:9]  - rgb2[15:9];
+	wire [7:0] b = rgb1[23:17] - rgb2[23:17];
+	wire [8:0] t = $signed(r) + $signed(b);
+	wire [8:0] gx = {g[7], g};
+	wire [9:0] y = $signed(t) + $signed(gx);
+	wire [8:0] u = $signed(r) - $signed(b);
+	wire [9:0] v = $signed({g, 1'b0}) - $signed(t);
+
+	// if y is inside (-96..96)
+	wire y_inside = (y < 10'h60 || y >= 10'h3a0);
+
+	// if u is inside (-16, 16)
+	wire u_inside = (u < 9'h10 || u >= 9'h1f0);
+
+	// if v is inside (-24, 24)
+	wire v_inside = (v < 10'h18 || v >= 10'h3e8);
+
+    always_ff @(posedge clock) begin
+        result <= !(y_inside && u_inside && v_inside);
+    end
+    // assign result = !(y_inside && u_inside && v_inside);
+endmodule
+
 module InnerBlend
 (
 	input  [8:0] Op,
@@ -351,9 +388,13 @@ module Blend
 	input  [23:0] H,
 	output reg [23:0] Result
 );
+    reg [23:0] E_reg, A_reg, B_reg, D_reg, F_reg, H_reg;
+    reg [23:0] E_reg_q, A_reg_q, B_reg_q, D_reg_q, F_reg_q, H_reg_q;
+    reg [23:0] E_reg_q_q, A_reg_q_q, B_reg_q_q, D_reg_q_q, F_reg_q_q, H_reg_q_q;
     reg [23:0] _Result;
 	reg [1:0] input_ctrl;
 	reg [8:0] op;
+    reg [5:0] rule_reg, rule_q;
 	localparam BLEND0 = 9'b1_xxx_x_xx_xx; // 0: A
 	localparam BLEND1 = 9'b0_110_0_10_00; // 1: (A * 12 + B * 4) >> 4
 	localparam BLEND2 = 9'b0_100_0_10_10; // 2: (A * 8 + B * 4 + C * 4) >> 4
@@ -366,51 +407,55 @@ module Blend
 	localparam DB = 2'b10;
 	localparam BD = 2'b11;
 	wire is_diff;
-	DiffCheck diff_checker(clock, rule[1] ? B : H, rule[0] ? D : F, is_diff);
+	DiffCheckClk diff_checker(clock, rule_reg[1] ? B_reg : H_reg, rule_reg[0] ? D_reg : F_reg, is_diff);
 
-	always @* begin
-		case({!is_diff, rule[5:2]})
-			1,17:  {op, input_ctrl} = {BLEND1, AB};
-			2,18:  {op, input_ctrl} = {BLEND1, DB};
-			3,19:  {op, input_ctrl} = {BLEND1, BD};
-			4,20:  {op, input_ctrl} = {BLEND2, DB};
-			5,21:  {op, input_ctrl} = {BLEND2, AB};
-			6,22:  {op, input_ctrl} = {BLEND2, AD};
+    always_ff @(posedge clock) begin
+        { rule_reg, E_reg, A_reg, B_reg, D_reg, F_reg, H_reg } <= { rule, E, A, B, D, F, H };
+        { rule_q, E_reg_q, A_reg_q, B_reg_q, D_reg_q, F_reg_q, H_reg_q } <= { rule_reg, E_reg, A_reg, B_reg, D_reg, F_reg, H_reg };
+        { E_reg_q_q, A_reg_q_q, B_reg_q_q, D_reg_q_q } <= { E_reg_q, A_reg_q, B_reg_q, D_reg_q };
 
-			 8: {op, input_ctrl} = {BLEND0, 2'bxx};
-			 9: {op, input_ctrl} = {BLEND0, 2'bxx};
-			10: {op, input_ctrl} = {BLEND0, 2'bxx};
-			11: {op, input_ctrl} = {BLEND1, AB};
-			12: {op, input_ctrl} = {BLEND1, AB};
-			13: {op, input_ctrl} = {BLEND1, AB};
-			14: {op, input_ctrl} = {BLEND1, DB};
-			15: {op, input_ctrl} = {BLEND1, BD};
+		case({!is_diff, rule_q[5:2]})
+			1,17:  {op, input_ctrl} <= {BLEND1, AB};
+			2,18:  {op, input_ctrl} <= {BLEND1, DB};
+			3,19:  {op, input_ctrl} <= {BLEND1, BD};
+			4,20:  {op, input_ctrl} <= {BLEND2, DB};
+			5,21:  {op, input_ctrl} <= {BLEND2, AB};
+			6,22:  {op, input_ctrl} <= {BLEND2, AD};
 
-			24: {op, input_ctrl} = {BLEND2, DB};
-			25: {op, input_ctrl} = {BLEND5, DB};
-			26: {op, input_ctrl} = {BLEND6, DB};
-			27: {op, input_ctrl} = {BLEND2, DB};
-			28: {op, input_ctrl} = {BLEND4, DB};
-			29: {op, input_ctrl} = {BLEND5, DB};
-			30: {op, input_ctrl} = {BLEND3, BD};
-			31: {op, input_ctrl} = {BLEND3, DB};
-			default: {op, input_ctrl} = {11{1'bx}};
+			 8: {op, input_ctrl} <= {BLEND0, 2'bxx};
+			 9: {op, input_ctrl} <= {BLEND0, 2'bxx};
+			10: {op, input_ctrl} <= {BLEND0, 2'bxx};
+			11: {op, input_ctrl} <= {BLEND1, AB};
+			12: {op, input_ctrl} <= {BLEND1, AB};
+			13: {op, input_ctrl} <= {BLEND1, AB};
+			14: {op, input_ctrl} <= {BLEND1, DB};
+			15: {op, input_ctrl} <= {BLEND1, BD};
+
+			24: {op, input_ctrl} <= {BLEND2, DB};
+			25: {op, input_ctrl} <= {BLEND5, DB};
+			26: {op, input_ctrl} <= {BLEND6, DB};
+			27: {op, input_ctrl} <= {BLEND2, DB};
+			28: {op, input_ctrl} <= {BLEND4, DB};
+			29: {op, input_ctrl} <= {BLEND5, DB};
+			30: {op, input_ctrl} <= {BLEND3, BD};
+			31: {op, input_ctrl} <= {BLEND3, DB};
+			default: {op, input_ctrl} <= {11{1'bx}};
 		endcase
 
 		// Setting op[8] effectively disables HQ2X because blend will always return E.
-		if (disable_hq2x) op[8] = 1;
-	end
+		if (disable_hq2x) op[8] <= 1;
+    end
 
 	// Generate inputs to the inner blender. Valid combinations.
 	// 00: E A B
 	// 01: E A D 
 	// 10: E D B
 	// 11: E B D
-	wire [23:0] Input1 = E;
-	wire [23:0] Input2 = !input_ctrl[1] ? A :
-                        !input_ctrl[0] ? D : B;
+	wire [23:0] Input1 = E_reg_q_q;
+	wire [23:0] Input2 = !input_ctrl[1] ? A_reg_q_q :
+                         !input_ctrl[0] ? D_reg_q_q : B_reg_q_q;
+	wire [23:0] Input3 = !input_ctrl[0] ? B_reg_q_q : D_reg_q_q;
 
-	wire [23:0] Input3 = !input_ctrl[0] ? B : D;
 	InnerBlend inner_blend1(op, Input1[7:0],   Input2[7:0],   Input3[7:0],   _Result[7:0]);
 	InnerBlend inner_blend2(op, Input1[15:8],  Input2[15:8],  Input3[15:8],  _Result[15:8]);
 	InnerBlend inner_blend3(op, Input1[23:16], Input2[23:16], Input3[23:16], _Result[23:16]);
