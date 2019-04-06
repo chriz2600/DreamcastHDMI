@@ -8,6 +8,8 @@
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+`include "config.inc"
+
 // synopsys translate_off
 `timescale 1 ps / 1 ps
 // synopsys translate_on
@@ -16,7 +18,7 @@
 /* verilator lint_off WIDTH */
 /* verilator lint_off UNUSED */
 
-module Hq2x 
+module Hq2x_optimized
 #(
 	parameter LENGTH = 858, 
 	parameter HALF_DEPTH = 0
@@ -39,7 +41,7 @@ localparam DWIDTH = HALF_DEPTH ? 11 : 23;
 localparam DWIDTH1 = DWIDTH+1;
 localparam EXACT_BUFFER = 1;
 
-wire [5:0] hqTable[256] = '{
+`HQ_TABLE_TYPE [5:0] hqTable[256] = '{
 	19, 19, 26, 11, 19, 19, 26, 11, 23, 15, 47, 35, 23, 15, 55, 39,
 	19, 19, 26, 58, 19, 19, 26, 58, 23, 15, 35, 35, 23, 15, 7,  35,
 	19, 19, 26, 11, 19, 19, 26, 11, 23, 15, 55, 39, 23, 15, 51, 43,
@@ -68,14 +70,28 @@ reg  prevbuf = 0;
 wire iobuf = !curbuf;
 
 wire diff0, diff1;
-DiffCheck diffcheck0(Curr1, (cyc == 0) ? Prev0 : (cyc == 1) ? Curr0 : (cyc == 2) ? Prev2 : Next1, diff0);
-DiffCheck diffcheck1(Curr1, (cyc == 0) ? Prev1 : (cyc == 1) ? Next0 : (cyc == 2) ? Curr2 : Next2, diff1);
+DiffCheck diffcheck0(
+    clk, 
+    Curr1, 
+    (cyc == 0) ? Prev0 : 
+        (cyc == 1) ? Curr0 : 
+            (cyc == 2) ? Prev2 : Next1, 
+    diff0
+);
+DiffCheck diffcheck1(
+    clk, 
+    Curr1, 
+    (cyc == 0) ? Prev1 : 
+        (cyc == 1) ? Next0 : 
+            (cyc == 2) ? Curr2 : Next2, 
+    diff1
+);
 
 wire [7:0] new_pattern = {diff1, diff0, pattern[7:2]};
 
 wire [23:0] X = (cyc == 0) ? A : (cyc == 1) ? Prev1 : (cyc == 2) ? Next1 : G;
-reg [23:0] blend_result_pre;
-Blend blender(hqTable[nextpatt], disable_hq2x, Curr0, X, B, D, F, H, blend_result_pre);
+wire [23:0] blend_result_pre;
+Blend blender(clk, hqTable[nextpatt], disable_hq2x, Curr0, X, B, D, F, H, blend_result_pre);
 
 wire [DWIDTH:0] Curr20tmp;
 wire     [23:0] Curr20 = HALF_DEPTH ? h2rgb(Curr20tmp) : Curr20tmp;
@@ -117,8 +133,8 @@ hq2x_in #(.LENGTH(LENGTH), .DWIDTH(DWIDTH)) hq2x_in
 );
 
 reg     [AWIDTH+1:0] read_x /*verilator public*/;
-reg     [AWIDTH+1:0] wrout_addr; 
-reg                  wrout_en;
+reg     [AWIDTH+1:0] wrout_addr, wrout_addr_q;
+reg                  wrout_en, wrout_en_q;
 reg  [DWIDTH1*4-1:0] wrdata, wrdata_pre;
 wire [DWIDTH1*4-1:0] outpixel_x4;
 reg  [DWIDTH1*2-1:0] outpixel_x2;
@@ -133,8 +149,8 @@ hq2x_buf #(.NUMWORDS(EXACT_BUFFER ? LENGTH : LENGTH*2), .AWIDTH(AWIDTH+1), .DWID
 	.q(outpixel_x4),
 
 	.data(wrdata),
-	.wraddress(wrout_addr),
-	.wren(wrout_en)
+	.wraddress(wrout_addr_q),
+	.wren(wrout_en_q)
 );
 
 wire [DWIDTH:0] blend_result = HALF_DEPTH ? rgb2h(blend_result_pre) : blend_result_pre[DWIDTH:0];
@@ -163,10 +179,10 @@ always @(posedge clk) begin
 			end
 
 			case({cyc[1],^cyc})
-				0: wrdata[DWIDTH:0]                   <= blend_result;
-				1: wrdata[DWIDTH1+DWIDTH:DWIDTH1]     <= blend_result;
-				2: wrdata[DWIDTH1*2+DWIDTH:DWIDTH1*2] <= blend_result;
-				3: wrdata[DWIDTH1*3+DWIDTH:DWIDTH1*3] <= blend_result;
+				0: wrdata[DWIDTH1*2+DWIDTH:DWIDTH1*2] <= blend_result;
+				1: wrdata[DWIDTH:0]                   <= blend_result;
+				2: wrdata[DWIDTH1*3+DWIDTH:DWIDTH1*3] <= blend_result;
+				3: wrdata[DWIDTH1+DWIDTH:DWIDTH1]     <= blend_result;
 			endcase
 
 			if(cyc==3) begin
@@ -206,6 +222,8 @@ always @(posedge clk) begin
 		if(hblank) read_x <= 0;
 
 		old_reset_line  <= reset_line;
+        wrout_addr_q <= wrout_addr;
+        wrout_en_q <= wrout_en;
 	end
 end
 
@@ -259,9 +277,10 @@ endmodule
 
 module DiffCheck
 (
+    input clock,
 	input [23:0] rgb1,
 	input [23:0] rgb2,
-	output result
+	output reg result
 );
 
 	wire [7:0] r = rgb1[7:1]   - rgb2[7:1];
@@ -281,7 +300,11 @@ module DiffCheck
 
 	// if v is inside (-24, 24)
 	wire v_inside = (v < 10'h18 || v >= 10'h3e8);
-	assign result = !(y_inside && u_inside && v_inside);
+
+    // always_ff @(posedge clock) begin
+    //     result <= !(y_inside && u_inside && v_inside);
+    // end
+    assign result = !(y_inside && u_inside && v_inside);
 endmodule
 
 module InnerBlend
@@ -317,6 +340,7 @@ endmodule
 
 module Blend
 (
+    input clock,
 	input   [5:0] rule,
 	input         disable_hq2x,
 	input  [23:0] E,
@@ -325,9 +349,9 @@ module Blend
 	input  [23:0] D,
 	input  [23:0] F,
 	input  [23:0] H,
-	output [23:0] Result
+	output reg [23:0] Result
 );
-
+    reg [23:0] _Result;
 	reg [1:0] input_ctrl;
 	reg [8:0] op;
 	localparam BLEND0 = 9'b1_xxx_x_xx_xx; // 0: A
@@ -342,7 +366,7 @@ module Blend
 	localparam DB = 2'b10;
 	localparam BD = 2'b11;
 	wire is_diff;
-	DiffCheck diff_checker(rule[1] ? B : H, rule[0] ? D : F, is_diff);
+	DiffCheck diff_checker(clock, rule[1] ? B : H, rule[0] ? D : F, is_diff);
 
 	always @* begin
 		case({!is_diff, rule[5:2]})
@@ -387,7 +411,11 @@ module Blend
                         !input_ctrl[0] ? D : B;
 
 	wire [23:0] Input3 = !input_ctrl[0] ? B : D;
-	InnerBlend inner_blend1(op, Input1[7:0],   Input2[7:0],   Input3[7:0],   Result[7:0]);
-	InnerBlend inner_blend2(op, Input1[15:8],  Input2[15:8],  Input3[15:8],  Result[15:8]);
-	InnerBlend inner_blend3(op, Input1[23:16], Input2[23:16], Input3[23:16], Result[23:16]);
+	InnerBlend inner_blend1(op, Input1[7:0],   Input2[7:0],   Input3[7:0],   _Result[7:0]);
+	InnerBlend inner_blend2(op, Input1[15:8],  Input2[15:8],  Input3[15:8],  _Result[15:8]);
+	InnerBlend inner_blend3(op, Input1[23:16], Input2[23:16], Input3[23:16], _Result[23:16]);
+
+    always_ff @(posedge clock) begin
+        Result <= _Result;
+    end
 endmodule

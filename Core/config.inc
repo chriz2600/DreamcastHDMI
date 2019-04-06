@@ -11,5 +11,6 @@
 `define I2C_BASE_FREQ_FOR_CALCULATIONS 24_000_000
 
 `define OUTPUT_FMT 8'b00000000
+`define HQ_TABLE_TYPE wire
 
 `endif

@@ -47,7 +47,7 @@ module ram2video_f(
     localparam DATA_DELAY_END = 2;
 
     wire [23:0] outpixel;
-    Hq2x hq2x_inst (
+    Hq2x_optimized hq2x_inst (
         .clk(clock),
         .ce_x4(1'b1),
         .inputpixel(reset_frame_q_q | reset_line_q_q ? 24'h_00 : { rddata[7:0], rddata[15:8], rddata[23:16] }),
