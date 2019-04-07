@@ -134,8 +134,8 @@ hq2x_in #(.LENGTH(LENGTH), .DWIDTH(DWIDTH)) hq2x_in
 );
 
 reg     [AWIDTH+1:0] read_x /*verilator public*/;
-reg     [AWIDTH+1:0] wrout_addr, wrout_addr_1, wrout_addr_2, wrout_addr_3, wrout_addr_4, wrout_addr_5;
-reg                  wrout_en, wrout_en_1, wrout_en_2, wrout_en_3, wrout_en_4, wrout_en_5;
+reg     [AWIDTH+1:0] wrout_addr, wrout_addr_1, wrout_addr_2, wrout_addr_3, wrout_addr_4, wrout_addr_5, wrout_addr_6;
+reg                  wrout_en, wrout_en_1, wrout_en_2, wrout_en_3, wrout_en_4, wrout_en_5, wrout_en_6;
 reg  [DWIDTH1*4-1:0] wrdata, wrdata_pre;
 wire [DWIDTH1*4-1:0] outpixel_x4;
 reg  [DWIDTH1*2-1:0] outpixel_x2;
@@ -150,8 +150,8 @@ hq2x_buf #(.NUMWORDS(EXACT_BUFFER ? LENGTH : LENGTH*2), .AWIDTH(AWIDTH+1), .DWID
     .q(outpixel_x4),
 
     .data(wrdata),
-    .wraddress(wrout_addr_5),
-    .wren(wrout_en_5)
+    .wraddress(wrout_addr_6),
+    .wren(wrout_en_6)
 );
 
 wire [DWIDTH:0] blend_result = HALF_DEPTH ? rgb2h(blend_result_pre) : blend_result_pre[DWIDTH:0];
@@ -180,10 +180,10 @@ always @(posedge clk) begin
             end
 
             case({cyc[1],^cyc})
-                0: wrdata[DWIDTH1*2+DWIDTH:DWIDTH1*2] <= blend_result;
-                1: wrdata[DWIDTH:0]                   <= blend_result;
-                2: wrdata[DWIDTH1*3+DWIDTH:DWIDTH1*3] <= blend_result;
-                3: wrdata[DWIDTH1+DWIDTH:DWIDTH1]     <= blend_result; 
+                0: wrdata[DWIDTH1*3+DWIDTH:DWIDTH1*3] <= blend_result;
+                1: wrdata[DWIDTH1*2+DWIDTH:DWIDTH1*2] <= blend_result;
+                2: wrdata[DWIDTH1+DWIDTH:DWIDTH1]     <= blend_result; 
+                3: wrdata[DWIDTH:0]                   <= blend_result;
             endcase
 
             if(cyc==3) begin
@@ -227,8 +227,8 @@ always @(posedge clk) begin
         if(hblank) read_x <= 0;
 
         old_reset_line  <= reset_line;
-        { wrout_addr_1, wrout_addr_2, wrout_addr_3, wrout_addr_4, wrout_addr_5 } <= { wrout_addr, wrout_addr_1, wrout_addr_2, wrout_addr_3, wrout_addr_4 };
-        { wrout_en_1, wrout_en_2, wrout_en_3, wrout_en_4, wrout_en_5 } <= { wrout_en, wrout_en_1, wrout_en_2, wrout_en_3, wrout_en_4 };
+        { wrout_addr_1, wrout_addr_2, wrout_addr_3, wrout_addr_4, wrout_addr_5, wrout_addr_6 } <= { wrout_addr, wrout_addr_1, wrout_addr_2, wrout_addr_3, wrout_addr_4, wrout_addr_5 };
+        { wrout_en_1, wrout_en_2, wrout_en_3, wrout_en_4, wrout_en_5, wrout_en_6 } <= { wrout_en, wrout_en_1, wrout_en_2, wrout_en_3, wrout_en_4, wrout_en_5 };
         { Curr0_q, X_q, B_q, D_q, F_q, H_q } <= { Curr0, X, B, D, F, H };
     end
 end
@@ -314,11 +314,12 @@ endmodule
 
 module InnerBlend
 (
+    input clock,
     input  [8:0] Op,
     input  [7:0] A,
     input  [7:0] B,
     input  [7:0] C,
-    output [7:0] O
+    output reg [7:0] O
 );
 
     function  [10:0] mul8x3;
@@ -340,7 +341,10 @@ module InnerBlend
     wire [10:0] Bt = (OpOnes == 0) ? Bmul : {3'b0, B};
     wire [10:0] Ct = (OpOnes == 0) ? Cmul : {3'b0, C};
     wire [11:0] Res = {At, 1'b0} + Bt + Ct;
-    assign O = Op[8] ? A : Res[11:4];
+
+    always_ff @(posedge clock) begin
+        O <= Op[8] ? A : Res[11:4];
+    end
 endmodule
 
 module Blend
@@ -436,9 +440,9 @@ module Blend
                          !input_ctrl[0] ? D_reg_q_q : B_reg_q_q;
     wire [23:0] Input3 = !input_ctrl[0] ? B_reg_q_q : D_reg_q_q;
 
-    InnerBlend inner_blend1(op, Input1[7:0],   Input2[7:0],   Input3[7:0],   _Result[7:0]);
-    InnerBlend inner_blend2(op, Input1[15:8],  Input2[15:8],  Input3[15:8],  _Result[15:8]);
-    InnerBlend inner_blend3(op, Input1[23:16], Input2[23:16], Input3[23:16], _Result[23:16]);
+    InnerBlend inner_blend1(clock, op, Input1[7:0],   Input2[7:0],   Input3[7:0],   _Result[7:0]);
+    InnerBlend inner_blend2(clock, op, Input1[15:8],  Input2[15:8],  Input3[15:8],  _Result[15:8]);
+    InnerBlend inner_blend3(clock, op, Input1[23:16], Input2[23:16], Input3[23:16], _Result[23:16]);
 
     always_ff @(posedge clock) begin
         Result <= _Result;
