@@ -12,7 +12,7 @@ module ram2video_f(
     input [23:0] rddata,
 
     //input line_doubler,
-    input HDMIVideoConfig hdmiVideoConfig,
+    input HDMIVideoConfig hdmiVideoConfig /*verilator public*/,
 
     // video output
     output [23:0] video_out,
@@ -62,7 +62,11 @@ module ram2video_f(
 
     /* verilator lint_off UNSIGNED */
 
-    `define IsHBlank(x, y) (x >= hdmiVideoConfig.horizontal_capture_end + DATA_DELAY_END && x < hdmiVideoConfig.horizontal_pixels_per_line - DATA_DELAY_START)
+    `define IsHBlank(x, y) (( \
+           x >= hdmiVideoConfig.horizontal_hq2x_start \
+        && x < hdmiVideoConfig.horizontal_hq2x_end \
+    ) ^ hdmiVideoConfig.is_hq2x_display_area)
+
     `define ResetReadY(y) (y == `VerticalLines - 1)
     `define AdvanceReadY(x, y) (x == hdmiVideoConfig.horizontal_capture_end + DATA_DELAY_END && (y >= SKIP_FRAMES + hdmiVideoConfig.vertical_capture_start))
 
@@ -71,14 +75,14 @@ module ram2video_f(
 
     `define IsDrawAreaVGA(x, y)   (x >= hdmiVideoConfig.horizontal_capture_start \
                                 && x < hdmiVideoConfig.horizontal_capture_end \
-                                && y >= hdmiVideoConfig.vertical_capture_start \
-                                && y < hdmiVideoConfig.vertical_capture_end)
+                                && `AdjustedCounterY(y) >= hdmiVideoConfig.vertical_capture_start \
+                                && `AdjustedCounterY(y) < hdmiVideoConfig.vertical_capture_end)
 
     `define GetAddr_f(x, y) (next_reset_frame | next_reset_line ? 14'b0 : ram_addrY_reg_hq2x + { 4'b0, ram_addrX_reg_hq2x })
-    `define GetData_f(x, y) (`IsDrawAreaHDMI_f(x, y) ? { outpixel[7:0], outpixel[15:8], outpixel[23:16] } : 24'h00)
+    `define GetData_f(x, y) (`IsDrawAreaVGA(x, y) ? { outpixel[7:0], outpixel[15:8], outpixel[23:16] } : 24'h00)
 
-    reg [9:0] ram_addrX_reg_hq2x;
-    reg [13:0] ram_addrY_reg_hq2x;
+    reg [9:0] ram_addrX_reg_hq2x /*verilator public*/;
+    reg [13:0] ram_addrY_reg_hq2x /*verilator public*/;
 
     `define VerticalLines (state ? hdmiVideoConfig.vertical_lines_2 : hdmiVideoConfig.vertical_lines_1)
     `define VerticalSyncStart (state ? hdmiVideoConfig.vertical_sync_start_2 : hdmiVideoConfig.vertical_sync_start_1)
@@ -209,6 +213,7 @@ module ram2video_f(
             reset_frame <= next_reset_frame;
             reset_frame_q <= reset_frame;
             reset_frame_q_q <= reset_frame_q;
+            d_rdaddr <= `GetAddr_f(counterX_reg, counterY_reg);
 
             //////////////////////////////////////////////////////////////////////
             // generate base counter
@@ -270,7 +275,6 @@ module ram2video_f(
 
             //////////////////////////////////////////////////////////////////////
             // OUTPUT
-            d_rdaddr <= `GetAddr_f(counterX_reg, counterY_reg);
             if (fullcycle || _fullcycle >= 4'b0001) begin
                 _d_video_out <= `GetData_f(counterX_reg_q_q_q, counterY_reg_q_q_q);
                 _d_DrawArea <= `IsDrawAreaHDMI_f(counterX_reg_q_q_q, counterY_reg_q_q_q);

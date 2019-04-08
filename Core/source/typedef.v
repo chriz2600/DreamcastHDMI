@@ -85,6 +85,10 @@ typedef struct packed {
     reg [11:0] horizontal_capture_start;    //
     reg [11:0] horizontal_capture_end;      //
 
+    reg [11:0] horizontal_hq2x_start;       // if (is_hq2x_display_area) horizontal_capture_start - 4 else horizontal_capture_end + 2
+    reg [11:0] horizontal_hq2x_end;         // if (is_hq2x_display_area) horizontal_capture_end + 2 else horizontal_pixels_per_line - 4
+    reg is_hq2x_display_area;               //
+
     reg [10:0] vertical_capture_start;      //
     reg [10:0] vertical_capture_end;        //
 

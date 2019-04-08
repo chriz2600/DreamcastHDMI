@@ -23,6 +23,11 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_1080P = {
 
     12'd320,        // horizontal_capture_start
     12'd1600,       // horizontal_capture_end
+
+    12'd_316,       // horizontal_hq2x_start (horizontal_capture_end + 2)
+    12'd_1602,      // horizontal_hq2x_end (horizontal_pixels_per_line - 4)
+    1'b1,           // is_hq2x_display_area
+
     11'd60,         // vertical_capture_start
     11'd1020,       // vertical_capture_end
 
@@ -78,6 +83,11 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_960P = {
 
     12'd0,          // horizontal_capture_start
     12'd1280,       // horizontal_capture_end
+
+    12'd_1282,      // horizontal_hq2x_start (horizontal_capture_end + 2)
+    12'd_1712,      // horizontal_hq2x_end (horizontal_pixels_per_line - 4)
+    1'b0,           // is_hq2x_display_area
+
     11'd0,          // vertical_capture_start
     11'd960,        // vertical_capture_end
 
@@ -133,6 +143,11 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_480P = {
 
     12'd0,          // horizontal_capture_start
     12'd720,        // horizontal_capture_end
+
+    12'd_722,       // horizontal_hq2x_start (horizontal_capture_end + 2)
+    12'd_854,      // horizontal_hq2x_end (horizontal_pixels_per_line - 4)
+    1'b0,           // is_hq2x_display_area
+
     11'd0,          // vertical_capture_start
     11'd480,        // vertical_capture_end
 
@@ -188,6 +203,11 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_VGA = {
 
     12'd0,          // horizontal_capture_start
     12'd640,        // horizontal_capture_end
+
+    12'd_642,       // horizontal_hq2x_start (horizontal_capture_end + 2)
+    12'd_796,      // horizontal_hq2x_end (horizontal_pixels_per_line - 4)
+    1'b0,           // is_hq2x_display_area
+
     11'd0,          // vertical_capture_start
     11'd480,        // vertical_capture_end
 
@@ -243,6 +263,11 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_240P_960P = {
 
     12'd0,          // horizontal_capture_start
     12'd640,        // horizontal_capture_end
+
+    12'd_642,       // horizontal_hq2x_start (horizontal_capture_end + 2)
+    12'd_854,      // horizontal_hq2x_end (horizontal_pixels_per_line - 4)
+    1'b0,           // is_hq2x_display_area
+
     11'd0,          // vertical_capture_start
     11'd960,        // vertical_capture_end
 
@@ -298,6 +323,11 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_240P_1080P = {
 
     12'd160,        // horizontal_capture_start
     12'd800,        // horizontal_capture_end
+
+    12'd_0,       // horizontal_hq2x_start (horizontal_capture_end + 2)
+    12'd_0,      // horizontal_hq2x_end (horizontal_pixels_per_line - 4)
+    1'b1,           // is_hq2x_display_area
+
     11'd60,         // vertical_capture_start
     11'd1020,       // vertical_capture_end
 
@@ -353,6 +383,11 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_240P_480P = {
 
     12'd0,          // horizontal_capture_start
     12'd720,        // horizontal_capture_end
+
+    12'd_0,       // horizontal_hq2x_start (horizontal_capture_end + 2)
+    12'd_0,      // horizontal_hq2x_end (horizontal_pixels_per_line - 4)
+    1'b0,           // is_hq2x_display_area
+
     11'd0,          // vertical_capture_start
     11'd480,        // vertical_capture_end
 
@@ -408,6 +443,11 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_240P_VGA = {
 
     12'd0,          // horizontal_capture_start
     12'd640,        // horizontal_capture_end
+
+    12'd_0,       // horizontal_hq2x_start (horizontal_capture_end + 2)
+    12'd_0,      // horizontal_hq2x_end (horizontal_pixels_per_line - 4)
+    1'b0,           // is_hq2x_display_area
+
     11'd0,          // vertical_capture_start
     11'd480,        // vertical_capture_end
 
@@ -465,6 +505,11 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_480I = {
 
     12'd0,          // horizontal_capture_start
     12'd1440,       // horizontal_capture_end
+
+    12'd_0,       // horizontal_hq2x_start (horizontal_capture_end + 2)
+    12'd_0,      // horizontal_hq2x_end (horizontal_pixels_per_line - 4)
+    1'b0,           // is_hq2x_display_area
+
     11'd0,          // vertical_capture_start
     11'd240,        // vertical_capture_end
 
@@ -520,6 +565,11 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_576I = {
 
     12'd0,          // horizontal_capture_start
     12'd1440,       // horizontal_capture_end
+
+    12'd_0,       // horizontal_hq2x_start (horizontal_capture_end + 2)
+    12'd_0,      // horizontal_hq2x_end (horizontal_pixels_per_line - 4)
+    1'b0,           // is_hq2x_display_area
+
     11'd0,          // vertical_capture_start
     11'd288,        // vertical_capture_end
 
@@ -575,6 +625,11 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_576P = {
 
     12'd0,          // horizontal_capture_start
     12'd720,        // horizontal_capture_end
+
+    12'd_0,       // horizontal_hq2x_start (horizontal_capture_end + 2)
+    12'd_0,      // horizontal_hq2x_end (horizontal_pixels_per_line - 4)
+    1'b0,           // is_hq2x_display_area
+
     11'd0,          // vertical_capture_start
     11'd576,        // vertical_capture_end
 
