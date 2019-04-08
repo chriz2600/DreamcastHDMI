@@ -90,9 +90,17 @@ wire [7:0] new_pattern = {diff1, diff0, pattern[7:2]};
 
 wire [23:0] X = (cyc == 0) ? A : (cyc == 1) ? Prev1 : (cyc == 2) ? Next1 : G;
 wire [23:0] blend_result_pre;
-Blend blender(clk, hqTable[nextpatt], disable_hq2x, Curr0_q, X_q, B_q, D_q, F_q, H_q, blend_result_pre);
-// delay: 
-reg [23:0] Curr0_q, X_q, B_q, D_q, F_q, H_q; 
+Blend blender(clk, hqTable[nextpatt], disable_hq2x, Curr0_d, X_d, B_d, D_d, F_d, H_d, blend_result_pre);
+reg [23:0] Curr0_d, X_d, B_d, D_d, F_d, H_d;
+
+delayline #(
+    .WIDTH(6*24),
+    .CYCLES(4)
+) blender_queue (
+    .clock(clk),
+    .in({ Curr0, X, B, D, F, H }),
+    .out({ Curr0_d, X_d, B_d, D_d, F_d, H_d })
+);
 
 wire [DWIDTH:0] Curr20tmp;
 wire     [23:0] Curr20 = HALF_DEPTH ? h2rgb(Curr20tmp) : Curr20tmp;
@@ -134,11 +142,20 @@ hq2x_in #(.LENGTH(LENGTH), .DWIDTH(DWIDTH)) hq2x_in
 );
 
 reg     [AWIDTH+1:0] read_x /*verilator public*/;
-reg     [AWIDTH+1:0] wrout_addr, wrout_addr_1, wrout_addr_2, wrout_addr_3, wrout_addr_4, wrout_addr_5, wrout_addr_6, wrout_addr_7;
-reg                  wrout_en, wrout_en_1, wrout_en_2, wrout_en_3, wrout_en_4, wrout_en_5, wrout_en_6, wrout_en_7;
+reg     [AWIDTH+1:0] wrout_addr, wrout_addr_delayed;
+reg                  wrout_en, wrout_en_delayed;
 reg  [DWIDTH1*4-1:0] wrdata, wrdata_pre;
 wire [DWIDTH1*4-1:0] outpixel_x4;
 reg  [DWIDTH1*2-1:0] outpixel_x2;
+
+delayline #(
+    .WIDTH(AWIDTH+1+1+1),
+    .CYCLES(14)
+) wrdl (
+    .clock(clk),
+    .in({ wrout_en, wrout_addr }),
+    .out({ wrout_en_delayed, wrout_addr_delayed })
+);
 
 assign outpixel = read_x[0] ? outpixel_x2[DWIDTH1*2-1:DWIDTH1] : outpixel_x2[DWIDTH:0];
 
@@ -150,8 +167,8 @@ hq2x_buf #(.NUMWORDS(EXACT_BUFFER ? LENGTH : LENGTH*2), .AWIDTH(AWIDTH+1), .DWID
     .q(outpixel_x4),
 
     .data(wrdata),
-    .wraddress(wrout_addr_7),
-    .wren(wrout_en_7)
+    .wraddress(wrout_addr_delayed),
+    .wren(wrout_en_delayed)
 );
 
 wire [DWIDTH:0] blend_result = HALF_DEPTH ? rgb2h(blend_result_pre) : blend_result_pre[DWIDTH:0];
@@ -227,9 +244,6 @@ always @(posedge clk) begin
         if(hblank) read_x <= 0;
 
         old_reset_line  <= reset_line;
-        { wrout_addr_1, wrout_addr_2, wrout_addr_3, wrout_addr_4, wrout_addr_5, wrout_addr_6, wrout_addr_7 } <= { wrout_addr, wrout_addr_1, wrout_addr_2, wrout_addr_3, wrout_addr_4, wrout_addr_5, wrout_addr_6 };
-        { wrout_en_1, wrout_en_2, wrout_en_3, wrout_en_4, wrout_en_5, wrout_en_6, wrout_en_7 } <= { wrout_en, wrout_en_1, wrout_en_2, wrout_en_3, wrout_en_4, wrout_en_5, wrout_en_6 };
-        { Curr0_q, X_q, B_q, D_q, F_q, H_q } <= { Curr0, X, B, D, F, H };
     end
 end
 
@@ -289,25 +303,38 @@ module DiffCheck
     output reg result
 );
 
-    wire [7:0] r = rgb1[7:1]   - rgb2[7:1];
-    wire [7:0] g = rgb1[15:9]  - rgb2[15:9];
-    wire [7:0] b = rgb1[23:17] - rgb2[23:17];
-    wire [8:0] t = $signed(r) + $signed(b);
-    wire [8:0] gx = {g[7], g};
-    wire [9:0] y = $signed(t) + $signed(gx);
-    wire [8:0] u = $signed(r) - $signed(b);
-    wire [9:0] v = $signed({g, 1'b0}) - $signed(t);
+    reg [7:0] r, g, b, r_q, g_q, b_q;
+    reg [8:0] t, gx, u, t_q, gx_q;
+    reg [9:0] y, v;
 
     // if y is inside (-96..96)
-    wire y_inside = (y < 10'h60 || y >= 10'h3a0);
-
-    // if u is inside (-16, 16)
-    wire u_inside = (u < 9'h10 || u >= 9'h1f0);
-
-    // if v is inside (-24, 24)
-    wire v_inside = (v < 10'h18 || v >= 10'h3e8);
+    reg y_inside, u_inside, v_inside;
 
     always_ff @(posedge clock) begin
+        // stage 1
+        r <= rgb1[7:1]   - rgb2[7:1];
+        g <= rgb1[15:9]  - rgb2[15:9];
+        b <= rgb1[23:17] - rgb2[23:17];
+
+        // stage 2
+        t <= $signed(r) + $signed(b);
+        gx <= { g[7], g };
+        { r_q, g_q, b_q } <= { r, g, b };
+
+        // stage 3
+        y <= $signed(t) + $signed(gx);
+        u <= $signed(r_q) - $signed(b_q);
+        v <= $signed({g_q, 1'b0}) - $signed(t);
+
+        // stage 4
+        // if y is inside (-96..96)
+        y_inside <= (y < 10'h60 || y >= 10'h3a0);
+        // if u is inside (-16, 16)
+        u_inside <= (u < 9'h10 || u >= 9'h1f0);
+        // if v is inside (-24, 24)
+        v_inside <= (v < 10'h18 || v >= 10'h3e8);
+
+        // stage 5
         result <= !(y_inside && u_inside && v_inside);
     end
 endmodule
@@ -361,12 +388,11 @@ module Blend
     output reg [23:0] Result
 );
     reg [23:0] E_reg, A_reg, B_reg, D_reg, F_reg, H_reg;
-    reg [23:0] E_reg_q, A_reg_q, B_reg_q, D_reg_q, F_reg_q, H_reg_q;
-    reg [23:0] E_reg_q_q, A_reg_q_q, B_reg_q_q, D_reg_q_q, F_reg_q_q, H_reg_q_q;
+    reg [23:0] E_reg_d, A_reg_d, B_reg_d, D_reg_d, F_reg_q, H_reg_d;
     reg [23:0] _Result;
     reg [1:0] input_ctrl;
     reg [8:0] op, op_q;
-    reg [5:0] rule_reg, rule_q;
+    reg [5:0] rule_reg, rule_1, rule_2, rule_3, rule_d;
     localparam BLEND0 = 9'b1_xxx_x_xx_xx; // 0: A
     localparam BLEND1 = 9'b0_110_0_10_00; // 1: (A * 12 + B * 4) >> 4
     localparam BLEND2 = 9'b0_100_0_10_10; // 2: (A * 8 + B * 4 + C * 4) >> 4
@@ -381,24 +407,27 @@ module Blend
     wire is_diff;
     DiffCheck diff_checker(clock, rule_reg[1] ? B_reg : H_reg, rule_reg[0] ? D_reg : F_reg, is_diff);
 
-    always_ff @(posedge clock) begin
-        { 
-            rule_reg, E_reg, A_reg, B_reg, D_reg, F_reg, H_reg 
-        } <= { 
-            rule, E, A, B, D, F, H 
-        };
-        { 
-            rule_q, E_reg_q, A_reg_q, B_reg_q, D_reg_q, F_reg_q, H_reg_q 
-        } <= { 
-            rule_reg, E_reg, A_reg, B_reg, D_reg, F_reg, H_reg 
-        };
-        { 
-            E_reg_q_q, A_reg_q_q, B_reg_q_q, D_reg_q_q 
-        } <= { 
-            E_reg_q, A_reg_q, B_reg_q, D_reg_q 
-        };
+    delayline #(
+        .WIDTH(6*24),
+        .CYCLES(5)
+    ) delay1 (
+        .clock(clock),
+        .in({ E_reg, A_reg, B_reg, D_reg, F_reg, H_reg }),
+        .out({ E_reg_d, A_reg_d, B_reg_d, D_reg_d, F_reg_q, H_reg_d })
+    );
+    delayline #(
+        .WIDTH(6),
+        .CYCLES(4)
+    ) delay2 (
+        .clock(clock),
+        .in(rule_reg),
+        .out(rule_d)
+    );
 
-        case({!is_diff, rule_q[5:2]})
+    always_ff @(posedge clock) begin
+        { rule_reg, E_reg, A_reg, B_reg, D_reg, F_reg, H_reg } <= { rule, E, A, B, D, F, H };
+
+        case({!is_diff, rule_d[5:2]})
             1,17:  {op, input_ctrl} <= {BLEND1, AB};
             2,18:  {op, input_ctrl} <= {BLEND1, DB};
             3,19:  {op, input_ctrl} <= {BLEND1, BD};
@@ -443,10 +472,10 @@ module Blend
 
     always_ff @(posedge clock) begin
         op_q <= op;
-        Input1 <= E_reg_q_q;
-        Input2 <= !input_ctrl[1] ? A_reg_q_q :
-                  !input_ctrl[0] ? D_reg_q_q : B_reg_q_q;
-        Input3 <= !input_ctrl[0] ? B_reg_q_q : D_reg_q_q;
+        Input1 <= E_reg_d;
+        Input2 <= !input_ctrl[1] ? A_reg_d :
+                  !input_ctrl[0] ? D_reg_d : B_reg_d;
+        Input3 <= !input_ctrl[0] ? B_reg_d : D_reg_d;
         Result <= _Result;
     end
 endmodule

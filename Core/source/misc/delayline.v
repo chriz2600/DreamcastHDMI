@@ -7,7 +7,7 @@ module delayline(
     parameter WIDTH = 8;
     parameter CYCLES = 4;
 
-    reg [WIDTH-1:0] buffer [CYCLES-1:0];
+    (* ramstyle = "logic" *) reg [WIDTH-1:0] buffer [CYCLES-1:0];
 
     always @(posedge clock) begin
         out <= buffer[CYCLES-1];
