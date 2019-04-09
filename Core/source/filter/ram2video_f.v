@@ -42,7 +42,7 @@ module ram2video_f(
     // localparam HORIZONTAL_SYNC_WIDTH = 44;
     // localparam vertical_sync_width = 5;
     localparam PXL_REP_H_HQ2X = 4;
-    localparam SKIP_FRAMES = 12'd3;
+    localparam SKIP_LINES = 12'd3;
     localparam DATA_DELAY_START = 4;
     localparam DATA_DELAY_END = 2;
 
@@ -68,18 +68,18 @@ module ram2video_f(
     ) ^ hdmiVideoConfig.is_hq2x_display_area)
 
     `define ResetReadY(y) (y == `VerticalLines - 1)
-    `define AdvanceReadY(x, y) (x == hdmiVideoConfig.horizontal_capture_end + DATA_DELAY_END && (y >= SKIP_FRAMES + hdmiVideoConfig.vertical_capture_start))
+    `define AdvanceReadY(x, y) (x == hdmiVideoConfig.horizontal_capture_end + DATA_DELAY_END && (y >= SKIP_LINES + hdmiVideoConfig.vertical_capture_start))
 
     `define IsDrawAreaHDMI_f(x, y)   (x >= 0 && x < hdmiVideoConfig.horizontal_pixels_visible \
                                  && `AdjustedCounterY(y) >= 0 && `AdjustedCounterY(y) < hdmiVideoConfig.vertical_lines_visible)
 
-    `define IsDrawAreaVGA(x, y)   (x >= hdmiVideoConfig.horizontal_capture_start \
+    `define IsDrawAreaVGA_f(x, y)   (x >= hdmiVideoConfig.horizontal_capture_start \
                                 && x < hdmiVideoConfig.horizontal_capture_end \
                                 && `AdjustedCounterY(y) >= hdmiVideoConfig.vertical_capture_start \
                                 && `AdjustedCounterY(y) < hdmiVideoConfig.vertical_capture_end)
 
     `define GetAddr_f(x, y) (next_reset_frame | next_reset_line ? 14'b0 : ram_addrY_reg_hq2x + { 4'b0, ram_addrX_reg_hq2x })
-    `define GetData_f(x, y) (`IsDrawAreaVGA(x, y) ? { outpixel[7:0], outpixel[15:8], outpixel[23:16] } : 24'h00)
+    `define GetData_f(x, y) (`IsDrawAreaVGA_f(x, y) ? { outpixel[7:0], outpixel[15:8], outpixel[23:16] } : 24'h00)
 
     reg [9:0] ram_addrX_reg_hq2x /*verilator public*/;
     reg [13:0] ram_addrY_reg_hq2x /*verilator public*/;
@@ -88,7 +88,7 @@ module ram2video_f(
     `define VerticalSyncStart (state ? hdmiVideoConfig.vertical_sync_start_2 : hdmiVideoConfig.vertical_sync_start_1)
     `define VerticalSyncPixelOffset (state ? hdmiVideoConfig.vertical_sync_pixel_offset_2 : hdmiVideoConfig.vertical_sync_pixel_offset_1)
 
-    `define AdjustedCounterY(y) (y >= SKIP_FRAMES ? y - SKIP_FRAMES : 12'h_f00)
+    `define AdjustedCounterY(y) (y >= SKIP_LINES ? y - SKIP_LINES : 12'h_f00)
 
     `define StartInputCounter(x, y) (x == hdmiVideoConfig.horizontal_capture_start && y == hdmiVideoConfig.vertical_capture_start && y[0] == 0)
     `define StopInputCounter(x, y) (y == hdmiVideoConfig.vertical_capture_end - 1)

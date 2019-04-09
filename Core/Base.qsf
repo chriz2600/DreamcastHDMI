@@ -1,7 +1,7 @@
 set_global_assignment -name TOP_LEVEL_ENTITY DCxPlus
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 16.1.2
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "17:09:42  APRIL 02, 2017"
-set_global_assignment -name LAST_QUARTUS_VERSION "18.0.0 Lite Edition"
+set_global_assignment -name LAST_QUARTUS_VERSION "18.1.0 Lite Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name VERILOG_INPUT_VERSION SystemVerilog_2005
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
@@ -39,9 +39,19 @@ set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 16.0
 set_global_assignment -name ROUTER_EFFORT_MULTIPLIER 8.0
 set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE SPEED
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
-set_global_assignment -name FITTER_EFFORT "AUTO FIT"
 set_global_assignment -name SEED 12
+set_global_assignment -name FITTER_EFFORT "AUTO FIT"
 #set_global_assignment -name SLD_FILE db/stp1_auto_stripped.stp
+
+# suggested by quartus
+set_global_assignment -name PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ON
+set_global_assignment -name ROUTER_LCELL_INSERTION_AND_LOGIC_DUPLICATION ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
+set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
+set_global_assignment -name QII_AUTO_PACKED_REGISTERS NORMAL
+#set_global_assignment -name SMART_RECOMPILE OFF
+set_global_assignment -name MUX_RESTRUCTURE OFF
 
 # source files
 set_global_assignment -name QIP_FILE source/fifo/reconf_fifo.qip
