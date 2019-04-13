@@ -1,4 +1,4 @@
-    /* verilator lint_off WIDTH */
+/* verilator lint_off WIDTH */
 /* verilator lint_off UNUSED */
 
 module ram2video_f(
@@ -8,7 +8,7 @@ module ram2video_f(
     input hq2x,
     output reg fullcycle,
     
-    output [13:0] rdaddr,
+    output [13:0] rdaddr /*verilator public*/,
     input [23:0] rddata,
 
     //input line_doubler,
@@ -67,7 +67,7 @@ module ram2video_f(
         && x < hdmiVideoConfig.horizontal_hq2x_end \
     ) ^ hdmiVideoConfig.is_hq2x_display_area)
 
-    `define ResetReadY(y) (y == `VerticalLines - 1)
+    `define ResetReadY(y) (y == `VerticalLines_f - 1)
     `define AdvanceReadY(x, y) (x == hdmiVideoConfig.horizontal_capture_end + DATA_DELAY_END && (y >= hdmiVideoConfig.vertical_capture_start))
 
     `define IsDrawAreaHDMI_f(x, y)   (x >= 0 && x < hdmiVideoConfig.horizontal_pixels_visible \
@@ -84,16 +84,16 @@ module ram2video_f(
     reg [9:0] ram_addrX_reg_hq2x /*verilator public*/;
     reg [13:0] ram_addrY_reg_hq2x /*verilator public*/;
 
-    `define VerticalLines (state ? hdmiVideoConfig.vertical_lines_2 : hdmiVideoConfig.vertical_lines_1)
-    `define VerticalSyncStart (state ? hdmiVideoConfig.vertical_sync_start_2 : hdmiVideoConfig.vertical_sync_start_1)
-    `define VerticalSyncPixelOffset (state ? hdmiVideoConfig.vertical_sync_pixel_offset_2 : hdmiVideoConfig.vertical_sync_pixel_offset_1)
+    `define VerticalLines_f (vert_lines)
+    `define VerticalSyncStart_f (sync_start)
+    `define VerticalSyncPixelOffset_f (sync_pixel_offset)
 
     `define StartInputCounter(x, y) (x == hdmiVideoConfig.horizontal_capture_start && y == hdmiVideoConfig.vertical_capture_start && y[0] == 0)
     `define StopInputCounter(x, y) (y == hdmiVideoConfig.vertical_capture_end - 1)
     `define AdvanceInputCounter(x, y) (x == hdmiVideoConfig.horizontal_capture_start && y >= hdmiVideoConfig.vertical_capture_start && y[0] == 0)
 
     reg trigger /*verilator public*/;
-    reg state /*verilator public*/;
+    reg state, state_reg /*verilator public*/;
     reg [11:0] counterX_reg /*verilator public*/;
     reg [11:0] counterX_reg_q /*verilator public*/;
     reg [11:0] counterX_reg_q_q /*verilator public*/;
@@ -101,13 +101,14 @@ module ram2video_f(
     reg [11:0] counterX_reg_q_q_q_q /*verilator public*/;
     reg [11:0] counterY_reg /*verilator public*/;
     reg [11:0] counterY_reg_q /*verilator public*/;
-    reg [11:0] counterY_reg_q_q /*verilator public*/;
-    reg [11:0] counterY_reg_q_q_q /*verilator public*/;
-    reg [11:0] counterY_reg_q_q_q_q /*verilator public*/;
     reg [11:0] counterY_shift_q /*verilator public*/;
     reg [11:0] counterY_shift_q_q /*verilator public*/;
     reg [11:0] counterY_shift_q_q_q /*verilator public*/;
     reg [11:0] counterY_shift_q_q_q_q /*verilator public*/;
+
+    reg [11:0] vert_lines;
+    reg [11:0] sync_start;
+    reg [11:0] sync_pixel_offset;
 
     reg hsync_reg_q /*verilator public*/;
     reg vsync_reg_q /*verilator public*/;
@@ -169,6 +170,20 @@ module ram2video_f(
             //////////////////////////////////////////////////////////////////////
             // trigger is set, output data
             //////////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////////
+            // set vertical value
+            case (state)
+                0: begin
+                    vert_lines <= hdmiVideoConfig.vertical_lines_1;
+                    sync_start <= hdmiVideoConfig.vertical_sync_start_1;
+                    sync_pixel_offset <= hdmiVideoConfig.vertical_sync_pixel_offset_1;
+                end
+                1: begin
+                    vert_lines <= hdmiVideoConfig.vertical_lines_2;
+                    sync_start <= hdmiVideoConfig.vertical_sync_start_2;
+                    sync_pixel_offset <= hdmiVideoConfig.vertical_sync_pixel_offset_2;
+                end
+            endcase
 
             //////////////////////////////////////////////////////////////////////
             // generate read_y and hblank signals
@@ -227,7 +242,7 @@ module ram2video_f(
             end else begin
                 counterX_reg <= 0;
 
-                if (counterY_reg < `VerticalLines - 1) begin
+                if (counterY_reg < `VerticalLines_f - 1) begin
                     counterY_reg <= counterY_reg + 1'b1;
                 end else begin
                     counterY_reg <= 0;
@@ -241,6 +256,8 @@ module ram2video_f(
             end else begin
                 counterY_shift_q <= 12'h_f00;
             end
+            state_reg <= state;
+
             //////////////////////////////////////////////////////////////////////
             // generate output hsync
             if (counterX_reg_q >= hdmiVideoConfig.horizontal_sync_start && counterX_reg_q < hdmiVideoConfig.horizontal_sync_start + hdmiVideoConfig.horizontal_sync_width) begin
@@ -251,13 +268,13 @@ module ram2video_f(
 
             //////////////////////////////////////////////////////////////////////
             // generate output vsync
-            if (counterY_shift_q >= `VerticalSyncStart 
-             && counterY_shift_q < `VerticalSyncStart + hdmiVideoConfig.vertical_sync_width + 1) 
+            if (counterY_shift_q >= `VerticalSyncStart_f 
+             && counterY_shift_q < `VerticalSyncStart_f + hdmiVideoConfig.vertical_sync_width + 1) 
             begin
-                if ((counterY_shift_q == `VerticalSyncStart 
-                    && counterX_reg_q < `VerticalSyncPixelOffset) 
-                 || (counterY_shift_q == `VerticalSyncStart + hdmiVideoConfig.vertical_sync_width 
-                    && counterX_reg_q >= `VerticalSyncPixelOffset)) 
+                if ((counterY_shift_q == `VerticalSyncStart_f 
+                    && counterX_reg_q < `VerticalSyncPixelOffset_f) 
+                 || (counterY_shift_q == `VerticalSyncStart_f + hdmiVideoConfig.vertical_sync_width 
+                    && counterX_reg_q >= `VerticalSyncPixelOffset_f)) 
                 begin
                     vsync_reg_q <= ~hdmiVideoConfig.vertical_sync_on_polarity; // OFF
                 end else begin
@@ -279,9 +296,6 @@ module ram2video_f(
             counterX_reg_q_q_q_q <= counterX_reg_q_q_q;
 
             counterY_reg_q <= counterY_reg;
-            counterY_reg_q_q <= counterY_reg_q;
-            counterY_reg_q_q_q <= counterY_reg_q_q;
-            counterY_reg_q_q_q_q <= counterY_reg_q_q_q;
 
             counterY_shift_q_q <= counterY_shift_q;
             counterY_shift_q_q_q <= counterY_shift_q_q;
@@ -292,31 +306,19 @@ module ram2video_f(
 
             //////////////////////////////////////////////////////////////////////
             // OUTPUT
-            if (fullcycle || _fullcycle >= 4'b0001) begin
-                _d_video_out <= `GetData_f(counterX_reg_q_q_q_q, counterY_shift_q_q_q_q);
-                _d_DrawArea <= `IsDrawAreaHDMI_f(counterX_reg_q_q_q_q, counterY_shift_q_q_q_q);
-                _d_hsync <= hsync_reg_q_q;
-                _d_vsync <= vsync_reg_q_q;
-                if (_fullcycle == 4'b1111) begin
-                    fullcycle <= 1;
-                end
-            end else begin
-                _d_video_out <= 24'd0;
-                _d_DrawArea <= 1'b0;
-                _d_hsync <= ~hdmiVideoConfig.horizontal_sync_on_polarity;
-                _d_vsync <= ~hdmiVideoConfig.vertical_sync_on_polarity;
-            end
+            fullcycle <= fullcycle || _fullcycle == 4'b1111;
+
+            _d_video_out <= `GetData_f(counterX_reg_q_q_q_q, counterY_shift_q_q_q_q);
+            _d_DrawArea <= `IsDrawAreaHDMI_f(counterX_reg_q_q_q_q, counterY_shift_q_q_q_q);
+            _d_hsync <= hsync_reg_q_q;
+            _d_vsync <= vsync_reg_q_q;
+
+            d_video_out <= _d_video_out;
+            d_DrawArea <= _d_DrawArea;
+            d_hsync <= _d_hsync;
+            d_vsync <= _d_vsync;
         end
     end
-
-    delayline #(
-        .CYCLES(2),
-        .WIDTH(27)
-    ) vout_delay (
-        .clock(clock),
-        .in({ _d_video_out, _d_DrawArea, _d_hsync, _d_vsync }),
-        .out({ d_video_out, d_DrawArea, d_hsync, d_vsync })
-    );
 
     assign rdaddr = d_rdaddr;
     assign video_out = d_video_out;

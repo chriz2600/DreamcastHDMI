@@ -150,7 +150,7 @@ reg  [DWIDTH1*2-1:0] outpixel_x2;
 
 delayline #(
     .WIDTH(AWIDTH+1+1+1),
-    .CYCLES(14)
+    .CYCLES(22)
 ) wrdl (
     .clock(clk),
     .in({ wrout_en, wrout_addr }),
@@ -360,17 +360,37 @@ module InnerBlend
     end
     endfunction
 
-    wire OpOnes = Op[4];
-    wire [10:0] Amul = mul8x3(A, Op[7:5]);
-    wire [10:0] Bmul = mul8x3(B, {Op[3:2], 1'b0});
-    wire [10:0] Cmul = mul8x3(C, {Op[1:0], 1'b0});
-    wire [10:0] At =  Amul;
-    wire [10:0] Bt = (OpOnes == 0) ? Bmul : {3'b0, B};
-    wire [10:0] Ct = (OpOnes == 0) ? Cmul : {3'b0, C};
-    wire [11:0] Res = {At, 1'b0} + Bt + Ct;
+    reg OpOnes;
+    reg [10:0] Amul, Bmul, Cmul;
+    reg [10:0] At, Bt, Ct;
+    reg [11:0] Res;
+
+    reg [8:0] Op_q, Op_q_q, Op_q_q_q, Op_q_q_q_q;
+    reg [7:0] A_q, A_q_q, A_q_q_q, A_q_q_q_q, B_q, B_q_q, C_q, C_q_q;
 
     always_ff @(posedge clock) begin
-        O <= Op[8] ? A : Res[11:4];
+        // stage 1
+        { Op_q, A_q, B_q, C_q } <= { Op, A, B, C };
+
+        // stage 2
+        OpOnes <= Op_q[4];
+        Amul <= mul8x3(A_q, Op_q[7:5]);
+        Bmul <= mul8x3(B_q, {Op_q[3:2], 1'b0});
+        Cmul <= mul8x3(C_q, {Op_q[1:0], 1'b0});
+        { Op_q_q, A_q_q, B_q_q, C_q_q } <= { Op_q, A_q, B_q, C_q };
+
+        // stage 3
+        At <=  Amul;
+        Bt <= (OpOnes == 0) ? Bmul : {3'b0, B_q_q};
+        Ct <= (OpOnes == 0) ? Cmul : {3'b0, C_q_q};
+        { Op_q_q_q, A_q_q_q } <= { Op_q_q, A_q_q };
+
+        // stage 4
+        Res <= {At, 1'b0} + Bt + Ct;
+        { Op_q_q_q_q, A_q_q_q_q } <= { Op_q_q_q, A_q_q_q };
+
+        // stage 5
+        O <= Op_q_q_q_q[8] ? A_q_q_q_q : Res[11:4];
     end
 endmodule
 
@@ -389,7 +409,8 @@ module Blend
 );
     reg [23:0] E_reg, A_reg, B_reg, D_reg, F_reg, H_reg;
     reg [23:0] E_reg_d, A_reg_d, B_reg_d, D_reg_d, F_reg_q, H_reg_d;
-    reg [23:0] _Result;
+    reg [23:0] Input1, Input2, Input3;
+    reg [23:0] res_out, res_out_q, res_out_q_q, res_out_q_q_q, res_out_q_q_q_q;
     reg [1:0] input_ctrl;
     reg [8:0] op, op_q;
     reg [5:0] rule_reg, rule_1, rule_2, rule_3, rule_d;
@@ -464,11 +485,10 @@ module Blend
     // 01: E A D 
     // 10: E D B
     // 11: E B D
-    reg [23:0] Input1, Input2, Input3;
 
-    InnerBlend inner_blend1(clock, op_q, Input1[7:0],   Input2[7:0],   Input3[7:0],   _Result[7:0]);
-    InnerBlend inner_blend2(clock, op_q, Input1[15:8],  Input2[15:8],  Input3[15:8],  _Result[15:8]);
-    InnerBlend inner_blend3(clock, op_q, Input1[23:16], Input2[23:16], Input3[23:16], _Result[23:16]);
+    InnerBlend inner_blend1(clock, op_q, Input1[7:0],   Input2[7:0],   Input3[7:0],   res_out[7:0]);
+    InnerBlend inner_blend2(clock, op_q, Input1[15:8],  Input2[15:8],  Input3[15:8],  res_out[15:8]);
+    InnerBlend inner_blend3(clock, op_q, Input1[23:16], Input2[23:16], Input3[23:16], res_out[23:16]);
 
     always_ff @(posedge clock) begin
         op_q <= op;
@@ -476,6 +496,6 @@ module Blend
         Input2 <= !input_ctrl[1] ? A_reg_d :
                   !input_ctrl[0] ? D_reg_d : B_reg_d;
         Input3 <= !input_ctrl[0] ? B_reg_d : D_reg_d;
-        Result <= _Result;
+        { Result, res_out_q_q_q_q, res_out_q_q_q, res_out_q_q, res_out_q } <= { res_out_q_q_q_q, res_out_q_q_q, res_out_q_q, res_out_q, res_out };
     end
 endmodule

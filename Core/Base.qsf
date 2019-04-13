@@ -50,8 +50,12 @@ set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 set_global_assignment -name QII_AUTO_PACKED_REGISTERS NORMAL
-#set_global_assignment -name SMART_RECOMPILE OFF
+#set_global_assignment -name SMART_RECOMPILE ON
 set_global_assignment -name MUX_RESTRUCTURE OFF
+
+set_global_assignment -name ADVANCED_PHYSICAL_OPTIMIZATION ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT "Extra"
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
 
 # source files
 set_global_assignment -name QIP_FILE source/fifo/reconf_fifo.qip
@@ -110,8 +114,11 @@ set_instance_assignment -name PLL_COMPENSATE ON -to _vsync
 set_global_assignment -name AUTO_RAM_RECOGNITION On
 set_global_assignment -name AUTO_ROM_RECOGNITION Off
 
-#set_global_assignment -name ADVANCED_PHYSICAL_OPTIMIZATION ON
-#set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT "Extra"
-#set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
+# force global clocks
+#set_instance_assignment -name GLOBAL_SIGNAL "GLOBAL CLOCK" -to "pll_hdmi:pll_hdmi|altpll:altpll_component|pll_hdmi_altpll:auto_generated|wire_pll1_clk[1]"
+
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to *
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to *
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to *
 
 source Macros.qsf
