@@ -12,13 +12,6 @@
 `include "config.inc"
 `endif
 
-localparam ONE_TO_ONE = 256;
-`ifdef OSD_BACKGROUND_ALPHA
-    localparam OSD_BACKGROUND_ALPHA = `OSD_BACKGROUND_ALPHA;
-`else
-    localparam OSD_BACKGROUND_ALPHA = 64;
-`endif
-
 module ram2video(
     input [23:0] rddata,
     input starttrigger,
@@ -66,7 +59,7 @@ module ram2video(
     reg [11:0] counterX_osd_reg_q5;
 
     reg [11:0] counterY_reg;
-    reg [11:0] counterY_reg_q;
+    reg [11:0] counterY_reg_q/*verilator public*/;
     reg [11:0] counterY_reg_q_q/*verilator public*/;
     reg [11:0] counterY_reg_q_q_q;
 
@@ -88,7 +81,6 @@ module ram2video(
 
     reg [7:0] char_data_reg;
     reg [7:0] char_data_reg_q;
-    reg [31:0] text_rddata_reg;
     reg [9:0] text_rdaddr_x;
     reg [9:0] text_rdaddr_y;
 
@@ -348,17 +340,17 @@ module ram2video(
 
             text_rdaddr_y <= currentLine_reg * 10'd40;
 
-            if (counterX_reg + DATA_FETCH_DELAY >= hdmiVideoConfig.osd_text_x_start) begin
+            if (counterX_reg_q + DATA_FETCH_DELAY >= hdmiVideoConfig.osd_text_x_start) begin
                 text_rdaddr_x <= osdaddr(counterX_osd_reg);
             end else begin
                 text_rdaddr_x <= 0;
             end
 
-            if (counterX_reg + DATA_FETCH_DELAY + 1 == hdmiVideoConfig.osd_text_x_start) begin
+            if (counterX_reg_q + DATA_FETCH_DELAY + 1 == hdmiVideoConfig.osd_text_x_start) begin
                 counterX_osd_reg <= 0;
             end else begin
                 if (hdmiVideoConfig.pixel_repetition) begin
-                    counterX_osd_reg <= counterX_osd_reg + counterX_reg[0];
+                    counterX_osd_reg <= counterX_osd_reg + counterX_reg_q[0];
                 end else begin
                     counterX_osd_reg <= counterX_osd_reg + 1'b1;
                 end
@@ -415,95 +407,5 @@ module ram2video(
     assign hsync = d_hsync;
     assign vsync = d_vsync;
 
-endmodule
-
-module output_data(
-    input clock,
-    // meta data
-    input isDrawAreaVGA,
-    input isOsdTextArea,
-    input isCharPixel,
-    input isOsdBgArea,
-    input isScanline,
-    input [8:0] scanline_intensity,
-    // ...
-    input [23:0] data,
-    output reg [23:0] data_out
-);
-    reg [23:0] alpha_data;
-    reg [8:0] alpha_alpha;
-    wire [23:0] alpha_out;
-
-    alpha_calc ac (
-        .clock(clock),
-        .data(alpha_data),
-        .alpha(alpha_alpha),
-        .data_out(alpha_out)
-    );
-
-    function [8:0] trunc_osdbg(
-        input[16:0] value
-    );
-        trunc_osdbg = value[16:8];
-    endfunction
-
-    reg [8:0] osd_alpha;
-    reg isCharPixel_q, isOsdTextArea_q, isOsdBgArea_q, isDrawAreaVGA_q, isScanline_q;
-    reg [23:0] data_q;
-
-    always @(posedge clock) begin
-        data_q <= data;
-        osd_alpha <= OSD_BACKGROUND_ALPHA * scanline_intensity;
-        { isCharPixel_q, isOsdTextArea_q, isOsdBgArea_q, isDrawAreaVGA_q, isScanline_q } <= { isCharPixel, isOsdTextArea, isOsdBgArea, isDrawAreaVGA, isScanline };
-
-        case ({ isOsdTextArea_q, isOsdBgArea_q, isDrawAreaVGA_q })
-            3'b_001: begin
-                alpha_data <= data_q;
-                alpha_alpha <= (isScanline_q ? scanline_intensity : ONE_TO_ONE);
-            end
-            3'b_011: begin
-                alpha_data <= data_q;
-                alpha_alpha <= (isScanline_q ? trunc_osdbg(osd_alpha) : OSD_BACKGROUND_ALPHA);
-            end
-            3'b_111: begin
-                if (isCharPixel) begin
-                    alpha_data <= 24'hFFFFFF;
-                    alpha_alpha <= ONE_TO_ONE;
-                end else begin
-                    alpha_data <= data_q;
-                    alpha_alpha <= (isScanline_q ? trunc_osdbg(osd_alpha) : OSD_BACKGROUND_ALPHA);
-                end
-            end
-            default: begin
-                alpha_data <= 24'h00;
-                alpha_alpha <= ONE_TO_ONE;
-            end
-        endcase
-
-        data_out <= alpha_out;
-    end
-endmodule
-
-module alpha_calc(
-    input clock,
-    input [23:0] data,
-    input [8:0] alpha,
-    output reg [23:0] data_out
-);
-    function [7:0] trunc_rddata(
-        input[15:0] value
-    );
-        trunc_rddata = value[15:8];
-    endfunction
-
-    reg [15:0] r_a, g_a, b_a;
-
-    always @(posedge clock) begin
-        r_a <= { 8'b0, data[23:16] } * alpha;
-        g_a <= { 8'b0, data[15:8] } * alpha;
-        b_a <= { 8'b0, data[7:0] } * alpha;
-
-        data_out <= { trunc_rddata(r_a), trunc_rddata(g_a), trunc_rddata(b_a) };
-    end
 endmodule
 

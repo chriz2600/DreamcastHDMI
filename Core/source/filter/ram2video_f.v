@@ -11,6 +11,11 @@ module ram2video_f(
     output [13:0] rdaddr /*verilator public*/,
     input [23:0] rddata,
 
+    output [9:0] text_rdaddr /*verilator public*/,
+    input [7:0] text_rddata,
+    input enable_osd,
+    input [7:0] highlight_line,
+
     //input line_doubler,
     input HDMIVideoConfig hdmiVideoConfig /*verilator public*/,
 
@@ -20,44 +25,82 @@ module ram2video_f(
     output vsync,
     output DrawArea
 );
-
-    // localparam HORIZONTAL_PIXELS_PER_LINE = 2250;
-    // localparam HORIZONTAL_PIXELS_VISIBLE = 1920;
-    // localparam VERTICAL_LINES_VISIBLE = 1080;
-    // localparam HORIZONTAL_CAPTURE_START = 320;
-    // localparam HORIZONTAL_CAPTURE_END = 1600;
-    // localparam VERTICAL_CAPTURE_START = 60;
-    // localparam VERTICAL_CAPTURE_END = 1020;
-    // localparam VERTICAL_LINES_1 = 1100;
-    // localparam VERTICAL_LINES_2 = 1100;
-    // localparam VERTICAL_SYNC_START_1 = 1083;
-    // localparam VERTICAL_SYNC_START_2 = 1083;
-    // localparam VERTICAL_SYNC_PIXEL_OFFSET_1 = 2008;
-    // localparam VERTICAL_SYNC_PIXEL_OFFSET_2 = 2008;
-    // localparam HORIZONTAL_SYNC_ON_POLARITY = 1;
-    // localparam VERTICAL_SYNC_ON_POLARITY = 1;
-    // localparam RAM_NUMWORDS = 14720;
-    // localparam BUFFER_LINE_LENGTH = 640;
-    // localparam HORIZONTAL_SYNC_START = 2008;
-    // localparam HORIZONTAL_SYNC_WIDTH = 44;
-    // localparam vertical_sync_width = 5;
     localparam PXL_REP_H_HQ2X = 4;
     localparam SKIP_LINES = 12'd3;
     localparam DATA_DELAY_START = 4;
     localparam DATA_DELAY_END = 2;
 
+    localparam OSD_PXL_REP_H_HQ2X = 32;
+    localparam OSD_FONT_HEIGHT = 16;
+
+    reg [23:0] rddata_reg;
+    reg [23:0] inputpixel;
     wire [23:0] outpixel;
     Hq2x_optimized hq2x_inst (
         .clk(clock),
         .ce_x4(1'b1),
-        .inputpixel(reset_frame_q_q | reset_line_q_q ? 24'h_00 : { rddata[7:0], rddata[15:8], rddata[23:16] }),
+        .inputpixel(inputpixel),
         .mono(1'b0),
         .disable_hq2x(~hq2x),
-        .reset_frame(reset_frame_q_q),
-        .reset_line(reset_line_q_q),
+        .reset_frame(reset_frame_out),
+        .reset_line(reset_line_out),
         .read_y(read_y),
         .hblank(hblank),
         .outpixel(outpixel)
+    );
+
+    delayline #(
+        .CYCLES(3),
+        .WIDTH(12)
+    ) osd_delay (
+        .clock(clock),
+        .in(counterX_osd_reg),
+        .out(counterX_osd_reg_q)
+    );
+
+    delayline #(
+        .CYCLES(7),
+        .WIDTH(2)
+    ) rl_rf_delay (
+        .clock(clock),
+        .in({ next_reset_frame, next_reset_line }),
+        .out({ reset_frame_out, reset_line_out })
+    );
+
+    localparam OSD_BG_OFFSET_X_START = 12'd150;
+    localparam OSD_BG_OFFSET_X_END = 12'd490;
+    localparam OSD_BG_OFFSET_Y_START = 11'd38;
+    localparam OSD_BG_OFFSET_Y_END = 11'd447;
+
+    localparam OSD_TEXT_X_START = 12'd160;
+    localparam OSD_TEXT_X_END = 12'd480;
+    localparam OSD_TEXT_Y_START = 11'd48;
+    localparam OSD_TEXT_Y_END = 11'd432;
+
+    output_data out_dat(
+        .clock(clock),
+        .isDrawAreaVGA(counterX_reg_vga < 640 && counterY_reg_vga < 480),
+        .isOsdBgArea(
+               counterX_reg_vga >= OSD_BG_OFFSET_X_START && counterX_reg_vga < OSD_BG_OFFSET_X_END
+            && counterY_reg_vga >= OSD_BG_OFFSET_Y_START && counterY_reg_vga < OSD_BG_OFFSET_Y_END
+        ),
+        .isOsdTextArea(
+               counterX_reg_vga >= OSD_TEXT_X_START && counterX_reg_vga < OSD_TEXT_X_END
+            && counterY_reg_vga >= OSD_TEXT_Y_START && counterY_reg_vga < OSD_TEXT_Y_END
+        ),
+        .isCharPixel(char_data[7-counterX_osd_reg_q[2:0]] ^ (counterY_osd_reg == highlight_line)),
+        .isScanline(0),
+        .scanline_intensity(0),
+        .data({ rddata[7:0], rddata[15:8], rddata[23:16] }),
+        .data_out(inputpixel)
+    );
+
+    wire [10:0] char_addr;
+    wire [7:0] char_data;
+    char_rom char_rom_inst(
+        .address(char_addr),
+        .clock(clock),
+        .q(char_data)
     );
 
     /* verilator lint_off UNSIGNED */
@@ -92,6 +135,18 @@ module ram2video_f(
     `define StopInputCounter(x, y) (y == hdmiVideoConfig.vertical_capture_end - 1)
     `define AdvanceInputCounter(x, y) (x == hdmiVideoConfig.horizontal_capture_start && y >= hdmiVideoConfig.vertical_capture_start && y[0] == 0)
 
+    `define StartOSDInputCounter(x, y) (\
+           x == hdmiVideoConfig.horizontal_capture_start + (OSD_TEXT_X_START << 2) \
+        && y == hdmiVideoConfig.vertical_capture_start + (OSD_TEXT_Y_START << 1) \
+        && y[0] == 0 \
+    )
+    `define StopOSDInputCounter(x, y) (y == (OSD_TEXT_Y_END << 1) - 1)
+    `define AdvanceOSDInputCounter(x, y) (\
+           x == hdmiVideoConfig.horizontal_capture_start + (OSD_TEXT_X_START << 2) \
+        && y >= hdmiVideoConfig.vertical_capture_start + (OSD_TEXT_Y_START << 1) \
+        && y[0] == 0 \
+    )
+
     reg trigger /*verilator public*/;
     reg state, state_reg /*verilator public*/;
     reg [11:0] counterX_reg /*verilator public*/;
@@ -106,9 +161,24 @@ module ram2video_f(
     reg [11:0] counterY_shift_q_q_q /*verilator public*/;
     reg [11:0] counterY_shift_q_q_q_q /*verilator public*/;
 
+    reg [11:0] counterX_reg_vga;
+    reg [11:0] counterY_reg_vga;
+
+    reg [11:0] counterX_osd_reg;
+    reg [11:0] counterX_osd_reg_q;
+    reg [11:0] counterY_osd_reg;
+
     reg [11:0] vert_lines;
     reg [11:0] sync_start;
     reg [11:0] sync_pixel_offset;
+
+    reg [7:0] currentLine_reg;
+    reg [7:0] currentLine_reg_q;
+    reg [3:0] charPixelRow_reg;
+    reg [7:0] char_data_reg;
+    reg [7:0] char_data_reg_q;
+    reg [9:0] text_rdaddr_x;
+    reg [10:0] text_rdaddr_y;
 
     reg hsync_reg_q /*verilator public*/;
     reg vsync_reg_q /*verilator public*/;
@@ -129,15 +199,13 @@ module ram2video_f(
     reg d_DrawArea;
 
     reg [3:0] pxl_rep_c_x_hq2x;
+    reg [5:0] pxl_rep_c_x_osd;
+    reg [3:0] pxl_rep_c_x_osd_pxl;
 
     reg next_reset_line /*verilator public*/;
-    reg reset_line /*verilator public*/;
-    reg reset_line_q /*verilator public*/;
-    reg reset_line_q_q /*verilator public*/;
     reg next_reset_frame /*verilator public*/;
-    reg reset_frame /*verilator public*/;
-    reg reset_frame_q /*verilator public*/;
-    reg reset_frame_q_q /*verilator public*/;
+    reg reset_frame_out, reset_line_out;
+
     reg hblank /*verilator public*/;
     reg [1:0] read_y /*verilator public*/;
     reg [3:0] _fullcycle;
@@ -159,9 +227,6 @@ module ram2video_f(
                 ram_addrX_reg_hq2x <= 0;
                 ram_addrY_reg_hq2x <= 0;
                 next_reset_line <= 1;
-                reset_line <= 1;
-                reset_line_q <= 1;
-                reset_line_q_q <= 1;
                 pxl_rep_c_x_hq2x <= 0;
                 state <= 0;
                 read_y <= 2'd1;
@@ -200,16 +265,19 @@ module ram2video_f(
                 ram_addrX_reg_hq2x <= 0;
                 pxl_rep_c_x_hq2x <= 0;
                 next_reset_line <= 0;
+                counterX_reg_vga <= 12'b_1111_11111111;
 
                 if (`StartInputCounter(counterX_reg_q, counterY_reg_q)) begin
                     ram_addrY_reg_hq2x <= 0;
                     next_reset_frame <= 0;
+                    counterY_reg_vga <= 0;
                 end else begin
                     if (ram_addrY_reg_hq2x < hdmiVideoConfig.ram_numwords - hdmiVideoConfig.buffer_line_length) begin
                         ram_addrY_reg_hq2x <= ram_addrY_reg_hq2x + hdmiVideoConfig.buffer_line_length;
                     end else begin
                         ram_addrY_reg_hq2x <= 0;
                     end
+                    counterY_reg_vga <= counterY_reg_vga + 1'b1;
                 end
             end else begin
                 if (pxl_rep_c_x_hq2x == PXL_REP_H_HQ2X - 1) begin
@@ -223,17 +291,13 @@ module ram2video_f(
                         end
                     end
                     pxl_rep_c_x_hq2x <= 0;
+                    counterX_reg_vga <= counterX_reg_vga + 1'b1;
                 end else begin
                     pxl_rep_c_x_hq2x <= pxl_rep_c_x_hq2x + 1'b1;
                 end
             end
-            reset_line <= next_reset_line;
-            reset_line_q <= reset_line;
-            reset_line_q_q <= reset_line_q;
-            reset_frame <= next_reset_frame;
-            reset_frame_q <= reset_frame;
-            reset_frame_q_q <= reset_frame_q;
             d_rdaddr <= `GetAddr_f(counterX_reg_q, counterY_reg_q);
+            rddata_reg <= rddata;
 
             //////////////////////////////////////////////////////////////////////
             // generate base counter
@@ -289,6 +353,45 @@ module ram2video_f(
             end
 
             //////////////////////////////////////////////////////////////////////
+            // OSD TEXT
+            //////////////////////////////////////////////////////////////////////
+            // generate ram read
+            if (`AdvanceOSDInputCounter(counterX_reg_q, counterY_reg_q)) begin
+                text_rdaddr_x <= 0;
+                pxl_rep_c_x_osd <= 0;
+                pxl_rep_c_x_osd_pxl <= 0;
+                counterX_osd_reg <= 0;
+
+                if (`StartOSDInputCounter(counterX_reg_q, counterY_reg_q)) begin
+                    text_rdaddr_y <= 0;
+                    counterY_osd_reg <= 0;
+                    charPixelRow_reg <= 0;
+                end else begin
+                    if (charPixelRow_reg == OSD_FONT_HEIGHT - 1) begin
+                        text_rdaddr_y <= text_rdaddr_y + 10'd40;
+                        counterY_osd_reg <= counterY_osd_reg + 1'b1;
+                    end
+                    charPixelRow_reg <= charPixelRow_reg + 1'b1;
+                end
+            end else begin
+                if (pxl_rep_c_x_osd == OSD_PXL_REP_H_HQ2X - 1) begin
+                    if (text_rdaddr_x < 40) begin
+                        text_rdaddr_x <= text_rdaddr_x + 1'b1;
+                    end
+                    pxl_rep_c_x_osd <= 0;
+                end else begin
+                    pxl_rep_c_x_osd <= pxl_rep_c_x_osd + 1'b1;
+                end
+                
+                if (pxl_rep_c_x_osd_pxl == PXL_REP_H_HQ2X - 1) begin
+                    counterX_osd_reg <= counterX_osd_reg + 1'b1;
+                    pxl_rep_c_x_osd_pxl <= 0;
+                end else begin
+                    pxl_rep_c_x_osd_pxl <= pxl_rep_c_x_osd_pxl + 1'b1;
+                end
+            end
+
+            //////////////////////////////////////////////////////////////////////
             // delay queue
             counterX_reg_q <= counterX_reg;
             counterX_reg_q_q <= counterX_reg_q;
@@ -320,6 +423,8 @@ module ram2video_f(
         end
     end
 
+    assign text_rdaddr = text_rdaddr_x + text_rdaddr_y[9:0];
+    assign char_addr = (text_rddata << 4) + charPixelRow_reg;
     assign rdaddr = d_rdaddr;
     assign video_out = d_video_out;
     assign DrawArea = d_DrawArea;
