@@ -87,6 +87,8 @@ module DCxPlus(
     //wire ram2video_ready;
 
     wire [9:0] text_rdaddr;
+    wire [9:0] std_text_rdaddr;
+    wire [9:0] hqx_text_rdaddr;
     wire [7:0] text_rddata;
     wire [9:0] text_wraddr;
     wire [7:0] text_wrdata;
@@ -373,6 +375,11 @@ module DCxPlus(
         .rdaddr(hqx_ram_rdaddress),
         .rddata(ram_rddata),
 
+        .text_rdaddr(hqx_text_rdaddr),
+        .text_rddata(text_rddata),
+        .enable_osd(enable_osd_out),
+        .highlight_line(highlight_line),
+
         //input line_doubler,
         .hdmiVideoConfig(hdmiVideoConfig),
 
@@ -397,7 +404,7 @@ module DCxPlus(
         .rdaddr(std_ram_rdaddress),
         .rddata(ram_rddata),
 
-        .text_rdaddr(text_rdaddr),
+        .text_rdaddr(std_text_rdaddr),
         .text_rddata(text_rddata),
         .enable_osd(enable_osd_out),
         .highlight_line(highlight_line),
@@ -412,10 +419,10 @@ module DCxPlus(
         .DrawArea(std_de)
     );
 
-    busmux #(.WIDTH(42)) r2v_mux(
-        .dataa({ std_fullcycle, std_ram_rdaddress, std_hsync, std_vsync, std_de, std_video }),
-        .datab({ hqx_fullcycle, hqx_ram_rdaddress, hqx_hsync, hqx_vsync, hqx_de, hqx_video }),
-        .result({ fullcycle, ram_rdaddress, HSYNC, VSYNC, DE, VIDEO }),
+    busmux #(.WIDTH(52)) r2v_mux(
+        .dataa({ std_fullcycle, std_text_rdaddr, std_ram_rdaddress, std_hsync, std_vsync, std_de, std_video }),
+        .datab({ hqx_fullcycle, hqx_text_rdaddr, hqx_ram_rdaddress, hqx_hsync, hqx_vsync, hqx_de, hqx_video }),
+        .result({ fullcycle, text_rdaddr, ram_rdaddress, HSYNC, VSYNC, DE, VIDEO }),
         .sel(hq2x_out)
     );
 
