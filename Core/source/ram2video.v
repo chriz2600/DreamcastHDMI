@@ -342,17 +342,17 @@ module ram2video(
 
             text_rdaddr_y <= currentLine_reg * 10'd40;
 
-            if (counterX_reg_q + DATA_FETCH_DELAY >= hdmiVideoConfig.osd_text_x_start) begin
+            if (counterX_reg + DATA_FETCH_DELAY >= hdmiVideoConfig.osd_text_x_start) begin
                 text_rdaddr_x <= osdaddr(counterX_osd_reg);
             end else begin
                 text_rdaddr_x <= 0;
             end
 
-            if (counterX_reg_q + DATA_FETCH_DELAY + 1 == hdmiVideoConfig.osd_text_x_start) begin
+            if (counterX_reg + DATA_FETCH_DELAY + 1 == hdmiVideoConfig.osd_text_x_start) begin
                 counterX_osd_reg <= 0;
             end else begin
                 if (hdmiVideoConfig.pixel_repetition) begin
-                    counterX_osd_reg <= counterX_osd_reg + counterX_reg_q[0];
+                    counterX_osd_reg <= counterX_osd_reg + counterX_reg[0];
                 end else begin
                     counterX_osd_reg <= counterX_osd_reg + 1'b1;
                 end

@@ -7,7 +7,8 @@ module ram2video_f(
     input starttrigger,
     input hq2x,
     output reg fullcycle,
-    
+    input Scanline scanline,
+
     output [13:0] rdaddr /*verilator public*/,
     input [23:0] rddata,
 
@@ -91,8 +92,8 @@ module ram2video_f(
             && counterY_reg_vga >= OSD_TEXT_Y_START && counterY_reg_vga < OSD_TEXT_Y_END
         ),
         .isCharPixel(char_data[7-counterX_osd_reg_q[2:0]] ^ (counterY_osd_reg == highlight_line)),
-        .isScanline(0),
-        .scanline_intensity(0),
+        .isScanline(isScanline),
+        .scanline_intensity(scanline.intensity),
         .data({ rddata[7:0], rddata[15:8], rddata[23:16] }),
         .data_out(inputpixel)
     );
@@ -211,6 +212,7 @@ module ram2video_f(
     reg hblank /*verilator public*/;
     reg [1:0] read_y /*verilator public*/;
     reg [3:0] _fullcycle;
+    reg isScanline = 0;
 
     always @(posedge clock or posedge reset) begin
         if (reset) begin
@@ -393,6 +395,14 @@ module ram2video_f(
                 end else begin
                     pxl_rep_c_x_osd_pxl <= pxl_rep_c_x_osd_pxl + 1'b1;
                 end
+            end
+
+            //////////////////////////////////////////////////////////////////////
+            // SCANLINES
+            if (scanline.active) begin
+                isScanline <= counterY_reg_vga[1:0] >> scanline.thickness ^ scanline.oddeven;
+            end else begin
+                isScanline <= 1'b0;
             end
 
             //////////////////////////////////////////////////////////////////////

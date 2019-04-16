@@ -373,7 +373,8 @@ module DCxPlus(
         .starttrigger(output_trigger),
         .fullcycle(hqx_fullcycle),
         .hq2x(hq2x_out),
-        
+        .scanline(scanline),
+
         .rdaddr(hqx_ram_rdaddress),
         .rddata(ram_rddata),
 

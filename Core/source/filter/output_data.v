@@ -14,11 +14,11 @@ module output_data(
     input [23:0] data,
     output reg [23:0] data_out
 );
-    localparam ONE_TO_ONE = 256;
+    localparam ONE_TO_ONE = 9'd_256;
     `ifdef OSD_BACKGROUND_ALPHA
         localparam OSD_BACKGROUND_ALPHA = `OSD_BACKGROUND_ALPHA;
     `else
-        localparam OSD_BACKGROUND_ALPHA = 64;
+        localparam OSD_BACKGROUND_ALPHA = 9'd_64;
     `endif
 
     reg [23:0] alpha_data;
@@ -57,7 +57,7 @@ module output_data(
                 alpha_alpha <= (isScanline_q ? trunc_osdbg(osd_alpha) : OSD_BACKGROUND_ALPHA);
             end
             3'b_111: begin
-                if (isCharPixel) begin
+                if (isCharPixel_q) begin
                     alpha_data <= 24'hFFFFFF;
                     alpha_alpha <= ONE_TO_ONE;
                 end else begin
