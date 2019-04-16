@@ -4,9 +4,9 @@ cd $(dirname $0)
 
 source .setup
 
-if [ -z "$1" ] ; then
-    echo "usage: $0 <.qpf>"
-    exit 1
-fi
+#if [ -z "$1" ] ; then
+#    echo "usage: $0 <.qpf>"
+#    exit 1
+#fi
 
 docker_run quartus_dse --time-limit 24h0m --auto-discover-files on --revision DCxPlus DCxPlus.qpf --use-dse-file DCxPlus.dse
