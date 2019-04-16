@@ -72,6 +72,7 @@ uint8_t CurrentResetMode = RESET_MODE_LED;
 uint8_t CurrentDeinterlaceMode = DEINTERLACE_MODE_BOB;
 uint8_t CurrentProtectedMode = PROTECTED_MODE_OFF;
 uint8_t offset_240p;
+uint8_t upscaling_mode;
 
 char md5FPGA[48];
 char md5ESP[48];
@@ -158,6 +159,14 @@ void setup240pOffset() {
     forceI2CWrite(
         I2C_240P_OFFSET, offset_240p, 
         I2C_240P_OFFSET, offset_240p
+    );
+}
+
+void setupUpscalingMode() {
+    readUpscalingMode();
+    forceI2CWrite(
+        I2C_UPSCALING_MODE, upscaling_mode, 
+        I2C_UPSCALING_MODE, upscaling_mode
     );
 }
 
@@ -709,7 +718,7 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        fpgaTask.Write(I2C_ACTIVATE_HQ2X, 1, NULL);
+        fpgaTask.Write(I2C_UPSCALING_MODE, 0x01, NULL);
         request->send(200);
     });
 
@@ -717,7 +726,7 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        fpgaTask.Write(I2C_ACTIVATE_HQ2X, 0, NULL);
+        fpgaTask.Write(I2C_UPSCALING_MODE, 0x00, NULL);
         request->send(200);
     });
 
@@ -945,6 +954,7 @@ void setup(void) {
     setupOutputResolution();
     setupScanlines();
     setup240pOffset();
+    setupUpscalingMode();
     setupTaskManager();
     setupCredentials();
     waitForController();

@@ -201,6 +201,12 @@ void read240pOffset() {
     }
 }
 
+void readUpscalingMode() {
+    char buffer[32] = "";
+    _readFile("/etc/upscaling/mode", buffer, 32, DEFAULT_UPSCALING_MODE);
+    upscaling_mode = atoi(buffer);
+}
+
 void writeScanlinesIntensity() {
     char buffer[32] = "";
     snprintf(buffer, 31, "%d", scanlinesIntensity);
@@ -211,6 +217,12 @@ void write240pOffset() {
     char buffer[32] = "";
     snprintf(buffer, 31, "%d", offset_240p);
     _writeFile("/etc/240p/offset", buffer, 32);
+}
+
+void writeUpscalingMode() {
+    char buffer[32] = "";
+    snprintf(buffer, 31, "%d", upscaling_mode);
+    _writeFile("/etc/upscaling/mode", buffer, 32);
 }
 
 /////////
