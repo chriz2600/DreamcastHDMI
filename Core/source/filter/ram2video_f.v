@@ -81,11 +81,13 @@ module ram2video_f(
         .clock(clock),
         .isDrawAreaVGA(counterX_reg_vga < 640 && counterY_reg_vga < 480),
         .isOsdBgArea(
-               counterX_reg_vga >= OSD_BG_OFFSET_X_START && counterX_reg_vga < OSD_BG_OFFSET_X_END
+               enable_osd
+            && counterX_reg_vga >= OSD_BG_OFFSET_X_START && counterX_reg_vga < OSD_BG_OFFSET_X_END
             && counterY_reg_vga >= OSD_BG_OFFSET_Y_START && counterY_reg_vga < OSD_BG_OFFSET_Y_END
         ),
         .isOsdTextArea(
-               counterX_reg_vga >= OSD_TEXT_X_START && counterX_reg_vga < OSD_TEXT_X_END
+               enable_osd
+            && counterX_reg_vga >= OSD_TEXT_X_START && counterX_reg_vga < OSD_TEXT_X_END
             && counterY_reg_vga >= OSD_TEXT_Y_START && counterY_reg_vga < OSD_TEXT_Y_END
         ),
         .isCharPixel(char_data[7-counterX_osd_reg_q[2:0]] ^ (counterY_osd_reg == highlight_line)),

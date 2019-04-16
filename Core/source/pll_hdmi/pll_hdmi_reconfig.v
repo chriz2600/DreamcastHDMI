@@ -44,8 +44,8 @@ module pll_hdmi_reconfig (
             7'h01: begin `include "config/108_MHz.v" end
             7'h02: begin `include "config/27_MHz.v" end
             7'h03: begin `include "config/25.2_MHz.v" end
-            7'h10: begin `include "config/72_MHz.v" end
-            7'h11: begin `include "config/54_MHz.v" end
+            7'h10: begin `include "config/144_MHz.v" end
+            7'h11: begin `include "config/108_MHz.v" end
             7'h12: begin `include "config/27_MHz.v" end
             7'h13: begin `include "config/25.2_MHz.v" end
             default: begin `include "config/27_MHz.v" end

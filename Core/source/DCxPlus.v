@@ -119,6 +119,7 @@ module DCxPlus(
     wire activateHDMIoutput;
     wire hq2x;
     wire hq2x_out;
+    wire r2v_f;
     wire fullcycle;
     wire std_fullcycle;
     wire hqx_fullcycle;
@@ -343,6 +344,7 @@ module DCxPlus(
     hdmi_video_reconfig hdmi_video_configurator(
         .clock(hdmi_clock),
         .data_in(reconf_data_hdmi),
+        .r2v_f(r2v_f),
         .hdmiVideoConfig(hdmiVideoConfig)
     );
 
@@ -423,39 +425,8 @@ module DCxPlus(
         .dataa({ std_fullcycle, std_text_rdaddr, std_ram_rdaddress, std_hsync, std_vsync, std_de, std_video }),
         .datab({ hqx_fullcycle, hqx_text_rdaddr, hqx_ram_rdaddress, hqx_hsync, hqx_vsync, hqx_de, hqx_video }),
         .result({ fullcycle, text_rdaddr, ram_rdaddress, HSYNC, VSYNC, DE, VIDEO }),
-        .sel(hq2x_out)
+        .sel(r2v_f)
     );
-
-    // assign { fullcycle, ram_rdaddress, HSYNC, VSYNC, DE, VIDEO } = { hqx_fullcycle, hqx_ram_rdaddress, hqx_hsync, hqx_vsync, hqx_de, hqx_video };
-
-    // busmux #(.WIDTH(14)) ram_addr_mux(
-    //     .dataa(std_ram_rdaddress),
-    //     .datab(hqx_ram_rdaddress),
-    //     .result(ram_rdaddress),
-    //     .sel(/*hq2x_out*/1'b1)
-    // );
-
-    // lpm_mux #(
-    //     .LPM_PIPELINE(2),
-    //     .LPM_SIZE(2),
-    //     .LPM_WIDTH(28),
-    //     .LPM_WIDTHS(1)
-    // ) r2c_mux (
-    //     .clock(hdmi_clock),
-    //     .data({
-    //         { hqx_fullcycle, hqx_hsync, hqx_vsync, hqx_de, hqx_video }, 
-    //         { std_fullcycle, std_hsync, std_vsync, std_de, std_video }
-    //     }),
-    //     .result({ fullcycle, HSYNC, VSYNC, DE, VIDEO }),
-    //     .sel(/*hq2x_out*/1'b1)
-    // );
-
-    // startup ram2video_startup_delay(
-    //     .clock(hdmi_clock),
-    //     .nreset(pll_hdmi_locked),
-    //     .ready(ram2video_ready),
-    //     .startup_delay(32'd255/*hdmiVideoConfig.startup_delay*/)
-    // );
 
     text_ram text_ram_inst(
         .rdclock(hdmi_clock),

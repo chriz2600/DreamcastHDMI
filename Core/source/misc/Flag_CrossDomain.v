@@ -8,8 +8,8 @@ module Flag_CrossDomain(
     output FlagOut_clkB
 );
     reg data_out;
-    reg[3:0] rCount;
-    reg[2:0] data_out_reg;
+    reg [3:0] rCount;
+    reg [2:0] data_out_reg;
 
     assign FlagOut_clkB = data_out_reg[2];
 
