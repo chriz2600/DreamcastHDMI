@@ -35,15 +35,13 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_1080P = {
 
     12'd620,        // osd_bg_offset_x_start
     12'd1300,       // osd_bg_offset_x_end
-    11'd130,        // osd_bg_offset_y_start
-    11'd958,        // osd_bg_offset_y_end
+    11'd136,        // osd_bg_offset_y_start
+    11'd954,        // osd_bg_offset_y_end
 
     12'd640,        // osd_text_x_start
     12'd1280,       // osd_text_x_end
-    11'd160,        // osd_text_y_start
-    11'd928,        // osd_text_y_end
-
-    11'd5,          // text_offset_character_y
+    11'd156,        // osd_text_y_start
+    11'd924,        // osd_text_y_end
 
     14'd640,        // buffer_line_length
     14'd14720,      // ram_numwords
@@ -103,8 +101,6 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_960P = {
     11'd96,         // osd_text_y_start
     11'd864,        // osd_text_y_end
 
-    11'd3,          // text_offset_character_y
-
     14'd640,        // buffer_line_length
     14'd640,        // ram_numwords
     1'b1,           // line_doubling
@@ -162,8 +158,6 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_480P = {
     12'd520,        // osd_text_x_end
     11'd48,         // osd_text_y_start
     11'd432,        // osd_text_y_end
-
-    11'd3,          // text_offset_character_y
 
     14'd720,        // buffer_line_length
     14'd720,        // ram_numwords
@@ -223,8 +217,6 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_VGA = {
     11'd48,         // osd_text_y_start
     11'd432,        // osd_text_y_end
 
-    11'd3,          // text_offset_character_y
-
     14'd640,        // buffer_line_length
     14'd640,        // ram_numwords
     1'b0,           // line_doubling
@@ -282,8 +274,6 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_240P_960P = {
     12'd480,        // osd_text_x_end
     11'd96,         // osd_text_y_start
     11'd864,        // osd_text_y_end
-
-    11'd3,          // text_offset_character_y
 
     14'd640,        // buffer_line_length
     14'd15360,      // ram_numwords
@@ -343,8 +333,6 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_240P_1080P = {
     11'd160,        // osd_text_y_start
     11'd928,        // osd_text_y_end
 
-    11'd5,          // text_offset_character_y
-
     14'd640,        // buffer_line_length
     14'd21120,      // ram_numwords
     1'b1,           // line_doubling
@@ -403,8 +391,6 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_240P_480P = {
     11'd48,         // osd_text_y_start
     11'd432,        // osd_text_y_end
 
-    11'd3,          // text_offset_character_y
-
     14'd720,        // buffer_line_length
     14'd720,        // ram_numwords
     1'b0,           // line_doubling
@@ -462,8 +448,6 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_240P_VGA = {
     12'd480,        // osd_text_x_end
     11'd48,         // osd_text_y_start
     11'd432,        // osd_text_y_end
-
-    11'd3,          // text_offset_character_y
 
     14'd640,        // buffer_line_length
     14'd640,        // ram_numwords
@@ -525,8 +509,6 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_480I = {
     11'd24,         // osd_text_y_start
     11'd216,        // osd_text_y_end
 
-    11'd3,          // text_offset_character_y
-
     14'd720,        // buffer_line_length
     14'd720,        // ram_numwords
     1'b0,           // line_doubling
@@ -585,8 +567,6 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_576I = {
     11'd48,         // osd_text_y_start
     11'd240,        // osd_text_y_end
 
-    11'd6,          // text_offset_character_y
-
     14'd720,        // buffer_line_length
     14'd720,        // ram_numwords
     1'b0,           // line_doubling
@@ -644,8 +624,6 @@ const HDMIVideoConfig HDMI_VIDEO_CONFIG_576P = {
     12'd520,        // osd_text_x_end
     11'd96,         // osd_text_y_start
     11'd480,        // osd_text_y_end
-
-    11'd6,          // text_offset_character_y
 
     14'd720,        // buffer_line_length
     14'd720,        // ram_numwords

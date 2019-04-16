@@ -106,8 +106,6 @@ typedef struct packed {
     reg [10:0] osd_text_y_start;            // 
     reg [10:0] osd_text_y_end;              // 
 
-    reg [10:0] text_offset_character_y;     // (text_offset_counter_y + vertical_offset) / (pixel_repetition ? 32 : 16)
-
     reg [13:0] buffer_line_length;          // 720 for 480p, 640 for others
     reg [13:0] ram_numwords;                // size of video buffer, 21120 for 1080p
     reg line_doubling;                      // 0: line doubling OFF, 1: line doubling ON

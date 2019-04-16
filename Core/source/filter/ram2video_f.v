@@ -228,6 +228,8 @@ module ram2video_f(
                 ram_addrY_reg_hq2x <= 0;
                 next_reset_line <= 1;
                 pxl_rep_c_x_hq2x <= 0;
+                pxl_rep_c_x_osd <= 0;
+                pxl_rep_c_x_osd_pxl <= 0;
                 state <= 0;
                 read_y <= 2'd1;
             end

@@ -62,6 +62,7 @@ module ram2video(
     reg [11:0] counterY_reg_q/*verilator public*/;
     reg [11:0] counterY_reg_q_q/*verilator public*/;
     reg [11:0] counterY_reg_q_q_q;
+    reg [11:0] y_tmp;
 
     reg [11:0] vert_lines;
     reg [11:0] sync_start;
@@ -330,12 +331,13 @@ module ram2video(
 
             //////////////////////////////////////////////////////////////////////
             // OSD TEXT
+            y_tmp <= counterY_reg - hdmiVideoConfig.osd_text_y_start;
             if (hdmiVideoConfig.line_doubling) begin
-                currentLine_reg <= (hdmiVideoConfig.interlaceOSD ? counterY_reg[11:4] : counterY_reg[11:5]) - hdmiVideoConfig.text_offset_character_y[7:0];
-                charPixelRow_reg <= (hdmiVideoConfig.interlaceOSD ? counterY_reg[3:1] << 1'b1 : counterY_reg[4:1]) + (hdmiVideoConfig.interlaceOSD && state ? 1'b1 : 1'b0);
+                currentLine_reg <= (hdmiVideoConfig.interlaceOSD ? y_tmp[11:4] : y_tmp[11:5]);
+                charPixelRow_reg <= (hdmiVideoConfig.interlaceOSD ? y_tmp[3:1] << 1'b1 : y_tmp[4:1]) + (hdmiVideoConfig.interlaceOSD && state ? 1'b1 : 1'b0);
             end else begin
-                currentLine_reg <= (hdmiVideoConfig.interlaceOSD ? counterY_reg[10:3] : counterY_reg[11:4]) - hdmiVideoConfig.text_offset_character_y[7:0];
-                charPixelRow_reg <= (hdmiVideoConfig.interlaceOSD ? counterY_reg[2:0] << 1'b1 : counterY_reg[3:0]) + (hdmiVideoConfig.interlaceOSD && state ? 1'b1 : 1'b0);
+                currentLine_reg <= (hdmiVideoConfig.interlaceOSD ? y_tmp[10:3] : y_tmp[11:4]);
+                charPixelRow_reg <= (hdmiVideoConfig.interlaceOSD ? y_tmp[2:0] << 1'b1 : y_tmp[3:0]) + (hdmiVideoConfig.interlaceOSD && state ? 1'b1 : 1'b0);
             end
 
             text_rdaddr_y <= currentLine_reg * 10'd40;
