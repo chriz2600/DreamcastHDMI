@@ -68,6 +68,7 @@ module registerInterface (
     output[7:0] reset_conf,
     output activateHDMIoutput,
     output hq2x,
+    output [1:0] colorspace,
     input [23:0] pinok,
     input [23:0] timingInfo,
     input [23:0] rgbData,
@@ -101,6 +102,7 @@ reg [23:0] conf240p_reg = 24'd20;
 reg [7:0] reset_conf_reg = 0;
 reg activateHDMIoutput_reg = 0;
 reg hq2x_reg = 0;
+reg [1:0] colorspace_reg;
 reg [7:0] clock_config_data_reg = 3;
 
 assign dataOut = dataOut_reg;
@@ -118,6 +120,7 @@ assign reset_conf = reset_conf_reg;
 assign conf240p = conf240p_reg;
 assign activateHDMIoutput = activateHDMIoutput_reg;
 assign hq2x = hq2x_reg;
+assign colorspace = colorspace_reg;
 assign clock_config_data = clock_config_data_reg;
 
 // --- I2C Read
@@ -241,6 +244,8 @@ always @(posedge clk) begin
             activateHDMIoutput_reg <= dataIn[0];
         end else if (addr == 8'h92) begin
             hq2x_reg <= dataIn[0];
+        end else if (addr == 8'h93) begin
+            colorspace_reg <= dataIn[1:0];
         // clock_config_data
         end else if (addr == 8'hD0) begin
             clock_config_data_reg <= dataIn;

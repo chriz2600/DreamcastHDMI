@@ -16,6 +16,7 @@ module ADV7513(
     output reg [31:0] monitor_sense_low_count,
 
     input [7:0] clock_data,
+    input [1:0] colorspace,
     input ADV7513Config adv7513Config
 );
 
@@ -319,14 +320,14 @@ task adv7513_init;
             34: write_i2c(CHIP_ADDR, 16'h_55_10); // RGB in AVI InfoFrame
             35: write_i2c(CHIP_ADDR, { 8'h_56, adv7513Config.adv_reg_56 }); // AVI InfoFrame: Picture Aspect Ratio, Active Format Aspect Ratio
             36: begin
-                if (adv7513Config.fullrange) begin
+                if (colorspace == 2'd_1 || (colorspace == 0 && adv7513Config.fullrange)) begin
                     write_i2c(CHIP_ADDR, 16'h_57_08); // xvYCC 601, full range
                 end else begin
                     write_i2c(CHIP_ADDR, 16'h_57_10); // xvYCC 709, limited range
                 end
             end
             37: begin
-                if (adv7513Config.fullrange) begin
+                if (colorspace == 2'd_1 || (colorspace == 0 && adv7513Config.fullrange)) begin
                     write_i2c(CHIP_ADDR, 16'h_18_0D); // disable CSC
                 end else begin
                     write_i2c(CHIP_ADDR, 16'h_18_8D); // enable CSC

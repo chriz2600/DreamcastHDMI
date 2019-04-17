@@ -73,6 +73,7 @@ uint8_t CurrentDeinterlaceMode = DEINTERLACE_MODE_BOB;
 uint8_t CurrentProtectedMode = PROTECTED_MODE_OFF;
 uint8_t offset_240p;
 uint8_t upscaling_mode;
+uint8_t color_space;
 
 char md5FPGA[48];
 char md5ESP[48];
@@ -165,8 +166,16 @@ void setup240pOffset() {
 void setupUpscalingMode() {
     readUpscalingMode();
     forceI2CWrite(
-        I2C_UPSCALING_MODE, upscaling_mode, 
+        I2C_UPSCALING_MODE, upscaling_mode,
         I2C_UPSCALING_MODE, upscaling_mode
+    );
+}
+
+void setupColorSpace() {
+    readColorSpace();
+    forceI2CWrite(
+        I2C_COLOR_SPACE, color_space,
+        I2C_COLOR_SPACE, color_space
     );
 }
 

@@ -207,6 +207,12 @@ void readUpscalingMode() {
     upscaling_mode = atoi(buffer);
 }
 
+void readColorSpace() {
+    char buffer[32] = "";
+    _readFile("/etc/color/space", buffer, 32, DEFAULT_COLOR_SPACE);
+    color_space = atoi(buffer);
+}
+
 void writeScanlinesIntensity() {
     char buffer[32] = "";
     snprintf(buffer, 31, "%d", scanlinesIntensity);
@@ -223,6 +229,12 @@ void writeUpscalingMode() {
     char buffer[32] = "";
     snprintf(buffer, 31, "%d", upscaling_mode);
     _writeFile("/etc/upscaling/mode", buffer, 32);
+}
+
+void writeColorSpace() {
+    char buffer[32] = "";
+    snprintf(buffer, 31, "%d", color_space);
+    _writeFile("/etc/color/space", buffer, 32);
 }
 
 /////////

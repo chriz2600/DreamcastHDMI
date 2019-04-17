@@ -118,6 +118,8 @@ module DCxPlus(
     wire [7:0] video_gen_data;
     wire activateHDMIoutput;
     wire hq2x;
+    wire [1:0] colorspace;
+    wire [1:0] colorspace_data;
     wire hq2x_out;
     wire r2v_f;
     wire fullcycle;
@@ -426,7 +428,7 @@ module DCxPlus(
         .dataa({ std_fullcycle, std_text_rdaddr, std_ram_rdaddress, std_hsync, std_vsync, std_de, std_video }),
         .datab({ hqx_fullcycle, hqx_text_rdaddr, hqx_ram_rdaddress, hqx_hsync, hqx_vsync, hqx_de, hqx_video }),
         .result({ fullcycle, text_rdaddr, ram_rdaddress, HSYNC, VSYNC, DE, VIDEO }),
-        .sel(r2v_f)
+        .sel(r2v_f && ~line_doubler_sync)
     );
 
     text_ram text_ram_inst(
@@ -654,6 +656,7 @@ module DCxPlus(
         .video_gen_data(video_gen_data),
         .activateHDMIoutput(activateHDMIoutput),
         .hq2x(hq2x),
+        .colorspace(colorspace_data),
         .force_generate(control_force_generate_out),
 
         .pll_adv_lockloss_count(pll_adv_lockloss_count),
@@ -740,8 +743,10 @@ module DCxPlus(
         .clock(control_clock),
         .data_in(reconf_data),
         .clock_config_data(clock_config_data),
+        .colorspace_in(colorspace_data),
         .adv7513Config(adv7513Config),
         .clock_data_out(clock_data),
+        .colorspace_out(colorspace),
         .adv7513_reconf(adv7513_reconf)
     );
 
@@ -755,6 +760,7 @@ module DCxPlus(
         .ready(adv7513_ready),
         .adv7513Config(adv7513Config),
         .clock_data(clock_data),
+        .colorspace(colorspace),
         .hdmi_int_reg(hdmi_int_reg),
         .hpd_detected(hpd_detected),
         .pll_adv_lockloss_count(pll_adv_lockloss_count),
