@@ -1,3 +1,8 @@
+v3.0.0                                  
+- New "RGB color space" config option   
+- New "Upscaling mode" config option    
+  choose between "2x" and "hq2x"        
+                                        
 v2.3.0                                  
 - Improved output resolution switching  
   time                                  
