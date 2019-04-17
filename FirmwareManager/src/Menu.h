@@ -79,7 +79,7 @@ char OSD_ADVANCED_VIDEO_MENU[521] = (
     "- Deinterlacer:         _______         "
     "- 240p adjust position: _______         "
     "- Upscaling mode:       _______         "
-    "- Color space:          _______         "
+    "- RGB color space:      _______         "
     "                                        "
     "  left/right (d-pad): change value.     "
     "  " MENU_OK_STR ": save settings and exit.            "

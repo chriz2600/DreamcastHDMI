@@ -187,6 +187,8 @@ module ram2video_f(
     reg vsync_reg_q /*verilator public*/;
     reg hsync_reg_q_q /*verilator public*/;
     reg vsync_reg_q_q /*verilator public*/;
+    reg hsync_reg_q_q_q /*verilator public*/;
+    reg vsync_reg_q_q_q /*verilator public*/;
 
     /* verilator lint_off UNUSED */
     reg [13:0] d_rdaddr /*verilator public*/;
@@ -420,6 +422,8 @@ module ram2video_f(
 
             hsync_reg_q_q <= hsync_reg_q;
             vsync_reg_q_q <= vsync_reg_q;
+            hsync_reg_q_q_q <= hsync_reg_q_q;
+            vsync_reg_q_q_q <= vsync_reg_q_q;
 
             //////////////////////////////////////////////////////////////////////
             // OUTPUT
@@ -427,8 +431,8 @@ module ram2video_f(
 
             _d_video_out <= `GetData_f(counterX_reg_q_q_q_q, counterY_shift_q_q_q_q);
             _d_DrawArea <= `IsDrawAreaHDMI_f(counterX_reg_q_q_q_q, counterY_shift_q_q_q_q);
-            _d_hsync <= hsync_reg_q_q;
-            _d_vsync <= vsync_reg_q_q;
+            _d_hsync <= hsync_reg_q_q_q;
+            _d_vsync <= vsync_reg_q_q_q;
 
             d_video_out <= _d_video_out;
             d_DrawArea <= _d_DrawArea;

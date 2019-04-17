@@ -77,13 +77,13 @@ Menu advancedVideoMenu("AdvancedVideoMenu", (uint8_t*) OSD_ADVANCED_VIDEO_MENU, 
             case MENU_AV_COLOR_SPACE:
                 switch (color_space) {
                     case COLOR_SPACE_AUTO:
-                        color_space = COLOR_SPACE_FULL;
+                        color_space = isLeft ? COLOR_SPACE_LIMITED : COLOR_SPACE_FULL;
                         break;
                     case COLOR_SPACE_FULL:
-                        color_space = COLOR_SPACE_LIMITED;
+                        color_space = isLeft ? COLOR_SPACE_AUTO : COLOR_SPACE_LIMITED;
                         break;
                     case COLOR_SPACE_LIMITED:
-                        color_space = COLOR_SPACE_AUTO;
+                        color_space = isLeft ? COLOR_SPACE_FULL : COLOR_SPACE_AUTO;
                         break;
                 }
                 fpgaTask.Write(I2C_COLOR_SPACE, color_space, [](uint8_t Address, uint8_t Value) {

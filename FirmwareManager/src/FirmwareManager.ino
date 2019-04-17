@@ -964,6 +964,7 @@ void setup(void) {
     setupScanlines();
     setup240pOffset();
     setupUpscalingMode();
+    setupColorSpace();
     setupTaskManager();
     setupCredentials();
     waitForController();
