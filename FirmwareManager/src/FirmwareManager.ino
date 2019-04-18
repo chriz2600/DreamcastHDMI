@@ -71,9 +71,9 @@ uint8_t ForceVGA = VGA_ON;
 uint8_t CurrentResetMode = RESET_MODE_LED;
 uint8_t CurrentDeinterlaceMode = DEINTERLACE_MODE_BOB;
 uint8_t CurrentProtectedMode = PROTECTED_MODE_OFF;
-uint8_t offset_240p;
-uint8_t upscaling_mode;
-uint8_t color_space;
+uint8_t Offset240p;
+uint8_t UpscalingMode;
+uint8_t ColorSpace;
 
 char md5FPGA[48];
 char md5ESP[48];
@@ -158,24 +158,24 @@ void setupScanlines() {
 void setup240pOffset() {
     read240pOffset();
     forceI2CWrite(
-        I2C_240P_OFFSET, offset_240p, 
-        I2C_240P_OFFSET, offset_240p
+        I2C_240P_OFFSET, Offset240p, 
+        I2C_240P_OFFSET, Offset240p
     );
 }
 
 void setupUpscalingMode() {
     readUpscalingMode();
     forceI2CWrite(
-        I2C_UPSCALING_MODE, upscaling_mode,
-        I2C_UPSCALING_MODE, upscaling_mode
+        I2C_UPSCALING_MODE, UpscalingMode,
+        I2C_UPSCALING_MODE, UpscalingMode
     );
 }
 
 void setupColorSpace() {
     readColorSpace();
     forceI2CWrite(
-        I2C_COLOR_SPACE, color_space,
-        I2C_COLOR_SPACE, color_space
+        I2C_COLOR_SPACE, ColorSpace,
+        I2C_COLOR_SPACE, ColorSpace
     );
 }
 

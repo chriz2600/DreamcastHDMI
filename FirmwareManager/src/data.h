@@ -193,24 +193,24 @@ void readScanlinesIntensity() {
 void read240pOffset() {
     char buffer[32] = "";
     _readFile("/etc/240p/offset", buffer, 32, DEFAULT_240P_OFFSET);
-    offset_240p = atoi(buffer);
-    if (offset_240p < 0) {
-        offset_240p = 0;
-    } else if (offset_240p > 255) {
-        offset_240p = 255;
+    Offset240p = atoi(buffer);
+    if (Offset240p < 0) {
+        Offset240p = 0;
+    } else if (Offset240p > 255) {
+        Offset240p = 255;
     }
 }
 
 void readUpscalingMode() {
     char buffer[32] = "";
     _readFile("/etc/upscaling/mode", buffer, 32, DEFAULT_UPSCALING_MODE);
-    upscaling_mode = atoi(buffer);
+    UpscalingMode = atoi(buffer);
 }
 
 void readColorSpace() {
     char buffer[32] = "";
     _readFile("/etc/color/space", buffer, 32, DEFAULT_COLOR_SPACE);
-    color_space = atoi(buffer);
+    ColorSpace = atoi(buffer);
 }
 
 void writeScanlinesIntensity() {
@@ -221,19 +221,19 @@ void writeScanlinesIntensity() {
 
 void write240pOffset() {
     char buffer[32] = "";
-    snprintf(buffer, 31, "%d", offset_240p);
+    snprintf(buffer, 31, "%d", Offset240p);
     _writeFile("/etc/240p/offset", buffer, 32);
 }
 
 void writeUpscalingMode() {
     char buffer[32] = "";
-    snprintf(buffer, 31, "%d", upscaling_mode);
+    snprintf(buffer, 31, "%d", UpscalingMode);
     _writeFile("/etc/upscaling/mode", buffer, 32);
 }
 
 void writeColorSpace() {
     char buffer[32] = "";
-    snprintf(buffer, 31, "%d", color_space);
+    snprintf(buffer, 31, "%d", ColorSpace);
     _writeFile("/etc/color/space", buffer, 32);
 }
 

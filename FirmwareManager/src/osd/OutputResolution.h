@@ -7,6 +7,7 @@ extern uint8_t PrevCurrentResolution;
 extern uint8_t CurrentResolution;
 extern uint8_t CurrentResolutionData;
 extern uint8_t ForceVGA;
+extern uint8_t UpscalingMode;
 extern char configuredResolution[16];
 
 void writeCurrentResolution();
@@ -15,13 +16,18 @@ uint8_t cfgRes2Int(char* intResolution);
 uint8_t remapResolution(uint8_t resd);
 void osd_get_resolution(char* buffer);
 
+void writeVideoOutputLine() {
+    char buff[16];
+    osd_get_resolution(buff);
+    fpgaTask.DoWriteToOSD(0, 24, (uint8_t*) buff);
+}
+
+
 void switchResolution(uint8_t newValue) {
     CurrentResolution = mapResolution(newValue);
     DEBUG2("   switchResolution: %02x -> %02x\n", newValue, CurrentResolution);
     fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, [](uint8_t Address, uint8_t Value) {
-        char buff[16];
-        osd_get_resolution(buff);
-        fpgaTask.DoWriteToOSD(0, 24, (uint8_t*) buff);
+        writeVideoOutputLine();
     });
 }
 
@@ -177,8 +183,8 @@ void osd_get_resolution(char* buffer) {
     char data[14];
 
     switch (res) {
-        case 0x00: sprintf(data, "1080p"); break;
-        case 0x01: sprintf(data, "960p"); break;
+        case 0x00: sprintf(data, "1080p%s", UpscalingMode == UPSCALING_MODE_HQ2X ? " HQ" : ""); break;
+        case 0x01: sprintf(data, "960p%s", UpscalingMode == UPSCALING_MODE_HQ2X ? " HQ" : ""); break;
         case 0x02: sprintf(data, "480p"); break;
         case 0x03: sprintf(data, "VGA"); break;
         case 0x08: sprintf(data, "576p"); break;
