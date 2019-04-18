@@ -175,20 +175,21 @@ char OSD_OPT_RESET_CONFIRM_MENU[521] = (
     "         " MENU_OK_STR ": Press  " MENU_CANCEL_STR ": Not now           "
 );
 
-#define MENU_FW_CHECK_LINE 2
-#define MENU_FW_DOWNLOAD_LINE 3
-#define MENU_FW_FLASH_LINE 4
-#define MENU_FW_RESET_LINE 5
+#define MENU_FW_CONFIG_LINE 2
+#define MENU_FW_CHECK_LINE 3
+#define MENU_FW_DOWNLOAD_LINE 4
+#define MENU_FW_FLASH_LINE 5
+#define MENU_FW_RESET_LINE 6
 #define MENU_FW_FIRST_SELECT_LINE 2
-#define MENU_FW_LAST_SELECT_LINE 5
+#define MENU_FW_LAST_SELECT_LINE MENU_FW_RESET_LINE
 char OSD_FIRMWARE_MENU[521] = (
     "Firmware                                "
     "                                        "
+    "- Config                                "
     "- Check                                 "
     "- Download                              "
     "- Flash                                 "
     "- Restart                               "
-    "                                        "
     "                                        "
     "                                        "
     "                                        "

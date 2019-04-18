@@ -16,6 +16,8 @@ Menu firmwareMenu("FirmwareMenu", (uint8_t*) OSD_FIRMWARE_MENU, MENU_FW_FIRST_SE
     }
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         switch (menu_activeLine) {
+            case MENU_FW_CONFIG_LINE:
+                break;
             case MENU_FW_CHECK_LINE:
                 currentMenu = &firmwareCheckMenu;
                 currentMenu->Display();

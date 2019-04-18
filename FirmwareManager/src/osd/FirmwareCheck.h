@@ -5,6 +5,7 @@ extern char md5FPGA[48];
 extern char md5ESP[48];
 extern char md5IndexHtml[48];
 extern char firmwareVersion[64];
+extern char firmwareVariant[64];
 
 bool firmwareCheckStarted;
 bool md5CheckResult;
