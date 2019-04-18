@@ -21,6 +21,9 @@ fpga-firmware:
     - develop
     - master
     - experimental
+    - std-develop
+    - std-master
+    - std-experimental
     - tags
 
 esp-firmware:
@@ -60,6 +63,9 @@ esp-firmware:
     - develop
     - master
     - experimental
+    - std-develop
+    - std-master
+    - std-experimental
     - tags
 
 fpga-publish:
@@ -75,6 +81,9 @@ fpga-publish:
     - develop
     - master
     - experimental
+    - std-develop
+    - std-master
+    - std-experimental
     - tags
 
 esp-publish:
@@ -90,6 +99,9 @@ esp-publish:
     - develop
     - master
     - experimental
+    - std-develop
+    - std-master
+    - std-experimental
     - tags
 
 finish-publish:
@@ -106,4 +118,7 @@ finish-publish:
     - develop
     - master
     - experimental
+    - std-develop
+    - std-master
+    - std-experimental
     - tags
