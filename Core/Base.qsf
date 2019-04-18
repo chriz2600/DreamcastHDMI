@@ -38,8 +38,7 @@ set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 16.0
 set_global_assignment -name ROUTER_EFFORT_MULTIPLIER 8.0
 set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE SPEED
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
-#set_global_assignment -name SEED 51
-set_global_assignment -name SEED 18
+set_global_assignment -name SEED 44
 set_global_assignment -name FITTER_EFFORT "AUTO FIT"
 #set_global_assignment -name SLD_FILE db/stp1_auto_stripped.stp
 
