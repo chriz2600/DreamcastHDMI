@@ -20,6 +20,7 @@ module ram2video(
     input reset,
     
     input line_doubler,
+    input is_interlaced,
 
     output [13:0] rdaddr /*verilator public*/,
     input [7:0] text_rddata,
@@ -67,6 +68,7 @@ module ram2video(
     reg [11:0] vert_lines;
     reg [11:0] sync_start;
     reg [11:0] sync_pixel_offset;
+    reg [3:0] shift_y;
 
     reg [7:0] currentLine_reg;
     reg [7:0] currentLine_reg_q;
@@ -207,11 +209,13 @@ module ram2video(
                     vert_lines <= hdmiVideoConfig.vertical_lines_1;
                     sync_start <= hdmiVideoConfig.vertical_sync_start_1;
                     sync_pixel_offset <= hdmiVideoConfig.vertical_sync_pixel_offset_1;
+                    shift_y <= is_interlaced && hdmiVideoConfig.pxl_rep_on ? 0 : 0;
                 end
                 1: begin
                     vert_lines <= hdmiVideoConfig.vertical_lines_2;
                     sync_start <= hdmiVideoConfig.vertical_sync_start_2;
                     sync_pixel_offset <= hdmiVideoConfig.vertical_sync_pixel_offset_2;
+                    shift_y <= is_interlaced && hdmiVideoConfig.pxl_rep_on ? 4'd_2 : 0;
                 end
             endcase
 
@@ -242,52 +246,53 @@ module ram2video(
 
                 if (counterY_reg < `VerticalLines - 1) begin
                     counterY_reg <= counterY_reg + 1'b1;
+
+                    if (counterY_reg >= hdmiVideoConfig.vertical_offset + shift_y) begin
+                        if (ram_addrY_reg < hdmiVideoConfig.ram_numwords - hdmiVideoConfig.buffer_line_length) begin
+                            if (hdmiVideoConfig.pxl_rep_on) begin
+                                if (pxl_rep_c_y == ((line_doubler ? hdmiVideoConfig.pxl_rep_v_i : hdmiVideoConfig.pxl_rep_v) - 1)) begin
+                                    ram_addrY_reg <= ram_addrY_reg + hdmiVideoConfig.buffer_line_length;
+                                    pxl_rep_c_y <= 0;
+                                end else begin
+                                    pxl_rep_c_y <= pxl_rep_c_y + 1'b1;
+                                end
+                            end else begin
+                                if (hdmiVideoConfig.line_doubling) begin
+                                    if (counterY_reg[0] && (!line_doubler || counterY_reg[1])) begin
+                                        ram_addrY_reg <= ram_addrY_reg + hdmiVideoConfig.buffer_line_length;
+                                    end
+                                end else begin
+                                    if (!line_doubler || counterY_reg[0]) begin
+                                        ram_addrY_reg <= ram_addrY_reg + hdmiVideoConfig.buffer_line_length;
+                                    end
+                                end
+                            end
+                        end else begin
+                            if (hdmiVideoConfig.pxl_rep_on) begin
+                                if (pxl_rep_c_y == ((line_doubler ? hdmiVideoConfig.pxl_rep_v_i : hdmiVideoConfig.pxl_rep_v) - 1)) begin
+                                    ram_addrY_reg <= 0;
+                                    pxl_rep_c_y <= 0;
+                                end else begin
+                                    pxl_rep_c_y <= pxl_rep_c_y + 1'b1;
+                                end
+                            end else begin
+                                if (hdmiVideoConfig.line_doubling) begin
+                                    if (counterY_reg[0] && (!line_doubler || counterY_reg[1])) begin
+                                        ram_addrY_reg <= 0;
+                                    end
+                                end else begin
+                                    if (!line_doubler || counterY_reg[0]) begin
+                                        ram_addrY_reg <= 0;
+                                    end
+                                end
+                            end
+                        end
+                    end
                 end else begin
                     counterY_reg <= 0;
                     ram_addrY_reg <= 0;
                     pxl_rep_c_y <= 0;
                     state <= ~state;
-                end
-
-                if (counterY_reg >= hdmiVideoConfig.vertical_offset
-                    && ram_addrY_reg < hdmiVideoConfig.ram_numwords - hdmiVideoConfig.buffer_line_length) begin
-                    if (hdmiVideoConfig.pxl_rep_on) begin
-                        if (pxl_rep_c_y == ((line_doubler ? hdmiVideoConfig.pxl_rep_v_i : hdmiVideoConfig.pxl_rep_v) - 1)) begin
-                            ram_addrY_reg <= ram_addrY_reg + hdmiVideoConfig.buffer_line_length;
-                            pxl_rep_c_y <= 0;
-                        end else begin
-                            pxl_rep_c_y <= pxl_rep_c_y + 1'b1;
-                        end
-                    end else begin
-                        if (hdmiVideoConfig.line_doubling) begin
-                            if (counterY_reg[0] && (!line_doubler || counterY_reg[1])) begin
-                                ram_addrY_reg <= ram_addrY_reg + hdmiVideoConfig.buffer_line_length;
-                            end
-                        end else begin
-                            if (!line_doubler || counterY_reg[0]) begin
-                                ram_addrY_reg <= ram_addrY_reg + hdmiVideoConfig.buffer_line_length;
-                            end
-                        end
-                    end
-                end else begin
-                    if (hdmiVideoConfig.pxl_rep_on) begin
-                        if (pxl_rep_c_y == ((line_doubler ? hdmiVideoConfig.pxl_rep_v_i : hdmiVideoConfig.pxl_rep_v) - 1)) begin
-                            ram_addrY_reg <= 0;
-                            pxl_rep_c_y <= 0;
-                        end else begin
-                            pxl_rep_c_y <= pxl_rep_c_y + 1'b1;
-                        end
-                    end else begin
-                        if (hdmiVideoConfig.line_doubling) begin
-                            if (counterY_reg[0] && (!line_doubler || counterY_reg[1])) begin
-                                ram_addrY_reg <= 0;
-                            end
-                        end else begin
-                            if (!line_doubler || counterY_reg[0]) begin
-                                ram_addrY_reg <= 0;
-                            end
-                        end
-                    end
                 end
             end
 

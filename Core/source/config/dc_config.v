@@ -34,10 +34,10 @@ const DCVideoConfig DC_VIDEO_CONFIG_960P = {
     10'd0,      // i_vertical_capture_start
     10'd504,    // i_vertical_capture_end
 
-    8'd1,       // buffer_size
-    14'd640,    // ram_numwords
-    14'd360,    // trigger_address progressive
-    14'd360,    // trigger_address interlaced
+    8'd2,       // buffer_size
+    14'd1280,   // ram_numwords
+    14'd800,    // trigger_address progressive
+    14'd800,    // trigger_address interlaced
     14'd640     // buffer_line_length
 };
 
@@ -55,10 +55,10 @@ const DCVideoConfig DC_VIDEO_CONFIG_480P = {
     10'd0,      // i_vertical_capture_start
     10'd504,    // i_vertical_capture_end
 
-    8'd1,       // buffer_size
-    14'd720,    // ram_numwords
-    14'd360,    // trigger_address progressive
-    14'd360,    // trigger_address interlaced
+    8'd2,       // buffer_size
+    14'd1440,   // ram_numwords
+    14'd720,    // trigger_address progressive
+    14'd720,    // trigger_address interlaced
     14'd720     // buffer_line_length
 };
 
@@ -76,10 +76,10 @@ const DCVideoConfig DC_VIDEO_CONFIG_VGA = {
     10'd0,      // i_vertical_capture_start
     10'd504,    // i_vertical_capture_end
 
-    8'd1,       // buffer_size
-    14'd640,    // ram_numwords
-    14'd320,    // trigger_address progressive
-    14'd320,    // trigger_address interlaced
+    8'd2,       // buffer_size
+    14'd1280,   // ram_numwords
+    14'd640,    // trigger_address progressive
+    14'd640,    // trigger_address interlaced
     14'd640     // buffer_line_length
 };
 
@@ -97,10 +97,10 @@ const DCVideoConfig DC_VIDEO_CONFIG_240P_960P = {
     10'd0,      // i_vertical_capture_start
     10'd504,    // i_vertical_capture_end
 
-    8'd1,       // buffer_size
-    14'd640,    // ram_numwords
-    14'd360,    // trigger_address progressive
-    14'd360,    // trigger_address interlaced
+    8'd2,       // buffer_size
+    14'd1280,   // ram_numwords
+    14'd640,    // trigger_address progressive
+    14'd640,    // trigger_address interlaced
     14'd640     // buffer_line_length
 };
 
@@ -118,10 +118,10 @@ const DCVideoConfig DC_VIDEO_CONFIG_240P_1080P = {
     10'd0,      // i_vertical_capture_start
     10'd504,    // i_vertical_capture_end
 
-    8'd1,       // buffer_size
-    14'd640,    // ram_numwords
-    14'd360,    // trigger_address progressive
-    14'd360,    // trigger_address interlaced
+    8'd23,      // buffer_size
+    14'd14720,  // ram_numwords
+    14'd14520,  // trigger_address (ram_numwords - 200) progressive
+    14'd14320,  // trigger_address (ram_numwords - 200) interlaced
     14'd640     // buffer_line_length
 };
 

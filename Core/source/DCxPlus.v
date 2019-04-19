@@ -313,6 +313,7 @@ module DCxPlus(
     wire add_line_sync;
     wire is_pal_sync;
     wire [7:0] reconf_data_hdmi;
+    wire is_interlaced;
 
     Flag_CrossDomain rsync_trigger(
         .clkA(clock54_net),
@@ -364,6 +365,12 @@ module DCxPlus(
         .FlagOut_clkB(hq2x_out)
     );
 
+    Signal_CrossDomain isInterlacedSig(
+        .SignalIn_clkA(~add_line_mode && _240p_480i_mode),
+        .clkB(hdmi_clock),
+        .SignalOut_clkB(is_interlaced)
+    );
+
     wire hqx_hsync;
     wire hqx_vsync;
     wire hqx_de;
@@ -405,6 +412,7 @@ module DCxPlus(
         .reset(~pll_hdmi_locked || resync_signal),
         .starttrigger(output_trigger),
         .fullcycle(std_fullcycle),
+        .is_interlaced(is_interlaced),
 
         .rdaddr(std_ram_rdaddress),
         .rddata(ram_rddata),
