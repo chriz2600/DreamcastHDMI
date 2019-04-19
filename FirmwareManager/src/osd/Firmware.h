@@ -1,6 +1,7 @@
 #include "../global.h"
 #include "../Menu.h"
 
+extern Menu firmwareConfigMenu;
 extern Menu firmwareCheckMenu;
 extern Menu firmwareDownloadMenu;
 extern Menu firmwareFlashMenu;
@@ -17,6 +18,8 @@ Menu firmwareMenu("FirmwareMenu", (uint8_t*) OSD_FIRMWARE_MENU, MENU_FW_FIRST_SE
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         switch (menu_activeLine) {
             case MENU_FW_CONFIG_LINE:
+                currentMenu = &firmwareConfigMenu;
+                currentMenu->Display();
                 break;
             case MENU_FW_CHECK_LINE:
                 currentMenu = &firmwareCheckMenu;

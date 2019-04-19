@@ -24,7 +24,7 @@
 #define DEFAULT_OTA_PASSWORD ""
 #define DEFAULT_FW_SERVER "dc.i74.de"
 #define DEFAULT_FW_VERSION "master"
-#define DEFAULT_FW_VARIANT "std"
+#define DEFAULT_FW_VARIANT FIRMWARE_STANDARD_FLAVOUR
 #define DEFAULT_HTTP_USER "dchdmi"
 #define DEFAULT_HTTP_PASS ""
 #define DEFAULT_CONF_IP_ADDR ""
@@ -60,6 +60,9 @@
 #define CHANGELOG_FILE "/changelog"
 #define FIRMWARE_FILE "/firmware.dc"
 #define FIRMWARE_EXTENSION "dc"
+
+#define FIRMWARE_STANDARD_FLAVOUR "std"
+#define FIRMWARE_RELAXED_FLAVOUR "hq2x"
 
 #define ESP_FIRMWARE_FILE "/firmware.bin"
 #define ESP_FIRMWARE_EXTENSION "bin"
