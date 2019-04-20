@@ -1,5 +1,21 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2019-04-20 *Firmware v2.3.0* (*Standard*)
+
+- New: Menu option to configure firmware flavour (Firmware->Configure):
+
+  - ***Relaxed***
+  
+    Allows filtered upscaling (currently HQ2X) by using relaxed HDMI timings.
+  
+  - ***Standard*** 
+  
+    Fully HDMI compliant.
+
+- New: Improved output resolution switching time.
+
+- Internal: Properly queue osd write requests.
+
 #### 2019-02-06 *Firmware v2.2.0*
 
 - Fixed: It was possible to flash a firmware file from the OSD, which was only partially downloaded or corrupt.
