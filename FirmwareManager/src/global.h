@@ -24,6 +24,7 @@
 #define DEFAULT_OTA_PASSWORD ""
 #define DEFAULT_FW_SERVER "dc.i74.de"
 #define DEFAULT_FW_VERSION "master"
+#define DEFAULT_FW_VARIANT FIRMWARE_STANDARD_FLAVOUR
 #define DEFAULT_HTTP_USER "dchdmi"
 #define DEFAULT_HTTP_PASS ""
 #define DEFAULT_CONF_IP_ADDR ""
@@ -57,6 +58,9 @@
 #define CHANGELOG_FILE "/changelog"
 #define FIRMWARE_FILE "/firmware.dc"
 #define FIRMWARE_EXTENSION "dc"
+
+#define FIRMWARE_STANDARD_FLAVOUR "std"
+#define FIRMWARE_RELAXED_FLAVOUR "hq2x"
 
 #define ESP_FIRMWARE_FILE "/firmware.bin"
 #define ESP_FIRMWARE_EXTENSION "bin"
@@ -172,17 +176,17 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 #define LOCAL_FPGA_MD5 "/etc/last_flash_md5"
 #define STAGED_FPGA_MD5 "/firmware.dc.md5"
 #define SERVER_FPGA_MD5 "/server/firmware.dc.md5"
-#define REMOTE_FPGA_MD5 ("/fw/" + String(firmwareVersion) + "/DCxPlus-default.dc.md5")
+#define REMOTE_FPGA_MD5 ("/fw/" + String(firmwareVariant) + "-" + String(firmwareVersion) + "/DCxPlus-default.dc.md5")
 
 #define LOCAL_ESP_MD5 "/etc/last_esp_flash_md5"
 #define STAGED_ESP_MD5 "/firmware.bin.md5"
 #define SERVER_ESP_MD5 "/server/firmware.bin.md5"
-#define REMOTE_ESP_MD5 ("/" + String(firmwareVersion) + "/4MB-firmware.bin.md5")
+#define REMOTE_ESP_MD5 ("/" + String(firmwareVariant) + "-" + String(firmwareVersion) + "/4MB-firmware.bin.md5")
 
 #define LOCAL_ESP_INDEX_MD5 "/index.html.gz.md5"
 #define STAGED_ESP_INDEX_MD5 "/esp.index.html.gz.md5"
 #define SERVER_ESP_INDEX_MD5 "/server/esp.index.html.gz.md5"
-#define REMOTE_ESP_INDEX_MD5 ("/" + String(firmwareVersion) + "/esp.index.html.gz.md5")
+#define REMOTE_ESP_INDEX_MD5 ("/" + String(firmwareVariant) + "-" + String(firmwareVersion) + "/esp.index.html.gz.md5")
 
 #define DEBUG_BASE_ADDRESS 0x90
 #define DBG_DATA_PLL_ERRORS 0

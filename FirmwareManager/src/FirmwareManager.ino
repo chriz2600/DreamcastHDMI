@@ -40,6 +40,7 @@ char password[64] = DEFAULT_PASSWORD;
 char otaPassword[64] = DEFAULT_OTA_PASSWORD; 
 char firmwareServer[1024] = DEFAULT_FW_SERVER;
 char firmwareVersion[64] = DEFAULT_FW_VERSION;
+char firmwareVariant[64] = DEFAULT_FW_VARIANT;
 char httpAuthUser[64] = DEFAULT_HTTP_USER;
 char httpAuthPass[64] = "";
 char confIPAddr[24] = DEFAULT_CONF_IP_ADDR;
@@ -174,6 +175,7 @@ void setupCredentials(void) {
     _readFile("/etc/password", password, 64, DEFAULT_PASSWORD);
     _readFile("/etc/ota_pass", otaPassword, 64, DEFAULT_OTA_PASSWORD);
     _readFile("/etc/firmware_server", firmwareServer, 1024, DEFAULT_FW_SERVER);
+    _readFile("/etc/firmware_variant", firmwareVariant, 64, DEFAULT_FW_VARIANT);
     _readFile("/etc/firmware_version", firmwareVersion, 64, DEFAULT_FW_VERSION);
     _readFile("/etc/http_auth_user", httpAuthUser, 64, DEFAULT_HTTP_USER);
     _readFile("/etc/http_auth_pass", httpAuthPass, 64, DEFAULT_HTTP_PASS);
@@ -579,6 +581,7 @@ void setupHTTPServer() {
         writeSetupParameter(request, "password", password, 64, DEFAULT_PASSWORD);
         writeSetupParameter(request, "ota_pass", otaPassword, 64, DEFAULT_OTA_PASSWORD);
         writeSetupParameter(request, "firmware_server", firmwareServer, 1024, DEFAULT_FW_SERVER);
+        writeSetupParameter(request, "firmware_variant", firmwareVariant, 64, DEFAULT_FW_VARIANT);
         writeSetupParameter(request, "firmware_version", firmwareVersion, 64, DEFAULT_FW_VERSION);
         writeSetupParameter(request, "http_auth_user", httpAuthUser, 64, DEFAULT_HTTP_USER, true);
         writeSetupParameter(request, "http_auth_pass", httpAuthPass, 64, DEFAULT_HTTP_PASS, true);
@@ -610,6 +613,7 @@ void setupHTTPServer() {
         root["password"] = password;
         root["ota_pass"] = otaPassword;
         root["firmware_server"] = firmwareServer;
+        root["firmware_variant"] = firmwareVariant;
         root["firmware_version"] = firmwareVersion;
         root["http_auth_user"] = httpAuthUser;
         root["http_auth_pass"] = httpAuthPass;

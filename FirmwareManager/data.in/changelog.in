@@ -1,4 +1,6 @@
 v2.3.0                                  
+- New: Configure "Relaxed" firmware     
+  flavour to get hq2x filter            
 - Improved output resolution switching  
   time                                  
 - Properly queue osd write requests     

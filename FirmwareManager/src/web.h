@@ -62,6 +62,8 @@ void handleESPIndexDownload(AsyncWebServerRequest *request) {
 
 void handleChangelogDownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
     String httpGet = "GET /" 
+        + String(firmwareVariant)
+        + "-"
         + String(firmwareVersion) 
         + "/changelog"
         + " HTTP/1.0\r\nHost: esp.i74.de\r\n\r\n";
@@ -71,6 +73,8 @@ void handleChangelogDownload(AsyncWebServerRequest *request, ProgressCallback pr
 
 void handleFPGADownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
     String httpGet = "GET /fw/" 
+        + String(firmwareVariant)
+        + "-"
         + String(firmwareVersion) 
         + "/DCxPlus-default"
         + "." + FIRMWARE_EXTENSION 
@@ -81,6 +85,8 @@ void handleFPGADownload(AsyncWebServerRequest *request, ProgressCallback progres
 
 void handleESPDownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
     String httpGet = "GET /" 
+        + String(firmwareVariant)
+        + "-"
         + String(firmwareVersion) 
         + "/" + (ESP.getFlashChipSize() / 1024 / 1024) + "MB"
         + "-" + "firmware"
@@ -92,6 +98,8 @@ void handleESPDownload(AsyncWebServerRequest *request, ProgressCallback progress
 
 void handleESPIndexDownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
     String httpGet = "GET /"
+        + String(firmwareVariant)
+        + "-"
         + String(firmwareVersion)
         + "/esp.index.html.gz"
         + " HTTP/1.0\r\nHost: esp.i74.de\r\n\r\n";

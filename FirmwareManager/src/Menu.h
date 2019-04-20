@@ -173,15 +173,17 @@ char OSD_OPT_RESET_CONFIRM_MENU[521] = (
     "         " MENU_OK_STR ": Press  " MENU_CANCEL_STR ": Not now           "
 );
 
-#define MENU_FW_CHECK_LINE 2
-#define MENU_FW_DOWNLOAD_LINE 3
-#define MENU_FW_FLASH_LINE 4
-#define MENU_FW_RESET_LINE 5
+#define MENU_FW_CONFIG_LINE 2
+#define MENU_FW_CHECK_LINE 3
+#define MENU_FW_DOWNLOAD_LINE 4
+#define MENU_FW_FLASH_LINE 5
+#define MENU_FW_RESET_LINE 6
 #define MENU_FW_FIRST_SELECT_LINE 2
-#define MENU_FW_LAST_SELECT_LINE 5
+#define MENU_FW_LAST_SELECT_LINE MENU_FW_RESET_LINE
 char OSD_FIRMWARE_MENU[521] = (
     "Firmware                                "
     "                                        "
+    "- Configure                             "
     "- Check                                 "
     "- Download                              "
     "- Flash                                 "
@@ -191,8 +193,27 @@ char OSD_FIRMWARE_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "                                        "
     "          " MENU_OK_STR ": Select  " MENU_CANCEL_STR ": Exit            "
+);
+
+#define MENU_FWCONF_VIEW_FLAVOUR 2
+#define MENU_FWCONF_FIRST_SELECT_LINE 2
+#define MENU_FWCONF_LAST_SELECT_LINE 2
+#define MENU_FWCONF_COLUMN 20
+char OSD_FIRMWARE_CONFIG_MENU[521] = (
+    "Configure Firmware                      "
+    "                                        "
+    "- Firmware Flavour: ___________         "
+    "                                        "
+    "  Standard: fully HDMI compliant        "
+    "  Relaxed:  relaxed HDMI timings        "
+    "            allows e.g. HQ2X filtering  "
+    "                                        "
+    "  left/right (d-pad): change value.     "
+    "  " MENU_OK_STR ": save settings and exit.            "
+    "  " MENU_CANCEL_STR ": discard changes and exit.          "
+    "                                        "
+    "          " MENU_OK_STR ": Save  " MENU_CANCEL_STR ": Cancel            "
 );
 
 #define MENU_FWC_VIEW_CHANGELOG "       " MENU_OK_STR ": View changelog  " MENU_CANCEL_STR ": Back       "
@@ -507,6 +528,7 @@ void displayProgress(int read, int total, int line) {
 #include "osd/AdvancedVideo.h"
 #include "osd/VideoMode.h"
 #include "osd/Firmware.h"
+#include "osd/FirmwareConfig.h"
 #include "osd/FirmwareCheck.h"
 #include "osd/Changelog.h"
 #include "osd/FirmwareDownload.h"

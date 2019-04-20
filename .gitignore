@@ -1,4 +1,5 @@
 Core/db/*
+Core/dse/
 Core/incremental_db/*
 Core/*.summary
 Core/DCx.sta.rpt
@@ -42,3 +43,6 @@ docker/dreamcast-hdmi/files/JIC.tgz
 Core/pll_hdmi/greybox_tmp/
 Core/.qsys_edit/
 tmp/
+Core/DCxPlus.archive.rpt
+Core/dse_local_job_*.log
+Core/DCxPlus.dse.rpt

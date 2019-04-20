@@ -699,6 +699,7 @@ var setupDataMapping = {
     password:         [ "WiFi Password    ", "empty" ],
     ota_pass:         [ "OTA Password     ", "empty" ],
     firmware_server:  [ "Firmware Server  ", "dc.i74.de", "[[ib;lightblue;]valid domain name]", domainCheck ],
+    firmware_variant: [ "Firmware Flavor  ", "std", "[[b;lightblue;]std] / [[b;lightblue;]hq2x]", /^(std|hq2x)$/ ],
     firmware_version: [ "Firmware Version ", "master", "[[b;lightblue;]master] / [[b;lightblue;]develop] / [[b;lightblue;]vX.Y.Z]", /^(master|develop|experimental|v\d+\.\d+\.\d+)$/ ],
     http_auth_user:   [ "HTTP User        ", "dchdmi" ],
     http_auth_pass:   [ "HTTP Password    ", "generated", null, null, null, "[[b;red;]If you do not set a password, a new one will be]\n    [[b;red;]generated each time DCHDMI starts!]" ],
@@ -1239,7 +1240,10 @@ function checkSetupStatus() {
 function _getFPGAMD5File() {
     return (
           "//" + currentConfigData["firmware_server"]
-        + "/fw/" + currentConfigData["firmware_version"]
+        + "/fw/"
+        + currentConfigData["firmware_variant"]
+        + "-"
+        + currentConfigData["firmware_version"]
         + "/DCxPlus-default"
         + "." + FIRMWARE_EXTENSION + ".md5?cc=" + Math.random()
     );
@@ -1247,8 +1251,10 @@ function _getFPGAMD5File() {
 
 function _getESPMD5File() {
     return (
-          "//esp.i74.de"
-        + "/" + currentConfigData["firmware_version"]
+          "//esp.i74.de/"
+        + currentConfigData["firmware_variant"]
+        + "-"
+        + currentConfigData["firmware_version"]
         + "/" + currentConfigData["flash_chip_size"] / 1024 / 1024 + "MB"
         + "-" + "firmware"
         + "." + ESP_FIRMWARE_EXTENSION + ".md5?cc=" + Math.random()
@@ -1257,8 +1263,10 @@ function _getESPMD5File() {
 
 function _getESPIndexMD5File() {
     return (
-          "//esp.i74.de"
-        + "/" + currentConfigData["firmware_version"]
+          "//esp.i74.de/"
+        + currentConfigData["firmware_variant"]
+        + "-"
+        + currentConfigData["firmware_version"]
         + "/" + ESP_INDEX_STAGING_FILE + ".md5?cc=" + Math.random()
     );
 }
