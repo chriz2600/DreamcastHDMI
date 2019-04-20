@@ -1,5 +1,37 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2019-04-20 *Firmware v3.0.0* (*Relaxed*)
+
+- New: ***RGB color space*** (Advanced Video Settings) configuration option.
+
+- New: ***Upscaling mode*** configuration option.
+
+  Currently available: ***2x*** and ***hq2x***
+  
+  There will be more (e.g. anti aliasing) upscale filters in the future.
+
+- Fixed: 480i bob deinterlacing wasn't properly aligned for 960p/1080p output.
+
+- Fixed: OSD position is now excactly the same for all output modes :)
+
+
+#### 2019-04-20 *Firmware v2.3.0* (*Standard*)
+
+- New: Menu option to configure firmware flavour (Firmware->Configure):
+
+  - ***Relaxed***
+  
+    Allows filtered upscaling (currently HQ2X) by using relaxed HDMI timings.
+  
+  - ***Standard*** 
+  
+    Fully HDMI compliant.
+
+- New: Improved output resolution switching time.
+
+- Internal: Properly queue osd write requests.
+
+
 #### 2019-02-06 *Firmware v2.2.0*
 
 - Fixed: It was possible to flash a firmware file from the OSD, which was only partially downloaded or corrupt.
