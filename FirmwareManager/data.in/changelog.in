@@ -1,9 +1,13 @@
 v2.3.0                                  
 - New: Configure "Relaxed" firmware     
   flavour to get hq2x filter            
-- Improved output resolution switching  
-  time                                  
-- Properly queue osd write requests     
+- New: "RGB color space" config option  
+- Fixed: 480i upsclaing wasn't properly 
+  aligned when using 960p/1080p output  
+- New: Improved output resolution       
+  switching time                        
+- Internal: Properly queue osd write    
+  requests                              
                                         
 v2.2.0                                  
 - Verify checksum before flashing to    

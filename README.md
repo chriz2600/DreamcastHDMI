@@ -2,6 +2,8 @@
 
 #### 2019-04-20 *Firmware v2.3.0* (*Standard*)
 
+- New: ***RGB color space*** (Advanced Video Settings) configuration option.
+
 - New: Menu option to configure firmware flavour (Firmware->Configure):
 
   - ***Relaxed***
@@ -13,6 +15,8 @@
     Fully HDMI compliant.
 
 - New: Improved output resolution switching time.
+
+- Fixed: 480i bob deinterlacing wasn't properly aligned for 960p/1080p output.
 
 - Internal: Properly queue osd write requests.
 
