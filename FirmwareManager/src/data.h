@@ -201,6 +201,12 @@ void read240pOffset() {
     }
 }
 
+void readColorSpace() {
+    char buffer[32] = "";
+    _readFile("/etc/color/space", buffer, 32, DEFAULT_COLOR_SPACE);
+    ColorSpace = atoi(buffer);
+}
+
 void writeScanlinesIntensity() {
     char buffer[32] = "";
     snprintf(buffer, 31, "%d", scanlinesIntensity);
@@ -211,6 +217,12 @@ void write240pOffset() {
     char buffer[32] = "";
     snprintf(buffer, 31, "%d", offset_240p);
     _writeFile("/etc/240p/offset", buffer, 32);
+}
+
+void writeColorSpace() {
+    char buffer[32] = "";
+    snprintf(buffer, 31, "%d", ColorSpace);
+    _writeFile("/etc/color/space", buffer, 32);
 }
 
 /////////

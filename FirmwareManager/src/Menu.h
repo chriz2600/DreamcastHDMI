@@ -68,15 +68,16 @@ char OSD_OUTPUT_RES_MENU[521] = (
 
 #define MENU_AV_DEINT 2
 #define MENU_AV_240POS 3
+#define MENU_AV_COLOR_SPACE 4
 #define MENU_AV_FIRST_SELECT_LINE 2
-#define MENU_AV_LAST_SELECT_LINE MENU_AV_240POS
+#define MENU_AV_LAST_SELECT_LINE MENU_AV_COLOR_SPACE
 #define MENU_AV_COLUMN 24
 char OSD_ADVANCED_VIDEO_MENU[521] = (
     "Advanced Video Settings                 "
     "                                        "
     "- Deinterlacer:         _______         "
     "- 240p adjust position: _______         "
-    "                                        "
+    "- RGB color space:      _______         "
     "                                        "
     "                                        "
     "  left/right (d-pad): change value.     "

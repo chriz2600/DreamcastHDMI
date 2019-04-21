@@ -73,6 +73,7 @@ uint8_t CurrentResetMode = RESET_MODE_LED;
 uint8_t CurrentDeinterlaceMode = DEINTERLACE_MODE_BOB;
 uint8_t CurrentProtectedMode = PROTECTED_MODE_OFF;
 uint8_t offset_240p;
+uint8_t ColorSpace;
 
 char md5FPGA[48];
 char md5ESP[48];
@@ -159,6 +160,14 @@ void setup240pOffset() {
     forceI2CWrite(
         I2C_240P_OFFSET, offset_240p, 
         I2C_240P_OFFSET, offset_240p
+    );
+}
+
+void setupColorSpace() {
+    readColorSpace();
+    forceI2CWrite(
+        I2C_COLOR_SPACE, ColorSpace,
+        I2C_COLOR_SPACE, ColorSpace
     );
 }
 
@@ -933,6 +942,7 @@ void setup(void) {
     setupOutputResolution();
     setupScanlines();
     setup240pOffset();
+    setupColorSpace();
     setupTaskManager();
     setupCredentials();
     waitForController();

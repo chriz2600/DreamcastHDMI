@@ -16,6 +16,7 @@ module ADV7513(
     output reg [31:0] monitor_sense_low_count,
 
     input [7:0] clock_data,
+    input [1:0] colorspace,
     input ADV7513Config adv7513Config
 );
 
@@ -319,42 +320,49 @@ task adv7513_init;
             34: write_i2c(CHIP_ADDR, 16'h_55_10); // RGB in AVI InfoFrame
             35: write_i2c(CHIP_ADDR, { 8'h_56, adv7513Config.adv_reg_56 }); // AVI InfoFrame: Picture Aspect Ratio, Active Format Aspect Ratio
             36: begin
-                if (adv7513Config.fullrange) begin
+                if (colorspace == 2'd_1 || (colorspace == 0 && adv7513Config.fullrange)) begin
                     write_i2c(CHIP_ADDR, 16'h_57_08); // xvYCC 601, full range
                 end else begin
-                    write_i2c(CHIP_ADDR, 16'h_57_10); // xvYCC 709, limited range
+                    write_i2c(CHIP_ADDR, 16'h_57_04); // xvYCC 601, limited range
                 end
             end
             37: begin
-                if (adv7513Config.fullrange) begin
+                if (colorspace == 2'd_1 || (colorspace == 0 && adv7513Config.fullrange)) begin
+                    write_i2c(CHIP_ADDR, 16'h_59_40); // YQ[1:0] full range
+                end else begin
+                    write_i2c(CHIP_ADDR, 16'h_59_00); // YQ[1:0] limited range
+                end
+            end
+            38: begin
+                if (colorspace == 2'd_1 || (colorspace == 0 && adv7513Config.fullrange)) begin
                     write_i2c(CHIP_ADDR, 16'h_18_0D); // disable CSC
                 end else begin
                     write_i2c(CHIP_ADDR, 16'h_18_8D); // enable CSC
                 end
             end
-            38: write_i2c(CHIP_ADDR, 16'h_19_BC);
-            39: write_i2c(CHIP_ADDR, 16'h_1A_00);
-            40: write_i2c(CHIP_ADDR, 16'h_1B_00);
-            41: write_i2c(CHIP_ADDR, 16'h_1C_00);
-            42: write_i2c(CHIP_ADDR, 16'h_1D_00);
-            43: write_i2c(CHIP_ADDR, 16'h_1E_01);
-            44: write_i2c(CHIP_ADDR, 16'h_1F_00);
-            45: write_i2c(CHIP_ADDR, 16'h_20_00);
-            46: write_i2c(CHIP_ADDR, 16'h_21_00);
-            47: write_i2c(CHIP_ADDR, 16'h_22_0D);
-            48: write_i2c(CHIP_ADDR, 16'h_23_BC);
-            49: write_i2c(CHIP_ADDR, 16'h_24_00);
-            50: write_i2c(CHIP_ADDR, 16'h_25_00);
-            51: write_i2c(CHIP_ADDR, 16'h_26_01);
-            52: write_i2c(CHIP_ADDR, 16'h_27_00);
-            53: write_i2c(CHIP_ADDR, 16'h_28_00);
-            54: write_i2c(CHIP_ADDR, 16'h_29_00);
-            55: write_i2c(CHIP_ADDR, 16'h_2A_00);
-            56: write_i2c(CHIP_ADDR, 16'h_2B_00);
-            57: write_i2c(CHIP_ADDR, 16'h_2C_0D);
-            58: write_i2c(CHIP_ADDR, 16'h_2D_BC);
-            59: write_i2c(CHIP_ADDR, 16'h_2E_01);
-            60: write_i2c(CHIP_ADDR, 16'h_2F_00);
+            39: write_i2c(CHIP_ADDR, 16'h_19_BC);
+            40: write_i2c(CHIP_ADDR, 16'h_1A_00);
+            41: write_i2c(CHIP_ADDR, 16'h_1B_00);
+            42: write_i2c(CHIP_ADDR, 16'h_1C_00);
+            43: write_i2c(CHIP_ADDR, 16'h_1D_00);
+            44: write_i2c(CHIP_ADDR, 16'h_1E_01);
+            45: write_i2c(CHIP_ADDR, 16'h_1F_00);
+            46: write_i2c(CHIP_ADDR, 16'h_20_00);
+            47: write_i2c(CHIP_ADDR, 16'h_21_00);
+            48: write_i2c(CHIP_ADDR, 16'h_22_0D);
+            49: write_i2c(CHIP_ADDR, 16'h_23_BC);
+            50: write_i2c(CHIP_ADDR, 16'h_24_00);
+            51: write_i2c(CHIP_ADDR, 16'h_25_00);
+            52: write_i2c(CHIP_ADDR, 16'h_26_01);
+            53: write_i2c(CHIP_ADDR, 16'h_27_00);
+            54: write_i2c(CHIP_ADDR, 16'h_28_00);
+            55: write_i2c(CHIP_ADDR, 16'h_29_00);
+            56: write_i2c(CHIP_ADDR, 16'h_2A_00);
+            57: write_i2c(CHIP_ADDR, 16'h_2B_00);
+            58: write_i2c(CHIP_ADDR, 16'h_2C_0D);
+            59: write_i2c(CHIP_ADDR, 16'h_2D_BC);
+            60: write_i2c(CHIP_ADDR, 16'h_2E_01);
+            61: write_i2c(CHIP_ADDR, 16'h_2F_00);
             default: begin
                 cmd_counter <= next_cmd;
                 subcmd_counter <= scs_start;

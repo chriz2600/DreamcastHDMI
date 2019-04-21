@@ -113,6 +113,8 @@ wire generate_video;
 wire generate_timing;
 wire [7:0] video_gen_data;
 wire activateHDMIoutput;
+wire [1:0] colorspace;
+wire [1:0] colorspace_data;
 wire fullcycle;
 wire reset_dc;
 wire reset_opt;
@@ -302,6 +304,7 @@ wire line_doubler_sync2;
 wire add_line_sync;
 wire is_pal_sync;
 wire [7:0] reconf_data_hdmi;
+wire is_interlaced;
 
 Flag_CrossDomain rsync_trigger(
     .clkA(clock54_net),
@@ -345,11 +348,18 @@ Flag_CrossDomain enable_osd_cross(
     .FlagOut_clkB(enable_osd_out)
 );
 
+Signal_CrossDomain isInterlacedSig(
+    .SignalIn_clkA(~add_line_mode && _240p_480i_mode),
+    .clkB(hdmi_clock),
+    .SignalOut_clkB(is_interlaced)
+);
+
 ram2video ram2video(
     .starttrigger(output_trigger),
     .clock(hdmi_clock),
     .reset(~pll_hdmi_locked /*|| ~ram2video_ready*/ || resync_signal),
     .line_doubler(line_doubler_sync),
+    .is_interlaced(is_interlaced),
     .rddata(ram_rddata),
     .hsync(HSYNC),
     .vsync(VSYNC),
@@ -596,6 +606,7 @@ i2cSlave i2cSlave(
     .is_pal(is_pal_sync),
     .video_gen_data(video_gen_data),
     .activateHDMIoutput(activateHDMIoutput),
+    .colorspace(colorspace_data),
     .force_generate(control_force_generate_out),
 
     .pll_adv_lockloss_count(pll_adv_lockloss_count),
@@ -683,8 +694,10 @@ adv7513_reconfig reconf_adv(
     .clock(control_clock),
     .data_in(reconf_data),
     .clock_config_data(clock_config_data),
+    .colorspace_in(colorspace_data),
     .adv7513Config(adv7513Config),
     .clock_data_out(clock_data),
+    .colorspace_out(colorspace),
     .adv7513_reconf(adv7513_reconf)
 );
 
@@ -698,6 +711,7 @@ ADV7513 adv7513(
     .ready(adv7513_ready),
     .adv7513Config(adv7513Config),
     .clock_data(clock_data),
+    .colorspace(colorspace),
     .hdmi_int_reg(hdmi_int_reg),
     .hpd_detected(hpd_detected),
     .pll_adv_lockloss_count(pll_adv_lockloss_count),
