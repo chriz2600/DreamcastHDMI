@@ -1,14 +1,15 @@
 v3.0.0                                  
-- New: "RGB color space" config option  
 - New: "Upscaling mode" config option   
   Currently available: "2x" and "hq2x"  
-- Fixed: 480i upsclaing wasn't properly 
-  aligned when using 960p/1080p output  
                                         
 v2.3.0                                  
-- Improved output resolution switching  
-  time                                  
-- Properly queue osd write requests     
+- New: "RGB color space" config option  
+- Fixed: 480i upsclaing wasn't properly 
+  aligned when using 960p/1080p output  
+- New: Improved output resolution       
+  switching time                        
+- Internal: Properly queue osd write    
+  requests                              
                                         
 v2.2.0                                  
 - Verify checksum before flashing to    
