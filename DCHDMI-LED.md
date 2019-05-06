@@ -24,5 +24,10 @@ Dreamcast clock and sync signals are fine, no cable plugged into HDMI port.
 
 Normal operation.
 
+#### **LED rapid intermittent blinking**
+
+Indicates video test pattern generation. Only used in test rig or using the `generate_on` console command.
+
+---
 
 ![vdac](https://github.com/chriz2600/DreamcastHDMI/raw/hq2x-experimental/assets/vdac.png)
