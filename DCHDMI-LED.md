@@ -25,4 +25,4 @@ Dreamcast clock and sync signals are fine, no cable plugged into HDMI port.
 Normal operation.
 
 
-![vdac](https://github.com/chriz2600/DreamcastHDMI/raw/hq2x-develop/assets/vdac.png)
+![vdac](https://github.com/chriz2600/DreamcastHDMI/raw/hq2x-experimental/assets/vdac.png)
