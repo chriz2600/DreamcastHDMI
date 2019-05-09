@@ -106,7 +106,15 @@ module pll54 (
 		altpll_component.clk0_divide_by = 1,
 		altpll_component.clk0_duty_cycle = 50,
 		altpll_component.clk0_multiply_by = 1,
-		altpll_component.clk0_phase_shift = "0",
+		//altpll_component.clk0_phase_shift = "0", // 0°
+		//altpll_component.clk0_phase_shift = "2315", // 45°
+		altpll_component.clk0_phase_shift = "4629", // 90°
+		//altpll_component.clk0_phase_shift = "6944", // 135°
+		//altpll_component.clk0_phase_shift = "9259", // 180°
+		//altpll_component.clk0_phase_shift = "11574", // 225°
+		//altpll_component.clk0_phase_shift = "13889", // 270°
+		//altpll_component.clk0_phase_shift = "16204", // 315°
+		//altpll_component.clk0_phase_shift = "16975", // 330°
 		altpll_component.compensate_clock = "CLK0",
 		altpll_component.inclk0_input_frequency = 18518,
 		altpll_component.intended_device_family = "Cyclone 10 LP",
