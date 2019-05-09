@@ -1,3 +1,8 @@
+v3.0.1                                  
+- Fixed: Adjusted input data latch clock
+  phase shift to be more robust         
+  (Thanks to Ste!)                      
+                                        
 v3.0.0                                  
 - New: "Upscaling mode" config option   
   Currently available: "2x" and "hq2x"  
