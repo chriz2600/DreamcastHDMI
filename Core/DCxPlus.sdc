@@ -1,8 +1,9 @@
 create_clock -name virtual54 -period 54Mhz
 
 # input clock
-create_clock -period 54Mhz -waveform { 4.629 13.888 } -name clk54 [get_ports clock54]
-create_generated_clock -name datain_clock -source {pll54|altpll_component|auto_generated|pll1|inclk[0]} {pll54|altpll_component|auto_generated|pll1|clk[0]}
+set phase 90
+create_clock -period 54Mhz -name clk54 [get_ports clock54]
+create_generated_clock -phase $phase -name datain_clock -source {pll54|altpll_component|auto_generated|pll1|inclk[0]} {pll54|altpll_component|auto_generated|pll1|clk[0]}
 
 # output clocks
 create_clock -period 74.25Mhz -name clk74_175824 [get_ports clock74_175824]
