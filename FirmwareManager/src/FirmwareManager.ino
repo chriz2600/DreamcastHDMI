@@ -953,6 +953,21 @@ void waitForController() {
     DEBUG2("no valid controller packet found within timeout\n");
 }
 
+void doReflash() {
+    disableFPGA();
+    if (flashTask.doStart()) {
+        // [](int read, int total, bool done, int error) {
+        // }
+        DEBUG2("   firmware flashing started.\n");
+        while (!flashTask.doUpdate()) {
+            yield();
+        }
+        flashTask.doStop();
+        DEBUG2("   firmware flashing done.\n");
+        resetall();
+    }
+}
+
 void setup(void) {
     DBG_OUTPUT_PORT.begin(115200);
     DEBUG2("\n>> FirmwareManager starting... " DCHDMI_VERSION "\n");
@@ -988,18 +1003,7 @@ void setup(void) {
 
     if (reflashNeccessary && reflashNeccessary2 && reflashNeccessary3) {
         DEBUG2("FPGA firmware missing or broken, reflash needed.\n");
-        disableFPGA();
-        if (flashTask.doStart()) {
-            // [](int read, int total, bool done, int error) {
-            // }
-            DEBUG2("   firmware flashing started.\n");
-            while (!flashTask.doUpdate()) {
-                yield();
-            }
-            flashTask.doStop();
-            DEBUG2("   firmware flashing done.\n");
-            resetall();
-        }
+        doReflash();
     }
     DEBUG2(">> Ready.\n");
     DEBUG2(">> httpAuthUser: %s\n", httpAuthUser);
@@ -1009,4 +1013,10 @@ void setup(void) {
 void loop(void){
     ArduinoOTA.handle();
     taskManager.Loop();
+    if (Serial.available() > 0) {
+        int incomingByte = Serial.read();
+        if (incomingByte == 'f') {
+            doReflash();
+        }
+    }
 }
