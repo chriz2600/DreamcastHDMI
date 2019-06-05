@@ -39,9 +39,23 @@ set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 16.0
 set_global_assignment -name ROUTER_EFFORT_MULTIPLIER 8.0
 set_global_assignment -name CYCLONEII_OPTIMIZATION_TECHNIQUE SPEED
 set_global_assignment -name STRATIX_DEVICE_IO_STANDARD "3.3-V LVTTL"
+set_global_assignment -name SEED 6
 set_global_assignment -name FITTER_EFFORT "AUTO FIT"
-set_global_assignment -name SEED 74
 #set_global_assignment -name SLD_FILE db/stp1_auto_stripped.stp
+
+# suggested by quartus
+set_global_assignment -name PHYSICAL_SYNTHESIS_ASYNCHRONOUS_SIGNAL_PIPELINING ON
+set_global_assignment -name ROUTER_LCELL_INSERTION_AND_LOGIC_DUPLICATION ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
+set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
+set_global_assignment -name QII_AUTO_PACKED_REGISTERS NORMAL
+#set_global_assignment -name SMART_RECOMPILE ON
+set_global_assignment -name MUX_RESTRUCTURE OFF
+
+set_global_assignment -name ADVANCED_PHYSICAL_OPTIMIZATION ON
+set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT "Extra"
+set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
 
 # source files
 set_global_assignment -name QIP_FILE source/fifo/reconf_fifo.qip
@@ -82,6 +96,16 @@ set_global_assignment -name VERILOG_FILE source/misc/LEDglow.v
 set_global_assignment -name VERILOG_FILE source/filter/output_data.v
 set_global_assignment -name VERILOG_FILE source/filter/alpha_calc.v
 set_global_assignment -name VERILOG_FILE source/configuration.v
+set_global_assignment -name INCLUDE_FILE source/pll_hdmi/config/108_MHz.v
+set_global_assignment -name INCLUDE_FILE source/pll_hdmi/config/132_MHz.v
+set_global_assignment -name INCLUDE_FILE source/pll_hdmi/config/144_MHz.v
+set_global_assignment -name INCLUDE_FILE source/pll_hdmi/config/148.5_MHz.v
+set_global_assignment -name INCLUDE_FILE source/pll_hdmi/config/25.2_MHz.v
+set_global_assignment -name INCLUDE_FILE source/pll_hdmi/config/27_MHz.v
+set_global_assignment -name INCLUDE_FILE source/pll_hdmi/config/54_MHz.v
+set_global_assignment -name INCLUDE_FILE source/pll_hdmi/config/66_MHz.v
+set_global_assignment -name INCLUDE_FILE source/pll_hdmi/config/72_MHz.v
+set_global_assignment -name INCLUDE_FILE source/pll_hdmi/config/74.25_MHz.v
 set_global_assignment -name VHDL_FILE source/adv7513/i2c_master.vhd
 set_global_assignment -name SEARCH_PATH source/
 
@@ -99,8 +123,8 @@ set_instance_assignment -name PLL_COMPENSATE ON -to _vsync
 set_global_assignment -name AUTO_RAM_RECOGNITION Off
 set_global_assignment -name AUTO_ROM_RECOGNITION Off
 
-#set_global_assignment -name ADVANCED_PHYSICAL_OPTIMIZATION ON
-#set_global_assignment -name PHYSICAL_SYNTHESIS_EFFORT "Extra"
-#set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_RETIMING ON
+set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to *
+set_instance_assignment -name FAST_INPUT_REGISTER ON -to *
+set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to *
 
 source Macros.qsf

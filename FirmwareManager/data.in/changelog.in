@@ -1,3 +1,8 @@
+v2.3.2                                  
+- Internal: Do not use ADV7513 internal 
+  pixel/clock doubling, generate all    
+  clocks on FPGA                        
+                                        
 v2.3.1                                  
 - Fixed: Adjusted input data latch clock
   phase shift to be more robust         
