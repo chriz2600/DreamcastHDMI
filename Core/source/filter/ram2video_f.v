@@ -37,6 +37,7 @@ module ram2video_f(
     reg [23:0] rddata_reg;
     reg [23:0] inputpixel;
     wire [23:0] outpixel;
+    wire [23:0] outpixel2;
     Hq2x_optimized hq2x_inst (
         .clk(clock),
         .ce_x4(1'b1),
@@ -92,10 +93,35 @@ module ram2video_f(
             && counterY_reg_vga >= OSD_TEXT_Y_START && counterY_reg_vga < OSD_TEXT_Y_END
         ),
         .isCharPixel(char_data[7-counterX_osd_reg_q[2:0]] ^ (counterY_osd_reg == highlight_line)),
-        .isScanline(isScanline),
+        .isScanline(/*isScanline*/0),
         .scanline_intensity(scanline.intensity),
         .data({ rddata[7:0], rddata[15:8], rddata[23:16] }),
         .data_out(inputpixel)
+    );
+
+    `define IsDrawAreaHDMI_f(x, y)   (x >= 0 && x < hdmiVideoConfig.horizontal_pixels_visible \
+                                   && y >= 0 && y < hdmiVideoConfig.vertical_lines_visible)
+
+    `define IsDrawAreaVGA_f(x, y)   (x >= hdmiVideoConfig.horizontal_capture_start \
+                                  && x < hdmiVideoConfig.horizontal_capture_end \
+                                  && y >= hdmiVideoConfig.vertical_capture_start \
+                                  && y < hdmiVideoConfig.vertical_capture_end)
+
+    `define IsOsdBgArea_f(x, y)  ( \
+        enable_osd \
+        && x >= hdmiVideoConfig.osd_bg_offset_x_start \
+        && x < hdmiVideoConfig.osd_bg_offset_x_end \
+        && y >= hdmiVideoConfig.osd_bg_offset_y_start \
+        && y < hdmiVideoConfig.osd_bg_offset_y_end)
+
+    scanline scnl(
+        .clock(clock),
+        .isDrawArea(`IsDrawAreaHDMI_f(counterX_reg_q_q_q_q, counterY_shift_q_q_q_q)),
+        .isOsdBgArea(`IsOsdBgArea_f(counterX_reg_q_q_q_q, counterY_shift_q_q_q_q)),
+        .isScanline(isScanline),
+        .scanline_intensity(scanline.intensity),
+        .data({ outpixel[7:0], outpixel[15:8], outpixel[23:16] }),
+        .data_out(outpixel2)
     );
 
     wire [10:0] char_addr;
@@ -116,16 +142,8 @@ module ram2video_f(
     `define ResetReadY(y) (y == `VerticalLines_f - 1)
     `define AdvanceReadY(x, y) (x == hdmiVideoConfig.horizontal_capture_end + DATA_DELAY_END && (y >= hdmiVideoConfig.vertical_capture_start))
 
-    `define IsDrawAreaHDMI_f(x, y)   (x >= 0 && x < hdmiVideoConfig.horizontal_pixels_visible \
-                                 && y >= 0 && y < hdmiVideoConfig.vertical_lines_visible)
-
-    `define IsDrawAreaVGA_f(x, y)   (x >= hdmiVideoConfig.horizontal_capture_start \
-                                && x < hdmiVideoConfig.horizontal_capture_end \
-                                && y >= hdmiVideoConfig.vertical_capture_start \
-                                && y < hdmiVideoConfig.vertical_capture_end)
-
     `define GetAddr_f(x, y) (next_reset_frame | next_reset_line ? 14'b0 : ram_addrY_reg_hq2x + { 4'b0, ram_addrX_reg_hq2x })
-    `define GetData_f(x, y) (`IsDrawAreaVGA_f(x, y) ? { outpixel[7:0], outpixel[15:8], outpixel[23:16] } : 24'h00)
+    `define GetData_f(x, y) (`IsDrawAreaVGA_f(x, y) ? outpixel2 : 24'h00)
 
     reg [9:0] ram_addrX_reg_hq2x /*verilator public*/;
     reg [13:0] ram_addrY_reg_hq2x /*verilator public*/;
@@ -157,12 +175,14 @@ module ram2video_f(
     reg [11:0] counterX_reg_q_q /*verilator public*/;
     reg [11:0] counterX_reg_q_q_q /*verilator public*/;
     reg [11:0] counterX_reg_q_q_q_q /*verilator public*/;
+    reg [11:0] counterX_reg_out /*verilator public*/;
     reg [11:0] counterY_reg /*verilator public*/;
     reg [11:0] counterY_reg_q /*verilator public*/;
     reg [11:0] counterY_shift_q /*verilator public*/;
     reg [11:0] counterY_shift_q_q /*verilator public*/;
     reg [11:0] counterY_shift_q_q_q /*verilator public*/;
     reg [11:0] counterY_shift_q_q_q_q /*verilator public*/;
+    reg [11:0] counterY_shift_out /*verilator public*/;
 
     reg [11:0] counterX_reg_vga;
     reg [11:0] counterY_reg_vga;
@@ -189,6 +209,8 @@ module ram2video_f(
     reg vsync_reg_q_q /*verilator public*/;
     reg hsync_reg_q_q_q /*verilator public*/;
     reg vsync_reg_q_q_q /*verilator public*/;
+    reg hsync_reg_out /*verilator public*/;
+    reg vsync_reg_out /*verilator public*/;
 
     /* verilator lint_off UNUSED */
     reg [13:0] d_rdaddr /*verilator public*/;
@@ -402,7 +424,7 @@ module ram2video_f(
             //////////////////////////////////////////////////////////////////////
             // SCANLINES
             if (scanline.active) begin
-                isScanline <= counterY_reg_vga[1:0] >> scanline.thickness ^ scanline.oddeven;
+                isScanline <= counterY_shift_q_q_q_q[2:1] >> scanline.thickness ^ scanline.oddeven;
             end else begin
                 isScanline <= 1'b0;
             end
@@ -429,10 +451,10 @@ module ram2video_f(
             // OUTPUT
             fullcycle <= fullcycle || _fullcycle == 4'b1111;
 
-            _d_video_out <= `GetData_f(counterX_reg_q_q_q_q, counterY_shift_q_q_q_q);
-            _d_DrawArea <= `IsDrawAreaHDMI_f(counterX_reg_q_q_q_q, counterY_shift_q_q_q_q);
-            _d_hsync <= hsync_reg_q_q_q;
-            _d_vsync <= vsync_reg_q_q_q;
+            _d_video_out <= `GetData_f(counterX_reg_out, counterY_shift_out);
+            _d_DrawArea <= `IsDrawAreaHDMI_f(counterX_reg_out, counterY_shift_out);
+            _d_hsync <= hsync_reg_out;
+            _d_vsync <= vsync_reg_out;
 
             d_video_out <= _d_video_out;
             d_DrawArea <= _d_DrawArea;
@@ -440,6 +462,15 @@ module ram2video_f(
             d_vsync <= _d_vsync;
         end
     end
+
+    delayline #(
+        .CYCLES(4),
+        .WIDTH(26)
+    ) output_delay (
+        .clock(clock),
+        .in({ counterX_reg_q_q_q_q, counterY_shift_q_q_q_q, hsync_reg_q_q_q, vsync_reg_q_q_q }),
+        .out({ counterX_reg_out, counterY_shift_out, hsync_reg_out, vsync_reg_out })
+    );
 
     assign text_rdaddr = text_rdaddr_x + text_rdaddr_y[9:0];
     assign char_addr = (text_rddata << 4) + charPixelRow_reg;

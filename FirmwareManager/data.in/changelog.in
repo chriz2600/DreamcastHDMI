@@ -1,3 +1,7 @@
+v3.0.2                                  
+- Fixed: Scanlines are now applied post 
+  HQ2X filter. (Thanks to SONIC3D!)     
+                                        
 v3.0.1                                  
 - Fixed: Adjusted input data latch clock
   phase shift to be more robust         
