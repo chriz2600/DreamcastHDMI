@@ -1,5 +1,11 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2019-06-16 *Firmware v3.0.2* (*Relaxed*)
+
+- Fixed: Scanlines are now applied post HQ2X filter. (Thanks to SONIC3D!)
+
+- Fixed: Adjusted input data latch clock phase shift to be more robust (Thanks to Ste!)
+
 #### 2019-04-20 *Firmware v3.0.0* (*Relaxed*)
 
 - New: ***Upscaling mode*** configuration option.
