@@ -1,5 +1,11 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2019-06-16 *Firmware v2.3.2* (*Standard*)
+
+- Internal: Do not use ADV7513 internal pixel/clock doubling, generate all clocks on FPGA
+
+- Fixed: Adjusted input data latch clock phase shift to be more robust (Thanks to Ste!)
+
 #### 2019-04-20 *Firmware v2.3.0* (*Standard*)
 
 - New: ***RGB color space*** (Advanced Video Settings) configuration option.
