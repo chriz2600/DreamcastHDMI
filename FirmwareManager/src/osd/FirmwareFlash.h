@@ -58,7 +58,7 @@ void flashCascade(int pos, bool force) {
             if (force) {
                 flashCascade(pos + 2, force);
             } else {
-                _readFile(SERVER_FPGA_MD5, md5FPGAServer, 33, DEFAULT_MD5_SUM);
+                _readFile(SERVER_FPGA_MD5, md5FPGAServer, 33, DEFAULT_MD5_SUM_ALT);
                 readStoredMD5SumFlash(pos, force, STAGED_FPGA_MD5, md5FPGA);
             }
             break;
@@ -77,7 +77,7 @@ void flashCascade(int pos, bool force) {
             if (force) {
                 flashCascade(pos + 2, force);
             } else {
-                _readFile(SERVER_ESP_MD5, md5ESPServer, 33, DEFAULT_MD5_SUM);
+                _readFile(SERVER_ESP_MD5, md5ESPServer, 33, DEFAULT_MD5_SUM_ALT);
                 readStoredMD5SumFlash(pos, force, STAGED_ESP_MD5, md5ESP);
             }
             break;
@@ -96,7 +96,7 @@ void flashCascade(int pos, bool force) {
             if (force) {
                 flashCascade(pos + 2, force);
             } else {
-                _readFile(SERVER_ESP_INDEX_MD5, md5IndexHtmlServer, 33, DEFAULT_MD5_SUM);
+                _readFile(SERVER_ESP_INDEX_MD5, md5IndexHtmlServer, 33, DEFAULT_MD5_SUM_ALT);
                 readStoredMD5SumFlash(pos, force, STAGED_ESP_INDEX_MD5, md5IndexHtml);
             }
             break;
@@ -161,7 +161,10 @@ void checkStoredMD5SumFlash(int pos, bool force, int line, const char* fname, ch
         fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "No file to flash available. ", [ pos, force ]() {
             flashCascade(pos + 2, force);
         });
-    } else if (strncmp(storedMD5Sum, serverMD5Sum, 32) != 0) {
+    } else if (strlen(storedMD5Sum) != 32 
+     || strlen(serverMD5Sum) != 32 
+     || strncmp(storedMD5Sum, serverMD5Sum, 32) != 0) 
+    {
         gotFWChecksumError = true;
         fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "Checksum mismatch.          ", [ pos, force ]() {
             flashCascade(pos + 2, force);

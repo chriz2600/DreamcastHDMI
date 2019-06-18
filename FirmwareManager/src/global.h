@@ -6,7 +6,7 @@
 
 //////////////////////////////////////////////////////////////////////////////////
 
-#define DCHDMI_VERSION "v3.0.2"
+#define DCHDMI_VERSION "v3.0.3"
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -71,6 +71,7 @@
 
 #define PAGES 8192 // 8192 pages x 256 bytes = 2MB = 16MBit
 #define DEFAULT_MD5_SUM "00000000000000000000000000000000"
+#define DEFAULT_MD5_SUM_ALT "ffffffffffffffffffffffffffffffff"
 
 #define NO_ERROR 0
 #define UNKNOWN_ERROR 255
