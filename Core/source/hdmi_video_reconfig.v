@@ -6,7 +6,7 @@ module hdmi_video_reconfig(
 
     `include "config/hdmi_config.v"
 
-    reg [7:0] data_in_reg = 0;
+    reg [7:0] data_in_reg = 8'h_FF;
 
     HDMIVideoConfig _hdmiVideoConfig_reg;
     HDMIVideoConfig hdmiVideoConfig_reg;

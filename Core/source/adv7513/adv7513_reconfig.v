@@ -13,7 +13,7 @@ module adv7513_reconfig (
 
     reg [7:0] data_in_reg = 0;
     reg [1:0] colorspace_in_reg = 0;
-    reg [7:0] clock_config_data_reg = 3;
+    reg [7:0] clock_config_data_reg = 8'h_FF;
     reg [7:0] clock_data_out_reg = 8'b_0110_0000;
     reg [1:0] colorspace_reg = 0;
     reg adv7513_reconf_reg;
