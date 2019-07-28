@@ -91,7 +91,7 @@ reg [9:0] wraddress_reg;
 reg wren;
 reg enable_osd_reg = 1'b0;
 reg [7:0] highlight_line_reg = 255;
-reg [7:0] reconf_data_reg = 8'h_FF;
+reg [7:0] reconf_data_reg = 0;
 reg [7:0] video_gen_data_reg;
 reg reset_dc_reg = 1'b0;
 reg reset_opt_reg = 1'b0;

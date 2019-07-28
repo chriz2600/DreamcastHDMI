@@ -17,7 +17,7 @@ module pll_hdmi_reconfig (
     reg doReconfig_2;
     reg doReconfig_3;
 
-    reg [7:0] data_req = 8'h_FF;
+    reg [7:0] data_req = 0;
 
     assign q = q_reg_2;
     assign reconfig = doReconfig_3;

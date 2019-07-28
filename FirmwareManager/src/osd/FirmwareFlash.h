@@ -161,8 +161,8 @@ void checkStoredMD5SumFlash(int pos, bool force, int line, const char* fname, ch
         fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "No file to flash available. ", [ pos, force ]() {
             flashCascade(pos + 2, force);
         });
-    } else if (strlen(storedMD5Sum) != 32 
-     || strlen(serverMD5Sum) != 32 
+    } else if (strlen(storedMD5Sum) < 32 
+     || strlen(serverMD5Sum) < 32 
      || strncmp(storedMD5Sum, serverMD5Sum, 32) != 0) 
     {
         gotFWChecksumError = true;

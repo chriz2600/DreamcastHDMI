@@ -95,6 +95,7 @@ wire [7:0] highlight_line;
 //DebugData debugData;
 ControllerData controller_data;
 HDMIVideoConfig hdmiVideoConfig;
+DCVideoConfig _dcVideoConfig;
 DCVideoConfig dcVideoConfig;
 Scanline scanline;
 wire forceVGAMode;
@@ -124,20 +125,24 @@ wire control_clock;
 //wire control_clock_2;
 wire hdmi_int_reg;
 wire hpd_detected;
+wire _config_changed;
 wire config_changed;
 
 assign clock54_out = clock54_net;
 
 // DC config in, ics config out
 configuration configurator(
-    .clock(clock54_net),
-    .dcVideoConfig(dcVideoConfig),
-    ._480p_active_n(video_mode_480p_n),
+    .clock(control_clock),
+    // inputs
+    .dcVideoConfig(_dcVideoConfig),
     .forceVGAMode(forceVGAMode),
-    .line_doubler(_240p_480i_mode),
+    .force_generate(control_force_generate_out /*force_generate*/),
+    // output
+    .config_changed(_config_changed),
+    .line_doubler(line_doubler_sync2 /*_240p_480i_mode*/),
+    // output pins
     .clock_config_S(S),
-    .config_changed(config_changed),
-    .force_generate(force_generate)
+    ._480p_active_n(video_mode_480p_n)
 );
 
 /////////////////////////////////
@@ -219,17 +224,19 @@ data_cross video_gen_data_cross(
 
 wire [7:0] reconf_data_clock54;
 
-data_cross reconf_data_clock54_cross(
+data_cross #(
+    .WIDTH($bits(DCVideoConfig) + 2)
+) dcVideoConfig_cross(
     .clkIn(control_clock),
     .clkOut(clock54_net),
-    .dataIn(reconf_data),
-    .dataOut(reconf_data_clock54)
+    .dataIn({ _dcVideoConfig, _config_changed, line_doubler_sync2 }),
+    .dataOut({ dcVideoConfig, config_changed, _240p_480i_mode })
 );
 
 dc_video_reconfig dc_video_configurator(
-    .clock(clock54_net),
-    .data_in(reconf_data_clock54),
-    .dcVideoConfig(dcVideoConfig),
+    .clock(control_clock),
+    .data_in(reconf_data),
+    .dcVideoConfig(_dcVideoConfig),
     .forceVGAMode(forceVGAMode)
 );
 
@@ -418,39 +425,29 @@ edge_detect pll_hdmi_lockloss_check(
     .rise(pll_hdmi_lockloss)
 );
 
-info_cross pinok_cross(
+data_cross #(
+    .WIDTH(24 + 24 + 24)
+) pinok_cross(
     .clkIn(clock54_net),
     .clkOut(control_clock),
-    .dataIn(pinok),
-    .dataOut(pinok_out)
+    .dataIn({ pinok, timingInfo, rgbData }),
+    .dataOut({ pinok_out, timingInfo_out, rgbData_out })
 );
 
-info_cross resolution_cross(
-    .clkIn(clock54_net),
-    .clkOut(control_clock),
-    .dataIn(timingInfo),
-    .dataOut(timingInfo_out)
-);
-
-info_cross rgbdata_cross(
-    .clkIn(clock54_net),
-    .clkOut(control_clock),
-    .dataIn(rgbData),
-    .dataOut(rgbData_out)
-);
-
-info_cross conf240p_cross(
+data_cross #(
+    .WIDTH(24)
+) conf240p_cross(
     .clkIn(control_clock),
     .clkOut(clock54_net),
     .dataIn(conf240p),
     .dataOut(conf240p_out)
 );
 
-Signal_CrossDomain lineDoubler2(
-    .SignalIn_clkA(_240p_480i_mode),
-    .clkB(control_clock),
-    .SignalOut_clkB(line_doubler_sync2)
-);
+// Signal_CrossDomain lineDoubler2(
+//     .SignalIn_clkA(_240p_480i_mode),
+//     .clkB(control_clock),
+//     .SignalOut_clkB(line_doubler_sync2)
+// );
 
 Signal_CrossDomain addLine(
     .SignalIn_clkA(add_line_mode),
@@ -571,11 +568,13 @@ data_cross highlight_line_cross(
     .dataOut(highlight_line)
 );
 
-info_cross scanline_cross(
+data_cross #(
+    .WIDTH($bits(Scanline))
+) scanline_cross(
     .clkIn(control_clock),
     .clkOut(hdmi_clock),
-    .dataIn({ 12'd0, scanline_in }),
-    .dataOut({ 12'dz, scanline })
+    .dataIn(scanline_in),
+    .dataOut(scanline)
 );
 
 i2cSlave i2cSlave(

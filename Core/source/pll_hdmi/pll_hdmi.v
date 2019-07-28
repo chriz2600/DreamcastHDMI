@@ -183,7 +183,7 @@ module pll_hdmi (
 		altpll_component.port_extclk3 = "PORT_UNUSED",
 		altpll_component.self_reset_on_loss_lock = "OFF",
 		altpll_component.width_clock = 5,
-		altpll_component.scan_chain_mif_file = "config/132_MHz.mif";
+		altpll_component.scan_chain_mif_file = "pll_hdmi/config/148.5_MHz.mif";
 
 
 endmodule
