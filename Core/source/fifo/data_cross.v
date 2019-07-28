@@ -1,16 +1,21 @@
+
 module data_cross(
     input clkIn,
     input clkOut,
-    input [7:0] dataIn,
-    output reg [7:0] dataOut
+    input [WIDTH-1:0] dataIn,
+    output reg [WIDTH-1:0] dataOut
 );
-    reg wrreq = 0;
-    reg rdreq = 0;
-    reg wrfull;
-    reg rdempty;
-    reg [7:0] dataIn_reg = 0;
+    parameter WIDTH = 8;
+    
+    reg wrreq = 0 /* synthesis noprune */;
+    reg rdreq = 0 /* synthesis noprune */;
+    reg wrfull /* synthesis noprune */;
+    reg rdempty /* synthesis noprune */;
+    reg [WIDTH-1:0] dataIn_reg = 0 /* synthesis noprune */;
 
-    reconf_fifo	fifo(
+    data_fifo #(
+        .WIDTH(WIDTH)
+    ) fifo (
         .wrclk(clkIn),
         .data(dataIn_reg),
         .wrreq(wrreq),
