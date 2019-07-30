@@ -55,10 +55,10 @@ const DCVideoConfig DC_VIDEO_CONFIG_480P = {
     10'd0,      // i_vertical_capture_start
     10'd504,    // i_vertical_capture_end
 
-    8'd2,       // buffer_size
-    14'd1440,   // ram_numwords
-    14'd720,    // trigger_address progressive
-    14'd720,    // trigger_address interlaced
+    8'd1,       // buffer_size
+    14'd720,    // ram_numwords
+    14'd360,    // trigger_address progressive
+    14'd360,    // trigger_address interlaced
     14'd720     // buffer_line_length
 };
 
@@ -76,10 +76,10 @@ const DCVideoConfig DC_VIDEO_CONFIG_VGA = {
     10'd0,      // i_vertical_capture_start
     10'd504,    // i_vertical_capture_end
 
-    8'd2,       // buffer_size
-    14'd1280,   // ram_numwords
-    14'd640,    // trigger_address progressive
-    14'd640,    // trigger_address interlaced
+    8'd1,       // buffer_size
+    14'd640,   // ram_numwords
+    14'd320,    // trigger_address progressive
+    14'd320,    // trigger_address interlaced
     14'd640     // buffer_line_length
 };
 
