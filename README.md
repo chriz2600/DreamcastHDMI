@@ -1,5 +1,11 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2019-07-31 *Firmware v3.0.3* (*Relaxed*)
+
+- Fixed: video output may not start when configured to VGA/CableDetect
+
+- Fixed: bob deinterlacing was not properly aligned in VGA/480p mode
+
 #### 2019-06-16 *Firmware v3.0.2* (*Relaxed*)
 
 - Fixed: Scanlines are now applied post HQ2X filter. (Thanks to SONIC3D!)

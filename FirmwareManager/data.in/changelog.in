@@ -1,3 +1,9 @@
+v3.0.3                                  
+- Fixed: video output may not start when
+  configured to VGA/CableDetect         
+- Fixed: bob deinterlacing was not      
+  properly aligned in VGA/480p mode     
+                                        
 v3.0.2                                  
 - Fixed: Scanlines are now applied post 
   HQ2X filter. (Thanks to SONIC3D!)     
