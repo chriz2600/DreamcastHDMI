@@ -1,5 +1,9 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2019-07-31 *Firmware v2.3.3* (*Standard*)
+
+- Internal: Video output may not start when configured to VGA/CableDetect
+
 #### 2019-06-16 *Firmware v2.3.2* (*Standard*)
 
 - Internal: Do not use ADV7513 internal pixel/clock doubling, generate all clocks on FPGA
