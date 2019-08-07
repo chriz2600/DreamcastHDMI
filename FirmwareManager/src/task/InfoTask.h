@@ -144,7 +144,11 @@ class InfoTask : public Task {
                         control_resync_out_count - control_resync_out_offset
                     );
 
-                    fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_INF_RESULT_LINE, (uint8_t*) result);
+                    fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_INF_RESULT_LINE, (uint8_t*) result, []() {
+                        fpgaTask.Read(0xE0, 9, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+                            DEBUG2("KEY_DATA: %02x %02x %02x %02x %02x %02x %02x %02x %02x\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5], buffer[6], buffer[7], buffer[8]);
+                        });
+                    });
                 }
             });
         }

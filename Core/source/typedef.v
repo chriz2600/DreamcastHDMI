@@ -56,6 +56,21 @@ typedef struct packed {
     reg trigger_default_resolution; // 00
 } ControllerData;
 
+// Maple Keyboard Data
+typedef struct packed {
+    reg valid_packet; // 64
+
+    reg [7:0] shiftcode; // bitmask: S2 | Right Alt | Right Shift | Right Ctrl | S1 | Left Alt | Left Shift | Left Ctrl // 63:56
+    reg [7:0] leds; // 55:48
+    reg [7:0] key6; // 47:40
+    reg [7:0] key5; // 39:32
+    reg [7:0] key4; // 31:24
+    reg [7:0] key3; // 23:16
+    reg [7:0] key2; // 15:8
+    reg [7:0] key1; // 7:0
+
+} KeyboardData;
+
 typedef struct packed {
     // horizontal configuration
     reg horizontal_sync_on_polarity;        // 1'b1 for 1080p

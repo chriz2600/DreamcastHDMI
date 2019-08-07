@@ -77,6 +77,7 @@ module registerInterface (
     input is_pal,
     input force_generate,
     input ControllerData controller_data,
+    input KeyboardData keyboard_data,
     input [31:0] pll_adv_lockloss_count,
     input [31:0] hpd_low_count,
     input [31:0] pll54_lockloss_count,
@@ -206,6 +207,16 @@ always @(posedge clk) begin
 
         // clock_config_data
         8'hD0: dataOut_reg <= clock_config_data;
+
+        8'hE0: dataOut_reg <= { 7'd0, keyboard_data.valid_packet };
+        8'hE1: dataOut_reg <= keyboard_data.shiftcode;
+        8'hE2: dataOut_reg <= keyboard_data.leds;
+        8'hE3: dataOut_reg <= keyboard_data.key1;
+        8'hE4: dataOut_reg <= keyboard_data.key2;
+        8'hE5: dataOut_reg <= keyboard_data.key3;
+        8'hE6: dataOut_reg <= keyboard_data.key4;
+        8'hE7: dataOut_reg <= keyboard_data.key5;
+        8'hE8: dataOut_reg <= keyboard_data.key6;
 
         default: dataOut_reg <= 0;
     endcase

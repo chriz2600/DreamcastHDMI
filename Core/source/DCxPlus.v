@@ -98,6 +98,7 @@ module DCxPlus(
     wire [7:0] highlight_line;
     //DebugData debugData;
     ControllerData controller_data;
+    KeyboardData keyboard_data;
     HDMIVideoConfig hdmiVideoConfig;
     DCVideoConfig _dcVideoConfig;
     DCVideoConfig dcVideoConfig;
@@ -644,6 +645,7 @@ module DCxPlus(
         .scanline(scanline_in),
 
         .controller_data(controller_data),
+        .keyboard_data(keyboard_data),
         .reset_dc(reset_dc),
         .reset_opt(reset_opt),
         .reset_conf(reset_conf),
@@ -674,7 +676,8 @@ module DCxPlus(
         .reset(1'b0),
         .pin1(MAPLE_PIN1),
         .pin5(MAPLE_PIN5),
-        .controller_data(controller_data)
+        .controller_data(controller_data),
+        .keyboard_data(keyboard_data)
     );
 
     ////////////////////////////////////////////////////////////////////////
