@@ -11,8 +11,11 @@
 #define MAX_ADDR_SPACE 128
 #define REPEAT_DELAY 250
 #define REPEAT_RATE 100
+#define REPEAT_DELAY_KEYB 600
+#define REPEAT_RATE_KEYB 166
 
 typedef std::function<void(uint16_t controller_data, bool isRepeat)> FPGAEventHandlerFunction;
+typedef std::function<void(uint8_t shiftcode, uint8_t chardata, bool isRepeat)> FPGAKeyboardHandlerFunction;
 typedef std::function<void(uint8_t Address, uint8_t Value)> WriteCallbackHandlerFunction;
 typedef std::function<void(uint8_t address, uint8_t* buffer, uint8_t len)> ReadCallbackHandlerFunction;
 typedef std::function<void()> WriteOSDCallbackHandlerFunction;
@@ -41,9 +44,10 @@ uint8_t mapResolution(uint8_t data);
 class FPGATask : public Task {
 
     public:
-        FPGATask(uint8_t repeat, FPGAEventHandlerFunction chandler) :
+        FPGATask(uint8_t repeat, FPGAEventHandlerFunction chandler, FPGAKeyboardHandlerFunction khandler) :
             Task(repeat),
-            controller_handler(chandler)
+            controller_handler(chandler),
+            keyboard_handler(khandler)
         { };
 
         virtual void DoWriteToOSD(uint8_t column, uint8_t row, uint8_t charData[]) {
@@ -92,6 +96,7 @@ class FPGATask : public Task {
 
     private:
         FPGAEventHandlerFunction controller_handler;
+        FPGAKeyboardHandlerFunction keyboard_handler;
         WriteCallbackHandlerFunction write_callback;
         WriteOSDCallbackHandlerFunction write_osd_callback;
         ReadCallbackHandlerFunction read_callback;
@@ -99,6 +104,7 @@ class FPGATask : public Task {
         uint8_t *data_in;
 
         uint8_t data_out[MAX_ADDR_SPACE+1];
+        uint8_t data_out_keyb[MAX_ADDR_SPACE+1];
         uint8_t data_write[MAX_ADDR_SPACE+1];
         uint16_t stringLength;
         uint16_t left;
@@ -114,7 +120,9 @@ class FPGATask : public Task {
         uint8_t Value;
 
         long eTime;
+        long eTime_keyb;
         uint8_t repeatCount;
+        uint8_t repeatCount_keyb;
         bool GotError = false;
 
         std::queue<osddata_t> osdqueue;
@@ -190,17 +198,18 @@ class FPGATask : public Task {
                     read_callback(Address, buffer2, Value);
                 }
             } else {
-                // update controller data
+                // update controller data and meta
                 uint8_t buffer[1];
-                uint8_t buffer2[I2C_CONTROLLER_AND_DATA_BASE_LENGTH];
+                uint8_t buffer2[I2C_KEYBOARD_LENGTH];
+                
+                ///////////////////////////////////////////////////
+                // read controller data
                 buffer[0] = I2C_CONTROLLER_AND_DATA_BASE;
                 brzo_i2c_write(buffer, 1, false);
                 brzo_i2c_read(buffer2, I2C_CONTROLLER_AND_DATA_BASE_LENGTH, false);
 
                 // new controller data
-                if (buffer2[0] != data_out[0]
-                 || buffer2[1] != data_out[1])
-                {
+                if (!compareData(buffer2, data_out, 2)) {
                     //DEBUG("I2C_CONTROLLER_AND_DATA_BASE, new controller data: %04x\n", buffer2[0] << 8 | buffer2[1]);
                     controller_handler(buffer2[0] << 8 | buffer2[1], false);
                     // reset repeat
@@ -224,6 +233,30 @@ class FPGATask : public Task {
                     switchResolution();
                 }
                 memcpy(data_out, buffer2, I2C_CONTROLLER_AND_DATA_BASE_LENGTH);
+
+                ///////////////////////////////////////////////////
+                // read keyboard data
+                buffer[0] = I2C_KEYBOARD_BASE;
+                brzo_i2c_write(buffer, 1, false);
+                brzo_i2c_read(buffer2, I2C_KEYBOARD_LENGTH, false);
+
+                if (!compareData(buffer2, data_out_keyb, I2C_KEYBOARD_LENGTH)) {
+                    keyboard_handler(buffer2[1], buffer2[3], false);
+                    eTime_keyb = millis();
+                    repeatCount_keyb = 0;
+                } else {
+                    // check repeat
+                    if (/*buffer2[1] != 0x00 ||*/ buffer2[3] != 0x00) {
+                        unsigned long duration = (repeatCount_keyb == 0 ? REPEAT_DELAY_KEYB : REPEAT_RATE_KEYB);
+                        if (millis() - eTime_keyb > duration) {
+                            keyboard_handler(buffer2[1], buffer2[3], true);
+                            eTime_keyb = millis();
+                            repeatCount_keyb++;
+                        }
+                    }
+                }
+
+                memcpy(data_out_keyb, buffer2, I2C_KEYBOARD_LENGTH);
             }
             if (brzo_i2c_end_transaction()) {
                 if (!GotError) {
@@ -238,6 +271,15 @@ class FPGATask : public Task {
                 }
                 GotError = false;
             }
+        }
+
+        bool compareData(uint8_t *d1, uint8_t *d2, uint8_t len) {
+            for (uint8_t i = 0 ; i < len ; i++) {
+                if (d1[i] != d2[i]) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         virtual void OnStop() {

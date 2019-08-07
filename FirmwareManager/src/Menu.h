@@ -417,6 +417,7 @@ char OSD_WIFI_EDIT_MENU[521] = (
 );
 
 typedef std::function<void(uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat)> ClickHandler;
+typedef std::function<uint16_t(uint8_t shiftcode, uint8_t chardata)> KeyboardHandler;
 typedef std::function<uint8_t(uint8_t* menu_text, uint8_t menu_activeLine)> PreDisplayHook;
 
 extern FPGATask fpgaTask;
@@ -435,7 +436,22 @@ class Menu
         display_callback(display_callback),
         menu_activeLine(first_line),
         inTransaction(false),
-        autoUpDown(autoUpDown)
+        autoUpDown(autoUpDown),
+        kHandler(NULL)
+    { };
+
+    Menu(const char* name, uint8_t* menu, uint8_t first_line, uint8_t last_line, ClickHandler handler, PreDisplayHook pre_hook, WriteCallbackHandlerFunction display_callback, bool autoUpDown, KeyboardHandler kHandler) :
+        name(name),
+        menu_text(menu),
+        first_line(first_line),
+        last_line(last_line),
+        handler(handler),
+        pre_hook(pre_hook),
+        display_callback(display_callback),
+        menu_activeLine(first_line),
+        inTransaction(false),
+        autoUpDown(autoUpDown),
+        kHandler(kHandler)
     { };
 
     const char* Name() {
@@ -487,6 +503,41 @@ class Menu
         handler(controller_data, menu_activeLine, isRepeat);
     }
 
+    void HandleKeyboard(uint8_t shiftcode, uint8_t chardata, bool isRepeat) {
+        uint16_t mapped_controller = 0;
+
+        if (kHandler != NULL) {
+            mapped_controller = kHandler(shiftcode, chardata);
+        } else {
+            mapped_controller = defaultKeyboardMap(shiftcode, chardata);
+        }
+
+        HandleClick(mapped_controller, isRepeat);
+    }
+
+    uint16_t defaultKeyboardMap(uint8_t shiftcode, uint8_t chardata) {
+        switch (chardata) {
+            case 0x29: // ESC
+                return MENU_CANCEL;
+            case 0x28: // RETURN
+                return MENU_OK;
+            case 0x44: // F11
+                return CTRLR_BUTTON_X;
+            case 0x45: // F12
+                return CTRLR_BUTTON_Y;
+            case 0x4F: // RIGHT ARROW
+                return CTRLR_PAD_RIGHT;
+            case 0x50: // LEFT ARROW
+                return CTRLR_PAD_LEFT;
+            case 0x51: // DOWN ARROW
+                return CTRLR_PAD_DOWN;
+            case 0x52: // UP ARROW
+                return CTRLR_PAD_UP;
+        }
+        return 0;
+    }
+
+
     uint8_t* GetMenuText() {
         return menu_text;
     }
@@ -497,6 +548,7 @@ private:
     uint8_t first_line;
     uint8_t last_line;
     ClickHandler handler;
+    KeyboardHandler kHandler;
     PreDisplayHook pre_hook;
     WriteCallbackHandlerFunction display_callback;
     uint8_t menu_activeLine;
@@ -580,6 +632,17 @@ FPGATask fpgaTask(1, [](uint16_t controller_data, bool isRepeat) {
     if (OSDOpen) {
         //DEBUG("Menu: %s %x\n", currentMenu->Name(), controller_data);
         currentMenu->HandleClick(controller_data, isRepeat);
+    }
+}, [](uint8_t shiftcode, uint8_t chardata, bool isRepeat) {
+    DEBUG1("kbClb: %02x %02x %02x\n", isRepeat, shiftcode, chardata);
+    if (!isRepeat) {
+        if (!OSDOpen && shiftcode == 0x03 && chardata == 0x29) {
+            openOSD();
+            return;
+        }
+    }
+    if (OSDOpen) {
+        currentMenu->HandleKeyboard(shiftcode, chardata, isRepeat);
     }
 });
 

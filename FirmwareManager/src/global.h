@@ -135,6 +135,7 @@
 #define I2C_ACTIVATE_HDMI (0x91)
 #define I2C_UPSCALING_MODE (0x92)
 #define I2C_COLOR_SPACE (0x93)
+#define I2C_KEYBOARD_BASE (0xE0)
 #define I2C_DC_RESET (0xF0)
 #define I2C_OPT_RESET (0xF1)
 #define I2C_RESET_CONF (0xF2)
@@ -145,6 +146,7 @@
 
 // controller and data
 #define I2C_CONTROLLER_AND_DATA_BASE_LENGTH 3
+#define I2C_KEYBOARD_LENGTH 4
 
 // pinok data
 #define I2C_TESTDATA_BASE (0xA0)

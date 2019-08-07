@@ -135,7 +135,7 @@ always @(posedge clk or posedge reset) begin
                         trig_def_res[0] <= 1'b1;
                     end
                     cdata_in.ltrigger <= (maple_data == 8'hFF);
-                    keydata_in.key1 <= maple_data;
+                    keydata_in.key2 <= maple_data;
                 end
                 9: begin
                     if (maple_data == 8'hFF) begin // rtrigger must be completely engaged
@@ -143,7 +143,7 @@ always @(posedge clk or posedge reset) begin
                         trig_def_res[1] <= 1'b1;
                     end
                     cdata_in.rtrigger <= (maple_data == 8'hFF);
-                    keydata_in.key2 <= maple_data;
+                    keydata_in.key1 <= maple_data;
                 end
                 10: begin
                     if (maple_data == 8'b_1111_1011) begin // buttons[15:8] X pressed
@@ -171,16 +171,16 @@ always @(posedge clk or posedge reset) begin
                     keydata_in.shiftcode <= maple_data;
                 end
                 12: begin
-                    keydata_in.key3 <= maple_data;
+                    keydata_in.key6 <= maple_data;
                 end
                 13: begin
-                    keydata_in.key4 <= maple_data;
-                end
-                14: begin
                     keydata_in.key5 <= maple_data;
                 end
+                14: begin
+                    keydata_in.key4 <= maple_data;
+                end
                 15: begin
-                    keydata_in.key6 <= maple_data;
+                    keydata_in.key3 <= maple_data;
                 end
                 default: begin
                     // ignored
