@@ -115,7 +115,7 @@ class InfoTask : public Task {
                         "   %c  %c  %c  %c  %c  %c  %c  %c  %c  %c  %c  %c   "
                         "Raw Input Resolution: %03ux%03u           "
                         "Output Mode re-m/map: %02x %02x             "
-                        "Res data/deint data : %02x %02x             "
+                        "Res data/deint data : %02x %02x        %02x %02x"
                         "Raw data: %02x %02x %02x %02x %02x %02x %04x %04x   "
                         "advll: %05u   hpdl: %05u  msen: %05u "
                         "p54ll: %05u  phdll: %05u  rsyc: %05u ",
@@ -134,6 +134,7 @@ class InfoTask : public Task {
                         (resolX + 1) / 2, (resolY + 1),
                         remapResolution(CurrentResolution), mapResolution(CurrentResolution, true),
                         CurrentResolutionData, CurrentDeinterlaceMode,
+                        buffer[33], buffer[34],
                         buffer[16], buffer[17], buffer[18], buffer[19], buffer[20], buffer[21],
                         pinok1, pinok2,
                         pll_adv_lockloss_count - pll_adv_lockloss_offset,

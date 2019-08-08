@@ -200,6 +200,10 @@ var term = $('#term').terminal(function(command, term) {
         });
     } else if (command.match(/^\s*flash\s*$/)) {
         flashall(0);
+    } else if (command.match(/^\s*get_mac\s*$/)) {
+        startTransaction(null, function() {
+            getMacAddress();
+        });
     } else if (command.match(/^\s*flashfpga\s*$/)) {
         startTransaction(null, function() {
             flashFPGA();
@@ -846,6 +850,14 @@ function getFlashChipSize() {
     });
 }
 
+function getMacAddress() {
+    $.ajax("/mac/get").done(function (data) {
+        endTransaction("MAC address: " + $.trim(data));
+    }).fail(function() {
+        endTransaction('Error getting MAC address.', true);
+    });
+}
+
 function osdControl(state) {
     $.ajax("/osd/" + state).done(function (data) {
         endTransaction("OSD is " + state);
@@ -1008,7 +1020,7 @@ function parse_uint32_t(buffer, pos) {
 function createTestData(rawdata) {
     var msg = rawdata.replace(/\n/g, "").trim();
     var buffer = msg.split(/\ /);
-    if (buffer.length == 33) {
+    if (buffer.length == 35) {
         counterdata.advll = parse_uint32_t(buffer, 0);
         counterdata.hpdl = parse_uint32_t(buffer, 4);
         counterdata.p54ll = parse_uint32_t(buffer, 8);
@@ -1081,6 +1093,8 @@ function createTestData(rawdata) {
             + "p54ll: [[b;#fff;]" + String('00000' + (counterdata.p54ll - counterdata.p54ll_offs).toString(10)).slice(-5) + "]"
             + "  phdll: [[b;#fff;]" + String('00000' + (counterdata.phdll - counterdata.phdll_offs).toString(10)).slice(-5) + "]"
             + "  rsyc: [[b;#fff;]" + String('00000' + (counterdata.rsyc - counterdata.rsyc_offs).toString(10)).slice(-5) + "]"
+            + " \n"
+            + "  0x" + buffer[33] + " 0x" + buffer[34]
             + " \n \n"
             + "[Space] to zero counters.\n"
             + "[Return] to stop.\n"

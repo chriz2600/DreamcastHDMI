@@ -81,6 +81,7 @@ module i2cSlave (
   input [31:0] pll_hdmi_lockloss_count,
   input [31:0] control_resync_out_count,
   input [31:0] monitor_sense_low_count,
+  input [15:0] testdata,
   output [7:0] clock_config_data
 );
 
@@ -217,6 +218,7 @@ registerInterface u_registerInterface(
     .pll_hdmi_lockloss_count(pll_hdmi_lockloss_count),
     .control_resync_out_count(control_resync_out_count),
     .monitor_sense_low_count(monitor_sense_low_count),
+    .testdata(testdata),
     .clock_config_data(clock_config_data)
 );
 

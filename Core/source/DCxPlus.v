@@ -159,7 +159,7 @@ module DCxPlus(
     // PLLs
     pll54 pll54(
         .inclk0(clock54),
-        .areset(pll54_lockloss),
+        .areset(0 /*pll54_lockloss*/),
         .c0(clock54_net),
         .locked(pll54_locked)
     );
@@ -668,6 +668,22 @@ module DCxPlus(
         .pll_hdmi_lockloss_count(pll_hdmi_lockloss_count),
         .control_resync_out_count(control_resync_out_count),
         .monitor_sense_low_count(monitor_sense_low_count),
+        .testdata({ 
+            HDMI_INT_N, 
+            adv7513_reconf, 
+            startup_ready, 
+            pll_hdmi_ready, 
+            ram2video_fullcycle, 
+            status_led_nreset, 
+            is_pll54_locked, 
+            is_pll_hdmi_locked, 
+            _config_changed, 
+            line_doubler_sync2,
+            control_resync_out,
+            forceVGAMode,
+            video_mode_480p_n,
+            3'b0 
+        }),
         .clock_config_data(clock_config_data)
     );
 

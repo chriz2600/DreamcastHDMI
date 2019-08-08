@@ -548,12 +548,12 @@ private:
     uint8_t first_line;
     uint8_t last_line;
     ClickHandler handler;
-    KeyboardHandler kHandler;
     PreDisplayHook pre_hook;
     WriteCallbackHandlerFunction display_callback;
     uint8_t menu_activeLine;
     bool inTransaction;
     bool autoUpDown;
+    KeyboardHandler kHandler;
 };
 
 int last_progress = 100;

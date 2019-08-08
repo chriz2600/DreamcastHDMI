@@ -573,6 +573,16 @@ void setupHTTPServer() {
         DEBUG("...delivered.\n");
     });
 
+    server.on("/reset/dc", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        DEBUG("DC reset requested...\n");
+        fpgaTask.Write(I2C_DC_RESET, 0, NULL);
+        request->send(200, "text/plain", "OK\n");
+        DEBUG("...delivered.\n");
+    });
+
     server.on("/reset/all", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
@@ -838,6 +848,15 @@ void setupHTTPServer() {
         request->send(200);
     });
 
+    server.on("/mac/get", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        char msg[32];
+        sprintf(msg, "%s\n", WiFi.macAddress().c_str());
+        request->send(200, "text/plain", msg);
+    });
+
     server.on("/testdata2", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
@@ -860,15 +879,18 @@ void setupHTTPServer() {
         }
         fpgaTask.Read(I2C_TESTDATA_BASE, I2C_TESTDATA_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
             if (len == I2C_TESTDATA_LENGTH) {
-                request->send("text/plain", I2C_TESTDATA_LENGTH * 3 + 1, [ buffer ](uint8_t *buffer_out, size_t maxLen, size_t index) -> size_t {
-                    int p = 0;
-                    for (int i = 0 ; i < I2C_TESTDATA_LENGTH ; i++) {
-                        sprintf((char*) &buffer_out[p], "%02x ", buffer[i]);
-                        p = p + 3;
-                    }
-                    sprintf((char*) &buffer_out[p], "\n");
-                    return I2C_TESTDATA_LENGTH * 3 + 1;
-                });
+                char msg[I2C_TESTDATA_LENGTH * 3 + 1] = "";
+                int p = 0;
+                for (int i = 0 ; i < I2C_TESTDATA_LENGTH ; i++) {
+                    sprintf((char*) &msg[p], "%02x ", buffer[i]);
+                    p = p + 3;
+                }
+                sprintf((char*) &msg[p], "\n");
+                request->send(200, "text/plain", msg);
+
+                // request->send("text/plain", I2C_TESTDATA_LENGTH * 3 + 1, [ buffer ](uint8_t *buffer_out, size_t maxLen, size_t index) -> size_t {
+                //     return I2C_TESTDATA_LENGTH * 3 + 1;
+                // });
             } else {
                 request->send(200, "text/plain", "SOMETHING_IS_WRONG\n");
             }

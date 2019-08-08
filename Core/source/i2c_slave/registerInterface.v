@@ -84,6 +84,7 @@ module registerInterface (
     input [31:0] pll_hdmi_lockloss_count,
     input [31:0] control_resync_out_count,
     input [31:0] monitor_sense_low_count,
+    input [15:0] testdata,
     output [7:0] clock_config_data
 );
 
@@ -204,6 +205,8 @@ always @(posedge clk) begin
         8'hBE: dataOut_reg <= monitor_sense_low_count[23:16];
         8'hBF: dataOut_reg <= monitor_sense_low_count[15:8];
         8'hC0: dataOut_reg <= monitor_sense_low_count[7:0];
+        8'hC1: dataOut_reg <= testdata[15:8];
+        8'hC2: dataOut_reg <= testdata[7:0];
 
         // clock_config_data
         8'hD0: dataOut_reg <= clock_config_data;
