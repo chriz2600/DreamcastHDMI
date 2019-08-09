@@ -163,7 +163,7 @@ module pll54 (
 		altpll_component.port_extclk1 = "PORT_UNUSED",
 		altpll_component.port_extclk2 = "PORT_UNUSED",
 		altpll_component.port_extclk3 = "PORT_UNUSED",
-		altpll_component.self_reset_on_loss_lock = "OFF",
+		altpll_component.self_reset_on_loss_lock = "ON",
 		altpll_component.width_clock = 5;
 
 

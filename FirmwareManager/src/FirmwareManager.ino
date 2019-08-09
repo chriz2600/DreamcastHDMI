@@ -813,6 +813,15 @@ void setupHTTPServer() {
         request->send(200);
     });
 
+    server.on("/mac/get", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        char msg[32];
+        sprintf(msg, "%s\n", WiFi.macAddress().c_str());
+        request->send(200, "text/plain", msg);
+    });
+
     server.on("/testdata2", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();

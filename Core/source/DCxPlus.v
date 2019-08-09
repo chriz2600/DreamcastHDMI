@@ -149,7 +149,7 @@ configuration configurator(
 // PLLs
 pll54 pll54(
     .inclk0(clock54),
-    .areset(pll54_lockloss),
+    .areset(0),
     .c0(clock54_net),
     .locked(pll54_locked)
 );

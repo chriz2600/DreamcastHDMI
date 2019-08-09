@@ -200,6 +200,10 @@ var term = $('#term').terminal(function(command, term) {
         });
     } else if (command.match(/^\s*flash\s*$/)) {
         flashall(0);
+    } else if (command.match(/^\s*get_mac\s*$/)) {
+        startTransaction(null, function() {
+            getMacAddress();
+        });
     } else if (command.match(/^\s*flashfpga\s*$/)) {
         startTransaction(null, function() {
             flashFPGA();
@@ -835,6 +839,14 @@ function getFlashChipSize() {
         endTransaction("Flash chip size: " + $.trim(data) + " Bytes");
     }).fail(function() {
         endTransaction('Error getting current config.', true);
+    });
+}
+
+function getMacAddress() {
+    $.ajax("/mac/get").done(function (data) {
+        endTransaction("MAC address: " + $.trim(data));
+    }).fail(function() {
+        endTransaction('Error getting MAC address.', true);
     });
 }
 

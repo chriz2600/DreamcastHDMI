@@ -32,9 +32,7 @@ set_clock_groups -asynchronous -group datain_clock -group output_clock
 derive_clock_uncertainty
 
 # input delays
-# orig: 1.3
-set tSU 1.3
-# orig: 1.0
+set tSU 1.0
 set tH 1.0
 set dcinputs [get_ports {data* _hsync _vsync}]
 set_input_delay -max -clock virtual54 $tSU $dcinputs
