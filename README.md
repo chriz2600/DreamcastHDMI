@@ -1,5 +1,9 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2019-08-09 *Firmware v2.3.4* (*Standard*)
+
+- Finally fixed: video output may not start on some systems
+
 #### 2019-07-31 *Firmware v2.3.3* (*Standard*)
 
 - Internal: Video output may not start when configured to VGA/CableDetect

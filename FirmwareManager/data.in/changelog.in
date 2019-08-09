@@ -1,3 +1,7 @@
+v2.3.4                                  
+- Finally fixed: video output may not   
+  start on some systems                 
+                                        
 v2.3.3                                  
 - Fixed: video output may not start when
   configured to VGA/CableDetect         
