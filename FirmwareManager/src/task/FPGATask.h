@@ -245,7 +245,7 @@ class FPGATask : public Task {
                     eTime_keyb = millis();
                     repeatCount_keyb = 0;
                 } else {
-                    // check repeat
+                    // check repeat (do not check on modifier keys (shift/ctrl/alt, etc.))
                     if (/*buffer2[1] != 0x00 ||*/ buffer2[3] != 0x00) {
                         unsigned long duration = (repeatCount_keyb == 0 ? REPEAT_DELAY_KEYB : REPEAT_RATE_KEYB);
                         if (millis() - eTime_keyb > duration) {
