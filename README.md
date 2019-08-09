@@ -2,7 +2,7 @@
 
 #### 2019-08-09 *Firmware v3.0.4* (*Relaxed*)
 
-- Finally fixed: video output may not start when configured on some systems
+- Finally fixed: video output may not start on some systems
 
 #### 2019-07-31 *Firmware v3.0.3* (*Relaxed*)
 
