@@ -44,7 +44,11 @@
 #define DEFAULT_RESET_MODE RESET_MODE_STR_LED
 #define DEFAULT_DEINTERLACE_MODE DEINTERLACE_MODE_STR_BOB
 #define DEFAULT_PROTECTED_MODE PROTECTED_MODE_STR_OFF
+#define DEFAULT_KEYBOARD_LAYOUT US
 
+#define US "us"
+#define DE "de"
+#define JP "jp"
 //////////////////////////////////////////////////////////////////////////////////
 
 #define CS 16

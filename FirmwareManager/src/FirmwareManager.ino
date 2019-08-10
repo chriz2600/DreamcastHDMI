@@ -55,6 +55,7 @@ char deinterlaceMode[16] = "";
 char protectedMode[8] = "";
 char AP_NameChar[64];
 char WiFiAPPSK[12] = "";
+char keyboardLayout[8] = DEFAULT_KEYBOARD_LAYOUT; 
 IPAddress ipAddress( 192, 168, 4, 1 );
 bool inInitialSetupMode = false;
 AsyncWebServer server(80);
@@ -202,6 +203,7 @@ void setupCredentials(void) {
     _readFile("/etc/conf_ip_mask", confIPMask, 24, DEFAULT_CONF_IP_MASK);
     _readFile("/etc/conf_ip_dns", confIPDNS, 24, DEFAULT_CONF_IP_DNS);
     _readFile("/etc/hostname", host, 64, DEFAULT_HOST);
+    _readFile("/etc/keyblayout", keyboardLayout, 8, DEFAULT_KEYBOARD_LAYOUT);
     readCurrentProtectedMode();
 
     if (strlen(httpAuthPass) == 0) {
@@ -322,6 +324,10 @@ void setupWiFiStation() {
         DEBUG2(
             "   Hostname:        %s\n",
             WiFi.hostname().c_str()
+        );
+        DEBUG2(
+            "   MAC addr:        %s\n",
+            WiFi.macAddress().c_str()
         );
     }
     
@@ -502,10 +508,12 @@ void setupHTTPServer() {
         SPIFFS.remove("/etc/conf_ip_mask");
         SPIFFS.remove("/etc/conf_ip_dns");
         SPIFFS.remove("/etc/hostname");
+        SPIFFS.remove("/etc/keyblayout");
 
         ssid[0] = '\0';
         password[0] = '\0';
         otaPassword[0] = '\0';
+        keyboardLayout[0] = '\0';
         // keep passwords alive until power off
         //httpAuthUser[0] = '\0';
         //httpAuthPass[0] = '\0';
@@ -623,6 +631,7 @@ void setupHTTPServer() {
         writeSetupParameter(request, "reset_mode", resetMode, "/etc/reset/mode", 16, DEFAULT_RESET_MODE);
         writeSetupParameter(request, "deinterlace_mode", deinterlaceMode, "/etc/deinterlace/mode", 16, DEFAULT_DEINTERLACE_MODE);
         writeSetupParameter(request, "protected_mode", protectedMode, "/etc/protected/mode", 8, DEFAULT_PROTECTED_MODE);
+        writeSetupParameter(request, "keyboard_layout", keyboardLayout, "/etc/keyblayout", 8, DEFAULT_KEYBOARD_LAYOUT);
         readCurrentProtectedMode(true);
 
         request->send(200, "text/plain", "OK\n");
@@ -657,6 +666,7 @@ void setupHTTPServer() {
         root["reset_mode"] = resetMode;
         root["deinterlace_mode"] = deinterlaceMode;
         root["protected_mode"] = protectedMode;
+        root["keyboard_layout"] = keyboardLayout;
 
         root.printTo(*response);
         request->send(response);

@@ -5,6 +5,7 @@
 #include <functional>
 #include "global.h"
 #include "task/FPGATask.h"
+#include "keymap.h"
 
 #define MENU_OFFSET 9
 #define MENU_WIDTH 40
@@ -417,7 +418,7 @@ char OSD_WIFI_EDIT_MENU[521] = (
 );
 
 typedef std::function<void(uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat)> ClickHandler;
-typedef std::function<uint16_t(uint8_t shiftcode, uint8_t chardata)> KeyboardHandler;
+typedef std::function<bool(uint8_t shiftcode, uint8_t chardata)> KeyboardHandler;
 typedef std::function<uint8_t(uint8_t* menu_text, uint8_t menu_activeLine)> PreDisplayHook;
 
 extern FPGATask fpgaTask;
@@ -506,32 +507,32 @@ class Menu
     void HandleKeyboard(uint8_t shiftcode, uint8_t chardata, bool isRepeat) {
         uint16_t mapped_controller = 0;
 
-        if (kHandler != NULL) {
-            mapped_controller = kHandler(shiftcode, chardata);
-        } else {
+        if (kHandler == NULL || !kHandler(shiftcode, chardata)) {
             mapped_controller = defaultKeyboardMap(shiftcode, chardata);
         }
 
-        HandleClick(mapped_controller, isRepeat);
+        if (mapped_controller) {
+            HandleClick(mapped_controller, isRepeat);
+        }
     }
 
     uint16_t defaultKeyboardMap(uint8_t shiftcode, uint8_t chardata) {
         switch (chardata) {
-            case 0x29: // ESC
+            case KEYB_KEY_ESCAPE: // ESC
                 return MENU_CANCEL;
-            case 0x28: // RETURN
+            case KEYB_KEY_RETURN: // RETURN
                 return MENU_OK;
-            case 0x44: // F11
+            case KEYB_KEY_F11: // F11
                 return CTRLR_BUTTON_X;
-            case 0x45: // F12
+            case KEYB_KEY_F12: // F12
                 return CTRLR_BUTTON_Y;
-            case 0x4F: // RIGHT ARROW
+            case KEYB_KEY_RIGHT: // RIGHT ARROW
                 return CTRLR_PAD_RIGHT;
-            case 0x50: // LEFT ARROW
+            case KEYB_KEY_LEFT: // LEFT ARROW
                 return CTRLR_PAD_LEFT;
-            case 0x51: // DOWN ARROW
+            case KEYB_KEY_DOWN: // DOWN ARROW
                 return CTRLR_PAD_DOWN;
-            case 0x52: // UP ARROW
+            case KEYB_KEY_UP: // UP ARROW
                 return CTRLR_PAD_UP;
         }
         return 0;
@@ -634,7 +635,8 @@ FPGATask fpgaTask(1, [](uint16_t controller_data, bool isRepeat) {
         currentMenu->HandleClick(controller_data, isRepeat);
     }
 }, [](uint8_t shiftcode, uint8_t chardata, bool isRepeat) {
-    DEBUG1("kbClb: %02x %02x %02x\n", isRepeat, shiftcode, chardata);
+    // uint8_t asciiCode = getASCIICode(shiftcode, chardata);
+    // DEBUG1("kbClb: isRpt: %02x shiftcode: %02x chardata: %02x asciiCode: %02x %c\n", isRepeat, shiftcode, chardata, asciiCode, asciiCode);
     if (!isRepeat) {
         if (!OSDOpen && shiftcode == 0x03 && chardata == 0x29) {
             openOSD();

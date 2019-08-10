@@ -728,7 +728,8 @@ var setupDataMapping = {
           "[[b;red;]If you set protected mode to 'on', you will not be able]\n    "
         + "[[b;red;]to reveal your HTTP Password in the OSD!]\n    "
         + "[[b;red;]While setting to 'on' is recommended, you will need]\n    "
-        + "[[b;red;]access to the serial port to recover your password, if forgotten.]" ]
+        + "[[b;red;]access to the serial port to recover your password, if forgotten.]" ],
+    keyboard_layout:  [ "Keyboard layout  ", "us", "[[b;lightblue;]us] / [[b;lightblue;]de]", /^(us|de|jp)$/ ] //  / [[b;lightblue;]jp]
 };
 var dataExcludeMap = {
     "flash_chip_size":"",

@@ -1,5 +1,6 @@
 #include "../global.h"
 #include "../Menu.h"
+#include "../keymap.h"
 
 extern char ssid[64];
 extern char password[64];
@@ -187,5 +188,63 @@ Menu wifiEditMenu("WiFiEditMenu", (uint8_t*) OSD_WIFI_EDIT_MENU, NO_SELECT_LINE,
     memcpy(&menu_text[MENU_WIFI_EDIT_CURSOR_LINE * MENU_WIDTH + 1], buffer, 38);
 
     return MENU_WIFI_EDIT_VALUE_LINE;
-}, NULL, false);
+}, NULL, false, [](uint8_t shiftcode, uint8_t chardata) {
+    char result[MENU_WIDTH] = "";
+    int len;
+
+    switch (chardata) {
+        case KEYB_KEY_POS1:
+            wifiEdit_CursorPos = 0;
+            currentMenu->Display();
+            return true;
+        case KEYB_KEY_END:
+            snprintf(result, 39, "%s", wifiEdit_Value);
+            rtrim(result);
+            len = strlen(result);
+            wifiEdit_CursorPos = len <= 37 ? len : 37;
+            currentMenu->Display();
+            return true;
+        case KEYB_KEY_BACKSPACE:
+            if (wifiEdit_CursorPos > 0 && wifiEdit_CursorPos <= 37) {
+                memcpy(&result, &wifiEdit_Value, wifiEdit_CursorPos - 1);
+                strcpy(&result[wifiEdit_CursorPos-1], &wifiEdit_Value[wifiEdit_CursorPos]);
+                rtrim(result);
+                snprintf(wifiEdit_Value, 39, "%-38s", result);
+                wifiEdit_CursorPos--;
+                currentMenu->Display();
+            }
+            return true;
+        case KEYB_KEY_DELETE:
+            if (wifiEdit_CursorPos >= 0 && wifiEdit_CursorPos < 37) {
+                char result[40] = "";
+                memcpy(&result, &wifiEdit_Value, wifiEdit_CursorPos);
+                strcpy(&result[wifiEdit_CursorPos], &wifiEdit_Value[wifiEdit_CursorPos+1]);
+                rtrim(result);
+                snprintf(wifiEdit_Value, 39, "%-38s", result);
+                currentMenu->Display();
+            }
+            return true;
+    }
+
+    uint8_t c = getASCIICode(shiftcode, chardata);
+    if (isprint(c)) {
+        if (wifiEdit_CursorPos >= 0 && wifiEdit_CursorPos <= 37) {
+            char result[40] = "";
+            memcpy(&result, &wifiEdit_Value, wifiEdit_CursorPos);
+            result[wifiEdit_CursorPos] = c;
+            if (wifiEdit_CursorPos < 37) {
+                strcpy(&result[wifiEdit_CursorPos+1], &wifiEdit_Value[wifiEdit_CursorPos]);
+            }
+            rtrim(result);
+            snprintf(wifiEdit_Value, 39, "%-38s", result);
+            if (wifiEdit_CursorPos < 37) {
+                wifiEdit_CursorPos++;
+            }
+            currentMenu->Display();
+        }
+        return true;
+    }
+
+    return false;
+});
 
