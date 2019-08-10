@@ -1,5 +1,9 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2019-XX-XX *Firmware v3.0.5* (*Relaxed*)
+
+- [Keyboard support to control DCHDMI OSD](Keyboard.md)
+
 #### 2019-08-09 *Firmware v3.0.4* (*Relaxed*)
 
 - Finally fixed: video output may not start on some systems
