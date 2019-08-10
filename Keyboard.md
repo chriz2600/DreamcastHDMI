@@ -9,8 +9,8 @@ The keyboard has to be connected to dreamcast port A.
 | Key (combination)    | Function/Controller Mapping                        |
 |----------------------|----------------------------------------------------|
 | `CTRL`+`SHIFT`+`ESC` | Buttons `L`+`R`+`Start`+`X`+`A` (open DCHDMI menu) |
-| `ESC`                | Button `L` (cancel/back)                           |
-| `RETURN`             | Button `R` (ok/save/confirm)                       |
+| `ESC`                | Shoulder button `L` (cancel/back)                  |
+| `RETURN`             | Shoulder button `R` (ok/save/confirm)              |
 | `F11`                | Button `X`                                         |
 | `F12`                | Button `Y`                                         |
 | `LEFT`               | D-pad `LEFT`                                       |
