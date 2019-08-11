@@ -1,6 +1,3 @@
-image:
-  name: chriz2600/platformio:4.0.0
-
 stages:
   - build-fpga
   - build-esp
@@ -32,6 +29,8 @@ fpga-firmware:
     - tags
 
 esp-firmware:
+  image:
+    name: chriz2600/platformio:4.0.0
   stage: build-esp
   script:
     - "cd FirmwareManager"
