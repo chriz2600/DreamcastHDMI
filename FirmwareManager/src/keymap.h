@@ -101,7 +101,6 @@ uint8_t getASCIICodeDE(uint8_t shiftcode, uint8_t chardata) {
 
 uint8_t getASCIICodeUS(uint8_t shiftcode, uint8_t chardata) {
     bool shift = CHECK_BIT(shiftcode, KEYB_SHIFT) || CHECK_BIT(shiftcode, KEYB_SHIFT_R);
-    bool altgr = CHECK_BIT(shiftcode, KEYB_ALT_GR);
 
     // a-z
     if (chardata >= 0x04 && chardata <= 0x1d) {

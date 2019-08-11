@@ -407,7 +407,7 @@ void setupHTTPServer() {
 
         Dir dir = SPIFFS.openDir("/");
         while (dir.next()) {
-        JsonObject &data = datas.createNestedObject();
+            JsonObject &data = datas.createNestedObject();
             data["name"] = dir.fileName();
             data["size"] = dir.fileSize();
         }
@@ -1019,6 +1019,7 @@ void doReflash() {
 void setup(void) {
     DBG_OUTPUT_PORT.begin(115200);
     DEBUG2("\n>> FirmwareManager starting... " DCHDMI_VERSION "\n");
+    DEBUG2(">> %s\n", ESP.getFullVersion().c_str());
     DBG_OUTPUT_PORT.setDebugOutput(false);
 
     pinMode(NCE, INPUT);
@@ -1037,7 +1038,6 @@ void setup(void) {
     waitForController();
     fpgaTask.Write(I2C_ACTIVATE_HDMI, 1, NULL); fpgaTask.ForceLoop();
     setupWiFi();
-    setupHTTPServer();
     
     if (strlen(otaPassword)) 
     {
@@ -1053,9 +1053,10 @@ void setup(void) {
         DEBUG2("FPGA firmware missing or broken, reflash needed.\n");
         doReflash();
     }
-    DEBUG2(">> Ready.\n");
     DEBUG2(">> httpAuthUser: %s\n", httpAuthUser);
     DEBUG2(">> httpAuthPass: %s\n", httpAuthPass);
+    setupHTTPServer();
+    DEBUG2(">> Ready.\n");
 }
 
 void loop(void){

@@ -1,3 +1,6 @@
+image:
+  name: chriz2600/platformio:4.0.0
+
 stages:
   - build-fpga
   - build-esp
@@ -24,6 +27,7 @@ fpga-firmware:
     - hq2x-develop
     - hq2x-master
     - hq2x-experimental
+    - hq2x-bleeding
     - hq2x
     - tags
 
@@ -42,21 +46,18 @@ esp-firmware:
     - "md5sum data/firmware.dc | awk '{print $1;}' > data/etc/last_flash_md5"
     - "md5sum data/firmware.dc | awk '{print $1;}' > data/firmware.dc.md5"
     # firmware.bin
-    - "md5sum .pioenvs/esp07s/firmware.bin | awk '{print $1;}' > data/etc/last_esp_flash_md5"
-    - "md5sum .pioenvs/esp07s/firmware.bin | awk '{print $1;}' > data/firmware.bin.md5"
+    - "md5sum .pio/build/esp07s/firmware.bin | awk '{print $1;}' > data/etc/last_esp_flash_md5"
+    - "md5sum .pio/build/esp07s/firmware.bin | awk '{print $1;}' > data/firmware.bin.md5"
     # index.html
     - "md5sum data/index.html.gz | awk '{print $1;}' > data/index.html.gz.md5"
     - "md5sum data/index.html.gz | awk '{print $1;}' > data/esp.index.html.gz.md5"
     # finally build spiffs
-    #- "pio run -t buildfs"
-    # workaround, platformio fails determining sizes at the moment
-    - "pio run -t buildfs || true"
-    - "/root/.platformio/packages/tool-mkspiffs/mkspiffs -c data -p 256 -b 8192 -s 3125248 .pioenvs/esp07s/spiffs.bin"
+    - "pio run -t buildfs"
   artifacts:
     name: "esp-firmware-${CI_COMMIT_REF_NAME}"
     paths:
-    - FirmwareManager/.pioenvs/esp07s/firmware.bin
-    - FirmwareManager/.pioenvs/esp07s/spiffs.bin
+    - FirmwareManager/.pio/build/esp07s/firmware.bin
+    - FirmwareManager/.pio/build/esp07s/spiffs.bin
     - FirmwareManager/data/index.html.gz
     - FirmwareManager/data/changelog
   dependencies:
@@ -70,6 +71,7 @@ esp-firmware:
     - hq2x-develop
     - hq2x-master
     - hq2x-experimental
+    - hq2x-bleeding
     - hq2x
     - tags
 
@@ -89,6 +91,7 @@ fpga-publish:
     - hq2x-develop
     - hq2x-master
     - hq2x-experimental
+    - hq2x-bleeding
     - hq2x
     - tags
 
@@ -108,6 +111,7 @@ esp-publish:
     - hq2x-develop
     - hq2x-master
     - hq2x-experimental
+    - hq2x-bleeding
     - hq2x
     - tags
 
@@ -128,5 +132,6 @@ finish-publish:
     - hq2x-develop
     - hq2x-master
     - hq2x-experimental
+    - hq2x-bleeding
     - hq2x
     - tags
