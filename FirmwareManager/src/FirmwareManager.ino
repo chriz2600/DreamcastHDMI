@@ -265,19 +265,18 @@ void setupWiFiStation() {
     doStaticIpConfig = doStaticIpConfig && ipDNS.fromString(confIPDNS);
 
     //WIFI INIT
-    WiFi.disconnect();
+    WiFi.mode(WIFI_STA);
+    WiFi.begin();
+    WiFi.disconnect(true);
     WiFi.softAPdisconnect(true);
-    WiFi.setAutoConnect(true);
-    WiFi.setAutoReconnect(true);
-    WiFi.hostname(host);
+    // WiFi.setAutoConnect(true);
+    // WiFi.setAutoReconnect(true);
 
     DEBUG(">> Do static ip configuration: %i\n", doStaticIpConfig);
     if (doStaticIpConfig) {
         WiFi.config(ipAddr, ipGateway, ipMask, ipDNS);
     }
 
-    WiFi.mode(WIFI_STA);
-    
     DEBUG(">> WiFi.getAutoConnect: %i\n", WiFi.getAutoConnect());
     DEBUG(">> Connecting to %s\n", ssid);
 
@@ -305,6 +304,9 @@ void setupWiFiStation() {
         // setup AP mode to configure ssid and password
         setupAPMode();
     } else {
+        WiFi.hostname(host);
+        WiFi.setAutoReconnect(true);
+
         ipAddress = WiFi.localIP();
         IPAddress gateway = WiFi.gatewayIP();
         IPAddress subnet = WiFi.subnetMask();
@@ -330,14 +332,19 @@ void setupWiFiStation() {
             WiFi.macAddress().c_str()
         );
     }
-    
+}
+
+void setupMDNS() {
+    DEBUG2(">> Setting up mDNS...\n");
     if (MDNS.begin(host, ipAddress)) {
-        DEBUG(">> mDNS started\n");
+        DEBUG2(">> mDNS started\n");
         MDNS.addService("http", "tcp", 80);
         DEBUG(
             ">> http://%s.local/\n", 
             host
         );
+    } else {
+        DEBUG2(">> mDNS setup failed.\n");
     }
 }
 
@@ -385,10 +392,8 @@ void setupHTTPServer() {
             return request->requestAuthentication();
         }
 
-        AsyncResponseStream *response = request->beginResponseStream("text/json");
-        DynamicJsonBuffer jsonBuffer;
-        JsonObject &root = jsonBuffer.createObject();
-
+        AsyncJsonResponse * response = new AsyncJsonResponse();
+        JsonObject& root = response->getRoot();
         FSInfo fs_info;
         SPIFFS.info(fs_info);
 
@@ -412,7 +417,7 @@ void setupHTTPServer() {
             data["size"] = dir.fileSize();
         }
 
-        root.printTo(*response);
+        response->setLength();
         request->send(response);
     });
 
@@ -642,9 +647,8 @@ void setupHTTPServer() {
             return request->requestAuthentication();
         }
         
-        AsyncResponseStream *response = request->beginResponseStream("text/json");
-        DynamicJsonBuffer jsonBuffer;
-        JsonObject &root = jsonBuffer.createObject();
+        AsyncJsonResponse * response = new AsyncJsonResponse();
+        JsonObject& root = response->getRoot();
 
         root["ssid"] = ssid;
         root["password"] = password;
@@ -668,7 +672,7 @@ void setupHTTPServer() {
         root["protected_mode"] = protectedMode;
         root["keyboard_layout"] = keyboardLayout;
 
-        root.printTo(*response);
+        response->setLength();
         request->send(response);
     });
 
@@ -926,7 +930,7 @@ void setupHTTPServer() {
 }
 
 void setupArduinoOTA() {
-    DEBUG(">> Setting up ArduinoOTA...\n");
+    DEBUG2(">> Setting up ArduinoOTA...\n");
     
     ArduinoOTA.setPort(8266);
     ArduinoOTA.setHostname(host);
@@ -955,7 +959,7 @@ void setupArduinoOTA() {
             DEBUG("ArduinoOTA >> End Failed\n");
         }
     });
-    ArduinoOTA.begin();
+    ArduinoOTA.begin(false);
 }
 
 void waitForController() {
@@ -1038,9 +1042,12 @@ void setup(void) {
     waitForController();
     fpgaTask.Write(I2C_ACTIVATE_HDMI, 1, NULL); fpgaTask.ForceLoop();
     setupWiFi();
+
+    if (!inInitialSetupMode) {
+        setupMDNS();
+    }
     
-    if (strlen(otaPassword)) 
-    {
+    if (strlen(otaPassword)) {
         setupArduinoOTA();
     }
 
@@ -1059,6 +1066,15 @@ void setup(void) {
     DEBUG2(">> Ready.\n");
 }
 
+void showInfo() {
+    DEBUG2("FirmwareManager: " DCHDMI_VERSION "\n");
+    DEBUG2("Arduino ESP version: %s\n", ESP.getFullVersion().c_str());
+    DEBUG2("Free sketch space: %u\n", ESP.getFreeSketchSpace());
+    DEBUG2("Max sketch space: %u\n", (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000);
+    DEBUG2("Flash chip size: %u\n", ESP.getFlashChipSize());
+    DEBUG2("Free heap size: %u\n\n", ESP.getFreeHeap());
+}
+
 void loop(void){
     ArduinoOTA.handle();
     taskManager.Loop();
@@ -1066,6 +1082,8 @@ void loop(void){
         int incomingByte = Serial.read();
         if (incomingByte == 'f') {
             doReflash();
+        } else if (incomingByte == 'i') {
+            showInfo();
         }
     }
 }

@@ -18,6 +18,7 @@ void resetall() {
     enableFPGA();
     resetFPGAConfiguration();
     //ESP.eraseConfig();
+    MDNS.end();
     ESP.restart();
 }
 
