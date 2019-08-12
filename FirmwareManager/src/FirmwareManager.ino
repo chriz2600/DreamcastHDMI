@@ -959,7 +959,7 @@ void setupArduinoOTA() {
             DEBUG("ArduinoOTA >> End Failed\n");
         }
     });
-    ArduinoOTA.begin(false);
+    ArduinoOTA.begin();
 }
 
 void waitForController() {
