@@ -183,8 +183,8 @@ void osd_get_resolution(char* buffer) {
     char data[14];
 
     switch (res) {
-        case 0x00: sprintf(data, "1080p%s", UpscalingMode == UPSCALING_MODE_HQ2X && !(CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER) ? " HQ" : ""); break;
-        case 0x01: sprintf(data, "960p%s", UpscalingMode == UPSCALING_MODE_HQ2X && !(CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER) ? " HQ" : ""); break;
+        case 0x00: OSD_RESOLUTION("1080p"); break;
+        case 0x01: OSD_RESOLUTION("960p"); break;
         case 0x02: sprintf(data, "480p"); break;
         case 0x03: sprintf(data, "VGA"); break;
         case 0x08: sprintf(data, "576p"); break;

@@ -35,7 +35,6 @@ esp-firmware:
   script:
     - "cd FirmwareManager"
     - "./local/prepare-index-html"
-    - "cat data.in/changelog.in | tr -d '\n\t' > data/changelog"
     - "export SOURCE_DATE_EPOCH=$(git --no-pager log -1 --pretty='format:%ct' src)"
     - "echo $SOURCE_DATE_EPOCH"
     - "pio run -t clean"
@@ -45,18 +44,20 @@ esp-firmware:
     - "md5sum data/firmware.dc | awk '{print $1;}' > data/etc/last_flash_md5"
     - "md5sum data/firmware.dc | awk '{print $1;}' > data/firmware.dc.md5"
     # firmware.bin
-    - "md5sum .pio/build/esp07s/firmware.bin | awk '{print $1;}' > data/etc/last_esp_flash_md5"
-    - "md5sum .pio/build/esp07s/firmware.bin | awk '{print $1;}' > data/firmware.bin.md5"
+    - "md5sum .pio/build/hq2x/firmware.bin | awk '{print $1;}' > data/etc/last_esp_flash_md5"
+    - "md5sum .pio/build/hq2x/firmware.bin | awk '{print $1;}' > data/firmware.bin.md5"
     # index.html
     - "md5sum data/index.html.gz | awk '{print $1;}' > data/index.html.gz.md5"
     - "md5sum data/index.html.gz | awk '{print $1;}' > data/esp.index.html.gz.md5"
+    # changelog
+    - "cat data.in/hq2x.changelog.in | tr -d '\n\t' > data/changelog"
     # finally build spiffs
     - "pio run -t buildfs"
   artifacts:
     name: "esp-firmware-${CI_COMMIT_REF_NAME}"
     paths:
-    - FirmwareManager/.pio/build/esp07s/firmware.bin
-    - FirmwareManager/.pio/build/esp07s/spiffs.bin
+    - FirmwareManager/.pio/build/hq2x/firmware.bin
+    - FirmwareManager/.pio/build/hq2x/spiffs.bin
     - FirmwareManager/data/index.html.gz
     - FirmwareManager/data/changelog
   dependencies:

@@ -67,16 +67,6 @@ Menu advancedVideoMenu("AdvancedVideoMenu", (uint8_t*) OSD_ADVANCED_VIDEO_MENU, 
                     fpgaTask.DoWriteToOSD(MENU_AV_COLUMN, MENU_OFFSET + MENU_AV_240POS, (uint8_t*) buffer);
                 });
                 break;
-            case MENU_AV_UPSCALING_MODE:
-                UpscalingMode = (UpscalingMode == UPSCALING_MODE_2X ? UPSCALING_MODE_HQ2X : UPSCALING_MODE_2X);
-                fpgaTask.Write(I2C_UPSCALING_MODE, UpscalingMode, [](uint8_t Address, uint8_t Value) {
-                    char buffer[MENU_WIDTH] = "";
-                    snprintf(buffer, 9, "%-8s", Value == UPSCALING_MODE_2X ? "2x" : "hq2x");
-                    fpgaTask.DoWriteToOSD(MENU_AV_COLUMN, MENU_OFFSET + MENU_AV_UPSCALING_MODE, (uint8_t*) buffer, []() {
-                        writeVideoOutputLine();
-                    });
-                });
-                break;
             case MENU_AV_COLOR_SPACE:
                 switch (ColorSpace) {
                     case COLOR_SPACE_AUTO:
@@ -105,6 +95,16 @@ Menu advancedVideoMenu("AdvancedVideoMenu", (uint8_t*) OSD_ADVANCED_VIDEO_MENU, 
                     fpgaTask.DoWriteToOSD(MENU_AV_COLUMN, MENU_OFFSET + MENU_AV_COLOR_SPACE, (uint8_t*) buffer);
                 });
                 break;
+            case MENU_AV_UPSCALING_MODE:
+                UpscalingMode = (UpscalingMode == UPSCALING_MODE_2X ? UPSCALING_MODE_HQ2X : UPSCALING_MODE_2X);
+                fpgaTask.Write(I2C_UPSCALING_MODE, UpscalingMode, [](uint8_t Address, uint8_t Value) {
+                    char buffer[MENU_WIDTH] = "";
+                    snprintf(buffer, 9, "%-8s", Value == UPSCALING_MODE_2X ? "2x" : "hq2x");
+                    fpgaTask.DoWriteToOSD(MENU_AV_COLUMN, MENU_OFFSET + MENU_AV_UPSCALING_MODE, (uint8_t*) buffer, []() {
+                        writeVideoOutputLine();
+                    });
+                });
+                break;
         }
     }
 }, [](uint8_t* menu_text, uint8_t menu_activeLine) {
@@ -115,8 +115,6 @@ Menu advancedVideoMenu("AdvancedVideoMenu", (uint8_t*) OSD_ADVANCED_VIDEO_MENU, 
     memcpy(&menu_text[MENU_AV_DEINT * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
     snprintf(buffer, 9, "%-8s", Offset240p == 20 ? "On" : "Off");
     memcpy(&menu_text[MENU_AV_240POS * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
-    snprintf(buffer, 9, "%-8s", UpscalingMode == UPSCALING_MODE_2X ? "2x" : "hq2x");
-    memcpy(&menu_text[MENU_AV_UPSCALING_MODE * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
     switch (ColorSpace) {
         case COLOR_SPACE_AUTO:
             snprintf(buffer, 9, "%-8s", "auto");
@@ -129,5 +127,9 @@ Menu advancedVideoMenu("AdvancedVideoMenu", (uint8_t*) OSD_ADVANCED_VIDEO_MENU, 
             break;
     }
     memcpy(&menu_text[MENU_AV_COLOR_SPACE * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
+#ifdef HQ2X
+    snprintf(buffer, 9, "%-8s", UpscalingMode == UPSCALING_MODE_2X ? "2x" : "hq2x");
+    memcpy(&menu_text[MENU_AV_UPSCALING_MODE * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
+#endif
     return MENU_AV_FIRST_SELECT_LINE;
 }, NULL, true);

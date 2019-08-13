@@ -6,10 +6,6 @@
 
 //////////////////////////////////////////////////////////////////////////////////
 
-#define DCHDMI_VERSION "v3.0.5"
-
-//////////////////////////////////////////////////////////////////////////////////
-
 #define DBG_OUTPUT_PORT Serial
 //#define DEBUG(...) DBG_OUTPUT_PORT.printf(__VA_ARGS__)
 #define DEBUG(...) void(0)
@@ -261,5 +257,11 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 #define PROTECTED_MODE_OFF (0x00)
 #define PROTECTED_MODE_STR_ON "on"
 #define PROTECTED_MODE_STR_OFF "off"
+
+#ifdef HQ2X
+#define OSD_RESOLUTION(res) sprintf(data, res "%s", UpscalingMode == UPSCALING_MODE_HQ2X && !(CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER) ? " HQ" : "");
+#else
+#define OSD_RESOLUTION(res) sprintf(data, res);
+#endif
 
 #endif

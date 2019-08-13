@@ -1,0 +1,54 @@
+v3.0.4                                  
+- Finally fixed: video output may not   
+  start on some systems                 
+                                        
+v3.0.3                                  
+- Fixed: video output may not start when
+  configured to VGA/CableDetect         
+- Fixed: bob deinterlacing was not      
+  properly aligned in VGA/480p mode     
+                                        
+v3.0.2                                  
+- Fixed: Scanlines are now applied post 
+  HQ2X filter. (Thanks to SONIC3D!)     
+                                        
+v3.0.1                                  
+- Fixed: Adjusted input data latch clock
+  phase shift to be more robust         
+  (Thanks to Ste!)                      
+                                        
+v3.0.0                                  
+- New: "Upscaling mode" config option   
+  Currently available: "2x" and "hq2x"  
+                                        
+v2.3.0                                  
+- New: "RGB color space" config option  
+- Fixed: 480i upsclaing wasn't properly 
+  aligned when using 960p/1080p output  
+- New: Improved output resolution       
+  switching time                        
+- Internal: Properly queue osd write    
+  requests                              
+                                        
+v2.2.0                                  
+- Verify checksum before flashing to    
+  prevent possible firmware corruption  
+                                        
+v2.1.1                                  
+- Improved HDMI compliance              
+- Improved reliability                  
+                                        
+v2.1.0                                  
+- Improved WiFi security                
+                                        
+v2.0.0                                  
+- PAL support                           
+- 480i/576i passthru                    
+- view changelog from OSD               
+- change video mode by holding dpad     
+  up/down (ForceVGA / CableDetect)      
+  on startup/full reset                 
+                                        
+v1.2.0                                  
+- 240p upscaling                        
+                                        
