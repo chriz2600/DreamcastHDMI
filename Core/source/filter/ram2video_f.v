@@ -36,7 +36,6 @@ module ram2video_f(
     localparam OSD_PXL_REP_H_HQ2X = 32;
     localparam OSD_FONT_HEIGHT = 16;
 
-    reg [23:0] rddata_reg;
     reg [23:0] inputpixel;
     wire [23:0] outpixel;
     wire [23:0] outpixel2;
@@ -171,7 +170,7 @@ module ram2video_f(
     )
 
     reg trigger /*verilator public*/;
-    reg state, state_reg /*verilator public*/;
+    reg state /*verilator public*/;
     reg [11:0] counterX_reg /*verilator public*/;
     reg [11:0] counterX_reg_q /*verilator public*/;
     reg [11:0] counterX_reg_q_q /*verilator public*/;
@@ -329,7 +328,6 @@ module ram2video_f(
                 end
             end
             d_rdaddr <= `GetAddr_f(counterX_reg_q, counterY_reg_q);
-            rddata_reg <= rddata;
 
             //////////////////////////////////////////////////////////////////////
             // generate base counter
@@ -352,7 +350,6 @@ module ram2video_f(
             end else begin
                 counterY_shift_q <= 12'h_f00;
             end
-            state_reg <= state;
 
             //////////////////////////////////////////////////////////////////////
             // generate output hsync

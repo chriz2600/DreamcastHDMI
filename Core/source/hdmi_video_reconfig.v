@@ -5,7 +5,7 @@ module hdmi_video_reconfig(
     output HDMIVideoConfig hdmiVideoConfig
 );
 
-    `include "config/hdmi_config.v"
+    `include "config/hq2x/hdmi_config.v"
 
     reg [7:0] data_in_reg = 0;
 

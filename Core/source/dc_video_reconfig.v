@@ -5,7 +5,7 @@ module dc_video_reconfig(
     output forceVGAMode
 );
 
-    `include "config/dc_config.v"
+    `include "config/hq2x/dc_config.v"
 
     reg [7:0] data_in_reg = 0;
     reg forceVGAMode_reg;
