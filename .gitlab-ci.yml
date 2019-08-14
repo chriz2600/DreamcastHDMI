@@ -57,7 +57,9 @@ esp-firmware:
 
 fpga-publish:
   stage: deploy
-  script: create-index-html
+  script: 
+    - "create-index-html std"
+    - "create-index-html hq2x"
   artifacts:
     expire_in: 1 sec
   dependencies:
