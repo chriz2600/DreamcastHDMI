@@ -5,7 +5,11 @@ module hdmi_video_reconfig(
     output HDMIVideoConfig hdmiVideoConfig
 );
 
+`ifdef std
+    `include "config/std/hdmi_config.v"
+`elsif hq2x
     `include "config/hq2x/hdmi_config.v"
+`endif
 
     reg [7:0] data_in_reg = 0;
 

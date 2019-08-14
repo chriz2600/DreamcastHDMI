@@ -8,13 +8,17 @@ fpga-firmware:
   stage: build-fpga
   script: 
     - ./Core/source/ram/create_text_ram.pl
-    - script -qfc "$(printf "%q " "/root/build")" /dev/null
+    - script -qfc "$(printf "%q %q " "./Core/build" "std")" /dev/null
+    - script -qfc "$(printf "%q %q " "./Core/build" "hq2x")" /dev/null
   artifacts:
     name: "fpga-firmware-${CI_COMMIT_REF_NAME}"
     paths:
-    - Core/output_files/*.jic
-    - Core/output_files/*.rbf
-    - Core/output_files/*.dc
+    - Core/output_files/std/*.jic
+    - Core/output_files/std/*.rbf
+    - Core/output_files/std/*.dc
+    - Core/output_files/hq2x/*.jic
+    - Core/output_files/hq2x/*.rbf
+    - Core/output_files/hq2x/*.dc
   tags:
     - dreamcast-hdmi
   only:

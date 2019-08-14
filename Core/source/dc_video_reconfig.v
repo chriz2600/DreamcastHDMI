@@ -5,7 +5,11 @@ module dc_video_reconfig(
     output forceVGAMode
 );
 
+`ifdef std
+    `include "config/std/dc_config.v"
+`elsif hq2x
     `include "config/hq2x/dc_config.v"
+`endif
 
     reg [7:0] data_in_reg = 0;
     reg forceVGAMode_reg;

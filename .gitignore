@@ -32,6 +32,7 @@ Core/output_files/
 Core/DCxPlus.ipregen.rpt
 Core/.environment
 Core/osc.sopcinfo
+Core/local.qsf
 *.BAK.v
 prep/*
 notes

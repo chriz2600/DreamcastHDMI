@@ -8,16 +8,19 @@
 `define OUTPUT_FMT 8'b00000000
 `define HQ_TABLE_TYPE wire
 
-// standard
-// `define RAM_WIDTH 15
-// `define RAM_MAX_DEPTH 4096
-// `define RAM_NUMWORDS 21120
-// `define ADV_1080P_REG_3C 8'h_10
 
-// HQ2X
-`define RAM_WIDTH 14
-`define RAM_MAX_DEPTH 1024
-`define RAM_NUMWORDS 14720
-`define ADV_1080P_REG_3C 8'h_00
+`ifdef std
+    // standard
+    `define RAM_WIDTH 15
+    `define RAM_MAX_DEPTH 4096
+    `define RAM_NUMWORDS 21120
+    `define ADV_1080P_REG_3C 8'h_10
+`elsif hq2x
+    // HQ2X
+    `define RAM_WIDTH 14
+    `define RAM_MAX_DEPTH 1024
+    `define RAM_NUMWORDS 14720
+    `define ADV_1080P_REG_3C 8'h_00
+`endif
 
 `endif
