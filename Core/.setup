@@ -1,11 +1,19 @@
 
+function running_in_docker() {
+  test -d /proc && awk -F/ '$2 == "docker"' /proc/self/cgroup | read
+}
+
 function docker_run {
-    docker run --rm -it \
-        -e "JTAG_SERVER=$JTAG_SERVER" \
-        -e "JTAG_PASSWD=$JTAG_PASSWD" \
-        -v $(pwd):/build \
-        chriz2600/dreamcast-hdmi:latest \
+    if running_in_docker ; then
         /usr/local/bin/quartus_wrapper "$@"
+    else
+        docker run --rm -it \
+            -e "JTAG_SERVER=$JTAG_SERVER" \
+            -e "JTAG_PASSWD=$JTAG_PASSWD" \
+            -v $(pwd):/build \
+            chriz2600/dreamcast-hdmi:latest \
+            /usr/local/bin/quartus_wrapper "$@"
+    fi
 }
 
 # add JTAG_SERVER and JTAG_PASSWD into .environment as needed
