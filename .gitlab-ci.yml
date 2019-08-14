@@ -29,7 +29,7 @@ esp-firmware:
     name: chriz2600/platformio:4.0.0
   stage: build-esp
   script:
-    - "./build-all"
+    - "./FirmwareManager/build-all"
   artifacts:
     name: "esp-firmware-${CI_COMMIT_REF_NAME}"
     paths:
