@@ -22,7 +22,7 @@ for variant in std hq2x; do
     cp build/$variant/changelog .pio/build/$variant/
 
     # todo: make it hq2x/std
-    cp ../Core/output_files/DCxPlus-default.dc build/$variant/firmware.dc
+    cp ../Core/output_files/$variant/DCxPlus.dc build/$variant/firmware.dc
 
     md5sum build/$variant/firmware.dc | awk '{print $1;}' > build/$variant/etc/last_flash_md5
     md5sum build/$variant/firmware.dc | awk '{print $1;}' > build/$variant/firmware.dc.md5
