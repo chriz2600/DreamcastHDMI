@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deploy
  date="2019.08.14.23:34:45"
- outputDirectory="C:/Users/chriz/Development/DreamcastHDMI_orig/Core/source/osc/">
+ outputDirectory="/build/Core/source/osc/">
  <perimeter>
   <parameter
      name="AUTO_GENERATION_ID"
@@ -61,18 +61,18 @@
   <parameter name="AUTO_DEVICE_SPEEDGRADE" value="8" />
   <generatedFiles>
    <file
-       path="C:/Users/chriz/Development/DreamcastHDMI_orig/Core/source/osc/synthesis/osc.v"
+       path="/build/Core/source/osc/synthesis/osc.v"
        type="VERILOG" />
   </generatedFiles>
   <childGeneratedFiles>
    <file
-       path="C:/Users/chriz/Development/DreamcastHDMI_orig/Core/source/osc/synthesis/submodules/altera_int_osc.v"
+       path="/build/Core/source/osc/synthesis/submodules/altera_int_osc.v"
        type="VERILOG"
        attributes="" />
   </childGeneratedFiles>
   <sourceFiles>
    <file
-       path="C:/Users/chriz/Development/DreamcastHDMI_orig/Core/source/osc.qsys" />
+       path="/build/Core/source/osc.qsys" />
   </sourceFiles>
   <childSourceFiles>
    <file
@@ -115,7 +115,7 @@
   <parameter name="DEVICE_ID" value="UNKNOWN" />
   <generatedFiles>
    <file
-       path="C:/Users/chriz/Development/DreamcastHDMI_orig/Core/source/osc/synthesis/submodules/altera_int_osc.v"
+       path="/build/Core/source/osc/synthesis/submodules/altera_int_osc.v"
        type="VERILOG"
        attributes="" />
   </generatedFiles>
