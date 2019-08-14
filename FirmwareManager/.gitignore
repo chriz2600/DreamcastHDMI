@@ -14,3 +14,4 @@ misc/test.html
 .vscode/.browse.c_cpp.db*
 data/esp.index.html.gz
 .pio
+build

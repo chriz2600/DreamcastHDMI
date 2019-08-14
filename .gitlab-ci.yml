@@ -21,11 +21,7 @@ fpga-firmware:
     - develop
     - master
     - experimental
-    - hq2x-develop
-    - hq2x-master
-    - hq2x-experimental
-    - hq2x-bleeding
-    - hq2x
+    - bleeding
     - tags
 
 esp-firmware:
@@ -33,33 +29,17 @@ esp-firmware:
     name: chriz2600/platformio:4.0.0
   stage: build-esp
   script:
-    - "cd FirmwareManager"
-    - "./local/prepare-index-html"
-    - "export SOURCE_DATE_EPOCH=$(git --no-pager log -1 --pretty='format:%ct' src)"
-    - "echo $SOURCE_DATE_EPOCH"
-    - "pio run -t clean"
-    - "pio run"
-    # firmware.dc
-    - "cp ../Core/output_files/DCxPlus-default.dc data/firmware.dc"
-    - "md5sum data/firmware.dc | awk '{print $1;}' > data/etc/last_flash_md5"
-    - "md5sum data/firmware.dc | awk '{print $1;}' > data/firmware.dc.md5"
-    # firmware.bin
-    - "md5sum .pio/build/hq2x/firmware.bin | awk '{print $1;}' > data/etc/last_esp_flash_md5"
-    - "md5sum .pio/build/hq2x/firmware.bin | awk '{print $1;}' > data/firmware.bin.md5"
-    # index.html
-    - "md5sum data/index.html.gz | awk '{print $1;}' > data/index.html.gz.md5"
-    - "md5sum data/index.html.gz | awk '{print $1;}' > data/esp.index.html.gz.md5"
-    # changelog
-    - "cat data.in/hq2x.changelog.in | tr -d '\n\t' > data/changelog"
-    # finally build spiffs
-    - "pio run -t buildfs"
+    - "./build-all"
   artifacts:
     name: "esp-firmware-${CI_COMMIT_REF_NAME}"
     paths:
     - FirmwareManager/.pio/build/hq2x/firmware.bin
     - FirmwareManager/.pio/build/hq2x/spiffs.bin
+    - FirmwareManager/data/hq2x-changelog
+    - FirmwareManager/.pio/build/std/firmware.bin
+    - FirmwareManager/.pio/build/std/spiffs.bin
+    - FirmwareManager/data/std-changelog
     - FirmwareManager/data/index.html.gz
-    - FirmwareManager/data/changelog
   dependencies:
     - fpga-firmware
   tags:
@@ -68,11 +48,7 @@ esp-firmware:
     - develop
     - master
     - experimental
-    - hq2x-develop
-    - hq2x-master
-    - hq2x-experimental
-    - hq2x-bleeding
-    - hq2x
+    - bleeding
     - tags
 
 fpga-publish:
@@ -88,16 +64,14 @@ fpga-publish:
     - develop
     - master
     - experimental
-    - hq2x-develop
-    - hq2x-master
-    - hq2x-experimental
-    - hq2x-bleeding
-    - hq2x
+    - bleeding
     - tags
 
 esp-publish:
   stage: deploy
-  script: create-index-html-esp hq2x
+  script: 
+    - "create-index-html-esp std"
+    - "create-index-html-esp hq2x"
   artifacts:
     expire_in: 1 sec
   dependencies:
@@ -108,11 +82,7 @@ esp-publish:
     - develop
     - master
     - experimental
-    - hq2x-develop
-    - hq2x-master
-    - hq2x-experimental
-    - hq2x-bleeding
-    - hq2x
+    - bleeding
     - tags
 
 finish-publish:
@@ -129,9 +99,5 @@ finish-publish:
     - develop
     - master
     - experimental
-    - hq2x-develop
-    - hq2x-master
-    - hq2x-experimental
-    - hq2x-bleeding
-    - hq2x
+    - bleeding
     - tags

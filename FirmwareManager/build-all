@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+set -e
+
+cd $(dirname $0)
+
+# compile project
+export SOURCE_DATE_EPOCH=$(git --no-pager log -1 --pretty='format:%ct' src)
+echo $SOURCE_DATE_EPOCH
+
+./local/prepare-index-html
+
+for variant in std hq2x; do
+    pio run -e $variant
+
+    mkdir -p build/$variant
+    cp -r data/etc build/$variant/
+    cp data/index.html.gz build/$variant
+    cat data.in/$variant-changelog.in | tr -d '\n\t' > build/$variant/changelog
+
+    cp build/$variant/index.html.gz .pio/build/$variant/
+    cp build/$variant/changelog .pio/build/$variant/
+
+    # todo: make it hq2x/std
+    cp ../Core/output_files/DCxPlus-default.dc build/$variant/firmware.dc
+
+    md5sum build/$variant/firmware.dc | awk '{print $1;}' > build/$variant/etc/last_flash_md5
+    md5sum build/$variant/firmware.dc | awk '{print $1;}' > build/$variant/firmware.dc.md5
+    md5sum build/$variant/index.html.gz | awk '{print $1;}' > build/$variant/index.html.gz.md5
+    md5sum build/$variant/index.html.gz | awk '{print $1;}' > build/$variant/esp.index.html.gz.md5
+
+    PLATFORMIO_DATA_DIR="build/$variant/" pio run -t buildfs -e $variant
+done
