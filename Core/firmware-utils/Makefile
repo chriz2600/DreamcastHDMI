@@ -3,8 +3,8 @@
 all: build
 
 build:
-	gcc -std=c11 -o firmware-packer -I../lib/FastLZ firmware-packer.c ../lib/FastLZ/fastlz.c
-	gcc -std=c11 -o firmware-unpacker -I../lib/FastLZ firmware-unpacker.c ../lib/FastLZ/fastlz.c
+	gcc -std=c11 -o firmware-packer firmware-packer.c fastlz.c
+	gcc -std=c11 -o firmware-unpacker firmware-unpacker.c fastlz.c
 
 clean:
 	rm -f firmware-packer
