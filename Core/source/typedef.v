@@ -1,3 +1,4 @@
+`include "config.inc"
 // DEBUG Information
 typedef struct packed {
     reg [7:0] pll_errors;
@@ -121,8 +122,8 @@ typedef struct packed {
     reg [10:0] osd_text_y_start;            // 
     reg [10:0] osd_text_y_end;              // 
 
-    reg [13:0] buffer_line_length;          // 720 for 480p, 640 for others
-    reg [13:0] ram_numwords;                // size of video buffer, 21120 for 1080p
+    reg [`RAM_WIDTH-1:0] buffer_line_length;          // 720 for 480p, 640 for others
+    reg [`RAM_WIDTH-1:0] ram_numwords;                // size of video buffer, 21120 for 1080p
     reg line_doubling;                      // 0: line doubling OFF, 1: line doubling ON
     reg pixel_repetition;                   // 0: pixel repetition OFF, 1: pixel repetition ON
 
@@ -150,10 +151,10 @@ typedef struct packed {
     reg [9:0] i_vertical_capture_end;
 
     reg [7:0] buffer_size;         // lines of video buffer
-    reg [13:0] ram_numwords;       // size of video buffer, 21120 for 1080p
-    reg [13:0] trigger_address_p;  // ram address where to trigger output start (VGA mode)
-    reg [13:0] trigger_address_i;  // ram address where to trigger output start (15kHz mode)
-    reg [13:0] buffer_line_length; // 720 for 480p, 640 for others
+    reg [`RAM_WIDTH-1:0] ram_numwords;       // size of video buffer, 21120 for 1080p
+    reg [`RAM_WIDTH-1:0] trigger_address_p;  // ram address where to trigger output start (VGA mode)
+    reg [`RAM_WIDTH-1:0] trigger_address_i;  // ram address where to trigger output start (15kHz mode)
+    reg [`RAM_WIDTH-1:0] buffer_line_length; // 720 for 480p, 640 for others
 } DCVideoConfig;
 
 typedef struct packed {

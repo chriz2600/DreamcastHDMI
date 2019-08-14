@@ -22,7 +22,7 @@ module ram2video(
     input line_doubler,
     input is_interlaced,
 
-    output [13:0] rdaddr /*verilator public*/,
+    output [`RAM_WIDTH-1:0] rdaddr /*verilator public*/,
     input [7:0] text_rddata,
     output [9:0] text_rdaddr,
     output [23:0] video_out,
@@ -76,7 +76,7 @@ module ram2video(
     reg [3:0] charPixelRow_reg;
 
     reg [9:0] ram_addrX_reg/*verilator public*/;
-    reg [13:0] ram_addrY_reg;
+    reg [`RAM_WIDTH-1:0] ram_addrY_reg;
     reg [3:0] pxl_rep_c_x;
     reg [3:0] pxl_rep_c_y;
 
@@ -94,7 +94,7 @@ module ram2video(
     reg _d_vsync;
     reg _d_DrawArea;
 
-    reg [13:0] d_rdaddr;
+    reg [`RAM_WIDTH-1:0] d_rdaddr;
     reg [23:0] d_video_out;
     reg d_hsync;
     reg d_vsync;

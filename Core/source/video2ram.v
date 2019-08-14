@@ -14,7 +14,7 @@ module video2ram(
     input is_pal,
     
     output [23:0] wrdata,
-    output [13:0] wraddr,
+    output [`RAM_WIDTH-1:0] wraddr,
     output wren,
     
     output starttrigger,

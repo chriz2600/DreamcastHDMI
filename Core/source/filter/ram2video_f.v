@@ -1,6 +1,8 @@
 /* verilator lint_off WIDTH */
 /* verilator lint_off UNUSED */
 
+`include "config.inc"
+
 module ram2video_f(
     input clock,
     input reset,
@@ -9,7 +11,7 @@ module ram2video_f(
     output reg fullcycle,
     input Scanline scanline,
 
-    output [13:0] rdaddr /*verilator public*/,
+    output [`RAM_WIDTH-1:0] rdaddr /*verilator public*/,
     input [23:0] rddata,
 
     output [9:0] text_rdaddr /*verilator public*/,
@@ -146,7 +148,7 @@ module ram2video_f(
     `define GetData_f(x, y) (`IsDrawAreaVGA_f(x, y) ? outpixel2 : 24'h00)
 
     reg [9:0] ram_addrX_reg_hq2x /*verilator public*/;
-    reg [13:0] ram_addrY_reg_hq2x /*verilator public*/;
+    reg [`RAM_WIDTH-1:0] ram_addrY_reg_hq2x /*verilator public*/;
 
     `define VerticalLines_f (vert_lines)
     `define VerticalSyncStart_f (sync_start)
@@ -213,7 +215,7 @@ module ram2video_f(
     reg vsync_reg_out /*verilator public*/;
 
     /* verilator lint_off UNUSED */
-    reg [13:0] d_rdaddr /*verilator public*/;
+    reg [`RAM_WIDTH-1:0] d_rdaddr /*verilator public*/;
 
     reg [23:0] _d_video_out;
     reg _d_hsync;

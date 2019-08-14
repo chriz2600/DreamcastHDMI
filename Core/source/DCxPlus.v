@@ -70,11 +70,11 @@ module DCxPlus(
     wire [7:0] dc_red;
 
     wire ram_wren;
-    wire [13:0] ram_wraddress;
+    wire [`RAM_WIDTH-1:0] ram_wraddress;
     wire [23:0] ram_wrdata;
-    wire [13:0] ram_rdaddress;
-    wire [13:0] std_ram_rdaddress;
-    wire [13:0] hqx_ram_rdaddress;
+    wire [`RAM_WIDTH-1:0] ram_rdaddress;
+    wire [`RAM_WIDTH-1:0] std_ram_rdaddress;
+    wire [`RAM_WIDTH-1:0] hqx_ram_rdaddress;
     wire [23:0] ram_rddata;
 
     wire buffer_ready_trigger;
@@ -440,7 +440,7 @@ module DCxPlus(
         .DrawArea(std_de)
     );
 
-    busmux #(.WIDTH(52)) r2v_mux(
+    busmux #(.WIDTH(1 + 10 /* text ram */ + `RAM_WIDTH + 1 + 1 + 1 + 24 /* video */)) r2v_mux(
         .dataa({ std_fullcycle, std_text_rdaddr, std_ram_rdaddress, std_hsync, std_vsync, std_de, std_video }),
         .datab({ hqx_fullcycle, hqx_text_rdaddr, hqx_ram_rdaddress, hqx_hsync, hqx_vsync, hqx_de, hqx_video }),
         .result({ fullcycle, text_rdaddr, ram_rdaddress, HSYNC, VSYNC, DE, VIDEO }),
