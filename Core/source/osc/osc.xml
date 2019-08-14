@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<deploy date="2018.09.05.11:14:49" outputDirectory="/build/Core/osc/">
+<deploy
+ date="2019.08.14.23:34:45"
+ outputDirectory="C:/Users/chriz/Development/DreamcastHDMI_orig/Core/source/osc/">
  <perimeter>
   <parameter
      name="AUTO_GENERATION_ID"
@@ -47,31 +49,34 @@
  </perimeter>
  <entity
    path=""
-   parameterizationKey="osc:1.0:AUTO_DEVICE=10CL025YE144C8G,AUTO_DEVICE_FAMILY=Cyclone 10 LP,AUTO_DEVICE_SPEEDGRADE=8,AUTO_GENERATION_ID=1536146088,AUTO_UNIQUE_ID=(altera_int_osc:18.0:CBX_AUTO_BLACKBOX=ALL,CLOCK_FREQUENCY=UNKNOWN,CLOCK_FREQUENCY_1=116,CLOCK_FREQUENCY_2=77,DEVICE_FAMILY=Cyclone 10 LP,DEVICE_ID=UNKNOWN,INFORMATION=The maximum output frequency is 80MHz,PART_NAME=10CL025YE144C8G)"
+   parameterizationKey="osc:1.0:AUTO_DEVICE=10CL025YE144C8G,AUTO_DEVICE_FAMILY=Cyclone 10 LP,AUTO_DEVICE_SPEEDGRADE=8,AUTO_GENERATION_ID=1565818484,AUTO_UNIQUE_ID=(altera_int_osc:18.1:CBX_AUTO_BLACKBOX=ALL,CLOCK_FREQUENCY=UNKNOWN,CLOCK_FREQUENCY_1=116,CLOCK_FREQUENCY_2=77,DEVICE_FAMILY=Cyclone 10 LP,DEVICE_ID=UNKNOWN,INFORMATION=The maximum output frequency is 80MHz,PART_NAME=10CL025YE144C8G)"
    instancePathKey="osc"
    kind="osc"
    version="1.0"
    name="osc">
-  <parameter name="AUTO_GENERATION_ID" value="1536146088" />
+  <parameter name="AUTO_GENERATION_ID" value="1565818484" />
   <parameter name="AUTO_DEVICE" value="10CL025YE144C8G" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Cyclone 10 LP" />
   <parameter name="AUTO_UNIQUE_ID" value="" />
   <parameter name="AUTO_DEVICE_SPEEDGRADE" value="8" />
   <generatedFiles>
-   <file path="/build/Core/osc/synthesis/osc.v" type="VERILOG" />
+   <file
+       path="C:/Users/chriz/Development/DreamcastHDMI_orig/Core/source/osc/synthesis/osc.v"
+       type="VERILOG" />
   </generatedFiles>
   <childGeneratedFiles>
    <file
-       path="/build/Core/osc/synthesis/submodules/altera_int_osc.v"
+       path="C:/Users/chriz/Development/DreamcastHDMI_orig/Core/source/osc/synthesis/submodules/altera_int_osc.v"
        type="VERILOG"
        attributes="" />
   </childGeneratedFiles>
   <sourceFiles>
-   <file path="/build/Core/osc.qsys" />
+   <file
+       path="C:/Users/chriz/Development/DreamcastHDMI_orig/Core/source/osc.qsys" />
   </sourceFiles>
   <childSourceFiles>
    <file
-       path="/opt/intelFPGA_lite/18.0/ip/altera/altera_int_osc/altera_int_osc_hw.tcl" />
+       path="C:/intelfpga_lite/18.1/ip/altera/altera_int_osc/altera_int_osc_hw.tcl" />
   </childSourceFiles>
   <messages>
    <message level="Debug" culprit="osc">queue size: 0 starting:osc "osc"</message>
@@ -95,10 +100,10 @@
  </entity>
  <entity
    path="submodules/"
-   parameterizationKey="altera_int_osc:18.0:CBX_AUTO_BLACKBOX=ALL,CLOCK_FREQUENCY=UNKNOWN,CLOCK_FREQUENCY_1=116,CLOCK_FREQUENCY_2=77,DEVICE_FAMILY=Cyclone 10 LP,DEVICE_ID=UNKNOWN,INFORMATION=The maximum output frequency is 80MHz,PART_NAME=10CL025YE144C8G"
+   parameterizationKey="altera_int_osc:18.1:CBX_AUTO_BLACKBOX=ALL,CLOCK_FREQUENCY=UNKNOWN,CLOCK_FREQUENCY_1=116,CLOCK_FREQUENCY_2=77,DEVICE_FAMILY=Cyclone 10 LP,DEVICE_ID=UNKNOWN,INFORMATION=The maximum output frequency is 80MHz,PART_NAME=10CL025YE144C8G"
    instancePathKey="osc:.:int_osc_0"
    kind="altera_int_osc"
-   version="18.0"
+   version="18.1"
    name="altera_int_osc">
   <parameter name="CLOCK_FREQUENCY_2" value="77" />
   <parameter name="CLOCK_FREQUENCY_1" value="116" />
@@ -110,14 +115,14 @@
   <parameter name="DEVICE_ID" value="UNKNOWN" />
   <generatedFiles>
    <file
-       path="/build/Core/osc/synthesis/submodules/altera_int_osc.v"
+       path="C:/Users/chriz/Development/DreamcastHDMI_orig/Core/source/osc/synthesis/submodules/altera_int_osc.v"
        type="VERILOG"
        attributes="" />
   </generatedFiles>
   <childGeneratedFiles/>
   <sourceFiles>
    <file
-       path="/opt/intelFPGA_lite/18.0/ip/altera/altera_int_osc/altera_int_osc_hw.tcl" />
+       path="C:/intelfpga_lite/18.1/ip/altera/altera_int_osc/altera_int_osc_hw.tcl" />
   </sourceFiles>
   <childSourceFiles/>
   <instantiator instantiator="osc" as="int_osc_0" />

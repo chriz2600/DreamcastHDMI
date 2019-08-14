@@ -1,13 +1,13 @@
 	component osc is
 		port (
-			oscena : in  std_logic := 'X'; -- oscena
-			clkout : out std_logic         -- clk
+			clkout : out std_logic;        -- clk
+			oscena : in  std_logic := 'X'  -- oscena
 		);
 	end component osc;
 
 	u0 : component osc
 		port map (
-			oscena => CONNECTED_TO_oscena, -- oscena.oscena
-			clkout => CONNECTED_TO_clkout  -- clkout.clk
+			clkout => CONNECTED_TO_clkout, -- clkout.clk
+			oscena => CONNECTED_TO_oscena  -- oscena.oscena
 		);
 

@@ -1,8 +1,8 @@
 
 module osc (
-	oscena,
-	clkout);	
+	clkout,
+	oscena);	
 
-	input		oscena;
 	output		clkout;
+	input		oscena;
 endmodule

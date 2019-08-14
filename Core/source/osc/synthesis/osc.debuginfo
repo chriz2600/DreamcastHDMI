@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<EnsembleReport name="osc" kind="system" version="18.0" fabric="QSYS">
- <!-- Format version 18.0 614 (Future versions may contain additional information.) -->
- <!-- 2018.09.05.11:14:49 -->
+<EnsembleReport name="osc" kind="system" version="18.1" fabric="QSYS">
+ <!-- Format version 18.1 625 (Future versions may contain additional information.) -->
+ <!-- 2019.08.14.23:34:45 -->
  <!-- A collection of modules and connections -->
  <parameter name="clockCrossingAdapter">
   <type>com.altera.sopcmodel.ensemble.EClockAdapter</type>
@@ -53,7 +53,7 @@
  </parameter>
  <parameter name="generationId">
   <type>int</type>
-  <value>1536146088</value>
+  <value>1565818484</value>
   <derived>false</derived>
   <enabled>true</enabled>
   <visible>true</visible>
@@ -150,7 +150,7 @@
  <module
    name="int_osc_0"
    kind="altera_int_osc"
-   version="18.0"
+   version="18.1"
    path="int_osc_0">
   <!-- Describes a single module. Module parameters are
 the requested settings for a module instance. -->
@@ -236,7 +236,7 @@ the requested settings for a module instance. -->
    <visible>true</visible>
    <valid>true</valid>
   </parameter>
-  <interface name="oscena" kind="conduit_end" version="18.0">
+  <interface name="oscena" kind="conduit_end" version="18.1">
    <!-- The connection points exposed by a module instance for the
 particular module parameters. Connection points and their
 parameters are a RESULT of the module parameters. -->
@@ -285,7 +285,7 @@ parameters are a RESULT of the module parameters. -->
     <role>oscena</role>
    </port>
   </interface>
-  <interface name="clkout" kind="clock_source" version="18.0">
+  <interface name="clkout" kind="clock_source" version="18.1">
    <!-- The connection points exposed by a module instance for the
 particular module parameters. Connection points and their
 parameters are a RESULT of the module parameters. -->
@@ -365,7 +365,7 @@ parameters are a RESULT of the module parameters. -->
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IModule</subtype>
   <displayName>Internal Oscillator</displayName>
-  <version>18.0</version>
+  <version>18.1</version>
  </plugin>
  <plugin>
   <instanceCount>1</instanceCount>
@@ -373,7 +373,7 @@ parameters are a RESULT of the module parameters. -->
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
   <displayName>Conduit</displayName>
-  <version>18.0</version>
+  <version>18.1</version>
  </plugin>
  <plugin>
   <instanceCount>1</instanceCount>
@@ -381,8 +381,8 @@ parameters are a RESULT of the module parameters. -->
   <type>com.altera.entityinterfaces.IElementClass</type>
   <subtype>com.altera.entityinterfaces.IMutableConnectionPoint</subtype>
   <displayName>Clock Output</displayName>
-  <version>18.0</version>
+  <version>18.1</version>
  </plugin>
- <reportVersion>18.0 614</reportVersion>
- <uniqueIdentifier>0242AC11000300000165A9712452</uniqueIdentifier>
+ <reportVersion>18.1 625</reportVersion>
+ <uniqueIdentifier>00155D6C67AA0000016C920DF80E</uniqueIdentifier>
 </EnsembleReport>

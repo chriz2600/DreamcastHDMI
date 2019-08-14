@@ -1,8 +1,21 @@
-Info: Starting: Create HDL design files for synthesis
-Info: qsys-generate /build/Core/osc.qsys --synthesis=VERILOG --output-directory=/build/Core/osc/synthesis --family="Cyclone 10 LP" --part=10CL025YE144C8G
-Progress: Loading Core/osc.qsys
+Info: Starting: Create block symbol file (.bsf)
+Info: qsys-generate C:\Users\chriz\Development\DreamcastHDMI_orig\Core\source\osc.qsys --block-symbol-file --output-directory=C:\Users\chriz\Development\DreamcastHDMI_orig\Core\source\osc --family="Cyclone 10 LP" --part=10CL025YE144C8G
+Progress: Loading source/osc.qsys
 Progress: Reading input file
-Progress: Adding int_osc_0 [altera_int_osc 18.0]
+Progress: Adding int_osc_0 [altera_int_osc 18.1]
+Progress: Parameterizing module int_osc_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: qsys-generate succeeded.
+Info: Finished: Create block symbol file (.bsf)
+Info: 
+Info: Starting: Create HDL design files for synthesis
+Info: qsys-generate C:\Users\chriz\Development\DreamcastHDMI_orig\Core\source\osc.qsys --synthesis=VERILOG --output-directory=C:\Users\chriz\Development\DreamcastHDMI_orig\Core\source\osc\synthesis --family="Cyclone 10 LP" --part=10CL025YE144C8G
+Progress: Loading source/osc.qsys
+Progress: Reading input file
+Progress: Adding int_osc_0 [altera_int_osc 18.1]
 Progress: Parameterizing module int_osc_0
 Progress: Building connections
 Progress: Parameterizing connections
