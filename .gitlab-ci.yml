@@ -95,7 +95,9 @@ esp-publish:
 
 finish-publish:
   stage: publish
-  script: dc-atomic-move
+  script:
+    - "dc-atomic-move std"
+    - "dc-atomic-move hq2x"
   artifacts:
     expire_in: 1 sec
   dependencies:
