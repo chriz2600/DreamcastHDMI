@@ -134,4 +134,5 @@ set_instance_assignment -name FAST_OUTPUT_REGISTER ON -to *
 set_instance_assignment -name FAST_INPUT_REGISTER ON -to *
 set_instance_assignment -name FAST_OUTPUT_ENABLE_REGISTER ON -to *
 
+
 source Macros.qsf
