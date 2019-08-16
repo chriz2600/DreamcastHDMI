@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 cd $(dirname $0)
 
 variant=$1
@@ -16,12 +18,15 @@ test -f firmware-utils/firmware-packer || {
 }
 
 echo "set_global_assignment -name VERILOG_MACRO $variant" > local.qsf
-./compile DCxPlus && \
-    ./create-jic DCxPlus.cof && \
-    ./create-jic DCxPlus-raw.cof && \
-    ./firmware-utils/firmware-packer output_files/DCxPlus.rbf output_files/DCxPlus.dc && \
-    mkdir -p output_files/$variant && \
-    cp output_files/DCxPlus.{jic,rbf,dc} output_files/$variant && \
-    ls -alF output_files/$variant/DCxPlus.dc && \
-    md5sum output_files/$variant/DCxPlus.dc && \
-    cat output_files/DCxPlus.fit.rpt | grep '; Total logic elements               ;'
+./compile DCxPlus
+./create-jic DCxPlus.cof
+./create-jic DCxPlus-raw.cof
+./firmware-utils/firmware-packer output_files/DCxPlus.rbf output_files/DCxPlus.dc
+mkdir -p output_files/$variant
+for f in jic rbf dc ; do
+    mv output_files/DCxPlus.${f} output_files/DCxPlus-default.${f}
+done
+cp output_files/DCxPlus-default.{jic,rbf,dc} output_files/$variant
+ls -alF output_files/$variant/DCxPlus-default.dc
+md5sum output_files/$variant/DCxPlus-default.dc
+cat output_files/DCxPlus.fit.rpt | grep '; Total logic elements               ;'
