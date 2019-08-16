@@ -1052,7 +1052,7 @@ void setup(void) {
     }
 
     setOSD(false, NULL); fpgaTask.ForceLoop();
-    fpgaTask.DoWriteToOSD(33, 24, (uint8_t*) " " DCHDMI_VERSION); fpgaTask.ForceLoop();
+    fpgaTask.DoWriteToOSD(MENU_WIDTH - strlen(DCHDMI_VERSION) - 1, 24, (uint8_t*) " " DCHDMI_VERSION); fpgaTask.ForceLoop();
     char buff[16]; osd_get_resolution(buff);
     fpgaTask.DoWriteToOSD(0, 24, (uint8_t*) buff); fpgaTask.ForceLoop();
 

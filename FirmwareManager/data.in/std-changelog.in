@@ -1,3 +1,8 @@
+v4.0-std                                
+- Standard and Relaxed firmware flavours
+  are now built from the same source    
+- Keyboard support                      
+                                        
 v2.3.4                                  
 - Finally fixed: video output may not   
   start on some systems                 

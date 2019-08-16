@@ -1,3 +1,8 @@
+v4.0-rlx                                
+- Standard and Relaxed firmware flavours
+  are now built from the same source    
+- Keyboard support                      
+                                        
 v3.0.4                                  
 - Finally fixed: video output may not   
   start on some systems                 

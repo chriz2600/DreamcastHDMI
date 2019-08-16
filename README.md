@@ -1,6 +1,10 @@
 # DreamcastHDMI / DCHDMI
 
-#### 2019-XX-XX *Firmware v3.0.5* (*Relaxed*)
+#### 2019-XX-XX *Firmware v4.0-std*/*v4.0-rlx* (*Standard*/*Relaxed*)
+
+- *Standard (**v4.0-std**)* and *Relaxed (**v4.0-rlx**)* firmware flavours are now built from the same source, therefor the major and minor version is now the same for both.
+
+- ESP firmware is now built using PlatformIO 4.0.0
 
 - [Keyboard support to control DCHDMI OSD](Keyboard.md)
 
