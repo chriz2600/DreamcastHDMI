@@ -5,7 +5,6 @@ set -e
 cd $(dirname $0)
 
 variant=$1
-shift
 if [ "$variant" = "" ] ; then
     echo "usage: $0 <std|hq2x>"
     exit 1
