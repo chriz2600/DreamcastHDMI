@@ -22,10 +22,10 @@ for variant in std hq2x; do
     cp build/$variant/changelog .pio/build/$variant/
     cp ../Core/output_files/$variant/DCxPlus-default.dc build/$variant/firmware.dc
 
-    md5sum build/$variant/firmware.dc | awk '{print $1;}' > build/$variant/etc/last_flash_md5
-    md5sum build/$variant/firmware.dc | awk '{print $1;}' > build/$variant/firmware.dc.md5
-    md5sum build/$variant/index.html.gz | awk '{print $1;}' > build/$variant/index.html.gz.md5
-    md5sum build/$variant/index.html.gz | awk '{print $1;}' > build/$variant/esp.index.html.gz.md5
+    md5sum build/$variant/firmware.dc | awk '{print $1;}' | tr -d '\n' > build/$variant/etc/last_flash_md5
+    md5sum build/$variant/firmware.dc | awk '{print $1;}' | tr -d '\n' > build/$variant/firmware.dc.md5
+    md5sum build/$variant/index.html.gz | awk '{print $1;}' | tr -d '\n' > build/$variant/index.html.gz.md5
+    md5sum build/$variant/index.html.gz | awk '{print $1;}' | tr -d '\n' > build/$variant/esp.index.html.gz.md5
 
     PLATFORMIO_DATA_DIR="build/$variant/" pio run -t buildfs -e $variant
 done

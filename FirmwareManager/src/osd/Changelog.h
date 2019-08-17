@@ -35,7 +35,7 @@ Menu changelogMenu("ChangelogMenu", (uint8_t*) OSD_CHANGELOG_MENU, NO_SELECT_LIN
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         changelogFile.close();
         free(changelogBuffer);
-        currentMenu = &firmwareCheckMenu;
+        currentMenu = &firmwareMenu;
         currentMenu->Display();
         return;
     }
