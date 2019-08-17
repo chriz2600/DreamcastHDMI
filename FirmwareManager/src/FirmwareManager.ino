@@ -17,6 +17,7 @@
 #include "ArduinoJson.h"
 #include <Task.h>
 #include "task/FlashTask.h"
+#include "task/FlashVerifyTask.h"
 #include "task/FlashESPTask.h"
 #include "task/FlashESPIndexTask.h"
 #include "task/FPGATask.h"
@@ -98,6 +99,7 @@ FlashESPIndexTask flashESPIndexTask(1);
 DebugTask debugTask(16);
 TimeoutTask timeoutTask(MsToTaskTime(100));
 FlashCheckTask flashCheckTask(1, NULL);
+FlashVerifyTask flashVerifyTask(1);
 FlashEraseTask flashEraseTask(1);
 InfoTask infoTask(16);
 

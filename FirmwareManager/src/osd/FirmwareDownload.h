@@ -1,6 +1,8 @@
 #include "../global.h"
 #include "../Menu.h"
 
+extern FlashVerifyTask flashVerifyTask;
+
 bool firmwareDownloadStarted;
 bool newFWDownloaded;
 bool gotFWDownloadError;
@@ -11,7 +13,7 @@ void handleESPIndexDownload(AsyncWebServerRequest *request, ProgressCallback pro
 
 void downloadCascade(int pos, bool forceDownload);
 void readStoredMD5SumDownload(int pos, bool forceDownload, const char* fname, char* md5sum);
-ProgressCallback createProgressCallback(int pos, bool forceDownload, int line);
+ProgressCallback createProgressCallback(int pos, bool forceDownload, int line, const char* vfile, const char* cfile);
 ContentCallback createMD5DownloadCallback(int pos, bool forceDownload, int line, char* storedMD5Sum, const char *filename);
 void displayProgress(int read, int total, int line);
 
@@ -60,7 +62,7 @@ void downloadCascade(int pos, bool forceDownload) {
             getMD5SumFromServer(REMOTE_FPGA_HOST, REMOTE_FPGA_MD5, createMD5DownloadCallback(pos, forceDownload, MENU_FWD_FPGA_LINE, md5FPGA, SERVER_FPGA_MD5));
             break;
         case 4: // Download FPGA firmware
-            handleFPGADownload(NULL, createProgressCallback(pos, forceDownload, MENU_FWD_FPGA_LINE));
+            handleFPGADownload(NULL, createProgressCallback(pos, forceDownload, MENU_FWD_FPGA_LINE, FIRMWARE_FILE, STAGED_FPGA_MD5));
             break;
         /*
             ESP
@@ -76,7 +78,7 @@ void downloadCascade(int pos, bool forceDownload) {
             getMD5SumFromServer(REMOTE_ESP_HOST, REMOTE_ESP_MD5, createMD5DownloadCallback(pos, forceDownload, MENU_FWD_ESP_LINE, md5ESP, SERVER_ESP_MD5));
             break;
         case 7: // Download ESP firmware
-            handleESPDownload(NULL, createProgressCallback(pos, forceDownload, MENU_FWD_ESP_LINE));
+            handleESPDownload(NULL, createProgressCallback(pos, forceDownload, MENU_FWD_ESP_LINE, ESP_FIRMWARE_FILE, STAGED_ESP_MD5));
             break;
         /*
             ESP INDEX
@@ -92,7 +94,7 @@ void downloadCascade(int pos, bool forceDownload) {
             getMD5SumFromServer(REMOTE_ESP_HOST, REMOTE_ESP_INDEX_MD5, createMD5DownloadCallback(pos, forceDownload, MENU_FWD_INDEXHTML_LINE, md5IndexHtml, SERVER_ESP_INDEX_MD5));
             break;
         case 10: // Download ESP index.html
-            handleESPIndexDownload(NULL, createProgressCallback(pos, forceDownload, MENU_FWD_INDEXHTML_LINE));
+            handleESPIndexDownload(NULL, createProgressCallback(pos, forceDownload, MENU_FWD_INDEXHTML_LINE, ESP_INDEX_STAGING_FILE, STAGED_ESP_INDEX_MD5));
             break;
         case 11:
             const char* result;
@@ -131,10 +133,12 @@ void readStoredMD5SumDownload(int pos, bool forceDownload, const char* fname, ch
     });
 }
 
-ProgressCallback createProgressCallback(int pos, bool forceDownload, int line) {
-    return [ pos, forceDownload, line ](int read, int total, bool done, int error) {
+ProgressCallback createProgressCallback(int pos, bool forceDownload, int line, const char* vfile, const char* cfile) {
+    return [ vfile, cfile, pos, forceDownload, line ](int read, int total, bool done, int error) {
         if (error != NO_ERROR) {
             gotFWDownloadError = true;
+            SPIFFS.remove(vfile);
+            SPIFFS.remove(cfile);
             fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "[ ERROR DOWNLOADING  ] done.", [ pos, forceDownload ]() {
                 downloadCascade(pos + 1, forceDownload);
             });
@@ -142,11 +146,25 @@ ProgressCallback createProgressCallback(int pos, bool forceDownload, int line) {
         }
 
         if (done) {
-            fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "[********************] done.", [ pos, forceDownload ]() {
-                // IMPORTANT: do only advance here, if done is true!!!!!
-                newFWDownloaded |= true;
-                downloadCascade(pos + 1, forceDownload);
+            flashVerifyTask.Set(vfile, cfile, [ vfile, cfile, pos, forceDownload, line ](bool isok) {
+                if (!isok) {
+                    gotFWDownloadError = true;
+                    SPIFFS.remove(vfile);
+                    SPIFFS.remove(cfile);
+                    fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "[ ERROR DOWNLOADING  ] done.", [ pos, forceDownload ]() {
+                        downloadCascade(pos + 1, forceDownload);
+                    });
+                    return;
+
+                } else {
+                    fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "[********************] done.", [ pos, forceDownload ]() {
+                        // IMPORTANT: do only advance here, if done is true!!!!!
+                        newFWDownloaded |= true;
+                        downloadCascade(pos + 1, forceDownload);
+                    });
+                }
             });
+            taskManager.StartTask(&flashVerifyTask);
             return;
         }
 
