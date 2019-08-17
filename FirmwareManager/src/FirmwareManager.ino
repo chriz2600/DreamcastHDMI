@@ -667,7 +667,7 @@ void setupHTTPServer() {
         root["conf_ip_mask"] = confIPMask;
         root["conf_ip_dns"] = confIPDNS;
         root["hostname"] = host;
-        root["fw_version"] = FW_VERSION;
+        root["fw_version"] = isRelaxedFirmware ? FW_VERSION "-rlx" : FW_VERSION "-std";
         root["video_resolution"] = configuredResolution;
         root["video_mode"] = videoMode;
         root["reset_mode"] = resetMode;
