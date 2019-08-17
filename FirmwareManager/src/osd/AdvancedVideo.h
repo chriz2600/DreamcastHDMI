@@ -36,6 +36,20 @@ Menu advancedVideoMenu("AdvancedVideoMenu", (uint8_t*) OSD_ADVANCED_VIDEO_MENU, 
         return;
     }
 
+    if (CHECK_CTRLR_MASK(controller_data, CTRLR_PAD_UP)) {
+        menu_activeLine = menu_activeLine <= MENU_AV_FIRST_SELECT_LINE ? MENU_AV_FIRST_SELECT_LINE : menu_activeLine - 1;
+        fpgaTask.Write(I2C_OSD_ACTIVE_LINE, MENU_OFFSET + menu_activeLine);
+        currentMenu->StoreMenuActiveLine(menu_activeLine);
+        return;
+    }
+    if (CHECK_CTRLR_MASK(controller_data, CTRLR_PAD_DOWN)) {
+        uint8_t effectiveLastLine = isRelaxedFirmware ? MENU_AV_LAST_SELECT_LINE : MENU_AV_LAST_SELECT_LINE - MENU_AV_STD_LINE_OFFSET;
+        menu_activeLine = menu_activeLine >= effectiveLastLine ? effectiveLastLine : menu_activeLine + 1;
+        fpgaTask.Write(I2C_OSD_ACTIVE_LINE, MENU_OFFSET + menu_activeLine);
+        currentMenu->StoreMenuActiveLine(menu_activeLine);
+        return;
+    }
+
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         write240pOffset();
         writeUpscalingMode();
@@ -127,9 +141,9 @@ Menu advancedVideoMenu("AdvancedVideoMenu", (uint8_t*) OSD_ADVANCED_VIDEO_MENU, 
             break;
     }
     memcpy(&menu_text[MENU_AV_COLOR_SPACE * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
-#ifdef HQ2X
-    snprintf(buffer, 9, "%-8s", UpscalingMode == UPSCALING_MODE_2X ? "2x" : "hq2x");
-    memcpy(&menu_text[MENU_AV_UPSCALING_MODE * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
-#endif
+    if (isRelaxedFirmware) {
+        snprintf(buffer, 33, "- Upscaling mode:       %-8s", UpscalingMode == UPSCALING_MODE_2X ? "2x" : "hq2x");
+        memcpy(&menu_text[MENU_AV_UPSCALING_MODE * MENU_WIDTH /*+ MENU_AV_COLUMN*/], buffer, 32);
+    }
     return MENU_AV_FIRST_SELECT_LINE;
-}, NULL, true);
+}, NULL, false);

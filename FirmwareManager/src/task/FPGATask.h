@@ -20,6 +20,7 @@ typedef std::function<void(uint8_t Address, uint8_t Value)> WriteCallbackHandler
 typedef std::function<void(uint8_t address, uint8_t* buffer, uint8_t len)> ReadCallbackHandlerFunction;
 typedef std::function<void()> WriteOSDCallbackHandlerFunction;
 
+extern bool isRelaxedFirmware;
 extern uint8_t ForceVGA;
 extern uint8_t CurrentResolution;
 extern uint8_t CurrentResolutionData;
@@ -227,9 +228,10 @@ class FPGATask : public Task {
                     }
                 }
                 // new meta data
-                if ((buffer2[2]) != (CurrentResolutionData) /*data_out[2]*/) {
-                    DEBUG1("I2C_CONTROLLER_AND_DATA_BASE, switch to: %02x\n", buffer2[2]);
-                    storeResolutionData(buffer2[2]);
+                isRelaxedFirmware = buffer2[2] & HQ2X_MODE_FLAG;
+                if ((buffer2[2] & 0xF8) != (CurrentResolutionData) /*data_out[2]*/) {
+                    DEBUG1("I2C_CONTROLLER_AND_DATA_BASE, switch to: %02x %02x\n", buffer2[2], isRelaxedFirmware);
+                    storeResolutionData(buffer2[2] & 0xF8);
                     switchResolution();
                 }
                 memcpy(data_out, buffer2, I2C_CONTROLLER_AND_DATA_BASE_LENGTH);

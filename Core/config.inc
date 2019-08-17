@@ -15,12 +15,14 @@
     `define RAM_MAX_DEPTH 4096
     `define RAM_NUMWORDS 21120
     `define ADV_1080P_REG_3C 8'h_10
+    `define HQ2X_FLAG 1'b0
 `elsif hq2x
     // HQ2X
     `define RAM_WIDTH 14
     `define RAM_MAX_DEPTH 1024
     `define RAM_NUMWORDS 14720
     `define ADV_1080P_REG_3C 8'h_00
+    `define HQ2X_FLAG 1'b1
 `endif
 
 `endif

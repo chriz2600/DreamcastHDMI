@@ -10,10 +10,13 @@ echo $SOURCE_DATE_EPOCH
 
 ./local/prepare-index-html
 
-for variant in std hq2x; do
-    pio run -e $variant
+pio run
 
+for variant in std hq2x; do
     mkdir -p build/$variant
+    mkdir -p .pio/build/$variant/
+
+    cp .pio/build/unified/firmware.bin .pio/build/$variant/
     cp -r data/etc build/$variant/
     cp data/index.html.gz build/$variant
     cat data.in/$variant-changelog.in | tr -d '\n\t' > build/$variant/changelog
@@ -27,5 +30,6 @@ for variant in std hq2x; do
     md5sum build/$variant/index.html.gz | awk '{print $1;}' | tr -d '\n' > build/$variant/index.html.gz.md5
     md5sum build/$variant/index.html.gz | awk '{print $1;}' | tr -d '\n' > build/$variant/esp.index.html.gz.md5
 
-    PLATFORMIO_DATA_DIR="build/$variant/" pio run -t buildfs -e $variant
+    PLATFORMIO_DATA_DIR="build/$variant/" pio run -t buildfs
+    cp .pio/build/unified/spiffs.bin .pio/build/$variant/
 done

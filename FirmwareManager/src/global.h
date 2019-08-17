@@ -172,6 +172,8 @@
 #define CTRLR_TRIGGER_DEFAULT_RESOLUTION (1<<(3))
 #define CTRLR_DATA_VALID (1)
 
+#define HQ2X_MODE_FLAG 0x01
+
 typedef std::function<void(std::string data, int error)> ContentCallback;
 typedef std::function<void(int read, int total, bool done, int error)> ProgressCallback;
 
@@ -258,10 +260,6 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 #define PROTECTED_MODE_STR_ON "on"
 #define PROTECTED_MODE_STR_OFF "off"
 
-#ifdef HQ2X
-#define OSD_RESOLUTION(res) sprintf(data, res "%s", UpscalingMode == UPSCALING_MODE_HQ2X && !(CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER) ? " HQ" : "");
-#else
-#define OSD_RESOLUTION(res) sprintf(data, res);
-#endif
+#define OSD_RESOLUTION(res) sprintf(data, res "%s", isRelaxedFirmware && UpscalingMode == UPSCALING_MODE_HQ2X && !(CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER) ? " HQ" : "");
 
 #endif

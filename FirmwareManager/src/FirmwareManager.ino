@@ -35,6 +35,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 bool isHhttpAuthPassGenerated = false;
+bool isRelaxedFirmware = false;
 
 char ssid[64] = DEFAULT_SSID;
 char password[64] = DEFAULT_PASSWORD;
@@ -990,8 +991,9 @@ void waitForController() {
                 uint16_t cdata = (buffer[0] << 8 | buffer[1]);
                 uint8_t metadata = buffer[2];
                 if (CHECK_BIT(cdata, CTRLR_DATA_VALID)) {
+                    isRelaxedFirmware = metadata & HQ2X_MODE_FLAG;
                     storeResolutionData(metadata);
-                    DEBUG("   %i: %04x %02x\n", i, cdata, metadata);
+                    DEBUG2("   %i: %04x %02x\n", i, cdata, metadata);
                     if (CHECK_BIT(cdata, CTRLR_PAD_UP)) {
                         _ForceVGA = VGA_ON;
                     } else if (CHECK_BIT(cdata, CTRLR_PAD_DOWN)) {
@@ -1054,7 +1056,11 @@ void setup(void) {
     }
 
     setOSD(false, NULL); fpgaTask.ForceLoop();
-    fpgaTask.DoWriteToOSD(MENU_WIDTH - strlen(DCHDMI_VERSION) - 1, 24, (uint8_t*) " " DCHDMI_VERSION); fpgaTask.ForceLoop();
+    if (isRelaxedFirmware) {
+        fpgaTask.DoWriteToOSD(MENU_WIDTH - strlen(DCHDMI_VERSION "-rlx") - 1, 24, (uint8_t*) " " DCHDMI_VERSION "-rlx"); fpgaTask.ForceLoop();
+    } else {
+        fpgaTask.DoWriteToOSD(MENU_WIDTH - strlen(DCHDMI_VERSION "-std") - 1, 24, (uint8_t*) " " DCHDMI_VERSION "-std"); fpgaTask.ForceLoop();
+    }
     char buff[16]; osd_get_resolution(buff);
     fpgaTask.DoWriteToOSD(0, 24, (uint8_t*) buff); fpgaTask.ForceLoop();
 
