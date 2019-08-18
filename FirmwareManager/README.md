@@ -119,13 +119,21 @@ The firmware manager uses a custom [FastLZ][fastlz] based archive format. The by
 
 The header is 16-bytes long.
 
-| Bytes | Description | Value | Notes |
+| Byte | Description | Value | Notes |
+| -:| - |:-:| - |
+| `0`<br>`1`<br>`2`<br>`3` | 4 byte file identification | `0x44`<br>`0x43`<br>`0x07`<br>`0x04` | *fixed* |
+| `4`<br>`5` | 2 byte version number | `0x0n`<br>`0x00` | *version can be 1 or 2* |
+| `6`<br>`7` | 2 byte `block_size` used during compression | `block_size[0]`<br>`block_size[2]` | *default is 1536*<br>`00` `06` |
+| `8`<br>`9`<br>`10`<br>`11` | 4 bytes `file_size` of the decompressed file | `file_size[0]`<br>`file_size[1]`<br>`file_size[2]`<br>`file_size[3]` |   |
+| `12`<br>`13`<br>`14`<br>`15` | **v1**: 4 bytes reserved<br>**v2**: 1 byte `bundled_archives`, <br>3 bytes reserved | `bundled_archives`(v2)<br>`0x00`<br>`0x00`<br>`0x00` | *v2 supports bundling up to 8 archives into one bundle* |
+
+##### Footer ***(v2 only)***
+
+Version 2 allows bundling multiple archives in one archive bundle. The start position of each archive is stored at the end of the bundle after the last archive.
+
+| Word | Description | Value | Notes |
 | - | - |:-:| - |
-| `0x00`<br>`0x01`<br>`0x02`<br>`0x03` | 4 byte file identification | `0x44`<br>`0x43`<br>`0x07`<br>`0x04` | *fixed* |
-| `0x04`<br>`0x05` | 2 byte version number | `0x01`<br>`0x00` | *the current version is 1* |
-| `0x06`<br>`0x07` | 2 byte `block_size` used during compression | `block_size[0]`<br>`block_size[2]` | *default is 1536*<br>`00` `06` |
-| `0x08`<br>`0x09`<br>`0x10`<br>`0x11` | 4 bytes `file_size` of the decompressed file | `file_size[0]`<br>`file_size[1]`<br>`file_size[2]`<br>`file_size[3]` |   |
-| `0x12`<br>`0x13`<br>`0x14`<br>`0x15` | 4 bytes reserved | `0x00`<br>`0x00`<br>`0x00`<br>`0x00` |   |
+| `position first archive`<br>`...`<br>`position last archive` | Up to 8 4-byte words | `pos_0[0:3]`<br>`...`<br>`pos_N[0:3]` |   |
 
 ##### Payload
 
@@ -133,10 +141,10 @@ The data payload contains the compressed firmware configuration data, which is d
 
 Each data packet looks like this:
 
-| Bytes | Description | Value | Notes |
+| Byte | Description | Value | Notes |
 | - | - |:-:| - |
-| `0x00`<br>`0x01` | 2 byte `chunk_size` | `chunk_size[0]`<br>`chunk_size[1]` |   |
-| `0x02`<br>...<br>`0x02`<br>+`chunk_size` | `chunk_size` bytes [FastLZ][fastlz] compressed data, which decompresses to `block_size` bytes | `0x01`<br>`0x00` |   |
+| `0`<br>`1` | 2 byte `chunk_size` | `chunk_size[0]`<br>`chunk_size[1]` |   |
+| `2`<br>...<br>`2`<br>+`chunk_size` | `chunk_size` bytes [FastLZ][fastlz] compressed data, which decompresses to `block_size` bytes | *`data`* |   |
 
 ##### Notes
 

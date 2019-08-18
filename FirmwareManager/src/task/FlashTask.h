@@ -102,7 +102,7 @@ class FlashTask : public Task {
                 block_size = header[6] + (header[7] << 8);
 
                 // read file size and convert it to flash pages by dividing by 256
-                totalLength = (header[8] + (header[9] << 8) + (header[10] << 16) + (header[11] << 24)) / 256;
+                totalLength = ((header[8] + (header[9] << 8) + (header[10] << 16) + (header[11] << 24) + 255) / 256);
 
                 md5.add(header, 16);
 
@@ -115,6 +115,8 @@ class FlashTask : public Task {
                 flash.enable();
                 flash.chip_erase_async();
 
+                DEBUG2("totalLength: %u\n", totalLength);
+
                 return true;
             } else {
                 last_error = ERROR_FILE;
@@ -124,8 +126,13 @@ class FlashTask : public Task {
         }
 
         virtual void OnUpdate(uint32_t deltaTime) {
+            /* 
+                TODO: read up to position, to add to md5sum, 
+                then flash and add to mdsum,
+                after that read to end and add to md5sum
+            */
             if (!flash.is_busy_async()) {
-                if (page >= PAGES || doFlash() == -1) {
+                if (page >= (unsigned int) totalLength || doFlash() == -1) {
                     finished = true;
                     taskManager.StopTask(this);
                 }

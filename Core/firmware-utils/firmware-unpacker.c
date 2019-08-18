@@ -25,8 +25,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 #include "fastlz.h"
 #include "firmware-utils.h"
+
+#define USAGE "Usage: %s -f<file_number> input.archive output.file\n"
+#define MAX_SUPPORTED_VERSION 2
 
 size_t bytes_in_result = 0;
 unsigned char *buffer = NULL;
@@ -35,6 +39,7 @@ unsigned char *result_start = NULL;
 size_t block_size = DEFAULT_BLOCK_SIZE; // v0 default
 FILE* in;
 FILE* out;
+unsigned long fsize = 0;
 
 void initBuffer(uint8_t *buffer, int len) {
     for (int i = 0 ; i < len ; i++) { 
@@ -74,50 +79,11 @@ int simulateEvent() {
     return bytes_write; /* 256 bytes written */
 }
 
-int main(int argc, char** argv) {
-    char* input_file = 0;
-    char* output_file = 0;
-    unsigned int i = 0;
-    unsigned long fsize = 0;
+int process() {
     unsigned char header[16];
-    unsigned long total_read = 0;
     unsigned long total_uncompressed = 0;
     unsigned long file_size = 0;
     int bytes_written = 0;
-
-    for(i = 1; i <= argc; i++) {
-        char* argument = argv[i];
-        if(!input_file) {
-            input_file = argument;
-            continue;
-        }
-        if (!output_file) {
-            output_file = argument;
-            continue;
-        }
-    }
-
-    if (!input_file || !output_file) {
-        printf("usage: firmware-unpacker <input.dc> <output.rbf>\n");
-        return -1;
-    }
-
-    in = fopen(input_file, "rb");
-    if (!in) {
-        printf("Error: could not open %s\n", input_file);
-        return -1;
-    }
-
-    out = fopen(output_file, "wb");
-    if(!out) {
-        printf("Error: could not create %s. Aborted.\n\n", output_file);
-        return -1;
-    }
-
-    /* find size of the file */
-    fseek(in, 0, SEEK_END);
-    fsize = ftell(in);
-    fseek(in, 0, SEEK_SET);
 
     fread(header, 1, 16, in);
 
@@ -128,8 +94,8 @@ int main(int argc, char** argv) {
     }
 
     // check version
-    if (header[4] != 0x01 || header[5] != 0x00) {
-        printf("Error: Unsupported version magic, only v1 is supported.\n\n");
+    if (header[4] > MAX_SUPPORTED_VERSION || header[5] != 0x00) {
+        printf("Error: Unsupported version magic v%d, only v%d or below is supported.\n\n", header[4], MAX_SUPPORTED_VERSION);
         return -1;
     }
 
@@ -154,14 +120,99 @@ int main(int argc, char** argv) {
             break;
         }
         total_uncompressed += bytes_written;
+        if (total_uncompressed >= file_size) {
+             break;
+        }
     }
 
     free(buffer);
+    result = result_start;
     free(result);
 
     fclose(in);
     fclose(out);
 
-    printf("%s: %lu / %lu / %lu (%zu)\n", input_file, file_size, total_uncompressed, fsize, block_size);
+    printf("%lu / %lu / %lu (%zu)\n", file_size, total_uncompressed, fsize, block_size);
+    return 0;
+}
+
+int main(int argc, char** argv) {
+
+    int opt;
+    int total_files = 0;
+    int file_to_extract = 0;
+    char* input_file = 0;
+    char* output_file = 0;
+    unsigned int i = 0;
+    unsigned char header[16];
+    unsigned long pos;
+
+    while ((opt = getopt(argc, argv, "f:")) != -1) {
+        switch (opt) {
+        case 'f':
+            if (optarg) file_to_extract = atoi(optarg);
+            break;
+        default:
+            fprintf(stderr, USAGE, argv[0]);
+            exit(EXIT_FAILURE);
+        }
+    }
+
+    if (optind + 1 >= argc) {
+        fprintf(stderr, USAGE, argv[0]);
+        exit(EXIT_FAILURE);
+    } else {
+        input_file = argv[optind];
+        output_file = argv[optind+1];
+    }
+
+    in = fopen(input_file, "rb");
+    if (!in) {
+        printf("Error: could not open %s\n", input_file);
+        return -1;
+    }
+
+    out = fopen(output_file, "wb");
+    if(!out) {
+        printf("Error: could not create %s. Aborted.\n\n", output_file);
+        return -1;
+    }
+
+    fread(header, 1, 16, in);
+
+    // check "magic"
+    if (header[0] != 'D' || header[1] != 'C' || header[2] != 0x07 || header[3] != 0x04) {
+        printf("Error: Invalid magic.\n\n");
+        return -1;
+    }
+
+    // check version
+    if (header[4] > MAX_SUPPORTED_VERSION || header[5] != 0x00) {
+        printf("Error: Unsupported version magic v%d, only v%d or below is supported.\n\n", header[4], MAX_SUPPORTED_VERSION);
+        return -1;
+    }
+
+    fseek(in, 0, SEEK_END);
+    fsize = ftell(in);
+    if (header[4] == 0x01) {
+        file_to_extract = 0;
+        /* find size of the file */
+        fseek(in, 0, SEEK_SET);
+    } else {
+        total_files = header[12];
+        if (file_to_extract >= total_files) {
+            file_to_extract = total_files - 1;
+        }
+        fseek(in, -((total_files - file_to_extract) * 4), SEEK_END);
+        fread(header, 1, 4, in);
+        pos = header[0] + (header[1] << 8) + (header[2] << 16) + (header[3] << 24);
+        fseek(in, pos, SEEK_SET);
+    }
+
+    fprintf(stdout, "file to extract: %d/%d pos:%08lu\n", (file_to_extract + 1), total_files, pos);
+    if (process() != 0) {
+        return -1;
+    }
+
     return 0;
 }
