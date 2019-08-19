@@ -7,7 +7,7 @@ stages:
 
 firmware-utils:
   image:
-    name: chriz2600/firmware-utils-builder
+    name: chriz2600/firmware-utils-builder:latest
   stage: build-firmware-utils
   script:
     - "cd firmware-utils"
@@ -28,7 +28,7 @@ firmware-utils:
 
 fpga-firmware:
   image:
-      name: chriz2600/dreamcast-hdmi:latest
+      name: chriz2600/quartus-lite:latest
   stage: build-fpga
   script: 
     - ./Core/source/ram/create_text_ram.pl
