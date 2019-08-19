@@ -10,11 +10,20 @@ if [ "$variant" = "" ] ; then
     exit 1
 fi
 
+FWP=$(command -v firmware-packer || echo ../firmware-utils/firmware-packer)
+
+test -x "$FWP" || {
+    echo "building firmware-utils"
+    cd ../firmware-utils
+    make
+    cd ../Core
+}
+
 echo "set_global_assignment -name VERILOG_MACRO $variant" > local.qsf
 ./compile DCxPlus
 ./create-jic DCxPlus.cof
 ./create-jic DCxPlus-raw.cof
-firmware-packer output_files/DCxPlus.rbf output_files/DCxPlus.dc
+$FWP output_files/DCxPlus.rbf output_files/DCxPlus.dc
 mkdir -p output_files/$variant
 for f in jic rbf dc ; do
     mv output_files/DCxPlus.${f} output_files/DCxPlus-default.${f}

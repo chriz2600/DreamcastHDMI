@@ -15,8 +15,8 @@ firmware-utils:
   artifacts:
     name: "firmware-utils-${CI_COMMIT_REF_NAME}"
     paths:
-      - /usr/local/bin/firmware-packer
-      - /usr/local/bin/firmware-unpacker
+      - firmware-utils/firmware-packer
+      - firmware-utils/firmware-unpacker
   tags:
     - dreamcast-hdmi
   only:
