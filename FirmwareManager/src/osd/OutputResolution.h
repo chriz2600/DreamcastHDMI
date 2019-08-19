@@ -9,12 +9,20 @@ extern uint8_t CurrentResolutionData;
 extern uint8_t ForceVGA;
 extern uint8_t UpscalingMode;
 extern char configuredResolution[16];
+extern uint8_t Offset240p;
+extern uint8_t UpscalingMode;
+extern uint8_t ColorSpace;
+extern uint8_t CurrentResetMode;
 
 void writeCurrentResolution();
 void waitForI2CRecover(bool waitForError);
 uint8_t cfgRes2Int(char* intResolution);
 uint8_t remapResolution(uint8_t resd);
 void osd_get_resolution(char* buffer);
+uint8_t getScanlinesUpperPart();
+uint8_t getScanlinesLowerPart();
+void setScanlines(uint8_t upper, uint8_t lower, WriteCallbackHandlerFunction handler);
+void setOSD(bool value, WriteCallbackHandlerFunction handler);
 
 void writeVideoOutputLine() {
     char buff[16];
@@ -207,5 +215,41 @@ void osd_get_resolution(char* buffer) {
     }
 
     snprintf(buffer, 13, "%.*s%*s", 10, data, 2, " \x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07");
+}
+
+void reapplyFPGAConfig() {
+    /*
+        re-apply all fpga related config params:
+        - reset mode
+        - close OSD (for now) CHECK
+        - scanlines CHECK
+        - offset CHECK
+        - upscaling mode CHECK
+        - color space CHECK
+        - resolution (incl. deinterlacer mode) CHECK
+    */
+    DEBUG1("reapplyFPGAConfig:\n");
+
+
+
+    fpgaTask.Write(I2C_RESET_CONF, CurrentResetMode, [](uint8_t Address, uint8_t Value) {
+        DEBUG1(" -> set reset mode %d\n", CurrentResetMode);
+        setOSD(false, [](uint8_t Address, uint8_t Value) {
+            DEBUG1(" -> disabled OSD\n");
+            setScanlines(getScanlinesUpperPart(), getScanlinesLowerPart(), [](uint8_t Address, uint8_t Value) {
+                DEBUG1(" -> set scanlines %d/%d\n", getScanlinesUpperPart(), getScanlinesLowerPart());
+                fpgaTask.Write(I2C_240P_OFFSET, Offset240p, [](uint8_t Address, uint8_t Value) {
+                    DEBUG1(" -> set 240p offset %d\n", Offset240p);
+                    fpgaTask.Write(I2C_UPSCALING_MODE, UpscalingMode, [](uint8_t Address, uint8_t Value) {
+                        DEBUG1(" -> set upscaling mode %d\n", UpscalingMode);
+                        fpgaTask.Write(I2C_COLOR_SPACE, ColorSpace, [](uint8_t Address, uint8_t Value) {
+                            DEBUG1(" -> set color space %d\n", ColorSpace);
+                            switchResolution();
+                        });
+                    });
+                });
+            });
+        });
+    });
 }
 

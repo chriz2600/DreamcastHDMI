@@ -17,6 +17,7 @@
 #define FPGA_RESET_INACTIVE 0
 #define FPGA_RESET_STAGE1 1
 #define FPGA_RESET_STAGE2 2
+#define FPGA_RESET_END 255
 
 typedef std::function<void(uint16_t controller_data, bool isRepeat)> FPGAEventHandlerFunction;
 typedef std::function<void(uint8_t shiftcode, uint8_t chardata, bool isRepeat)> FPGAKeyboardHandlerFunction;
@@ -28,11 +29,13 @@ extern bool isRelaxedFirmware;
 extern uint8_t ForceVGA;
 extern uint8_t CurrentResolution;
 extern uint8_t CurrentResolutionData;
+
 void switchResolution();
 void storeResolutionData(uint8_t data);
 void enableFPGA();
 void startFPGAConfiguration();
 void endFPGAConfiguration();
+void reapplyFPGAConfig();
 
 void setupI2C() {
     DEBUG(">> Setting up I2C master...\n");
@@ -172,6 +175,9 @@ class FPGATask : public Task {
                 } else if (fpgaResetState == FPGA_RESET_STAGE2) {
                     endFPGAConfiguration();
                     fpgaResetState++;
+                } else if (fpgaResetState == FPGA_RESET_END) {
+                    reapplyFPGAConfig();
+                    fpgaResetState = FPGA_RESET_INACTIVE;
                 } else {
                     fpgaResetState++;
                 }
