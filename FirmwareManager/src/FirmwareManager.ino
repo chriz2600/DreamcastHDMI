@@ -583,8 +583,7 @@ void setupHTTPServer() {
             return request->requestAuthentication();
         }
         DEBUG("FPGA reset requested...\n");
-        enableFPGA();
-        resetFPGAConfiguration();
+        fpgaTask.DoResetFPGA();
         request->send(200, "text/plain", "OK\n");
         DEBUG("...delivered.\n");
     });

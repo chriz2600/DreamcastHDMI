@@ -645,7 +645,7 @@ FPGATask fpgaTask(1, [](uint16_t controller_data, bool isRepeat) {
             return;
         }
         if (CHECK_BIT(controller_data, CTRLR_TRIGGER_DEFAULT_RESOLUTION)) {
-            DEBUG("FPGATask: switchResolution\n");
+            DEBUG1("FPGATask: switchResolution\n");
             switchResolution(RESOLUTION_VGA);
             return;
         }

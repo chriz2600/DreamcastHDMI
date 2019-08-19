@@ -14,6 +14,10 @@
 #define REPEAT_DELAY_KEYB 600
 #define REPEAT_RATE_KEYB 166
 
+#define FPGA_RESET_INACTIVE 0
+#define FPGA_RESET_STAGE1 1
+#define FPGA_RESET_STAGE2 2
+
 typedef std::function<void(uint16_t controller_data, bool isRepeat)> FPGAEventHandlerFunction;
 typedef std::function<void(uint8_t shiftcode, uint8_t chardata, bool isRepeat)> FPGAKeyboardHandlerFunction;
 typedef std::function<void(uint8_t Address, uint8_t Value)> WriteCallbackHandlerFunction;
@@ -26,6 +30,9 @@ extern uint8_t CurrentResolution;
 extern uint8_t CurrentResolutionData;
 void switchResolution();
 void storeResolutionData(uint8_t data);
+void enableFPGA();
+void startFPGAConfiguration();
+void endFPGAConfiguration();
 
 void setupI2C() {
     DEBUG(">> Setting up I2C master...\n");
@@ -45,11 +52,15 @@ uint8_t mapResolution(uint8_t data);
 class FPGATask : public Task {
 
     public:
-        FPGATask(uint8_t repeat, FPGAEventHandlerFunction chandler, FPGAKeyboardHandlerFunction khandler) :
+        FPGATask(uint32_t repeat, FPGAEventHandlerFunction chandler, FPGAKeyboardHandlerFunction khandler) :
             Task(repeat),
             controller_handler(chandler),
             keyboard_handler(khandler)
         { };
+
+        virtual void DoResetFPGA() {
+            fpgaResetState = FPGA_RESET_STAGE1;
+        }
 
         virtual void DoWriteToOSD(uint8_t column, uint8_t row, uint8_t charData[]) {
             DoWriteToOSD(column, row, charData, NULL);
@@ -125,6 +136,7 @@ class FPGATask : public Task {
         uint8_t repeatCount;
         uint8_t repeatCount_keyb;
         bool GotError = false;
+        uint8_t fpgaResetState = FPGA_RESET_INACTIVE;
 
         std::queue<osddata_t> osdqueue;
 
@@ -152,6 +164,19 @@ class FPGATask : public Task {
         }
 
         virtual void OnUpdate(uint32_t deltaTime) {
+            if (fpgaResetState != FPGA_RESET_INACTIVE) {
+                if (fpgaResetState == FPGA_RESET_STAGE1) {
+                    enableFPGA();
+                    startFPGAConfiguration();
+                    fpgaResetState = FPGA_RESET_STAGE2;
+                } else if (fpgaResetState == FPGA_RESET_STAGE2) {
+                    endFPGAConfiguration();
+                    fpgaResetState++;
+                } else {
+                    fpgaResetState++;
+                }
+                return;
+            }
             checkForOSDData();
             brzo_i2c_start_transaction(FPGA_I2C_ADDR, FPGA_I2C_FREQ_KHZ);
             if (updateOSDContent) {
@@ -211,7 +236,7 @@ class FPGATask : public Task {
 
                 // new controller data
                 if (!compareData(buffer2, data_out, 2)) {
-                    //DEBUG("I2C_CONTROLLER_AND_DATA_BASE, new controller data: %04x\n", buffer2[0] << 8 | buffer2[1]);
+                    //DEBUG1("I2C_CONTROLLER_AND_DATA_BASE, new controller data: %04x\n", buffer2[0] << 8 | buffer2[1]);
                     controller_handler(buffer2[0] << 8 | buffer2[1], false);
                     // reset repeat
                     eTime = millis();

@@ -73,6 +73,8 @@ class FlashTask : public Task {
         uint8_t consume_buffer[256];
         size_t totalBytesConsumed;
         unsigned int fwPosInFile = 0;
+        int totalLengthBytes;
+        int bytesReadFromArchive;
 
         virtual bool OnStart() {
             page = 0;
@@ -87,7 +89,10 @@ class FlashTask : public Task {
             headConsumed = false;
             headerParsed = false;
             tailConsumed = false;
+            totalBytesConsumed = 0;
             fwPosInFile = 0;
+            totalLengthBytes = -1;
+            bytesReadFromArchive = 0;
 
             md5.begin();
             spiMD5.begin();
@@ -111,6 +116,7 @@ class FlashTask : public Task {
                     return false;
                 }
 
+                DEBUG2("FlashTask.OnStart: firmware file version: %u\n", header[4]);
                 // handle bundles
                 if (header[4] >= 2 && String(firmwareVariant) == String(FIRMWARE_RELAXED_FLAVOUR)) {
                     uint8_t file_to_extract = 1;
@@ -119,8 +125,9 @@ class FlashTask : public Task {
                         then read position of archive in bundle,
                         otherwise, just flash the first archive
                     */
+                    DEBUG2("FlashTask.OnStart: firmware archives in bundle: %u\n", header[12]);
                     if (header[12] >= 2) {
-                        flashFile.seek(-((header[12] - file_to_extract) * 4), SeekEnd);
+                        flashFile.seek(((header[12] - file_to_extract) * 4), SeekEnd);
                         flashFile.readBytes((char*) footer, 4);
                         fwPosInFile = footer[0] + (footer[1] << 8) + (footer[2] << 16) + (footer[3] << 24);
                     }
@@ -185,7 +192,8 @@ class FlashTask : public Task {
             block_size = header[6] + (header[7] << 8);
 
             // read file size and convert it to flash pages by dividing by 256
-            totalLength = ((header[8] + (header[9] << 8) + (header[10] << 16) + (header[11] << 24) + 255) / 256);
+            totalLengthBytes = header[8] + (header[9] << 8) + (header[10] << 16) + (header[11] << 24);
+            totalLength = (totalLengthBytes + 255) / 256;
 
             md5.add(header, 16);
 
@@ -199,7 +207,7 @@ class FlashTask : public Task {
             flash.chip_erase_async();
             headerParsed = true;
 
-            DEBUG2("totalLength: %u\n", totalLength);
+            DEBUG2("FlashTask.parseHeader: totalLengthBytes/totalLength(pages)/fwPosInFile(byte): %d/%d/%d\n", totalLengthBytes, totalLength, fwPosInFile);
         }
 
         void consumeHead() {
@@ -232,20 +240,26 @@ class FlashTask : public Task {
                 // step 3: decompress
                 bytes_in_result = fastlz_decompress(chunk_buffer, chunk_size, result, block_size);
                 chunk_size = 0;
+                bytesReadFromArchive += bytes_in_result;
                 return 0; /* no bytes written yet */
             }
 
             if (bytes_in_result == 0) {
                 // reset the result buffer pointer
                 result = result_start;
-                // step 1: read chunk header
+                // step 1: have we read all bytes in this archive
+                if (bytesReadFromArchive >= totalLengthBytes) {
+                    // no more chunks
+                    return -1;
+                }
+                // step 2: read chunk header
                 if (flashFile.readBytes((char *) chunk_header, 2) == 0) {
                     // no more chunks
                     return -1;
                 }
                 md5.add(chunk_header, 2);
                 chunk_size = chunk_header[0] + (chunk_header[1] << 8);
-                // step 2: read chunk length from file
+                // step 3: read chunk length from file
                 if (chunk_buffer != NULL) {
                     free(chunk_buffer);
                 }
@@ -273,7 +287,7 @@ class FlashTask : public Task {
         }
 
         virtual void OnStop() {
-            DEBUG("FlashTask.OnStop: wrote %u pages.\n", page);
+            DEBUG2("FlashTask.OnStop: wrote %u pages.\n", page);
             flash.disable();
             flashFile.close();
             // store md5 sum of last flashed firmware file

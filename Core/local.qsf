@@ -1,1 +1,1 @@
-set_global_assignment -name VERILOG_MACRO hq2x
+set_global_assignment -name VERILOG_MACRO std

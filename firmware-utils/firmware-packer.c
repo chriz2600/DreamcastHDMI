@@ -192,12 +192,14 @@ int main(int argc, char** argv) {
         fclose(in);
     }
 
-    for (i = 0 ; i < total_files ; i++) {
-        footer[0] = poses[i] & 255;
-        footer[1] = (poses[i] >> 8) & 255;
-        footer[2] = (poses[i] >> 16) & 255;
-        footer[3] = (poses[i] >> 24) & 255;
-        fwrite(footer, 4, 1, out);
+    if (op_mode == V2_OP) {
+        for (i = 0 ; i < total_files ; i++) {
+            footer[0] = poses[i] & 255;
+            footer[1] = (poses[i] >> 8) & 255;
+            footer[2] = (poses[i] >> 16) & 255;
+            footer[3] = (poses[i] >> 24) & 255;
+            fwrite(footer, 4, 1, out);
+        }
     }
 
     fclose(out);
