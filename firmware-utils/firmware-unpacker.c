@@ -41,6 +41,9 @@ FILE* in;
 FILE* out;
 unsigned long fsize = 0;
 
+void consumeHead(int uptopos);
+void consumeTail();
+
 void initBuffer(uint8_t *buffer, int len) {
     int i;
     for (i = 0 ; i < len ; i++) { 
@@ -130,9 +133,6 @@ int process() {
     result = result_start;
     free(result);
 
-    fclose(in);
-    fclose(out);
-
     printf("%lu / %lu / %lu (%zu)\n", file_size, total_uncompressed, fsize, block_size);
     return 0;
 }
@@ -199,8 +199,6 @@ int main(int argc, char** argv) {
         total_files = 1;
         file_to_extract = 0;
         pos = 0;
-        /* find size of the file */
-        fseek(in, 0, SEEK_SET);
     } else {
         total_files = header[12];
         if (file_to_extract >= total_files) {
@@ -209,13 +207,43 @@ int main(int argc, char** argv) {
         fseek(in, -((total_files - file_to_extract) * 4), SEEK_END);
         fread(header, 1, 4, in);
         pos = header[0] + (header[1] << 8) + (header[2] << 16) + (header[3] << 24);
-        fseek(in, pos, SEEK_SET);
     }
+    fseek(in, 0, SEEK_SET);
+    consumeHead(pos);
 
     fprintf(stdout, "file to extract: %d/%d pos:%08lu\n", (file_to_extract + 1), total_files, pos);
     if (process() != 0) {
         return -1;
     }
 
+    consumeTail();
+    fclose(in);
+    fclose(out);
     return 0;
+}
+
+void consumeHead(int uptopos) {
+    uint8_t buffer[256];
+    int bytesRead = 0;
+    int totalBytesRead = 0;
+    int hmdwr = 256;
+    for (;;) {
+        hmdwr = totalBytesRead + 256 < uptopos ? 256 : uptopos - totalBytesRead;
+        bytesRead = fread(buffer, 1, hmdwr, in);
+        if (bytesRead <= 0) {
+            break;
+        }
+        totalBytesRead += bytesRead;
+    }
+}
+
+void consumeTail() {
+    uint8_t buffer[256];
+    int bytesRead = 0;
+    for (;;) {
+        bytesRead = fread(buffer, 1, 256, in);
+        if (bytesRead <= 0) {
+            break;
+        }
+    }
 }

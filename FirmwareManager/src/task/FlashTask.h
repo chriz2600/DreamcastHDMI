@@ -12,6 +12,7 @@ extern SPIFlash flash;
 extern int totalLength;
 extern int readLength;
 extern int last_error;
+extern char firmwareVariant[64];
 
 void _writeFile(const char *filename, const char *towrite, unsigned int len);
 
@@ -57,6 +58,7 @@ class FlashTask : public Task {
         uint8_t *result = NULL;
         uint8_t *result_start = NULL;
         uint8_t header[16];
+        uint8_t footer[4];
         uint8_t chunk_header[2];
         size_t bytes_in_result = 0;
         size_t block_size = 1536;
@@ -65,6 +67,12 @@ class FlashTask : public Task {
         int prevPercentComplete;
         MD5Builder spiMD5;
         bool finished = false;
+        bool headConsumed = false;
+        bool headerParsed = false;
+        bool tailConsumed = false;
+        uint8_t consume_buffer[256];
+        size_t totalBytesConsumed;
+        unsigned int fwPosInFile = 0;
 
         virtual bool OnStart() {
             page = 0;
@@ -76,12 +84,17 @@ class FlashTask : public Task {
             chunk_size = 0;
             bytes_in_result = 0;
             finished = false;
+            headConsumed = false;
+            headerParsed = false;
+            tailConsumed = false;
+            fwPosInFile = 0;
 
             md5.begin();
             spiMD5.begin();
             flashFile = SPIFFS.open(FIRMWARE_FILE, "r");
 
             if (flashFile) {
+                // pre-parse header to get bundle information
                 flashFile.readBytes((char *) header, 16);
 
                 // check "magic"
@@ -92,31 +105,29 @@ class FlashTask : public Task {
                 }
 
                 // check version
-                if (header[4] != 0x01 || header[5] != 0x00) {
+                if (header[4] > 0x02 || header[5] != 0x00) {
                     last_error = ERROR_WRONG_VERSION;
                     InvokeCallback(false);
                     return false;
                 }
 
-                // read block size
-                block_size = header[6] + (header[7] << 8);
+                // handle bundles
+                if (header[4] >= 2 && String(firmwareVariant) == String(FIRMWARE_RELAXED_FLAVOUR)) {
+                    uint8_t file_to_extract = 1;
+                    /*
+                        use second archive in bundle, if length allows,
+                        then read position of archive in bundle,
+                        otherwise, just flash the first archive
+                    */
+                    if (header[12] >= 2) {
+                        flashFile.seek(-((header[12] - file_to_extract) * 4), SeekEnd);
+                        flashFile.readBytes((char*) footer, 4);
+                        fwPosInFile = footer[0] + (footer[1] << 8) + (footer[2] << 16) + (footer[3] << 24);
+                    }
+                }
 
-                // read file size and convert it to flash pages by dividing by 256
-                totalLength = ((header[8] + (header[9] << 8) + (header[10] << 16) + (header[11] << 24) + 255) / 256);
-
-                md5.add(header, 16);
-
-                result = (uint8_t *) malloc(block_size);
-                result_start = result;
-                // initialze complete buffer with flash "default"
-                initBuffer(result, block_size);
-
-                // erase chip
-                flash.enable();
-                flash.chip_erase_async();
-
-                DEBUG2("totalLength: %u\n", totalLength);
-
+                // rewind to start
+                flashFile.seek(0, SeekSet);
                 return true;
             } else {
                 last_error = ERROR_FILE;
@@ -127,14 +138,24 @@ class FlashTask : public Task {
 
         virtual void OnUpdate(uint32_t deltaTime) {
             /* 
-                TODO: read up to position, to add to md5sum, 
-                then flash and add to mdsum,
-                after that read to end and add to md5sum
+                Read up to position, to add to md5sum (consumeHead),
+                then flash and add to mdsum (doFlash) up to pages length,
+                after that read to end and add to md5sum (consumeTail)
             */
             if (!flash.is_busy_async()) {
-                if (page >= (unsigned int) totalLength || doFlash() == -1) {
-                    finished = true;
-                    taskManager.StopTask(this);
+                if (!headConsumed) {
+                    consumeHead();
+                } else {
+                    if (!headerParsed) {
+                        parseHeader();
+                    } else if (page >= (unsigned int) totalLength || doFlash() == -1) {
+                        if (!tailConsumed) {
+                            consumeTail();
+                        } else {
+                            finished = true;
+                            taskManager.StopTask(this);
+                        }
+                    }
                 }
             }
             readLength = page;
@@ -155,6 +176,52 @@ class FlashTask : public Task {
             for (int i = 0 ; i < len ; i++) {
                 // flash default (unwritten) is 0xff
                 buffer[i] = 0xff; 
+            }
+        }
+
+        void parseHeader() {
+            flashFile.readBytes((char *) header, 16);
+            // read block size
+            block_size = header[6] + (header[7] << 8);
+
+            // read file size and convert it to flash pages by dividing by 256
+            totalLength = ((header[8] + (header[9] << 8) + (header[10] << 16) + (header[11] << 24) + 255) / 256);
+
+            md5.add(header, 16);
+
+            result = (uint8_t *) malloc(block_size);
+            result_start = result;
+            // initialze complete buffer with flash "default"
+            initBuffer(result, block_size);
+
+            // erase chip
+            flash.enable();
+            flash.chip_erase_async();
+            headerParsed = true;
+
+            DEBUG2("totalLength: %u\n", totalLength);
+        }
+
+        void consumeHead() {
+            int bytesRead = 0;
+            int hmdwr = 256;
+
+            hmdwr = totalBytesConsumed + 256 < fwPosInFile ? 256 : fwPosInFile - totalBytesConsumed;
+            bytesRead = flashFile.readBytes((char*) consume_buffer, hmdwr);
+            if (bytesRead <= 0) {
+                headConsumed = true;
+            } else {
+                md5.add(consume_buffer, bytesRead);
+            }
+            totalBytesConsumed += bytesRead;
+        }
+
+        void consumeTail() {
+            int bytesRead = flashFile.readBytes((char*) consume_buffer, 256);
+            if (bytesRead <= 0) {
+                tailConsumed = true;
+            } else {
+                md5.add(consume_buffer, bytesRead);
             }
         }
 
@@ -190,7 +257,7 @@ class FlashTask : public Task {
 
             // step 4: write data to flash, in 256 byte long pages
             bytes_write = bytes_in_result > 256 ? 256 : bytes_in_result;
-            /* 
+            /*
                 even it's called async, it actually writes 256 bytes over SPI bus, it's just not calling the blocking "busy wait"
             */
             flash.page_write_async(page, result);
