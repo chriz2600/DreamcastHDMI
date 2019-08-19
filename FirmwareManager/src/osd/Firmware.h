@@ -5,6 +5,7 @@ extern Menu firmwareConfigMenu;
 extern Menu firmwareCheckMenu;
 extern Menu firmwareDownloadMenu;
 extern Menu firmwareFlashMenu;
+extern Menu fpgaFlashMenu;
 extern Menu firmwareResetMenu;
 extern Menu *previousMenu;
 

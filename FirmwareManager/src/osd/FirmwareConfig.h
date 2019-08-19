@@ -14,7 +14,7 @@ Menu firmwareConfigMenu("FirmwareConfigMenu", (uint8_t*) OSD_FIRMWARE_CONFIG_MEN
 
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         _writeFile("/etc/firmware_variant", firmwareVariant, 64);
-        currentMenu = &firmwareMenu;
+        currentMenu = &fpgaFlashMenu;
         currentMenu->Display();
         return;
     }

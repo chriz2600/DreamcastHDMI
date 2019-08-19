@@ -214,10 +214,28 @@ char OSD_FIRMWARE_CONFIG_MENU[521] = (
     "            allows e.g. HQ2X filtering  "
     "                                        "
     "  left/right (d-pad): change value.     "
-    "  " MENU_OK_STR ": save settings and exit.            "
+    "  " MENU_OK_STR ": apply firmware flavour.            "
     "  " MENU_CANCEL_STR ": discard changes and exit.          "
     "                                        "
-    "          " MENU_OK_STR ": Save  " MENU_CANCEL_STR ": Cancel            "
+    "          " MENU_OK_STR ": Apply  " MENU_CANCEL_STR ": Cancel           "
+);
+
+#define MENU_FWCONF_RECONF_FPGA_LINE 4
+#define MENU_FWCONF_RECONF_RESULT_LINE 6
+char OSD_FIRMWARE_CONFIG_RECONFIG_MENU[521] = (
+    "Apply firmware flavour                  "
+    "                                        "
+    "Flash FPGA firmware.                    "
+    "                                        "
+    "FPGA        [                    ]      "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    MENU_START_LINE
 );
 
 #define MENU_FWC_VIEW_CHANGELOG "       " MENU_OK_STR ": View changelog  " MENU_CANCEL_STR ": Back       "
@@ -590,6 +608,7 @@ void displayProgress(int read, int total, int line) {
 #include "osd/FirmwareDownload.h"
 #include "osd/FirmwareFlash.h"
 #include "osd/FirmwareReset.h"
+#include "osd/FPGAFlash.h"
 #include "osd/Scanlines.h"
 #include "osd/Info.h"
 #include "osd/Reset.h"
