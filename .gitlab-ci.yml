@@ -1,8 +1,30 @@
 stages:
+  - build-firmware-utils
   - build-fpga
   - build-esp
   - deploy
   - publish
+
+firmware-utils:
+  image:
+    name: chriz2600/firmware-utils-builder
+  stage: build-firmware-utils
+  script:
+    - "cd firmware-utils"
+    - "make install"
+  artifacts:
+    name: "firmware-utils-${CI_COMMIT_REF_NAME}"
+    paths:
+      - /usr/local/bin/firmware-packer
+      - /usr/local/bin/firmware-unpacker
+  tags:
+    - dreamcast-hdmi
+  only:
+    - develop
+    - master
+    - experimental
+    - bleeding
+    - tags
 
 fpga-firmware:
   image:
@@ -15,12 +37,14 @@ fpga-firmware:
   artifacts:
     name: "fpga-firmware-${CI_COMMIT_REF_NAME}"
     paths:
-    - Core/output_files/std/*.jic
-    - Core/output_files/std/*.rbf
-    - Core/output_files/std/*.dc
-    - Core/output_files/hq2x/*.jic
-    - Core/output_files/hq2x/*.rbf
-    - Core/output_files/hq2x/*.dc
+      - Core/output_files/std/*.jic
+      - Core/output_files/std/*.rbf
+      - Core/output_files/std/*.dc
+      - Core/output_files/hq2x/*.jic
+      - Core/output_files/hq2x/*.rbf
+      - Core/output_files/hq2x/*.dc
+  dependencies:
+    - firmware-utils
   tags:
     - dreamcast-hdmi
   only:
@@ -39,13 +63,13 @@ esp-firmware:
   artifacts:
     name: "esp-firmware-${CI_COMMIT_REF_NAME}"
     paths:
-    - FirmwareManager/.pio/build/std/firmware.bin
-    - FirmwareManager/.pio/build/std/spiffs.bin
-    - FirmwareManager/.pio/build/std/changelog
-    - FirmwareManager/.pio/build/hq2x/firmware.bin
-    - FirmwareManager/.pio/build/hq2x/spiffs.bin
-    - FirmwareManager/.pio/build/hq2x/changelog
-    - FirmwareManager/data/index.html.gz
+      - FirmwareManager/.pio/build/std/firmware.bin
+      - FirmwareManager/.pio/build/std/spiffs.bin
+      - FirmwareManager/.pio/build/std/changelog
+      - FirmwareManager/.pio/build/hq2x/firmware.bin
+      - FirmwareManager/.pio/build/hq2x/spiffs.bin
+      - FirmwareManager/.pio/build/hq2x/changelog
+      - FirmwareManager/data/index.html.gz
   dependencies:
     - fpga-firmware
   tags:

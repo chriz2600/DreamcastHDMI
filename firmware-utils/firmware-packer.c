@@ -121,6 +121,7 @@ int main(int argc, char** argv) {
     int total_files = 0;
     char* input_file[MAX_FILES];
     char* output_file = 0;
+    int i;
 
     while ((opt = getopt(argc, argv, "v:b:")) != -1) {
         switch (opt) {
@@ -147,7 +148,6 @@ int main(int argc, char** argv) {
         fprintf(stderr, USAGE, argv[0]);
         exit(EXIT_FAILURE);
     } else {
-        int i;
         for (i = optind; i < argc; i++) {
             if (i == argc - 1) {
                 output_file = argv[i];
@@ -178,7 +178,7 @@ int main(int argc, char** argv) {
     }
 
     fprintf(stdout, "%d input files:\n", total_files);
-    for (int i = 0 ; i < total_files ; i++) {
+    for (i = 0 ; i < total_files ; i++) {
         poses[i] = ftell(out);
         fprintf(stdout, "  %08lu %s: ", poses[i], input_file[i]);
         in = fopen(input_file[i], "rb");
@@ -192,13 +192,12 @@ int main(int argc, char** argv) {
         fclose(in);
     }
 
-    for (int i = 0 ; i < total_files ; i++) {
+    for (i = 0 ; i < total_files ; i++) {
         footer[0] = poses[i] & 255;
         footer[1] = (poses[i] >> 8) & 255;
         footer[2] = (poses[i] >> 16) & 255;
         footer[3] = (poses[i] >> 24) & 255;
         fwrite(footer, 4, 1, out);
-        printf("%02x %02x %02x %02x\n", footer[0], footer[1], footer[2], footer[3]);
     }
 
     fclose(out);

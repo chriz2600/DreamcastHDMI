@@ -42,7 +42,8 @@ FILE* out;
 unsigned long fsize = 0;
 
 void initBuffer(uint8_t *buffer, int len) {
-    for (int i = 0 ; i < len ; i++) { 
+    int i;
+    for (i = 0 ; i < len ; i++) { 
         buffer[i] = 0xff; 
     }
 }
@@ -195,7 +196,9 @@ int main(int argc, char** argv) {
     fseek(in, 0, SEEK_END);
     fsize = ftell(in);
     if (header[4] == 0x01) {
+        total_files = 1;
         file_to_extract = 0;
+        pos = 0;
         /* find size of the file */
         fseek(in, 0, SEEK_SET);
     } else {
