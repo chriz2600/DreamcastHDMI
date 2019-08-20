@@ -17,11 +17,17 @@ for variant in std hq2x ; do
     ./build $variant
 done
 
-$FWP -v2 output_files/std/DCxPlus-default.rbf output_files/hq2x/DCxPlus-default.rbf output_files/DCxPlus.dc
-# make it a transitional v1 archive for upgrades
-printf "\x01" | dd of=output_files/DCxPlus.dc bs=1 seek=4 count=1 conv=notrunc
+# backwards compatible packages
+$FWP -v1 output_files/std/DCxPlus-default.rbf output_files/std/DCxPlus-default.dc
+$FWP -v1 output_files/hq2x/DCxPlus-default.rbf output_files/hq2x/DCxPlus-default.dc
 
-cp output_files/DCxPlus.dc output_files/std/DCxPlus-default.dc
-cp output_files/DCxPlus.dc output_files/hq2x/DCxPlus-default.dc
-ls -alF output_files/std/DCxPlus-default.dc output_files/hq2x/DCxPlus-default.dc
-md5sum output_files/std/DCxPlus-default.dc output_files/hq2x/DCxPlus-default.dc
+# modern package
+$FWP -v2 output_files/std/DCxPlus-default.rbf output_files/hq2x/DCxPlus-default.rbf output_files/DCxPlus-v2.dc
+# make it a transitional v1 archive for upgrades, this will not work as prior versions are reading until file end
+# printf "\x01" | dd of=output_files/DCxPlus.dc bs=1 seek=4 count=1 conv=notrunc
+cp output_files/DCxPlus-v2.dc output_files/std/DCxPlus-v2.dc
+cp output_files/DCxPlus-v2.dc output_files/hq2x/DCxPlus-v2.dc
+
+# debug
+ls -alF output_files/std/DCxPlus-default.dc output_files/std/DCxPlus-v2.dc output_files/hq2x/DCxPlus-default.dc output_files/hq2x/DCxPlus-v2.dc
+md5sum output_files/std/DCxPlus-default.dc output_files/std/DCxPlus-v2.dc output_files/hq2x/DCxPlus-default.dc output_files/hq2x/DCxPlus-v2.dc
