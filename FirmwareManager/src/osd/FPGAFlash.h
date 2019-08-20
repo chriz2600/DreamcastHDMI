@@ -17,6 +17,7 @@ ProgressCallback createFPGAFlashProgressCallback(int pos, bool force, int line);
 
 Menu fpgaFlashMenu("FPGAFlashMenu", (uint8_t*) OSD_FIRMWARE_CONFIG_RECONFIG_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
+        _readFile("/etc/firmware_variant", firmwareVariant, 64, DEFAULT_FW_VARIANT);
         currentMenu = &firmwareConfigMenu;
         currentMenu->Display();
         return;
@@ -70,8 +71,8 @@ void flashFPGACascade(int pos, bool force) {
             const char* result;
             if (gotFWFlashError) {
                 result = (
-                    "        ERROR flashing firmware!        "
-                    " Please reflash! DO NOT restart system! "
+                    "       ERROR switching firmware!        "
+                    "Please try again! DO NOT restart system!"
                 );
             } else if (gotFWChecksumError) {
                 result = (
@@ -81,7 +82,7 @@ void flashFPGACascade(int pos, bool force) {
             } else {
                 if (newFWFlashed) {
                     result = (
-                        "     Firmware successfully flashed!     "
+                        "    Firmware successfully switched!     "
                     );
                 } else {
                     result = (
@@ -93,9 +94,13 @@ void flashFPGACascade(int pos, bool force) {
                 flashFPGACascade(pos + 1, force);
             });
             break;
+        case 6:
+            if (!gotFWFlashError) {
+                _writeFile("/etc/firmware_variant", firmwareVariant, 64);
+                fpgaTask.DoResetFPGA();
+            }
         default:
             currentMenu->endTransaction();
-            fpgaTask.DoResetFPGA();
             break;
     }
 }

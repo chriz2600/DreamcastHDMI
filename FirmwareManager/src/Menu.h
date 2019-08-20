@@ -40,7 +40,7 @@ char OSD_MAIN_MENU[521] = (
     "- Advanced Video Settings               "
     "- Scanlines                             "
     "- Video Mode Settings                   "
-    "- Firmware Upgrade                      "
+    "- Firmware                              "
     "- WiFi Setup                            "
     "- Test/Info                             "
     "                                        "
@@ -183,7 +183,7 @@ char OSD_OPT_RESET_CONFIRM_MENU[521] = (
 #define MENU_FW_FLASH_LINE 5
 #define MENU_FW_RESET_LINE 6
 #define MENU_FW_FIRST_SELECT_LINE 2
-#define MENU_FW_LAST_SELECT_LINE MENU_FW_RESET_LINE
+#define MENU_FW_LAST_SELECT_LINE 6
 char OSD_FIRMWARE_MENU[521] = (
     "Firmware                                "
     "                                        "
@@ -214,18 +214,19 @@ char OSD_FIRMWARE_CONFIG_MENU[521] = (
     "            allows e.g. HQ2X filtering  "
     "                                        "
     "  left/right (d-pad): change value.     "
-    "  " MENU_OK_STR ": apply firmware flavour.            "
+    "  " MENU_OK_STR ": switch firmware flavour.           "
     "  " MENU_CANCEL_STR ": discard changes and exit.          "
     "                                        "
     "          " MENU_OK_STR ": Apply  " MENU_CANCEL_STR ": Cancel           "
 );
 
-#define MENU_FWCONF_RECONF_FPGA_LINE 4
-#define MENU_FWCONF_RECONF_RESULT_LINE 6
+#define MENU_FWCONF_RECONF_FPGA_LINE 5
+#define MENU_FWCONF_RECONF_RESULT_LINE 7
 char OSD_FIRMWARE_CONFIG_RECONFIG_MENU[521] = (
-    "Apply firmware flavour                  "
+    "Switch firmware flavour                 "
     "                                        "
-    "Flash FPGA firmware.                    "
+    "   FPGA will be flashed with selected   "
+    "    firmware flavour and then reset.    "
     "                                        "
     "FPGA        [                    ]      "
     "                                        "
@@ -233,9 +234,7 @@ char OSD_FIRMWARE_CONFIG_RECONFIG_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
-    "                                        "
-    "                                        "
-    MENU_START_LINE
+    "          " MENU_OK_STR ": Switch  " MENU_CANCEL_STR ": Cancel          "
 );
 
 #define MENU_FWC_VIEW_CHANGELOG "       " MENU_OK_STR ": View changelog  " MENU_CANCEL_STR ": Back       "
