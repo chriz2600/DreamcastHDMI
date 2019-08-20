@@ -101,7 +101,7 @@ reg reset_opt_reg = 1'b0;
 
 Scanline scanline_reg = { 9'h100, 1'b0, 1'b0, 1'b0 };
 reg [23:0] conf240p_reg = 24'd20;
-reg [7:0] reset_conf_reg = 0;
+reg [7:0] reset_conf_reg = 8'hFF; // initialize with 'inactive'
 reg activateHDMIoutput_reg = 0;
 reg hq2x_reg = 0;
 reg [1:0] colorspace_reg;

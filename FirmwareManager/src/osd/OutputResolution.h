@@ -25,11 +25,10 @@ void setScanlines(uint8_t upper, uint8_t lower, WriteCallbackHandlerFunction han
 void setOSD(bool value, WriteCallbackHandlerFunction handler);
 
 void writeVideoOutputLine() {
-    char buff[16];
+    char buff[MENU_WIDTH+1];
     osd_get_resolution(buff);
-    fpgaTask.DoWriteToOSD(0, 24, (uint8_t*) buff);
+    fpgaTask.DoWriteToOSD(0, MENU_WIDTH, (uint8_t*) buff);
 }
-
 
 void switchResolution(uint8_t newValue) {
     CurrentResolution = mapResolution(newValue);
@@ -57,7 +56,7 @@ void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler) {
             waitForI2CRecover(false);
         }
         DEBUG("Turn FOLLOWUP save menu on!\n");
-        char buff[16];
+        char buff[MENU_WIDTH+1];
         osd_get_resolution(buff);
         fpgaTask.DoWriteToOSD(0, 24, (uint8_t*) buff, [ handler, Address, Value ]() {
             currentMenu->endTransaction();
@@ -189,7 +188,14 @@ uint8_t mapResolution(uint8_t resd) {
 
 void osd_get_resolution(char* buffer) {
     uint8_t res = mapResolution(CurrentResolution, true);
-    char data[14];
+    char data[16];
+    const char* data2;
+
+    if (isRelaxedFirmware) {
+        data2 = " " DCHDMI_VERSION "-rlx";
+    } else {
+        data2 = " " DCHDMI_VERSION "-std";
+    }
 
     switch (res) {
         case 0x00: OSD_RESOLUTION("1080p"); break;
@@ -214,7 +220,8 @@ void osd_get_resolution(char* buffer) {
         case 0x43: sprintf(data, "576i"); break;
     }
 
-    snprintf(buffer, 13, "%.*s%*s", 10, data, 2, " \x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07");
+    snprintf(buffer, 41, "%.*s%*s", 10, data, 31, " " MENU_SPACER);
+    snprintf(&buffer[40 - strlen(data2)], 10, "%s", data2);
 }
 
 void reapplyFPGAConfig() {
@@ -231,9 +238,12 @@ void reapplyFPGAConfig() {
     DEBUG1("reapplyFPGAConfig:\n");
 
 
-
     fpgaTask.Write(I2C_RESET_CONF, CurrentResetMode, [](uint8_t Address, uint8_t Value) {
         DEBUG1(" -> set reset mode %d\n", CurrentResetMode);
+        //taskManager.StopTask(&infoTask);
+        currentMenu = &mainMenu; // reset menu
+        currentMenu->StoreMenuActiveLine(MENU_M_FIRST_SELECT_LINE);
+        DEBUG1(" -> menu reset\n");
         setOSD(false, [](uint8_t Address, uint8_t Value) {
             DEBUG1(" -> disabled OSD\n");
             setScanlines(getScanlinesUpperPart(), getScanlinesLowerPart(), [](uint8_t Address, uint8_t Value) {

@@ -449,7 +449,7 @@ module DCxPlus(
     reg[31:0] counter2 = 0;
     reg dc_nreset_reg = 1'b1;
     reg opt_nreset_reg = 1'b1;
-    reg status_led_nreset_reg;
+    reg status_led_nreset_reg = 1'bz;
     reg control_resync_out;
     reg control_force_generate_out;
 
@@ -490,9 +490,7 @@ module DCxPlus(
     reg [31:0] led_counter = 0;
 
     always @(posedge control_clock) begin
-        if (reset_conf == 2'd2) begin
-            status_led_nreset_reg <= (dc_nreset_reg ? 1'bz : 1'b0);
-        end else if (reset_conf == 2'd0) begin
+        if (reset_conf == 2'd0) begin // LED
             if (!pll_hdmi_ready) begin
                 status_led_nreset_reg <= 1'b1;
             end else if (control_resync_out) begin
@@ -510,8 +508,12 @@ module DCxPlus(
                     status_led_nreset_reg <= ~slowGlow_out;
                 end
             end
-        end else begin
+        end else if (reset_conf == 2'd1) begin // GDEMU
             status_led_nreset_reg <= (opt_nreset_reg ? 1'bz : 1'b0);
+        end else if (reset_conf == 2'd2) begin // USBGDROM
+            status_led_nreset_reg <= (dc_nreset_reg ? 1'bz : 1'b0);
+        end else begin
+            status_led_nreset_reg <= 1'bz;
         end
         led_counter <= led_counter + 1'b1;
     end

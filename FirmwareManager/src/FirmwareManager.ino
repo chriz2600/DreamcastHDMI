@@ -1055,13 +1055,8 @@ void setup(void) {
     }
 
     setOSD(false, NULL); fpgaTask.ForceLoop();
-    if (isRelaxedFirmware) {
-        fpgaTask.DoWriteToOSD(MENU_WIDTH - strlen(DCHDMI_VERSION "-rlx") - 1, 24, (uint8_t*) " " DCHDMI_VERSION "-rlx"); fpgaTask.ForceLoop();
-    } else {
-        fpgaTask.DoWriteToOSD(MENU_WIDTH - strlen(DCHDMI_VERSION "-std") - 1, 24, (uint8_t*) " " DCHDMI_VERSION "-std"); fpgaTask.ForceLoop();
-    }
-    char buff[16]; osd_get_resolution(buff);
-    fpgaTask.DoWriteToOSD(0, 24, (uint8_t*) buff); fpgaTask.ForceLoop();
+    char buff[MENU_WIDTH+1]; osd_get_resolution(buff);
+    fpgaTask.DoWriteToOSD(0, MENU_WIDTH, (uint8_t*) buff); fpgaTask.ForceLoop();
 
     if (reflashNeccessary && reflashNeccessary2 && reflashNeccessary3) {
         DEBUG2("FPGA firmware missing or broken, reflash needed.\n");

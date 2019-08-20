@@ -262,4 +262,6 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 
 #define OSD_RESOLUTION(res) sprintf(data, res "%s", isRelaxedFirmware && UpscalingMode == UPSCALING_MODE_HQ2X && !(CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER) ? " HQ" : "");
 
+#define MENU_SPACER "\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07"
+
 #endif
