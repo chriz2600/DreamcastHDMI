@@ -19,7 +19,7 @@ for variant in std hq2x; do
     cp .pio/build/unified/firmware.bin .pio/build/$variant/
     cp -r data/etc build/$variant/
     cp data/index.html.gz build/$variant
-    cat data.in/$variant-changelog.in | tr -d '\n\t' > build/$variant/changelog
+    cat data.in/changelog.in | tr -d '\n\t' > build/$variant/changelog
 
     cp build/$variant/index.html.gz .pio/build/$variant/
     cp build/$variant/changelog .pio/build/$variant/
@@ -33,3 +33,16 @@ for variant in std hq2x; do
     PLATFORMIO_DATA_DIR="build/$variant/" pio run -t buildfs
     cp .pio/build/unified/spiffs.bin .pio/build/$variant/
 done
+
+cat data.in/changelog.in | tr -d '\n\t' > data/changelog
+cp ../Core/output_files/DCxPlus-v2.dc data/firmware.dc
+
+md5sum data/firmware.dc | awk '{print $1;}' | tr -d '\n' > data/etc/last_flash_md5
+md5sum data/firmware.dc | awk '{print $1;}' | tr -d '\n' > data/firmware.dc.md5
+md5sum data/index.html.gz | awk '{print $1;}' | tr -d '\n' > data/index.html.gz.md5
+md5sum data/index.html.gz | awk '{print $1;}' | tr -d '\n' > data/esp.index.html.gz.md5
+
+pio run -t buildfs
+
+
+

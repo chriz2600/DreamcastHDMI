@@ -1,25 +1,33 @@
-v4.0-std                                
+v4.0                                    
 - Standard and Relaxed firmware flavours
   are now built from the same source    
 - Keyboard support                      
                                         
-v2.3.4                                  
+v3.0.4/v2.3.4                           
 - Finally fixed: video output may not   
   start on some systems                 
                                         
-v2.3.3                                  
+v3.0.3/v2.3.3                           
 - Fixed: video output may not start when
   configured to VGA/CableDetect         
+- Fixed: bob deinterlacing was not      
+  properly aligned in VGA/480p mode     
                                         
-v2.3.2                                  
-- Internal: Do not use ADV7513 internal 
-  pixel/clock doubling, generate all    
-  clocks on FPGA                        
+v3.0.2/v2.3.2                           
+- Fixed: Scanlines are now applied post 
+  HQ2X filter. (Thanks to SONIC3D!)     
+- v2.3.2: Internal: Do not use ADV7513  
+  internal pixel/clock doubling,        
+  generate all clocks on FPGA           
                                         
-v2.3.1                                  
+v3.0.1/v2.3.1                           
 - Fixed: Adjusted input data latch clock
   phase shift to be more robust         
   (Thanks to Ste!)                      
+                                        
+v3.0.0                                  
+- New: "Upscaling mode" config option   
+  Currently available: "2x" and "hq2x"  
                                         
 v2.3.0                                  
 - New: Configure "Relaxed" firmware     
