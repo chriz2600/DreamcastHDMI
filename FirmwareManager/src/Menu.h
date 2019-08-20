@@ -234,6 +234,7 @@ char OSD_FIRMWARE_CONFIG_RECONFIG_MENU[521] = (
     "                                        "
     "                                        "
     "                                        "
+    "                                        "
     "          " MENU_OK_STR ": Switch  " MENU_CANCEL_STR ": Cancel          "
 );
 
