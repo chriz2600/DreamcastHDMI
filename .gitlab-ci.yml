@@ -69,6 +69,8 @@ esp-firmware:
       - FirmwareManager/.pio/build/hq2x/firmware.bin
       - FirmwareManager/.pio/build/hq2x/spiffs.bin
       - FirmwareManager/.pio/build/hq2x/changelog
+      - FirmwareManager/.pio/build/firmware.bin
+      - FirmwareManager/.pio/build/spiffs.bin
       - FirmwareManager/data/*
   dependencies:
     - fpga-firmware

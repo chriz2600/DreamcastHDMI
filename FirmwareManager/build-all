@@ -44,5 +44,7 @@ md5sum data/index.html.gz | awk '{print $1;}' | tr -d '\n' > data/esp.index.html
 
 pio run -t buildfs
 
+cp .pio/build/unified/firmware.bin .pio/build/
+cp .pio/build/unified/firmware.bin .pio/build/
 
 
