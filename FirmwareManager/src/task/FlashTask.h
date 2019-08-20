@@ -117,8 +117,11 @@ class FlashTask : public Task {
                 }
 
                 DEBUG2("FlashTask.OnStart: firmware file version: %u\n", header[4]);
-                // handle bundles
-                if (header[4] >= 2 && String(firmwareVariant) == String(FIRMWARE_RELAXED_FLAVOUR)) {
+                /* 
+                    handle bundles, don't check version just check for files in file, 
+                    to be able to handle transitional archives.
+                */
+                if (/*header[4] >= 2 &&*/ String(firmwareVariant) == String(FIRMWARE_RELAXED_FLAVOUR)) {
                     uint8_t file_to_extract = 1;
                     /*
                         use second archive in bundle, if length allows,

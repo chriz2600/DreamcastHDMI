@@ -1,0 +1,27 @@
+#!/bin/bash
+
+set -e
+
+cd $(dirname $0)
+
+FWP=$(command -v firmware-packer || echo ../firmware-utils/firmware-packer)
+
+test -x "$FWP" || {
+    echo "building firmware-utils"
+    cd ../firmware-utils
+    make
+    cd ../Core
+}
+
+for variant in std hq2x ; do
+    ./build $variant
+done
+
+$FWP -v2 output_files/std/DCxPlus-default.rbf output_files/hq2x/DCxPlus-default.rbf output_files/DCxPlus.dc
+# make it a transitional v1 archive for upgrades
+printf "\x01" | dd of=output_files/DCxPlus.dc bs=1 seek=4 count=1 conv=notrunc
+
+cp output_files/DCxPlus.dc output_files/std/DCxPlus-default.dc
+cp output_files/DCxPlus.dc output_files/hq2x/DCxPlus-default.dc
+ls -alF output_files/std/DCxPlus-default.dc output_files/hq2x/DCxPlus-default.dc
+md5sum output_files/std/DCxPlus-default.dc output_files/hq2x/DCxPlus-default.dc
