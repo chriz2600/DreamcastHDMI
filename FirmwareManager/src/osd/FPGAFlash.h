@@ -27,7 +27,7 @@ Menu fpgaFlashMenu("FPGAFlashMenu", (uint8_t*) OSD_FIRMWARE_CONFIG_RECONFIG_MENU
             newFWFlashed = false;
             gotFWFlashError = false;
             gotFWChecksumError = false;
-            flashFPGACascade(0, false);
+            flashFPGACascade(0, true);
         }
         return;
     }
@@ -36,7 +36,7 @@ Menu fpgaFlashMenu("FPGAFlashMenu", (uint8_t*) OSD_FIRMWARE_CONFIG_RECONFIG_MENU
 }, true);
 
 void flashFPGACascade(int pos, bool force) {
-    DEBUG("flashFPGACascade: %i\n", pos);
+    DEBUG2("flashFPGACascade: %i\n", pos);
     switch (pos) {
         case 0:
             currentMenu->startTransaction();
@@ -65,7 +65,7 @@ void flashFPGACascade(int pos, bool force) {
             flashTask.SetProgressCallback(createFPGAFlashProgressCallback(pos, force, MENU_FWCONF_RECONF_FPGA_LINE));
             taskManager.StartTask(&flashTask);
             break;
-        case 11:
+        case 5:
             flashTask.ClearProgressCallback();
             const char* result;
             if (gotFWFlashError) {
@@ -95,6 +95,7 @@ void flashFPGACascade(int pos, bool force) {
             break;
         default:
             currentMenu->endTransaction();
+            fpgaTask.DoResetFPGA();
             break;
     }
 }

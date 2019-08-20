@@ -14,8 +14,14 @@ Menu firmwareConfigMenu("FirmwareConfigMenu", (uint8_t*) OSD_FIRMWARE_CONFIG_MEN
 
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         _writeFile("/etc/firmware_variant", firmwareVariant, 64);
-        currentMenu = &fpgaFlashMenu;
-        currentMenu->Display();
+        if ((isRelaxedFirmware && String(firmwareVariant) == String(FIRMWARE_RELAXED_FLAVOUR)) || (!isRelaxedFirmware && String(firmwareVariant) == String(FIRMWARE_STANDARD_FLAVOUR))) {
+            // configured firmware is already applied
+            currentMenu = &firmwareMenu;
+            currentMenu->Display();
+        } else {
+            currentMenu = &fpgaFlashMenu;
+            currentMenu->Display();
+        }
         return;
     }
 
