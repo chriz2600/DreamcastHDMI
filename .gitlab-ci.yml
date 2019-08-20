@@ -88,6 +88,7 @@ fpga-publish:
   script: 
     - "create-index-html std"
     - "create-index-html hq2x"
+    - "create-index-html"
   artifacts:
     expire_in: 1 sec
   dependencies:
@@ -106,6 +107,7 @@ esp-publish:
   script: 
     - "create-index-html-esp std"
     - "create-index-html-esp hq2x"
+    - "create-index-html-esp"
   artifacts:
     expire_in: 1 sec
   dependencies:
@@ -124,6 +126,7 @@ finish-publish:
   script:
     - "dc-atomic-move std"
     - "dc-atomic-move hq2x"
+    - "dc-atomic-move"
   artifacts:
     expire_in: 1 sec
   dependencies:
