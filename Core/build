@@ -19,6 +19,6 @@ for f in jic rbf ; do
     mv output_files/DCxPlus.${f} output_files/DCxPlus-default.${f}
 done
 mv output_files/DCxPlus-default.{jic,rbf} output_files/$variant
-cp output_files/DCxPlus-default.jic output_files/DCxPlus-$variant.jic
-cp output_files/DCxPlus-default.rbf output_files/DCxPlus-$variant.rbf
+cp output_files/$variant/DCxPlus-default.jic output_files/DCxPlus-$variant.jic
+cp output_files/$variant/DCxPlus-default.rbf output_files/DCxPlus-$variant.rbf
 cat output_files/DCxPlus.fit.rpt | grep '; Total logic elements               ;'
