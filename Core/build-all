@@ -24,7 +24,7 @@ $FWP -v1 output_files/hq2x/DCxPlus-default.rbf output_files/hq2x/DCxPlus-default
 # modern package
 $FWP -v2 output_files/std/DCxPlus-default.rbf output_files/hq2x/DCxPlus-default.rbf output_files/DCxPlus-v2.dc
 # this is needed for older master/develog/experimental transition
-cp output_files/std/DCxPlus-default.rbf output_files/DCxPlus-default.rbf
+cp output_files/std/DCxPlus-default.dc output_files/DCxPlus-default.dc
 
 # debug
 ls -alF output_files/std/DCxPlus-default.dc output_files/std/DCxPlus-v2.dc output_files/hq2x/DCxPlus-default.dc output_files/hq2x/DCxPlus-v2.dc

@@ -248,8 +248,8 @@ char OSD_FIRMWARE_TRANSITIONAL_MENU[521] = (
     "   was installed during this update.    "
     "                                        "
     "   In order to be able to switch the    "
-    "  firmware flavour, you have to update  "
-    "       the firmware once again.         "
+    "     firmware flavour, you have to      "
+    "   download the firmware once again.    "
     "                                        "
     "                " MENU_CANCEL_STR ": Back                 "
 );
