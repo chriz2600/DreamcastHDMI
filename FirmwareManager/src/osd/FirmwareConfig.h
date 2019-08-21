@@ -5,6 +5,7 @@ extern char firmwareVariant[64];
 
 Menu firmwareTransitionalMenu("FirmwareTransitionalMenu", (uint8_t*) OSD_FIRMWARE_TRANSITIONAL_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
+        _readFile("/etc/firmware_variant", firmwareVariant, 64, DEFAULT_FW_VARIANT);
         currentMenu = &firmwareMenu;
         currentMenu->Display();
         return;

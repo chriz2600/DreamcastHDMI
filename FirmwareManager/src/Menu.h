@@ -249,7 +249,7 @@ char OSD_FIRMWARE_TRANSITIONAL_MENU[521] = (
     "                                        "
     "   In order to be able to switch the    "
     "     firmware flavour, you have to      "
-    "   download the firmware once again.    "
+    "     flash the firmware once again.     "
     "                                        "
     "                " MENU_CANCEL_STR ": Back                 "
 );
