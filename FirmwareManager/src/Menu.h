@@ -238,6 +238,22 @@ char OSD_FIRMWARE_CONFIG_RECONFIG_MENU[521] = (
     "          " MENU_OK_STR ": Switch  " MENU_CANCEL_STR ": Cancel          "
 );
 
+char OSD_FIRMWARE_TRANSITIONAL_MENU[521] = (
+    "Transitional firmware detected          "
+    "                                        "
+    "    You recently updated your DCHDMI    "
+    "     to a firmware version >= v4.0.     "
+    "                                        "
+    "  A transitional fpga firmware package  "
+    "   was installed during this update.    "
+    "                                        "
+    "   In order to be able to switch the    "
+    "  firmware flavour, you have to update  "
+    "       the firmware once again.         "
+    "                                        "
+    "                " MENU_CANCEL_STR ": Back                 "
+);
+
 #define MENU_FWC_VIEW_CHANGELOG "       " MENU_OK_STR ": View changelog  " MENU_CANCEL_STR ": Back       "
 #define MENU_FWC_FPGA_LINE 4
 #define MENU_FWC_ESP_LINE 5

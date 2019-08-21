@@ -135,4 +135,20 @@ void resetFPGAConfiguration() {
     endFPGAConfiguration();
 }
 
+bool isValidV2FPGAFirmwareBundle() {
+    bool isValid = false;
+    uint8_t header[16];
+    File file = SPIFFS.open(FIRMWARE_FILE, "r");
+    if (file) {
+        file.readBytes((char *) header, 16);
+        /* new fpga firmware bundle must be v2 
+           and must contain at least 2 files */
+        if (header[4] >= 0x02 && header[12] >= 2) {
+            isValid = true;
+        }
+        file.close();
+    }
+    return isValid;
+}
+
 #endif

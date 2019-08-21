@@ -14,6 +14,7 @@ char md5FPGAServer[48];
 char md5ESPServer[48];
 char md5IndexHtmlServer[48];
 
+bool isValidV2FPGAFirmwareBundle();
 void flashCascade(int pos, bool force);
 void readStoredMD5SumFlash(int pos, bool force, const char* fname, char* md5sum);
 void checkStoredMD5SumFlash(int pos, bool force, int line, const char* fname, char* storedMD5Sum, char* serverMD5Sum);
