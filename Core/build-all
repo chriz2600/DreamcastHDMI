@@ -23,10 +23,8 @@ $FWP -v1 output_files/hq2x/DCxPlus-default.rbf output_files/hq2x/DCxPlus-default
 
 # modern package
 $FWP -v2 output_files/std/DCxPlus-default.rbf output_files/hq2x/DCxPlus-default.rbf output_files/DCxPlus-v2.dc
-# make it a transitional v1 archive for upgrades, this will not work as prior versions are reading until file end
-# printf "\x01" | dd of=output_files/DCxPlus.dc bs=1 seek=4 count=1 conv=notrunc
-#cp output_files/DCxPlus-v2.dc output_files/std/DCxPlus-v2.dc
-#cp output_files/DCxPlus-v2.dc output_files/hq2x/DCxPlus-v2.dc
+# this is needed for older master/develog/experimental transition
+cp output_files/std/DCxPlus-default.rbf output_files/DCxPlus-default.rbf
 
 # debug
 ls -alF output_files/std/DCxPlus-default.dc output_files/std/DCxPlus-v2.dc output_files/hq2x/DCxPlus-default.dc output_files/hq2x/DCxPlus-v2.dc

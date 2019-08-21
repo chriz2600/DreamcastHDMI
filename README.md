@@ -1,8 +1,10 @@
 # DreamcastHDMI / DCHDMI
 
-#### 2019-XX-XX *Firmware v4.0-std*/*v4.0-rlx* (*Standard*/*Relaxed*)
+#### 2019-XX-XX *Firmware v4.0* (*Unified*)
 
-- *Standard (**v4.0-std**)* and *Relaxed (**v4.0-rlx**)* firmware flavours are now built from the same source, therefor the major and minor version is now the same for both.
+- *Standard (**-std**)* and *Relaxed (**-rlx**)* firmware flavours are now combined into one firmware release. When changing firmware flavour only the fpga firmware get re-flashed from the firmware bundle downloaded previously. 
+
+    *When upgrading to v4.0 for the first time, it's necessary to update the firmware once again, to download this new bundle.*
 
 - ESP firmware is now built using PlatformIO 4.0.0
 
