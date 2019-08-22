@@ -8,6 +8,7 @@ module data(
     input generate_video,
     input generate_timing,
     input [23:0] conf240p,
+    input nonBlackPixelReset,
     
     output [7:0] red,
     output [7:0] green,
@@ -245,11 +246,16 @@ module data(
 
             counterX_reg_q <= counterX_reg;
             counterY_reg_q <= counterY_reg;
-            if (indata[11:0] != 12'b000000000000) begin
-                if (raw_counterX_reg > 10 && raw_counterX_reg < nonBlackPos1_reg) begin
-                    nonBlackPos1_reg <= raw_counterX_reg;
-                end else if (raw_counterX_reg < 1705 && raw_counterX_reg > nonBlackPos2_reg) begin
-                    nonBlackPos2_reg <= raw_counterX_reg;
+            if (nonBlackPixelReset) begin
+                nonBlackPos1_reg = 12'b111111111111;
+                nonBlackPos2_reg = 12'b000000000000;
+            end else if (indata[11:0] != 12'b000000000000) begin
+                if (raw_counterX_reg > 10 && raw_counterX_reg < 1705) begin
+                    if (raw_counterX_reg < nonBlackPos1_reg) begin
+                        nonBlackPos1_reg <= raw_counterX_reg;
+                    end else if (raw_counterX_reg > nonBlackPos2_reg) begin
+                        nonBlackPos2_reg <= raw_counterX_reg;
+                    end
                 end
             end
         end

@@ -131,9 +131,13 @@ module DCxPlus(
     wire hpd_detected;
     wire _config_changed;
     wire config_changed;
+    wire _nonBlackPixelReset;
+    wire nonBlackPixelReset;
 
     wire [11:0] nonBlackPos1;
     wire [11:0] nonBlackPos2;
+    wire [11:0] nonBlackPos1_out;
+    wire [11:0] nonBlackPos2_out;
 
     assign clock54_out = clock54_net;
 
@@ -186,7 +190,7 @@ module DCxPlus(
         .counter_type(4'b0),
         .counter_param(3'b0),
 
-        .pll_areset_in(pll54_lockloss || pll_hdmi_lockloss),
+        .pll_areset_in(pll54_lockloss /*|| pll_hdmi_lockloss*/),
 
         .pll_scandataout(pll_hdmi_scandataout),
         .pll_scandone(pll_hdmi_scandone),
@@ -232,12 +236,12 @@ module DCxPlus(
     wire [7:0] reconf_data_clock54;
 
     data_cross #(
-        .WIDTH($bits(DCVideoConfig) + 2)
+        .WIDTH($bits(DCVideoConfig) + 3)
     ) dcVideoConfig_cross(
         .clkIn(control_clock),
         .clkOut(clock54_net),
-        .dataIn({ _dcVideoConfig, _config_changed, line_doubler_sync2 }),
-        .dataOut({ dcVideoConfig, config_changed, _240p_480i_mode })
+        .dataIn({ _dcVideoConfig, _config_changed, line_doubler_sync2, _nonBlackPixelReset }),
+        .dataOut({ dcVideoConfig, config_changed, _240p_480i_mode, nonBlackPixelReset })
     );
 
     dc_video_reconfig dc_video_configurator(
@@ -270,7 +274,8 @@ module DCxPlus(
         .rgbData(rgbData),
         .conf240p(conf240p_out),
         .nonBlackPos1(nonBlackPos1),
-        .nonBlackPos2(nonBlackPos2)
+        .nonBlackPos2(nonBlackPos2),
+        .nonBlackPixelReset(nonBlackPixelReset)
     );
 
     video2ram video2ram(
@@ -421,12 +426,12 @@ module DCxPlus(
     );
 
     data_cross #(
-        .WIDTH(24 + 24 + 24)
+        .WIDTH(24 + 24 + 24 + 12 + 12)
     ) pinok_cross(
         .clkIn(clock54_net),
         .clkOut(control_clock),
-        .dataIn({ pinok, timingInfo, rgbData }),
-        .dataOut({ pinok_out, timingInfo_out, rgbData_out })
+        .dataIn({ pinok, timingInfo, rgbData, nonBlackPos1, nonBlackPos2 }),
+        .dataOut({ pinok_out, timingInfo_out, rgbData_out, nonBlackPos1_out, nonBlackPos2_out })
     );
 
     data_cross #(
@@ -624,8 +629,9 @@ module DCxPlus(
             3'b0 
         }),
         .clock_config_data(clock_config_data),
-        .nonBlackPos1(nonBlackPos1),
-        .nonBlackPos2(nonBlackPos2)
+        .nonBlackPos1(nonBlackPos1_out),
+        .nonBlackPos2(nonBlackPos2_out),
+        .nonBlackPixelReset(_nonBlackPixelReset)
     );
 
     maple mapleBus(

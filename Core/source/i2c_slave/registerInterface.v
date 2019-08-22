@@ -87,7 +87,8 @@ module registerInterface (
     input [15:0] testdata,
     output [7:0] clock_config_data,
     input [11:0] nonBlackPos1,
-    input [11:0] nonBlackPos2
+    input [11:0] nonBlackPos2,
+    output nonBlackPixelReset
 );
 
 reg [2:0] addr_offset = 3'b000;
@@ -100,6 +101,7 @@ reg [7:0] reconf_data_reg = 0;
 reg [7:0] video_gen_data_reg;
 reg reset_dc_reg = 1'b0;
 reg reset_opt_reg = 1'b0;
+reg nonBlackPixelReset_reg = 1'b0;
 
 Scanline scanline_reg = { 9'h100, 1'b0, 1'b0, 1'b0 };
 reg [23:0] conf240p_reg = 24'd20;
@@ -126,6 +128,7 @@ assign activateHDMIoutput = activateHDMIoutput_reg;
 assign hq2x = hq2x_reg;
 assign colorspace = colorspace_reg;
 assign clock_config_data = clock_config_data_reg;
+assign nonBlackPixelReset = nonBlackPixelReset_reg;
 
 // --- I2C Read
 always @(posedge clk) begin
@@ -278,6 +281,9 @@ always @(posedge clk) begin
         // reset config
         end else if (addr == 8'hF2) begin
             reset_conf_reg <= dataIn;
+        // reset non black pixel detect
+        end else if (addr == 8'hF3) begin
+            nonBlackPixelReset_reg <= 1'b1;
         // OSD data
         end else if (addr < 8'h80) begin
             wraddress_reg <= { addr_offset, addr[6:0] };
@@ -287,6 +293,7 @@ always @(posedge clk) begin
         wren <= 1'b0;
         reset_dc_reg <= 1'b0;
         reset_opt_reg <= 1'b0;
+        nonBlackPixelReset_reg <= 1'b0;
     end
 end
 
