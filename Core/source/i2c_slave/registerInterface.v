@@ -85,7 +85,9 @@ module registerInterface (
     input [31:0] control_resync_out_count,
     input [31:0] monitor_sense_low_count,
     input [15:0] testdata,
-    output [7:0] clock_config_data
+    output [7:0] clock_config_data,
+    input [11:0] nonBlackPos1,
+    input [11:0] nonBlackPos2
 );
 
 reg [2:0] addr_offset = 3'b000;
@@ -207,6 +209,10 @@ always @(posedge clk) begin
         8'hC0: dataOut_reg <= monitor_sense_low_count[7:0];
         8'hC1: dataOut_reg <= testdata[15:8];
         8'hC2: dataOut_reg <= testdata[7:0];
+
+        8'hC3: dataOut_reg <= nonBlackPos1[11:4];
+        8'hC4: dataOut_reg <= { nonBlackPos1[3:0], nonBlackPos2[11:8] };
+        8'hC5: dataOut_reg <= nonBlackPos2[7:0];
 
         // clock_config_data
         8'hD0: dataOut_reg <= clock_config_data;

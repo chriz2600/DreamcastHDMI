@@ -21,6 +21,9 @@ module data(
     output [23:0] pinok,
     output [23:0] timingInfo,
     output [23:0] rgbData,
+
+    output [11:0] nonBlackPos1,
+    output [11:0] nonBlackPos2,
     output reg force_generate
 );
 
@@ -62,6 +65,9 @@ module data(
     reg [23:0] rgbData_buf = 0;
     reg [23:0] rgbData_reg = 0;
 
+    reg [11:0] nonBlackPos1_reg;
+    reg [11:0] nonBlackPos2_reg;
+
     initial begin
         raw_counterX_reg <= 0;
         raw_counterY_reg <= 0;
@@ -71,6 +77,8 @@ module data(
         force_generate <= 0;
         pinok1 <= 0;
         pinok2 <= 0;
+        nonBlackPos1_reg = 12'b111111111111;
+        nonBlackPos2_reg = 12'b000000000000;
     end
 
     always @(*) begin
@@ -237,6 +245,13 @@ module data(
 
             counterX_reg_q <= counterX_reg;
             counterY_reg_q <= counterY_reg;
+            if (indata[11:0] != 12'b000000000000) begin
+                if (raw_counterX_reg > 10 && raw_counterX_reg < nonBlackPos1_reg) begin
+                    nonBlackPos1_reg <= raw_counterX_reg;
+                end else if (raw_counterX_reg < 1705 && raw_counterX_reg > nonBlackPos2_reg) begin
+                    nonBlackPos2_reg <= raw_counterX_reg;
+                end
+            end
         end
     end
 
@@ -246,6 +261,8 @@ module data(
         get_fifth_bit = value[5];
     endfunction
 
+    assign nonBlackPos1 = nonBlackPos1_reg;
+    assign nonBlackPos2 = nonBlackPos2_reg;
     assign counterX = counterX_reg_q;
     assign counterY = counterY_reg_q;
     assign red = red_reg;

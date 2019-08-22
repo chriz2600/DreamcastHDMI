@@ -82,7 +82,9 @@ module i2cSlave (
   input [31:0] control_resync_out_count,
   input [31:0] monitor_sense_low_count,
   input [15:0] testdata,
-  output [7:0] clock_config_data
+  output [7:0] clock_config_data,
+  input [11:0] nonBlackPos1,
+  input [11:0] nonBlackPos2
 );
 
 // local wires and regs
@@ -219,7 +221,9 @@ registerInterface u_registerInterface(
     .control_resync_out_count(control_resync_out_count),
     .monitor_sense_low_count(monitor_sense_low_count),
     .testdata(testdata),
-    .clock_config_data(clock_config_data)
+    .clock_config_data(clock_config_data),
+    .nonBlackPos1(nonBlackPos1),
+    .nonBlackPos2(nonBlackPos2)
 );
 
 serialInterface u_serialInterface (

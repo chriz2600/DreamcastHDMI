@@ -132,6 +132,9 @@ module DCxPlus(
     wire _config_changed;
     wire config_changed;
 
+    wire [11:0] nonBlackPos1;
+    wire [11:0] nonBlackPos2;
+
     assign clock54_out = clock54_net;
 
     // DC config in, ics config out
@@ -265,7 +268,9 @@ module DCxPlus(
         .pinok(pinok),
         .timingInfo(timingInfo),
         .rgbData(rgbData),
-        .conf240p(conf240p_out)
+        .conf240p(conf240p_out),
+        .nonBlackPos1(nonBlackPos1),
+        .nonBlackPos2(nonBlackPos2)
     );
 
     video2ram video2ram(
@@ -618,7 +623,9 @@ module DCxPlus(
             video_mode_480p_n,
             3'b0 
         }),
-        .clock_config_data(clock_config_data)
+        .clock_config_data(clock_config_data),
+        .nonBlackPos1(nonBlackPos1),
+        .nonBlackPos2(nonBlackPos2)
     );
 
     maple mapleBus(

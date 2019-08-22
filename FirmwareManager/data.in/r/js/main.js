@@ -1020,7 +1020,7 @@ function parse_uint32_t(buffer, pos) {
 function createTestData(rawdata) {
     var msg = rawdata.replace(/\n/g, "").trim();
     var buffer = msg.split(/\ /);
-    if (buffer.length == 35) {
+    if (buffer.length == 38) {
         counterdata.advll = parse_uint32_t(buffer, 0);
         counterdata.hpdl = parse_uint32_t(buffer, 4);
         counterdata.p54ll = parse_uint32_t(buffer, 8);
@@ -1035,6 +1035,9 @@ function createTestData(rawdata) {
         var red    = parseInt(buffer[22], 16);
         var green  = parseInt(buffer[23], 16);
         var blue   = parseInt(buffer[24], 16);
+
+        var nbp1 = (parseInt(buffer[35], 16) << 4) | (parseInt(buffer[36], 16) >> 4);
+        var nbp2 = ((parseInt(buffer[36], 16) & 0xF) << 8) | parseInt(buffer[37], 16);
 
         var rawWidth = (resolX + 1);
         var rawHeight = (resolY + 1);
@@ -1095,6 +1098,8 @@ function createTestData(rawdata) {
             + "  rsyc: [[b;#fff;]" + String('00000' + (counterdata.rsyc - counterdata.rsyc_offs).toString(10)).slice(-5) + "]"
             + " \n"
             + "  0x" + buffer[33] + " 0x" + buffer[34]
+            + " \n"
+            + "  " + nbp1 + "," + nbp2
             + " \n \n"
             + "[Space] to zero counters.\n"
             + "[Return] to stop.\n"

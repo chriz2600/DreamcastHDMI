@@ -1086,6 +1086,12 @@ void loop(void){
             doReflash();
         } else if (incomingByte == 'i') {
             showInfo();
+        } else if (incomingByte == 't') {
+            fpgaTask.Read(I2C_TESTDATA_BASE, I2C_TESTDATA_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+                int nbp1 = (buffer[35] << 4) | (buffer[36] >> 4);
+                int nbp2 = ((buffer[36] & 0xF) << 8) | buffer[37];
+                DEBUG2("nbp: %02x %02x %02x %dx%d\n", buffer[35], buffer[36], buffer[37], nbp1, nbp2);
+            });
         }
     }
 }
