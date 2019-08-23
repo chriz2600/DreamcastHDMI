@@ -47,10 +47,27 @@ typedef struct osddata {
     uint8_t row;
     uint8_t *charData;
     WriteOSDCallbackHandlerFunction handler;
+    uint16_t length;
+    uint16_t left;
+    uint16_t localAddress;
 } osddata_t;
+
+typedef struct writedata {
+    uint8_t address;
+    uint8_t value;
+    WriteCallbackHandlerFunction handler;
+} writedata_t;
+
+typedef struct readdata {
+    uint8_t address;
+    uint8_t len;
+    ReadCallbackHandlerFunction handler;
+} readdata_t;
 
 extern TaskManager taskManager;
 uint8_t mapResolution(uint8_t data);
+
+enum state { IDLE, OSDWRITE, WRITE, READ, _LENGTH } fpgaState = IDLE;  // Default set
 
 class FPGATask : public Task {
 
@@ -82,7 +99,9 @@ class FPGATask : public Task {
             data.charData = (uint8_t*) malloc(len + 1);
             memcpy(data.charData, charData, len);
             data.charData[len] = '\0';
-
+            data.length = len;
+            data.left = len;
+            data.localAddress = data.row * 40 + data.column;
             data.handler = handler;
             osdqueue.push(data);
         }
@@ -92,57 +111,32 @@ class FPGATask : public Task {
         }
 
         virtual void Write(uint8_t address, uint8_t value, WriteCallbackHandlerFunction handler) {
-            if (Update || DoRead) {
-                // cancel if update is running
-                DEBUG2("*Write.reject: 0x%02x 0x%02x\n", address, value);
-                return;
-            }
-            Address = address;
-            Value = value;
-            Update = true;
-            write_callback = handler;
+            writedata_t data;
+            data.address = address;
+            data.value = value;
+            data.handler = handler;
+            writequeue.push(data);
         }
 
         virtual void Read(uint8_t address, uint8_t len, ReadCallbackHandlerFunction handler) {
-            if (Update || DoRead) {
-                // cancel if update is running
-                DEBUG2("*Read.reject 0x%02x 0x%02x\n", address, len);
-                return;
-            }
-            Address = address;
-            Value = len;
-            DoRead = true;
-            read_callback = handler;
+            readdata_t data;
+            data.address = address;
+            data.len = len;
+            data.handler = handler;
+            readqueue.push(data);
         }
 
         void ForceLoop() {
-            OnUpdate(0L);
+            next(READ);
         }
 
     private:
         FPGAEventHandlerFunction controller_handler;
         FPGAKeyboardHandlerFunction keyboard_handler;
-        WriteCallbackHandlerFunction write_callback;
-        WriteOSDCallbackHandlerFunction write_osd_callback;
-        ReadCallbackHandlerFunction read_callback;
-
-        uint8_t *data_in;
 
         uint8_t data_out[MAX_ADDR_SPACE+1];
         uint8_t data_out_keyb[MAX_ADDR_SPACE+1];
         uint8_t data_write[MAX_ADDR_SPACE+1];
-        uint16_t stringLength;
-        uint16_t left;
-        uint16_t localAddress;
-        uint8_t upperAddress;
-        uint8_t lowerAddress;
-        uint8_t towrite;
-        bool updateOSDContent;
-        bool Update;
-        bool DoRead;
-
-        uint8_t Address;
-        uint8_t Value;
 
         long eTime;
         long eTime_keyb;
@@ -152,26 +146,98 @@ class FPGATask : public Task {
         uint8_t fpgaResetState = FPGA_RESET_INACTIVE;
 
         std::queue<osddata_t> osdqueue;
+        std::queue<writedata_t> writequeue;
+        std::queue<readdata_t> readqueue;
 
         virtual bool OnStart() {
             return true;
         }
 
-        void checkForOSDData() {
-            if (!updateOSDContent && !osdqueue.empty()) {
-                osddata_t data = osdqueue.front();
+        void handleWrite() {
+            writedata_t data = writequeue.front();
+            //DEBUG2("handleWrite: %02x %02x\n", data.address, data.value);
+            uint8_t buffer[2];
+            buffer[0] = data.address;
+            buffer[1] = data.value;
+            brzo_i2c_write(buffer, 2, false);
+            if (data.handler != NULL) {
+                data.handler(data.address, data.value);
+            }
+            writequeue.pop();
+        }
 
-                stringLength = strlen((char*) data.charData);
-                localAddress = data.row * 40 + data.column;
-                left = stringLength;
-                if (data_in != NULL) {
-                    free(data_in); data_in = NULL;
+        void handleRead() {
+            readdata_t data = readqueue.front();
+            //DEBUG2("handleRead: %02x %02x\n", data.address, data.len);
+            uint8_t buffer[1];
+            uint8_t buffer2[data.len];
+            buffer[0] = data.address;
+            brzo_i2c_write(buffer, 1, false);
+            brzo_i2c_read(buffer2, data.len, false);
+            if (data.handler != NULL) {
+                data.handler(data.address, buffer2, data.len);
+            }
+            readqueue.pop();
+        }
+
+        void next(uint8_t state) {
+            brzo_i2c_start_transaction(FPGA_I2C_ADDR, FPGA_I2C_FREQ_KHZ);
+            switch (state) {
+                case READ:
+                    if (!readqueue.empty()) {
+                        handleRead();
+                        break;
+                    }
+                case WRITE:
+                    if (!writequeue.empty()) {
+                        handleWrite();
+                        break;
+                    }
+                case OSDWRITE:
+                    if (!osdqueue.empty()) {
+                        handleOSD();
+                        break;
+                    }
+                case IDLE:
+                    handleMetadata();
+                    break;
+            }
+            if (brzo_i2c_end_transaction()) {
+                if (!GotError) {
+                    last_error = ERROR_END_I2C_TRANSACTION;
+                    DEBUG1("--> ERROR_END_I2C_TRANSACTION\n");
                 }
-                data_in = (uint8_t*) malloc(stringLength);
-                memcpy(data_in, data.charData, stringLength);
-                updateOSDContent = true;
-                write_osd_callback = data.handler;
-                free(data.charData);
+                GotError = true;
+            } else {
+                if (GotError) {
+                    last_error = NO_ERROR;
+                    DEBUG1("<-- FINISHED_I2C_TRANSACTION\n");
+                }
+                GotError = false;
+            }
+        }
+
+        void handleOSD() {
+            osddata_t &data = osdqueue.front();
+            //DEBUG2("updateOSDContent: length: %u, left: %u\n", data.length, data.left);
+            if (data.left > 0) {
+                uint8_t upperAddress = data.localAddress / MAX_ADDR_SPACE;
+                uint8_t lowerAddress = data.localAddress % MAX_ADDR_SPACE;
+                data_write[0] = I2C_OSD_ADDR_OFFSET;
+                data_write[1] = upperAddress;
+                brzo_i2c_write(data_write, 2, false);
+                data_write[0] = lowerAddress;
+                uint8_t towrite = MAX_ADDR_SPACE - lowerAddress;
+                if (towrite > data.left) { towrite = data.left; }
+                memcpy(&data_write[1], &data.charData[data.length-data.left], towrite);
+                brzo_i2c_write(data_write, towrite + 1, false);
+                data.left -= towrite;
+                data.localAddress += towrite;
+            } else {
+                free(data.charData); data.charData = NULL;
+                if (data.handler != NULL) {
+                    data.handler();
+                }
                 osdqueue.pop();
             }
         }
@@ -193,127 +259,71 @@ class FPGATask : public Task {
                 }
                 return;
             }
-            checkForOSDData();
-            brzo_i2c_start_transaction(FPGA_I2C_ADDR, FPGA_I2C_FREQ_KHZ);
-            if (updateOSDContent) {
-                //DEBUG("updateOSDContent: stringLength: %u, left: %u\n", stringLength, left);
-                if (left > 0) {
-                    upperAddress = localAddress / MAX_ADDR_SPACE;
-                    lowerAddress = localAddress % MAX_ADDR_SPACE;
-                    data_write[0] = I2C_OSD_ADDR_OFFSET;
-                    data_write[1] = upperAddress;
-                    brzo_i2c_write(data_write, 2, false);
-                    data_write[0] = lowerAddress;
-                    towrite = MAX_ADDR_SPACE - lowerAddress;
-                    if (towrite > left) { towrite = left; }
-                    memcpy(&data_write[1], &data_in[stringLength-left], towrite);
-                    brzo_i2c_write(data_write, towrite + 1, false);
-                    left -= towrite;
-                    localAddress += towrite;
-                } else {
-                    free(data_in); data_in = NULL;
-                    updateOSDContent = false;
-                    if (write_osd_callback != NULL) {
-                        write_osd_callback();
-                    }
-                }
-            } else if (Update) {
-                //DEBUG("Write: %x %x\n", Address, Value);
-                uint8_t buffer[2];
-                buffer[0] = Address;
-                buffer[1] = Value;
-                brzo_i2c_write(buffer, 2, false);
-                Update = false;
-                if (write_callback != NULL) {
-                    write_callback(Address, Value);
-                }
-            } else if (DoRead) {
-                // Value is read len here
-                //DEBUG("Read: %x %x\n", Address, Value);
-                uint8_t buffer[1];
-                uint8_t buffer2[Value];
-                buffer[0] = Address;
-                brzo_i2c_write(buffer, 1, false);
-                brzo_i2c_read(buffer2, Value, false);
-                DoRead = false;
-                if (read_callback != NULL) {
-                    read_callback(Address, buffer2, Value);
-                }
+            next(fpgaState);
+            fpgaState = static_cast<state>((fpgaState + 1) % _LENGTH);
+        }
+
+        void handleMetadata() {
+            // update controller data and meta
+            uint8_t buffer[1];
+            uint8_t buffer2[I2C_KEYBOARD_LENGTH];
+            
+            ///////////////////////////////////////////////////
+            // read controller data
+            buffer[0] = I2C_CONTROLLER_AND_DATA_BASE;
+            brzo_i2c_write(buffer, 1, false);
+            brzo_i2c_read(buffer2, I2C_CONTROLLER_AND_DATA_BASE_LENGTH, false);
+
+            // new controller data
+            if (!compareData(buffer2, data_out, 2)) {
+                //DEBUG1("I2C_CONTROLLER_AND_DATA_BASE, new controller data: %04x\n", buffer2[0] << 8 | buffer2[1]);
+                controller_handler(buffer2[0] << 8 | buffer2[1], false);
+                // reset repeat
+                eTime = millis();
+                repeatCount = 0;
             } else {
-                // update controller data and meta
-                uint8_t buffer[1];
-                uint8_t buffer2[I2C_KEYBOARD_LENGTH];
-                
-                ///////////////////////////////////////////////////
-                // read controller data
-                buffer[0] = I2C_CONTROLLER_AND_DATA_BASE;
-                brzo_i2c_write(buffer, 1, false);
-                brzo_i2c_read(buffer2, I2C_CONTROLLER_AND_DATA_BASE_LENGTH, false);
-
-                // new controller data
-                if (!compareData(buffer2, data_out, 2)) {
-                    //DEBUG1("I2C_CONTROLLER_AND_DATA_BASE, new controller data: %04x\n", buffer2[0] << 8 | buffer2[1]);
-                    controller_handler(buffer2[0] << 8 | buffer2[1], false);
-                    // reset repeat
-                    eTime = millis();
-                    repeatCount = 0;
-                } else {
-                    // check repeat
-                    if (buffer2[0] != 0x00 || buffer2[1] != 0x00) {
-                        unsigned long duration = (repeatCount == 0 ? REPEAT_DELAY : REPEAT_RATE);
-                        if (millis() - eTime > duration) {
-                            controller_handler(buffer2[0] << 8 | buffer2[1], true);
-                            eTime = millis();
-                            repeatCount++;
-                        }
+                // check repeat
+                if (buffer2[0] != 0x00 || buffer2[1] != 0x00) {
+                    unsigned long duration = (repeatCount == 0 ? REPEAT_DELAY : REPEAT_RATE);
+                    if (millis() - eTime > duration) {
+                        controller_handler(buffer2[0] << 8 | buffer2[1], true);
+                        eTime = millis();
+                        repeatCount++;
                     }
                 }
-                // new meta data
-                isRelaxedFirmware = buffer2[2] & HQ2X_MODE_FLAG;
-                if ((buffer2[2] & 0xF8) != (CurrentResolutionData) /*data_out[2]*/) {
-                    DEBUG1("I2C_CONTROLLER_AND_DATA_BASE, switch to: %02x %02x\n", buffer2[2], isRelaxedFirmware);
-                    storeResolutionData(buffer2[2] & 0xF8);
-                    switchResolution();
-                }
-                memcpy(data_out, buffer2, I2C_CONTROLLER_AND_DATA_BASE_LENGTH);
-
-                ///////////////////////////////////////////////////
-                // read keyboard data
-                buffer[0] = I2C_KEYBOARD_BASE;
-                brzo_i2c_write(buffer, 1, false);
-                brzo_i2c_read(buffer2, I2C_KEYBOARD_LENGTH, false);
-
-                if (!compareData(buffer2, data_out_keyb, I2C_KEYBOARD_LENGTH)) {
-                    keyboard_handler(buffer2[1], buffer2[3], false);
-                    eTime_keyb = millis();
-                    repeatCount_keyb = 0;
-                } else {
-                    // check repeat (do not check on modifier keys (shift/ctrl/alt, etc.))
-                    if (/*buffer2[1] != 0x00 ||*/ buffer2[3] != 0x00) {
-                        unsigned long duration = (repeatCount_keyb == 0 ? REPEAT_DELAY_KEYB : REPEAT_RATE_KEYB);
-                        if (millis() - eTime_keyb > duration) {
-                            keyboard_handler(buffer2[1], buffer2[3], true);
-                            eTime_keyb = millis();
-                            repeatCount_keyb++;
-                        }
-                    }
-                }
-
-                memcpy(data_out_keyb, buffer2, I2C_KEYBOARD_LENGTH);
             }
-            if (brzo_i2c_end_transaction()) {
-                if (!GotError) {
-                    last_error = ERROR_END_I2C_TRANSACTION;
-                    DEBUG1("--> ERROR_END_I2C_TRANSACTION\n");
-                }
-                GotError = true;
+            // new meta data
+            isRelaxedFirmware = buffer2[2] & HQ2X_MODE_FLAG;
+            if ((buffer2[2] & 0xF8) != (CurrentResolutionData) /*data_out[2]*/) {
+                DEBUG1("I2C_CONTROLLER_AND_DATA_BASE, switch to: %02x %02x\n", buffer2[2], isRelaxedFirmware);
+                storeResolutionData(buffer2[2] & 0xF8);
+                switchResolution();
+            }
+            memcpy(data_out, buffer2, I2C_CONTROLLER_AND_DATA_BASE_LENGTH);
+
+            ///////////////////////////////////////////////////
+            // read keyboard data
+            buffer[0] = I2C_KEYBOARD_BASE;
+            brzo_i2c_write(buffer, 1, false);
+            brzo_i2c_read(buffer2, I2C_KEYBOARD_LENGTH, false);
+
+            if (!compareData(buffer2, data_out_keyb, I2C_KEYBOARD_LENGTH)) {
+                keyboard_handler(buffer2[1], buffer2[3], false);
+                eTime_keyb = millis();
+                repeatCount_keyb = 0;
             } else {
-                if (GotError) {
-                    last_error = NO_ERROR;
-                    DEBUG1("<-- FINISHED_I2C_TRANSACTION\n");
+                // check repeat (do not check on modifier keys (shift/ctrl/alt, etc.))
+                if (/*buffer2[1] != 0x00 ||*/ buffer2[3] != 0x00) {
+                    unsigned long duration = (repeatCount_keyb == 0 ? REPEAT_DELAY_KEYB : REPEAT_RATE_KEYB);
+                    if (millis() - eTime_keyb > duration) {
+                        keyboard_handler(buffer2[1], buffer2[3], true);
+                        eTime_keyb = millis();
+                        repeatCount_keyb++;
+                    }
                 }
-                GotError = false;
             }
+
+            memcpy(data_out_keyb, buffer2, I2C_KEYBOARD_LENGTH);
         }
 
         bool compareData(uint8_t *d1, uint8_t *d2, uint8_t len) {
@@ -327,9 +337,6 @@ class FPGATask : public Task {
 
         virtual void OnStop() {
             DEBUG("OnStop\n");
-            if (data_in != NULL) {
-                free(data_in); data_in = NULL;
-            }
         }
 };
 

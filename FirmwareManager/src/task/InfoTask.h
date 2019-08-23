@@ -35,13 +35,15 @@ class InfoTask : public Task {
         }
 
         virtual void OnUpdate(uint32_t deltaTime) {
-            fpgaTask.Read(I2C_TESTDATA_BASE, I2C_TESTDATA_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
-                // leave, if task is no longer running
-                if (!isRunning) {
-                    DEBUG("DebugTask: in callback: no longer running\n");
-                    return;
-                }
+            if (!isRunning) {
+                DEBUG2("DebugTask: paused or stopped\n");
+                return;
+            }
 
+            fpgaTask.Read(I2C_TESTDATA_BASE, I2C_TESTDATA_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+                // pause and wait for osd write to finish ...
+                isRunning = false;
+                // leave, if task is no longer running
                 char result[(MENU_INF_RESULT_HEIGHT * MENU_WIDTH) + 1] = "";
 
                 if (address == I2C_TESTDATA_BASE && len == I2C_TESTDATA_LENGTH) {
@@ -145,7 +147,9 @@ class InfoTask : public Task {
                         control_resync_out_count - control_resync_out_offset
                     );
 
-                    fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_INF_RESULT_LINE, (uint8_t*) result);
+                    fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_INF_RESULT_LINE, (uint8_t*) result, [&]() {
+                        isRunning = true;
+                    });
                 }
             });
         }
