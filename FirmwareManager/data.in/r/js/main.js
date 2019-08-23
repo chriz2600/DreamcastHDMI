@@ -482,6 +482,8 @@ var term = $('#term').terminal(function(command, term) {
                     endTestloop();
                 } else if (k == ' ') {
                     zeroTestvalues();
+                } else if (k == 'R') {
+                    nbpReset();
                 }
             }
             return false;
@@ -1101,6 +1103,7 @@ function createTestData(rawdata) {
             + " \n"
             + "  " + nbp1 + "," + nbp2
             + " \n \n"
+            + "[R] to reset visible area detection.\n"
             + "[Space] to zero counters.\n"
             + "[Return] to stop.\n"
         );
@@ -1128,6 +1131,10 @@ function zeroTestvalues() {
     counterdata.p54ll_offs = counterdata.p54ll;
     counterdata.phdll_offs = counterdata.phdll;
     counterdata.rsyc_offs  = counterdata.rsyc;
+}
+
+function nbpReset() {
+    $.ajax({ url: "/nbp/reset" });
 }
 
 function endTestloop() {

@@ -68,6 +68,8 @@ module data(
 
     reg [11:0] nonBlackPos1_reg;
     reg [11:0] nonBlackPos2_reg;
+    reg [11:0] nonBlackPos1_reg_q;
+    reg [11:0] nonBlackPos2_reg_q;
 
     initial begin
         raw_counterX_reg <= 0;
@@ -85,25 +87,25 @@ module data(
     always @(*) begin
         if (line_doubler) begin
             if (add_line) begin
-                VISIBLE_AREA_HSTART = 10'd249;
+                VISIBLE_AREA_HSTART = 10'd249 - `OFFSET_V_AREA;
                 VISIBLE_AREA_VSTART = 10'd18;
-                VISIBLE_AREA_WIDTH  = 10'd720;
+                VISIBLE_AREA_WIDTH  = 10'd720 + `OFFSET_V_AREA;
                 VISIBLE_AREA_HEIGHT = 10'd504;
             end else if (is_pal) begin
-                VISIBLE_AREA_HSTART = 10'd249;
+                VISIBLE_AREA_HSTART = 10'd249 - `OFFSET_V_AREA;
                 VISIBLE_AREA_VSTART = 10'd19;
-                VISIBLE_AREA_WIDTH  = 10'd720;
+                VISIBLE_AREA_WIDTH  = 10'd720 + `OFFSET_V_AREA;
                 VISIBLE_AREA_HEIGHT = 10'd600;
             end else begin
-                VISIBLE_AREA_HSTART = 10'd249;
+                VISIBLE_AREA_HSTART = 10'd257 - `OFFSET_V_AREA;
                 VISIBLE_AREA_VSTART = 10'd18;
-                VISIBLE_AREA_WIDTH  = 10'd720;
+                VISIBLE_AREA_WIDTH  = 10'd720 + `OFFSET_V_AREA;
                 VISIBLE_AREA_HEIGHT = 10'd504;
             end
         end else begin
-            VISIBLE_AREA_HSTART = 10'd265;
+            VISIBLE_AREA_HSTART = 10'd265 - `OFFSET_V_AREA;
             VISIBLE_AREA_VSTART = 10'd40;
-            VISIBLE_AREA_WIDTH  = 10'd720;
+            VISIBLE_AREA_WIDTH  = 10'd720 + `OFFSET_V_AREA;
             VISIBLE_AREA_HEIGHT = 10'd480;
         end
     end
@@ -246,16 +248,21 @@ module data(
 
             counterX_reg_q <= counterX_reg;
             counterY_reg_q <= counterY_reg;
+
+            // non black pixel detection
             if (nonBlackPixelReset) begin
                 nonBlackPos1_reg = 12'b111111111111;
                 nonBlackPos2_reg = 12'b000000000000;
-            end else if (indata[11:0] != 12'b000000000000) begin
-                if (raw_counterX_reg > 10 && raw_counterX_reg < 1705) begin
-                    if (raw_counterX_reg < nonBlackPos1_reg) begin
-                        nonBlackPos1_reg <= raw_counterX_reg;
-                    end else if (raw_counterX_reg > nonBlackPos2_reg) begin
-                        nonBlackPos2_reg <= raw_counterX_reg;
-                    end
+            end else if (counterX_reg_q == VISIBLE_AREA_WIDTH - 1) begin
+                nonBlackPos1_reg_q <= nonBlackPos1_reg;
+                nonBlackPos2_reg_q <= nonBlackPos2_reg;
+            end
+
+            if ({ red_reg, green_reg, blue_reg } != 24'd0) begin
+                if (counterX_reg_q < nonBlackPos1_reg) begin
+                    nonBlackPos1_reg <= counterX_reg_q;
+                end else if (counterX_reg_q > nonBlackPos2_reg) begin
+                    nonBlackPos2_reg <= counterX_reg_q;
                 end
             end
         end
@@ -267,8 +274,8 @@ module data(
         get_fifth_bit = value[5];
     endfunction
 
-    assign nonBlackPos1 = nonBlackPos1_reg;
-    assign nonBlackPos2 = nonBlackPos2_reg;
+    assign nonBlackPos1 = nonBlackPos1_reg_q;
+    assign nonBlackPos2 = nonBlackPos2_reg_q;
     assign counterX = counterX_reg_q;
     assign counterY = counterY_reg_q;
     assign red = red_reg;

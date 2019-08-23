@@ -873,6 +873,16 @@ void setupHTTPServer() {
         request->send(200, "text/plain", msg);
     });
 
+    server.on("/nbp/reset", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        fpgaTask.Write(I2C_RESET_NBP, 0x01, [](uint8_t Address, uint8_t Value) {
+            DEBUG2("nbp reset.\n");
+        });
+        request->send(200, "text/plain", "OK\n");
+    });
+
     server.on("/testdata2", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
@@ -1023,6 +1033,16 @@ void doReflash() {
     }
 }
 
+void printSerialMenu() {
+    DEBUG2("- Menu -----------------------\n");
+    DEBUG2("f: re-flash fpga firmware\n");
+    DEBUG2("i: show info\n");
+    DEBUG2("r: reset visible area counters\n");
+    DEBUG2("t: show visible area counters\n");
+    DEBUG2("h: print this menu\n");
+    DEBUG2("------------------------------\n");
+}
+
 void setup(void) {
     DBG_OUTPUT_PORT.begin(115200);
     DEBUG2("\n>> FirmwareManager starting... " DCHDMI_VERSION "\n");
@@ -1066,6 +1086,7 @@ void setup(void) {
     DEBUG2(">> httpAuthPass: %s\n", httpAuthPass);
     setupHTTPServer();
     DEBUG2(">> Ready.\n");
+    printSerialMenu();
 }
 
 void showInfo() {
@@ -1086,6 +1107,12 @@ void loop(void){
             doReflash();
         } else if (incomingByte == 'i') {
             showInfo();
+        } else if (incomingByte == 'h') {
+            printSerialMenu();
+        } else if (incomingByte == 'r') {
+            fpgaTask.Write(I2C_RESET_NBP, 0x01, [](uint8_t Address, uint8_t Value) {
+                DEBUG2("nbp reset.\n");
+            });
         } else if (incomingByte == 't') {
             fpgaTask.Read(I2C_TESTDATA_BASE, I2C_TESTDATA_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
                 int nbp1 = (buffer[35] << 4) | (buffer[36] >> 4);

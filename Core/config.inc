@@ -8,6 +8,10 @@
 `define OUTPUT_FMT 8'b00000000
 `define HQ_TABLE_TYPE wire
 
+// base values for auto detect
+`define OFFSET_V_AREA 10'd32
+`define OFFSET_DC_CONF 10'd12
+`define OFFSET_DC_CONF 10'd12
 
 `ifdef std
     // standard

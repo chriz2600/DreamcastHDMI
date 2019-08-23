@@ -92,6 +92,11 @@ class FPGATask : public Task {
         }
 
         virtual void Write(uint8_t address, uint8_t value, WriteCallbackHandlerFunction handler) {
+            if (Update || DoRead) {
+                // cancel if update is running
+                DEBUG2("*Write.reject: 0x%02x 0x%02x\n", address, value);
+                return;
+            }
             Address = address;
             Value = value;
             Update = true;
@@ -99,6 +104,11 @@ class FPGATask : public Task {
         }
 
         virtual void Read(uint8_t address, uint8_t len, ReadCallbackHandlerFunction handler) {
+            if (Update || DoRead) {
+                // cancel if update is running
+                DEBUG2("*Read.reject 0x%02x 0x%02x\n", address, len);
+                return;
+            }
             Address = address;
             Value = len;
             DoRead = true;
