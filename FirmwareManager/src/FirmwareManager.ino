@@ -340,7 +340,7 @@ void setupWiFiStation() {
 void setupMDNS() {
     DEBUG2(">> Setting up mDNS...\n");
     if (MDNS.begin(host, ipAddress)) {
-        DEBUG2(">> mDNS started\n");
+        DEBUG2(">> mDNS started.\n");
         MDNS.addService("http", "tcp", 80);
         DEBUG(
             ">> http://%s.local/\n", 
@@ -396,6 +396,7 @@ void setupHTTPServer() {
         }
 
         AsyncJsonResponse * response = new AsyncJsonResponse();
+        response->addHeader("Server","DCHDMI");
         JsonObject& root = response->getRoot();
         FSInfo fs_info;
         SPIFFS.info(fs_info);
@@ -420,7 +421,7 @@ void setupHTTPServer() {
             data["size"] = dir.fileSize();
         }
 
-        response->setLength();
+        //response->setLength();
         request->send(response);
     });
 
@@ -971,7 +972,8 @@ void setupArduinoOTA() {
             DEBUG("ArduinoOTA >> End Failed\n");
         }
     });
-    ArduinoOTA.begin();
+    ArduinoOTA.begin(true);
+    DEBUG2(">> ArduinoOTA started.\n");
 }
 
 void waitForController() {
@@ -1039,11 +1041,13 @@ void printSerialMenu() {
     DEBUG2("i: show info\n");
     DEBUG2("r: reset visible area counters\n");
     DEBUG2("t: show visible area counters\n");
+    DEBUG2("o: activate OTA update\n");
     DEBUG2("h: print this menu\n");
     DEBUG2("------------------------------\n");
 }
 
 void setup(void) {
+    ESP.eraseConfig();
     DBG_OUTPUT_PORT.begin(115200);
     DEBUG2("\n>> FirmwareManager starting... " DCHDMI_VERSION "\n");
     DEBUG2(">> %s\n", ESP.getFullVersion().c_str());
@@ -1066,25 +1070,21 @@ void setup(void) {
     fpgaTask.Write(I2C_ACTIVATE_HDMI, 1, NULL); fpgaTask.ForceLoop();
     setupWiFi();
 
-    if (!inInitialSetupMode) {
-        setupMDNS();
-    }
-    
-    if (strlen(otaPassword)) {
-        setupArduinoOTA();
-    }
-
     setOSD(false, NULL); fpgaTask.ForceLoop();
     char buff[MENU_WIDTH+1]; osd_get_resolution(buff);
     fpgaTask.DoWriteToOSD(0, MENU_WIDTH, (uint8_t*) buff); fpgaTask.ForceLoop();
+
+    if (!inInitialSetupMode) {
+        setupMDNS();
+    }
 
     if (reflashNeccessary && reflashNeccessary2 && reflashNeccessary3) {
         DEBUG2("FPGA firmware missing or broken, reflash needed.\n");
         doReflash();
     }
+    setupHTTPServer();
     DEBUG2(">> httpAuthUser: %s\n", httpAuthUser);
     DEBUG2(">> httpAuthPass: %s\n", httpAuthPass);
-    setupHTTPServer();
     DEBUG2(">> Ready.\n");
     printSerialMenu();
 }
@@ -1119,6 +1119,12 @@ void loop(void){
                 int nbp2 = ((buffer[36] & 0xF) << 8) | buffer[37];
                 DEBUG2("nbp: %02x %02x %02x %dx%d\n", buffer[35], buffer[36], buffer[37], nbp1, nbp2);
             });
+        } else if (incomingByte == 'o') {
+            if (strlen(otaPassword)) {
+                setupArduinoOTA();
+            } else {
+                DEBUG2("Please set an OTA password via web interface first!\n");
+            }
         }
     }
 }

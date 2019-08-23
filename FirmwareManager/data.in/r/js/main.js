@@ -799,7 +799,11 @@ function doRequest(req, msg) {
 }
 
 function listFiles() {
-    $.ajax("/list-files").done(function (data) {
+    $.ajax({
+        type: "GET",
+        url: "/list-files",
+        headers: { Connection: close }
+    }).done(function (data) {
         endTransaction(createListing(data));
     }).fail(function() {
         endTransaction('Error listing files.', true);
