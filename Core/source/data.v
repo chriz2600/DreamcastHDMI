@@ -87,23 +87,23 @@ module data(
     always @(*) begin
         if (line_doubler) begin
             if (add_line) begin
-                VISIBLE_AREA_HSTART = 10'd249 - `OFFSET_V_AREA;
+                VISIBLE_AREA_HSTART = 10'd257 - `OFFSET_V_AREA;
                 VISIBLE_AREA_VSTART = 10'd18;
                 VISIBLE_AREA_WIDTH  = 10'd720 + `OFFSET_V_AREA;
                 VISIBLE_AREA_HEIGHT = 10'd504;
             end else if (is_pal) begin
-                VISIBLE_AREA_HSTART = 10'd249 - `OFFSET_V_AREA;
+                VISIBLE_AREA_HSTART = 10'd257 - `OFFSET_V_AREA;
                 VISIBLE_AREA_VSTART = 10'd19;
                 VISIBLE_AREA_WIDTH  = 10'd720 + `OFFSET_V_AREA;
                 VISIBLE_AREA_HEIGHT = 10'd600;
             end else begin
-                VISIBLE_AREA_HSTART = 10'd257 - `OFFSET_V_AREA;
+                VISIBLE_AREA_HSTART = 10'd257 - `OFFSET_V_AREA; // OK
                 VISIBLE_AREA_VSTART = 10'd18;
                 VISIBLE_AREA_WIDTH  = 10'd720 + `OFFSET_V_AREA;
                 VISIBLE_AREA_HEIGHT = 10'd504;
             end
         end else begin
-            VISIBLE_AREA_HSTART = 10'd265 - `OFFSET_V_AREA;
+            VISIBLE_AREA_HSTART = 10'd265 - `OFFSET_V_AREA; // OK, for commercial games
             VISIBLE_AREA_VSTART = 10'd40;
             VISIBLE_AREA_WIDTH  = 10'd720 + `OFFSET_V_AREA;
             VISIBLE_AREA_HEIGHT = 10'd480;
