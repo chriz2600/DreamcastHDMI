@@ -403,14 +403,14 @@ void setupHTTPServer() {
 
         root["totalBytes"] = fs_info.totalBytes;
         root["usedBytes"] = fs_info.usedBytes;
-        root["blockSize"] = fs_info.blockSize;
-        root["pageSize"] = fs_info.pageSize;
-        root["maxOpenFiles"] = fs_info.maxOpenFiles;
-        root["maxPathLength"] = fs_info.maxPathLength;
-        root["freeSketchSpace"] = ESP.getFreeSketchSpace();
-        root["maxSketchSpace"] = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
-        root["flashChipSize"] = ESP.getFlashChipSize();
-        root["freeHeapSize"] = ESP.getFreeHeap();
+        // root["blockSize"] = fs_info.blockSize;
+        // root["pageSize"] = fs_info.pageSize;
+        // root["maxOpenFiles"] = fs_info.maxOpenFiles;
+        // root["maxPathLength"] = fs_info.maxPathLength;
+        // root["freeSketchSpace"] = ESP.getFreeSketchSpace();
+        // root["maxSketchSpace"] = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
+        // root["flashChipSize"] = ESP.getFlashChipSize();
+        // root["freeHeapSize"] = ESP.getFreeHeap();
 
         JsonArray &datas = root.createNestedArray("files");
 
@@ -421,7 +421,7 @@ void setupHTTPServer() {
             data["size"] = dir.fileSize();
         }
 
-        //response->setLength();
+        response->setLength();
         request->send(response);
     });
 
