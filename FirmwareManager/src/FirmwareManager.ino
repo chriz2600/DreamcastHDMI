@@ -75,7 +75,9 @@ uint8_t ForceVGA = VGA_ON;
 uint8_t CurrentResetMode = RESET_MODE_LED;
 uint8_t CurrentDeinterlaceMode = DEINTERLACE_MODE_BOB;
 uint8_t CurrentProtectedMode = PROTECTED_MODE_OFF;
-uint8_t Offset240p;
+int8_t Offset240p;
+int8_t OffsetVGA;
+int8_t AutoOffsetVGA = 0;
 uint8_t UpscalingMode;
 uint8_t ColorSpace;
 
@@ -160,12 +162,11 @@ void setupScanlines() {
     );
 }
 
-void setup240pOffset() {
+void setupOffsets() {
     read240pOffset();
-    forceI2CWrite(
-        I2C_240P_OFFSET, Offset240p, 
-        I2C_240P_OFFSET, Offset240p
-    );
+    readVGAOffset();
+    forceI2CWrite(I2C_240P_OFFSET, Offset240p, I2C_240P_OFFSET, Offset240p);
+    forceI2CWrite(I2C_VGA_OFFSET, getEffectiveOffsetVGA(), I2C_VGA_OFFSET, getEffectiveOffsetVGA());
 }
 
 void setupUpscalingMode() {
@@ -1070,7 +1071,7 @@ void setup(void) {
     setupResetMode();
     setupOutputResolution();
     setupScanlines();
-    setup240pOffset();
+    setupOffsets();
     setupUpscalingMode();
     setupColorSpace();
     setupTaskManager();

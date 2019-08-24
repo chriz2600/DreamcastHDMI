@@ -201,6 +201,17 @@ void read240pOffset() {
     }
 }
 
+void readVGAOffset() {
+    char buffer[32] = "";
+    _readFile("/etc/vga/offset", buffer, 32, DEFAULT_VGA_OFFSET);
+    OffsetVGA = atoi(buffer);
+    if (OffsetVGA < 0) {
+        OffsetVGA = 0;
+    } else if (OffsetVGA > 255) {
+        OffsetVGA = 255;
+    }
+}
+
 void readUpscalingMode() {
     char buffer[32] = "";
     _readFile("/etc/upscaling/mode", buffer, 32, DEFAULT_UPSCALING_MODE);
@@ -223,6 +234,12 @@ void write240pOffset() {
     char buffer[32] = "";
     snprintf(buffer, 31, "%d", Offset240p);
     _writeFile("/etc/240p/offset", buffer, 32);
+}
+
+void writeVGAOffset() {
+    char buffer[32] = "";
+    snprintf(buffer, 31, "%d", OffsetVGA);
+    _writeFile("/etc/vga/offset", buffer, 32);
 }
 
 void writeUpscalingMode() {

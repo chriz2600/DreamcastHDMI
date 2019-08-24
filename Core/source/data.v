@@ -193,7 +193,7 @@ module data(
             end
 
             // recalculate counterX and counterY to match visible area
-            if (raw_counterX_reg == VISIBLE_AREA_HSTART + (add_line ? conf240p[7:0] : 0)) begin
+            if (raw_counterX_reg == VISIBLE_AREA_HSTART + (add_line ? conf240p[7:0] : line_doubler ? 0 : $signed(conf240p[15:8]))) begin
                 counterX_reg <= 0;
                 
                 if (raw_counterY_reg == VISIBLE_AREA_VSTART) begin
@@ -251,14 +251,14 @@ module data(
 
             // non black pixel detection
             if (nonBlackPixelReset) begin
-                nonBlackPos1_reg = 12'b111111111111;
-                nonBlackPos2_reg = 12'b000000000000;
+                nonBlackPos1_reg <= 12'b111111111111;
+                nonBlackPos2_reg <= 12'b000000000000;
+                nonBlackPos1_reg_q <= 12'b111111111111;
+                nonBlackPos2_reg_q <= 12'b000000000000;
             end else if (counterX_reg_q == VISIBLE_AREA_WIDTH - 1) begin
                 nonBlackPos1_reg_q <= nonBlackPos1_reg;
                 nonBlackPos2_reg_q <= nonBlackPos2_reg;
-            end
-
-            if ({ red_reg, green_reg, blue_reg } != 24'd0) begin
+            end else if ({ red_reg, green_reg, blue_reg } != 24'd0) begin
                 if (counterX_reg_q < nonBlackPos1_reg) begin
                     nonBlackPos1_reg <= counterX_reg_q;
                 end else if (counterX_reg_q > nonBlackPos2_reg) begin

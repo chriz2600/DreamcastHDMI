@@ -1,12 +1,15 @@
 #include "../global.h"
 #include "../Menu.h"
 
-extern uint8_t Offset240p;
+extern int8_t Offset240p;
+extern int8_t OffsetVGA;
 extern uint8_t UpscalingMode;
 extern uint8_t ColorSpace;
 
 void read240pOffset();
 void write240pOffset();
+void readVGAOffset();
+void writeVGAOffset();
 void readUpscalingMode();
 void writeUpscalingMode();
 void readColorSpace();
@@ -15,20 +18,24 @@ void readCurrentDeinterlaceMode();
 void writeCurrentDeinterlaceMode();
 void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler);
 void writeVideoOutputLine();
+int8_t getEffectiveOffsetVGA();
 
 Menu advancedVideoMenu("AdvancedVideoMenu", OSD_ADVANCED_VIDEO_MENU, MENU_AV_FIRST_SELECT_LINE, MENU_AV_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         // restore stored values
         read240pOffset();
+        readVGAOffset();
         readUpscalingMode();
         readColorSpace();
         readCurrentDeinterlaceMode();
-        fpgaTask.Write(I2C_240P_OFFSET, Offset240p, [](uint8_t Address, uint8_t Value) {
-            fpgaTask.Write(I2C_UPSCALING_MODE, UpscalingMode, [](uint8_t Address, uint8_t Value) {
-                fpgaTask.Write(I2C_COLOR_SPACE, ColorSpace, [](uint8_t Address, uint8_t Value) {
-                    safeSwitchResolution(CurrentResolution, [](uint8_t Address, uint8_t Value) {
-                        currentMenu = &mainMenu;
-                        currentMenu->Display();
+        fpgaTask.Write(I2C_VGA_OFFSET, getEffectiveOffsetVGA(), [](uint8_t Address, uint8_t Value) {
+            fpgaTask.Write(I2C_240P_OFFSET, Offset240p, [](uint8_t Address, uint8_t Value) {
+                fpgaTask.Write(I2C_UPSCALING_MODE, UpscalingMode, [](uint8_t Address, uint8_t Value) {
+                    fpgaTask.Write(I2C_COLOR_SPACE, ColorSpace, [](uint8_t Address, uint8_t Value) {
+                        safeSwitchResolution(CurrentResolution, [](uint8_t Address, uint8_t Value) {
+                            currentMenu = &mainMenu;
+                            currentMenu->Display();
+                        });
                     });
                 });
             });
@@ -52,6 +59,7 @@ Menu advancedVideoMenu("AdvancedVideoMenu", OSD_ADVANCED_VIDEO_MENU, MENU_AV_FIR
 
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         write240pOffset();
+        writeVGAOffset();
         writeUpscalingMode();
         writeColorSpace();
         writeCurrentDeinterlaceMode();
@@ -79,6 +87,34 @@ Menu advancedVideoMenu("AdvancedVideoMenu", OSD_ADVANCED_VIDEO_MENU, MENU_AV_FIR
                     char buffer[MENU_WIDTH] = "";
                     snprintf(buffer, 9, "%-8s", Value == 20 ? "On" : "Off");
                     fpgaTask.DoWriteToOSD(MENU_AV_COLUMN, MENU_OFFSET + MENU_AV_240POS, (uint8_t*) buffer);
+                });
+                break;
+            case MENU_AV_VGAPOS:
+                if (isRight) {
+                    if (OffsetVGA == 2) {
+                        OffsetVGA = 1; // special value means auto
+                    } else if (OffsetVGA == 1) {
+                        OffsetVGA = 0;
+                    } else if (OffsetVGA > -120) {
+                        OffsetVGA = OffsetVGA - 2;
+                    }
+                } else if (isLeft) {
+                    if (OffsetVGA == 0) {
+                        OffsetVGA = 1; // special value means auto
+                    } else if (OffsetVGA == 1) {
+                        OffsetVGA = 2;
+                    } else if (OffsetVGA < 120) {
+                        OffsetVGA = OffsetVGA + 2;
+                    }
+                }
+                fpgaTask.Write(I2C_VGA_OFFSET, getEffectiveOffsetVGA(), [](uint8_t Address, uint8_t Value) {
+                    char buffer[MENU_WIDTH] = "";
+                    if (OffsetVGA == 1) {
+                        snprintf(buffer, 9, "%-8s", "auto");
+                    } else {
+                        snprintf(buffer, 9, "%-8d", -(OffsetVGA / 2));
+                    }
+                    fpgaTask.DoWriteToOSD(MENU_AV_COLUMN, MENU_OFFSET + MENU_AV_VGAPOS, (uint8_t*) buffer);
                 });
                 break;
             case MENU_AV_COLOR_SPACE:
@@ -129,6 +165,12 @@ Menu advancedVideoMenu("AdvancedVideoMenu", OSD_ADVANCED_VIDEO_MENU, MENU_AV_FIR
     memcpy(&menu_text[MENU_AV_DEINT * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
     snprintf(buffer, 9, "%-8s", Offset240p == 20 ? "On" : "Off");
     memcpy(&menu_text[MENU_AV_240POS * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
+    if (OffsetVGA == 1) {
+        snprintf(buffer, 9, "%-8s", "auto");
+    } else {
+        snprintf(buffer, 9, "%-8d", -(OffsetVGA / 2));
+    }
+    memcpy(&menu_text[MENU_AV_VGAPOS * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
     switch (ColorSpace) {
         case COLOR_SPACE_AUTO:
             snprintf(buffer, 9, "%-8s", "auto");

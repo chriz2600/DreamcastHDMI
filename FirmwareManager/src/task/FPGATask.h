@@ -29,6 +29,8 @@ extern bool isRelaxedFirmware;
 extern uint8_t ForceVGA;
 extern uint8_t CurrentResolution;
 extern uint8_t CurrentResolutionData;
+extern int8_t OffsetVGA;
+extern int8_t AutoOffsetVGA;
 
 void switchResolution();
 void storeResolutionData(uint8_t data);
@@ -36,6 +38,7 @@ void enableFPGA();
 void startFPGAConfiguration();
 void endFPGAConfiguration();
 void reapplyFPGAConfig();
+uint8_t remapResolution(uint8_t resd);
 
 void setupI2C() {
     DEBUG(">> Setting up I2C master...\n");
@@ -144,6 +147,7 @@ class FPGATask : public Task {
         uint8_t repeatCount_keyb;
         bool GotError = false;
         uint8_t fpgaResetState = FPGA_RESET_INACTIVE;
+        uint8_t nbpState = 0;
 
         std::queue<osddata_t> osdqueue;
         std::queue<writedata_t> writequeue;
@@ -265,7 +269,7 @@ class FPGATask : public Task {
 
         void handleMetadata() {
             // update controller data and meta
-            uint8_t buffer[1];
+            uint8_t buffer[2];
             uint8_t buffer2[I2C_KEYBOARD_LENGTH];
             
             ///////////////////////////////////////////////////
@@ -324,6 +328,39 @@ class FPGATask : public Task {
             }
 
             memcpy(data_out_keyb, buffer2, I2C_KEYBOARD_LENGTH);
+
+            ///////////////////////////////////////////////////
+            // calculate offset
+            if (OffsetVGA == 1 && !(remapResolution(CurrentResolution) & RESOLUTION_DATA_LINE_DOUBLER)) {
+                if (nbpState == 15) {
+                    // trigger nbp data reset
+                    buffer[0] = I2C_NBP_RESET;
+                    buffer[1] = 0;
+                    brzo_i2c_write(buffer, 2, false);
+                    nbpState++;
+                } else if (nbpState == 31) {
+                    // read new nbp data
+                    buffer[0] = I2C_NBP_BASE;
+                    brzo_i2c_write(buffer, 1, false);
+                    brzo_i2c_read(buffer2, I2C_NBP_LENGTH, false);
+                    int nbp1 = (buffer2[0] << 4) | (buffer2[1] >> 4);
+                    int nbp2 = ((buffer2[1] & 0xF) << 8) | buffer2[2];
+                    int8_t offset = AutoOffsetVGA;
+
+                    if (nbp2 - nbp1 == 639) {
+                        offset = offset + ((nbp1 - VGA_REFERENCE_POSITION) * 2);
+
+                        if (offset != AutoOffsetVGA) {
+                            DEBUG2("New VGA offset: %d/%d %dx%d/%dx%d\n", AutoOffsetVGA, offset, nbp1, nbp2, nbp1 - (offset / 2), nbp2 - (offset / 2));
+                            AutoOffsetVGA = offset;
+                            Write(I2C_VGA_OFFSET, AutoOffsetVGA);
+                        }
+                    }
+                    nbpState = 0;
+                } else {
+                    nbpState++;
+                }
+            }
         }
 
         bool compareData(uint8_t *d1, uint8_t *d2, uint8_t len) {

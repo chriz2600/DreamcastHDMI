@@ -263,15 +263,19 @@ always @(posedge clk) begin
             scanline_reg.thickness <= dataIn[6];
             scanline_reg.oddeven <= dataIn[5];
             scanline_reg.active <= dataIn[4];
-        // 240p config
+        // 240p offset config
         end else if (addr == 8'h90) begin
-            conf240p_reg <= { 16'd0, dataIn };
+            conf240p_reg <= { conf240p_reg[23:8], dataIn };
         end else if (addr == 8'h91) begin
             activateHDMIoutput_reg <= dataIn[0];
         end else if (addr == 8'h92) begin
             hq2x_reg <= dataIn[0];
         end else if (addr == 8'h93) begin
             colorspace_reg <= dataIn[1:0];
+        // VGA offset config
+        end else if (addr == 8'h94) begin
+            conf240p_reg <= { conf240p_reg[23:16], dataIn, conf240p_reg[7:0] };
+            nonBlackPixelReset_reg <= 1'b1; // reset counters after setting new offset
         // clock_config_data
         end else if (addr == 8'hD0) begin
             clock_config_data_reg <= dataIn;

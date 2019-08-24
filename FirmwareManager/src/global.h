@@ -33,6 +33,7 @@
 #define DEFAULT_SCANLINES_ACTIVE SCANLINES_DISABLED
 #define DEFAULT_SCANLINES_INTENSITY "175"
 #define DEFAULT_240P_OFFSET "0"
+#define DEFAULT_VGA_OFFSET "0"
 #define DEFAULT_UPSCALING_MODE "0"
 #define DEFAULT_COLOR_SPACE "0"
 #define DEFAULT_SCANLINES_ODDEVEN SCANLINES_EVEN
@@ -135,6 +136,7 @@
 #define I2C_ACTIVATE_HDMI (0x91)
 #define I2C_UPSCALING_MODE (0x92)
 #define I2C_COLOR_SPACE (0x93)
+#define I2C_VGA_OFFSET (0x94)
 #define I2C_KEYBOARD_BASE (0xE0)
 #define I2C_DC_RESET (0xF0)
 #define I2C_OPT_RESET (0xF1)
@@ -145,6 +147,10 @@
 
 #define I2C_RECOVER_TRIES 100000
 #define I2C_RECOVER_RETRY_INTERVAL_US 200
+
+// nbp data
+#define I2C_NBP_BASE (0xC3)
+#define I2C_NBP_LENGTH 3
 
 // controller and data
 #define I2C_CONTROLLER_AND_DATA_BASE_LENGTH 3
@@ -265,5 +271,7 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 #define OSD_RESOLUTION(res) sprintf(data, res "%s", isRelaxedFirmware && UpscalingMode == UPSCALING_MODE_HQ2X && !(CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER) ? " HQ" : "");
 
 #define MENU_SPACER "\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07\x07"
+
+#define VGA_REFERENCE_POSITION 52
 
 #endif

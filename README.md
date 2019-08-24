@@ -8,6 +8,17 @@
 
 - ESP firmware is now built using PlatformIO 4.0.0
 
+- ESP: Redone I2C command scheduling and moved OSD menus to the progmem area to free up heap memory.
+
+- Fixed the following bugs:
+
+    - [Issue #4: 31KHz 480p output has display area shifted left](https://github.com/chriz2600/DreamcastHDMI/issues/4)
+
+        Horizontal position for VGA can now be set in the OSD (Advanced Video Settings). There is also an *auto* option which detects the correct position, if a image with non-black pixels on the edges is detected.<br>
+        *Default position (0) is now correct for almost all commercial games*
+
+    **Big thanks to [rdaviesuk](https://github.com/rdaviesuk) for reporting!**
+
 - [Keyboard support to control DCHDMI OSD](Keyboard.md)
 
 #### 2019-08-09 *Firmware v3.0.4* (*Relaxed*)

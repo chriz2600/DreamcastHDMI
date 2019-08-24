@@ -228,22 +228,15 @@ module DCxPlus(
     /////////////////////////////////
     // 54/27 MHz area
 
-    data_cross video_gen_data_cross(
-        .clkIn(control_clock),
-        .clkOut(clock54_net),
-        .dataIn(video_gen_data),
-        .dataOut({ 6'bzzzzzz, generate_video, generate_timing })
-    );
-
     wire [7:0] reconf_data_clock54;
 
     data_cross #(
-        .WIDTH($bits(DCVideoConfig) + 3)
+        .WIDTH($bits(DCVideoConfig) + 3 + $bits(conf240p) + $bits(video_gen_data))
     ) dcVideoConfig_cross(
         .clkIn(control_clock),
         .clkOut(clock54_net),
-        .dataIn({ _dcVideoConfig, _config_changed, line_doubler_sync2, _nonBlackPixelReset }),
-        .dataOut({ dcVideoConfig, config_changed, _240p_480i_mode, nonBlackPixelReset })
+        .dataIn({ _dcVideoConfig, _config_changed, line_doubler_sync2, _nonBlackPixelReset, conf240p, video_gen_data }),
+        .dataOut({ dcVideoConfig, config_changed, _240p_480i_mode, nonBlackPixelReset, conf240p_out, { 6'bzzzzzz, generate_video, generate_timing } })
     );
 
     dc_video_reconfig dc_video_configurator(
@@ -434,15 +427,6 @@ module DCxPlus(
         .clkOut(control_clock),
         .dataIn({ pinok, timingInfo, rgbData, nonBlackPos1, nonBlackPos2 }),
         .dataOut({ pinok_out, timingInfo_out, rgbData_out, nonBlackPos1_out, nonBlackPos2_out })
-    );
-
-    data_cross #(
-        .WIDTH(24)
-    ) conf240p_cross(
-        .clkIn(control_clock),
-        .clkOut(clock54_net),
-        .dataIn(conf240p),
-        .dataOut(conf240p_out)
     );
 
     Signal_CrossDomain addLine(
