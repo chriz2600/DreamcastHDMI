@@ -606,6 +606,14 @@ void setupHTTPServer() {
         resetall();
     });
 
+    server.on("/reset/pll", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        fpgaTask.Write(I2C_PLL_RESET, 0, NULL);
+        request->send(200, "text/plain", "OK\n");
+    });
+
     server.on("/issetupmode", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
@@ -878,7 +886,7 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        fpgaTask.Write(I2C_RESET_NBP, 0x01, [](uint8_t Address, uint8_t Value) {
+        fpgaTask.Write(I2C_NBP_RESET, 0x01, [](uint8_t Address, uint8_t Value) {
             DEBUG2("nbp reset.\n");
         });
         request->send(200, "text/plain", "OK\n");
@@ -1040,6 +1048,7 @@ void printSerialMenu() {
     DEBUG2("f: re-flash fpga firmware\n");
     DEBUG2("i: show info\n");
     DEBUG2("r: reset visible area counters\n");
+    DEBUG2("p: reset PLL\n");
     DEBUG2("t: show visible area counters\n");
     DEBUG2("o: activate OTA update\n");
     DEBUG2("h: print this menu\n");
@@ -1109,8 +1118,12 @@ void loop(void){
             showInfo();
         } else if (incomingByte == 'h') {
             printSerialMenu();
+        } else if (incomingByte == 'p') {
+            fpgaTask.Write(I2C_PLL_RESET, 0, [](uint8_t Address, uint8_t Value) {
+                DEBUG2("pll reset.\n");
+            });
         } else if (incomingByte == 'r') {
-            fpgaTask.Write(I2C_RESET_NBP, 0x01, [](uint8_t Address, uint8_t Value) {
+            fpgaTask.Write(I2C_NBP_RESET, 0, [](uint8_t Address, uint8_t Value) {
                 DEBUG2("nbp reset.\n");
             });
         } else if (incomingByte == 't') {

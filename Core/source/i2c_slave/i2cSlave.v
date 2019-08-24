@@ -85,7 +85,8 @@ module i2cSlave (
   output [7:0] clock_config_data,
   input [11:0] nonBlackPos1,
   input [11:0] nonBlackPos2,
-  output nonBlackPixelReset
+  output nonBlackPixelReset,
+  output resetpll
 );
 
 // local wires and regs
@@ -225,7 +226,8 @@ registerInterface u_registerInterface(
     .clock_config_data(clock_config_data),
     .nonBlackPos1(nonBlackPos1),
     .nonBlackPos2(nonBlackPos2),
-    .nonBlackPixelReset(nonBlackPixelReset)
+    .nonBlackPixelReset(nonBlackPixelReset),
+    .resetpll(resetpll)
 );
 
 serialInterface u_serialInterface (

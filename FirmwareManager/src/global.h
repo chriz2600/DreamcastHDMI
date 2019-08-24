@@ -139,7 +139,8 @@
 #define I2C_DC_RESET (0xF0)
 #define I2C_OPT_RESET (0xF1)
 #define I2C_RESET_CONF (0xF2)
-#define I2C_RESET_NBP (0xF3)
+#define I2C_NBP_RESET (0xF3)
+#define I2C_PLL_RESET (0xF4)
 #define I2C_PING (0xFF)
 
 #define I2C_RECOVER_TRIES 100000

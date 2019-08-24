@@ -138,6 +138,8 @@ module DCxPlus(
     wire [11:0] nonBlackPos2;
     wire [11:0] nonBlackPos1_out;
     wire [11:0] nonBlackPos2_out;
+    
+    wire resetpll;
 
     assign clock54_out = clock54_net;
 
@@ -160,7 +162,7 @@ module DCxPlus(
     // PLLs
     pll54 pll54(
         .inclk0(clock54),
-        .areset(0 /*pll54_lockloss*/),
+        .areset(resetpll),
         .c0(clock54_net),
         .locked(pll54_locked)
     );
@@ -631,7 +633,8 @@ module DCxPlus(
         .clock_config_data(clock_config_data),
         .nonBlackPos1(nonBlackPos1_out),
         .nonBlackPos2(nonBlackPos2_out),
-        .nonBlackPixelReset(_nonBlackPixelReset)
+        .nonBlackPixelReset(_nonBlackPixelReset),
+        .resetpll(resetpll)
     );
 
     maple mapleBus(
