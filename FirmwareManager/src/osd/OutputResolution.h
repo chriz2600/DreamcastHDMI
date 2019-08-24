@@ -65,7 +65,7 @@ void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler) {
     });
 }
 
-Menu outputResSaveMenu("OutputResSaveMenu", (uint8_t*) OSD_OUTPUT_RES_SAVE_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+Menu outputResSaveMenu("OutputResSaveMenu", OSD_OUTPUT_RES_SAVE_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         taskManager.StopTask(&timeoutTask);
         safeSwitchResolution(PrevCurrentResolution, [](uint8_t Address, uint8_t Value){
@@ -102,7 +102,7 @@ Menu outputResSaveMenu("OutputResSaveMenu", (uint8_t*) OSD_OUTPUT_RES_SAVE_MENU,
 
 ///////////////////////////////////////////////////////////////////
 
-Menu outputResMenu("OutputResMenu", (uint8_t*) OSD_OUTPUT_RES_MENU, MENU_OR_FIRST_SELECT_LINE, MENU_OR_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+Menu outputResMenu("OutputResMenu", OSD_OUTPUT_RES_MENU, MENU_OR_FIRST_SELECT_LINE, MENU_OR_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         currentMenu = &mainMenu;
         currentMenu->Display();

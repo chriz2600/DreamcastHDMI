@@ -22,7 +22,7 @@ extern uint8_t CurrentProtectedMode;
 void closeOSD();
 void waitForI2CRecover(bool waitForError);
 
-Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, MENU_M_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+Menu mainMenu("MainMenu", OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, MENU_M_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         currentMenu->StoreMenuActiveLine(MENU_M_FIRST_SELECT_LINE);
         closeOSD();
@@ -80,7 +80,7 @@ Menu mainMenu("MainMenu", (uint8_t*) OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, ME
     return menu_activeLine;
 }, NULL, true);
 
-Menu dcResetConfirmMenu("DCResetConfirm", (uint8_t*) OSD_DC_RESET_CONFIRM_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+Menu dcResetConfirmMenu("DCResetConfirm", OSD_DC_RESET_CONFIRM_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, CTRLR_BUTTON_Y)) {
         DEBUG("full reset dreamcast!!!!! %x\n", controller_data);
         resetall();
@@ -106,7 +106,7 @@ Menu dcResetConfirmMenu("DCResetConfirm", (uint8_t*) OSD_DC_RESET_CONFIRM_MENU, 
     }
 }, NULL, NULL, true);
 
-Menu optResetConfirmMenu("OptResetConfirm", (uint8_t*) OSD_OPT_RESET_CONFIRM_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+Menu optResetConfirmMenu("OptResetConfirm", OSD_OPT_RESET_CONFIRM_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
         DEBUG("secondary reset!!!!! %x\n", controller_data);
         currentMenu->startTransaction();

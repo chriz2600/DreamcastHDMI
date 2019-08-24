@@ -9,7 +9,7 @@ extern Menu fpgaFlashMenu;
 extern Menu firmwareResetMenu;
 extern Menu *previousMenu;
 
-Menu firmwareMenu("FirmwareMenu", (uint8_t*) OSD_FIRMWARE_MENU, MENU_FW_FIRST_SELECT_LINE, MENU_FW_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+Menu firmwareMenu("FirmwareMenu", OSD_FIRMWARE_MENU, MENU_FW_FIRST_SELECT_LINE, MENU_FW_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         currentMenu->StoreMenuActiveLine(MENU_FW_FIRST_SELECT_LINE);
         currentMenu = &mainMenu;

@@ -19,7 +19,7 @@ char wifiEdit_Value[MENU_WIDTH];
 uint8_t wifiEdit_CursorPos = 0;
 uint8_t wifiEdit_activeLine = NO_SELECT_LINE;
 
-Menu wifiMenu("WiFiMenu", (uint8_t*) OSD_WIFI_MENU, MENU_WIFI_FIRST_SELECT_LINE, MENU_WIFI_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+Menu wifiMenu("WiFiMenu", OSD_WIFI_MENU, MENU_WIFI_FIRST_SELECT_LINE, MENU_WIFI_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         showPW = false;
         currentMenu = &mainMenu;
@@ -121,7 +121,7 @@ void rtrim(char *str) {
 
 ///////////////////////////////////////////////////////////////////
 
-Menu wifiEditMenu("WiFiEditMenu", (uint8_t*) OSD_WIFI_EDIT_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+Menu wifiEditMenu("WiFiEditMenu", OSD_WIFI_EDIT_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         currentMenu = &wifiMenu;
         currentMenu->Display();

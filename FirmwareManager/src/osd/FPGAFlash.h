@@ -15,7 +15,7 @@ void readStoredMD5SumFlash(int pos, bool force, const char* fname, char* md5sum)
 void checkStoredMD5SumFlash(int pos, bool force, int line, const char* fname, char* storedMD5Sum, char* serverMD5Sum);
 ProgressCallback createFPGAFlashProgressCallback(int pos, bool force, int line);
 
-Menu fpgaFlashMenu("FPGAFlashMenu", (uint8_t*) OSD_FIRMWARE_CONFIG_RECONFIG_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+Menu fpgaFlashMenu("FPGAFlashMenu", OSD_FIRMWARE_CONFIG_RECONFIG_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         _readFile("/etc/firmware_variant", firmwareVariant, 64, DEFAULT_FW_VARIANT);
         currentMenu = &firmwareConfigMenu;

@@ -16,7 +16,7 @@ void writeCurrentDeinterlaceMode();
 void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler);
 void writeVideoOutputLine();
 
-Menu advancedVideoMenu("AdvancedVideoMenu", (uint8_t*) OSD_ADVANCED_VIDEO_MENU, MENU_AV_FIRST_SELECT_LINE, MENU_AV_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+Menu advancedVideoMenu("AdvancedVideoMenu", OSD_ADVANCED_VIDEO_MENU, MENU_AV_FIRST_SELECT_LINE, MENU_AV_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         // restore stored values
         read240pOffset();

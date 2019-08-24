@@ -33,7 +33,7 @@
 #define MENU_M_INF 8
 #define MENU_M_FIRST_SELECT_LINE 2
 #define MENU_M_LAST_SELECT_LINE MENU_M_INF
-char OSD_MAIN_MENU[521] = (
+static const char OSD_MAIN_MENU[521] PROGMEM = (
     "Main Menu                               "
     "                                        "
     "- Output Resolution                     "
@@ -51,7 +51,7 @@ char OSD_MAIN_MENU[521] = (
 
 #define MENU_OR_LAST_SELECT_LINE 5
 #define MENU_OR_FIRST_SELECT_LINE (MENU_OR_LAST_SELECT_LINE-3)
-char OSD_OUTPUT_RES_MENU[521] = (
+static const char OSD_OUTPUT_RES_MENU[521] PROGMEM = (
     "Output Resolution                       "
     "                                        "
     "- VGA                                   "
@@ -75,7 +75,7 @@ char OSD_OUTPUT_RES_MENU[521] = (
 #define MENU_AV_FIRST_SELECT_LINE 2
 #define MENU_AV_LAST_SELECT_LINE MENU_AV_UPSCALING_MODE
 #define MENU_AV_STD_LINE_OFFSET 1
-char OSD_ADVANCED_VIDEO_MENU[521] = (
+static const char OSD_ADVANCED_VIDEO_MENU[521] PROGMEM = (
     "Advanced Video Settings                 "
     "                                        "
     "- Deinterlacer:         _______         "
@@ -92,7 +92,7 @@ char OSD_ADVANCED_VIDEO_MENU[521] = (
 );
 
 #define MENU_SS_RESULT_LINE 4
-char OSD_OUTPUT_RES_SAVE_MENU[521] = (
+static const char OSD_OUTPUT_RES_SAVE_MENU[521] PROGMEM = (
     "Output Resolution                       "
     "                                        "
     "         Keep this resolution?          "
@@ -113,7 +113,7 @@ char OSD_OUTPUT_RES_SAVE_MENU[521] = (
 #define MENU_VM_SWITCH_TRICK_LINE 4
 #define MENU_VM_FIRST_SELECT_LINE 2
 #define MENU_VM_LAST_SELECT_LINE 4
-char OSD_VIDEO_MODE_MENU[521] = (
+static const char OSD_VIDEO_MODE_MENU[521] PROGMEM = (
     "Video Mode Settings                     "
     "                                        "
     "- Force VGA                             "
@@ -129,7 +129,7 @@ char OSD_VIDEO_MODE_MENU[521] = (
     "          " MENU_OK_STR ": Save  " MENU_CANCEL_STR ": Cancel            "
 );
 
-char OSD_VIDEO_MODE_SAVE_MENU[521] = (
+static const char OSD_VIDEO_MODE_SAVE_MENU[521] PROGMEM = (
     "Video Mode Settings                     "
     "                                        "
     "    Apply changes and reset console?    "
@@ -145,7 +145,7 @@ char OSD_VIDEO_MODE_SAVE_MENU[521] = (
     "         " MENU_OK_STR ": Reset  " MENU_CANCEL_STR ": Not now           "
 );
 
-char OSD_DC_RESET_CONFIRM_MENU[521] = (
+static const char OSD_DC_RESET_CONFIRM_MENU[521] PROGMEM = (
     "Reset Dreamcast                         "
     "                                        "
     "      Do you really want to reset       "
@@ -161,7 +161,7 @@ char OSD_DC_RESET_CONFIRM_MENU[521] = (
     "         " MENU_OK_STR ": Reset  " MENU_CANCEL_STR ": Not now           "
 );
 
-char OSD_OPT_RESET_CONFIRM_MENU[521] = (
+static const char OSD_OPT_RESET_CONFIRM_MENU[521] PROGMEM = (
     "GDEMU button                            "
     "                                        "
     "      Do you really want to press       "
@@ -184,7 +184,7 @@ char OSD_OPT_RESET_CONFIRM_MENU[521] = (
 #define MENU_FW_RESET_LINE 6
 #define MENU_FW_FIRST_SELECT_LINE 2
 #define MENU_FW_LAST_SELECT_LINE 6
-char OSD_FIRMWARE_MENU[521] = (
+static const char OSD_FIRMWARE_MENU[521] PROGMEM = (
     "Firmware                                "
     "                                        "
     "- Configure                             "
@@ -204,7 +204,7 @@ char OSD_FIRMWARE_MENU[521] = (
 #define MENU_FWCONF_FIRST_SELECT_LINE 2
 #define MENU_FWCONF_LAST_SELECT_LINE 2
 #define MENU_FWCONF_COLUMN 20
-char OSD_FIRMWARE_CONFIG_MENU[521] = (
+static const char OSD_FIRMWARE_CONFIG_MENU[521] PROGMEM = (
     "Configure Firmware                      "
     "                                        "
     "- Firmware Flavour: ___________         "
@@ -222,7 +222,7 @@ char OSD_FIRMWARE_CONFIG_MENU[521] = (
 
 #define MENU_FWCONF_RECONF_FPGA_LINE 5
 #define MENU_FWCONF_RECONF_RESULT_LINE 7
-char OSD_FIRMWARE_CONFIG_RECONFIG_MENU[521] = (
+static const char OSD_FIRMWARE_CONFIG_RECONFIG_MENU[521] PROGMEM = (
     "Switch firmware flavour                 "
     "                                        "
     "   FPGA will be flashed with selected   "
@@ -238,7 +238,7 @@ char OSD_FIRMWARE_CONFIG_RECONFIG_MENU[521] = (
     "          " MENU_OK_STR ": Switch  " MENU_CANCEL_STR ": Cancel          "
 );
 
-char OSD_FIRMWARE_TRANSITIONAL_MENU[521] = (
+static const char OSD_FIRMWARE_TRANSITIONAL_MENU[521] PROGMEM = (
     "Transitional firmware detected          "
     "                                        "
     "    You recently updated your DCHDMI    "
@@ -260,7 +260,7 @@ char OSD_FIRMWARE_TRANSITIONAL_MENU[521] = (
 #define MENU_FWC_INDEXHTML_LINE 6
 #define MENU_FWC_CHANGELOG_LINE 7
 #define MENU_FWC_RESULT_LINE 9
-char OSD_FIRMWARE_CHECK_MENU[521] = (
+static const char OSD_FIRMWARE_CHECK_MENU[521] PROGMEM = (
     "Check Firmware                          "
     "                                        "
     "Check, if newer firmware is available.  "
@@ -280,7 +280,7 @@ char OSD_FIRMWARE_CHECK_MENU[521] = (
 #define MENU_FWD_ESP_LINE 5
 #define MENU_FWD_INDEXHTML_LINE 6
 #define MENU_FWD_RESULT_LINE 8
-char OSD_FIRMWARE_DOWNLOAD_MENU[521] = (
+static const char OSD_FIRMWARE_DOWNLOAD_MENU[521] PROGMEM = (
     "Download Firmware                       "
     "                                        "
     "Download firmware files.                "
@@ -300,7 +300,7 @@ char OSD_FIRMWARE_DOWNLOAD_MENU[521] = (
 #define MENU_FWF_ESP_LINE 5
 #define MENU_FWF_INDEXHTML_LINE 6
 #define MENU_FWF_RESULT_LINE 8
-char OSD_FIRMWARE_FLASH_MENU[521] = (
+static const char OSD_FIRMWARE_FLASH_MENU[521] PROGMEM = (
     "Flash Firmware                          "
     "                                        "
     "Flash downloaded firmware files.        "
@@ -316,7 +316,7 @@ char OSD_FIRMWARE_FLASH_MENU[521] = (
     MENU_START_LINE
 );
 
-char OSD_FIRMWARE_RESET_MENU[521] = (
+static const char OSD_FIRMWARE_RESET_MENU[521] PROGMEM = (
     "Restart Firmware                        "
     "                                        "
     "           Restart DCHDMI?              "
@@ -339,7 +339,7 @@ char OSD_FIRMWARE_RESET_MENU[521] = (
 #define MENU_SL_FIRST_SELECT_LINE 2
 #define MENU_SL_LAST_SELECT_LINE 5
 #define MENU_SL_COLUMN 12
-char OSD_SCANLINES_MENU[521] = (
+static const char OSD_SCANLINES_MENU[521] PROGMEM = (
     "Scanlines                               "
     "                                        "
     "- On/Off:    _____                      "
@@ -357,7 +357,7 @@ char OSD_SCANLINES_MENU[521] = (
 
 #define MENU_INF_RESULT_LINE 2
 #define MENU_INF_RESULT_HEIGHT 9
-char OSD_INFO_MENU[521] = (
+static const char OSD_INFO_MENU[521] PROGMEM = (
     "Test/Info                               "
     "                                        "
     "                                        "
@@ -375,7 +375,7 @@ char OSD_INFO_MENU[521] = (
 
 #define MENU_CHNGL_RESULT_LINE 2
 #define MENU_CHNGL_RESULT_HEIGHT 9
-char OSD_CHANGELOG_MENU[521] = (
+static const char OSD_CHANGELOG_MENU[521] PROGMEM = (
     "Changelog                               "
     "----------------------------------------"
     "                                        "
@@ -396,7 +396,7 @@ char OSD_CHANGELOG_MENU[521] = (
 #define MENU_RST_USB_GDROM_LINE 4
 #define MENU_RST_FIRST_SELECT_LINE 2
 #define MENU_RST_LAST_SELECT_LINE 4
-char OSD_RESET_MENU[521] = (
+static const char OSD_RESET_MENU[521] PROGMEM = (
     "Reset Options                           "
     "                                        "
     "- LED                                   "
@@ -417,7 +417,7 @@ char OSD_RESET_MENU[521] = (
 #define MENU_WIFI_RESTART_LINE 4
 #define MENU_WIFI_FIRST_SELECT_LINE 2
 #define MENU_WIFI_LAST_SELECT_LINE MENU_WIFI_RESTART_LINE
-char OSD_WIFI_MENU[521] = (
+static const char OSD_WIFI_MENU[521] PROGMEM = (
     "WiFi Setup                              "
     "                                        "
     "- SSID:     ___________________________ "
@@ -436,7 +436,7 @@ char OSD_WIFI_MENU[521] = (
 #define MENU_WIFI_EDIT_NAME_LINE 2
 #define MENU_WIFI_EDIT_VALUE_LINE 3
 #define MENU_WIFI_EDIT_CURSOR_LINE 4
-char OSD_WIFI_EDIT_MENU[521] = (
+static const char OSD_WIFI_EDIT_MENU[521] PROGMEM = (
     "WiFi Setup Edit                         "
     "                                        "
     " ______________________________________ "
@@ -459,10 +459,12 @@ typedef std::function<uint8_t(uint8_t* menu_text, uint8_t menu_activeLine)> PreD
 extern FPGATask fpgaTask;
 bool OSDOpen = false;
 
+uint8_t Menu_OSD_buffer[521];
+
 class Menu
 {
   public:
-    Menu(const char* name, uint8_t* menu, uint8_t first_line, uint8_t last_line, ClickHandler handler, PreDisplayHook pre_hook, WriteCallbackHandlerFunction display_callback, bool autoUpDown) :
+    Menu(const char* name, PGM_P menu, uint8_t first_line, uint8_t last_line, ClickHandler handler, PreDisplayHook pre_hook, WriteCallbackHandlerFunction display_callback, bool autoUpDown) :
         name(name),
         menu_text(menu),
         first_line(first_line),
@@ -476,7 +478,7 @@ class Menu
         kHandler(NULL)
     { };
 
-    Menu(const char* name, uint8_t* menu, uint8_t first_line, uint8_t last_line, ClickHandler handler, PreDisplayHook pre_hook, WriteCallbackHandlerFunction display_callback, bool autoUpDown, KeyboardHandler kHandler) :
+    Menu(const char* name, PGM_P menu, uint8_t first_line, uint8_t last_line, ClickHandler handler, PreDisplayHook pre_hook, WriteCallbackHandlerFunction display_callback, bool autoUpDown, KeyboardHandler kHandler) :
         name(name),
         menu_text(menu),
         first_line(first_line),
@@ -507,10 +509,12 @@ class Menu
     }
 
     void Display() {
+        // copy contents from flash to buffer
+        memcpy_P(Menu_OSD_buffer, menu_text, 521);
         if (pre_hook != NULL) {
-            menu_activeLine = pre_hook(menu_text, menu_activeLine);
+            menu_activeLine = pre_hook(Menu_OSD_buffer, menu_activeLine);
         }
-        fpgaTask.DoWriteToOSD(0, 9, menu_text, [&]() {
+        fpgaTask.DoWriteToOSD(0, 9, Menu_OSD_buffer, [&]() {
             //DEBUG("%i %i\n", menu_activeLine, MENU_OFFSET + menu_activeLine);
             fpgaTask.Write(I2C_OSD_ACTIVE_LINE, MENU_OFFSET + menu_activeLine, display_callback);
         });
@@ -573,14 +577,9 @@ class Menu
         return 0;
     }
 
-
-    uint8_t* GetMenuText() {
-        return menu_text;
-    }
-
 private:
     const char* name;
-    uint8_t* menu_text;
+    PGM_P menu_text;
     uint8_t first_line;
     uint8_t last_line;
     ClickHandler handler;

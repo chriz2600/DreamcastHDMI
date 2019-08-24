@@ -37,7 +37,7 @@ ProgressCallback createCheckProgressCallback(int pos, int line) {
     };
 }
 
-Menu firmwareCheckMenu("FirmwareCheckMenu", (uint8_t*) OSD_FIRMWARE_CHECK_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+Menu firmwareCheckMenu("FirmwareCheckMenu", OSD_FIRMWARE_CHECK_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         currentMenu = &firmwareMenu;
         currentMenu->Display();

@@ -18,7 +18,7 @@ uint8_t getScanlinesUpperPart();
 uint8_t getScanlinesLowerPart();
 void setScanlines(uint8_t upper, uint8_t lower, WriteCallbackHandlerFunction handler);
 
-Menu scanlinesMenu("ScanlinesMenu", (uint8_t*) OSD_SCANLINES_MENU, MENU_SL_FIRST_SELECT_LINE, MENU_SL_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+Menu scanlinesMenu("ScanlinesMenu", OSD_SCANLINES_MENU, MENU_SL_FIRST_SELECT_LINE, MENU_SL_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
         // restoreScanlines
         readScanlinesActive();
