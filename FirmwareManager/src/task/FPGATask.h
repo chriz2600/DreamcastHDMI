@@ -19,6 +19,9 @@
 #define FPGA_RESET_STAGE2 2
 #define FPGA_RESET_END 255
 
+#define NBP_STATE_RESET 31
+#define NBP_STATE_CHECK 63
+
 typedef std::function<void(uint16_t controller_data, bool isRepeat)> FPGAEventHandlerFunction;
 typedef std::function<void(uint8_t shiftcode, uint8_t chardata, bool isRepeat)> FPGAKeyboardHandlerFunction;
 typedef std::function<void(uint8_t Address, uint8_t Value)> WriteCallbackHandlerFunction;
@@ -332,13 +335,13 @@ class FPGATask : public Task {
             ///////////////////////////////////////////////////
             // calculate offset
             if (OffsetVGA == 1 && !(remapResolution(CurrentResolution) & RESOLUTION_DATA_LINE_DOUBLER)) {
-                if (nbpState == 15) {
+                if (nbpState == NBP_STATE_RESET) {
                     // trigger nbp data reset
                     buffer[0] = I2C_NBP_RESET;
                     buffer[1] = 0;
                     brzo_i2c_write(buffer, 2, false);
                     nbpState++;
-                } else if (nbpState == 31) {
+                } else if (nbpState == NBP_STATE_CHECK) {
                     // read new nbp data
                     buffer[0] = I2C_NBP_BASE;
                     brzo_i2c_write(buffer, 1, false);
