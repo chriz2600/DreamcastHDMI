@@ -683,7 +683,7 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        ESP.eraseConfig();
+        //ESP.eraseConfig();
         ESP.restart();
     });
 
@@ -1047,7 +1047,7 @@ void printSerialMenu() {
 }
 
 void setup(void) {
-    ESP.eraseConfig();
+    //ESP.eraseConfig();
     DBG_OUTPUT_PORT.begin(115200);
     DEBUG2("\n>> FirmwareManager starting... " DCHDMI_VERSION "\n");
     DEBUG2(">> %s\n", ESP.getFullVersion().c_str());
