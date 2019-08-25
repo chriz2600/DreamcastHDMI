@@ -46,6 +46,11 @@ module adv7513_reconfig (
                     7'h02: adv7513Config_reg <= ADV7513_CONFIG_480P;
                     7'h03: adv7513Config_reg <= ADV7513_CONFIG_VGA;
 
+                    7'h04: adv7513Config_reg <= ADV7513_CONFIG_288P;
+                    7'h05: adv7513Config_reg <= ADV7513_CONFIG_288P;
+                    7'h06: adv7513Config_reg <= ADV7513_CONFIG_288P;
+                    7'h07: adv7513Config_reg <= ADV7513_CONFIG_288P;
+
                     7'h08: adv7513Config_reg <= ADV7513_CONFIG_576P;
                     7'h09: adv7513Config_reg <= ADV7513_CONFIG_576P;
                     7'h0A: adv7513Config_reg <= ADV7513_CONFIG_576P;

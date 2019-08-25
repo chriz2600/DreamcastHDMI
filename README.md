@@ -10,7 +10,7 @@
 
 - ESP: Redone I2C command scheduling and moved OSD menus to the progmem area to free up heap memory.
 
-- Fixed the following bugs:
+- Fixed the following bug:
 
     - [Issue #4: 31KHz 480p output has display area shifted left](https://github.com/chriz2600/DreamcastHDMI/issues/4)
 
@@ -18,6 +18,18 @@
         *Default position (0) is now correct for almost all commercial games*
 
     **Big thanks to [rdaviesuk](https://github.com/rdaviesuk) for reporting!**
+
+- Added the following features:
+
+    - [Issue #5: Please add support for PAL 288p video output](https://github.com/chriz2600/DreamcastHDMI/issues/5)
+
+        288p is now supported.
+
+    - [Issue #6: Please allow differing deinterlacing method for 480i/576i](https://github.com/chriz2600/DreamcastHDMI/issues/6)
+
+        Deinterlacing can now be configured for 480i/576i separately.
+
+    **Thanks again, [rdaviesuk](https://github.com/rdaviesuk) for reporting!**
 
 - [Keyboard support to control DCHDMI OSD](Keyboard.md)
 

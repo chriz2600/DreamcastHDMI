@@ -20,6 +20,7 @@ void writeCurrentResolution();
 void waitForI2CRecover(bool waitForError);
 uint8_t cfgRes2Int(char* intResolution);
 uint8_t remapResolution(uint8_t resd);
+void _osd_get_resolution(uint8_t res, char* data);
 void osd_get_resolution(char* buffer);
 uint8_t getScanlinesUpperPart();
 uint8_t getScanlinesLowerPart();
@@ -34,15 +35,19 @@ void writeVideoOutputLine() {
 }
 
 void switchResolution(uint8_t newValue) {
+    char data[16];
     CurrentResolution = mapResolution(newValue);
-    DEBUG1("   switchResolution: %02x -> %02x\n", newValue, CurrentResolution);
+    _osd_get_resolution(CurrentResolution, data);
+    DEBUG1("   switchResolution: %02x -> %02x (%s)\n", newValue, CurrentResolution, data);
     fpgaTask.Write(I2C_OUTPUT_RESOLUTION, ForceVGA | CurrentResolution, [](uint8_t Address, uint8_t Value) {
         writeVideoOutputLine();
     });
 }
 
 void switchResolution() {
-    DEBUG1("CurrentResolution: %02x\n", CurrentResolution);
+    char data[16];
+    _osd_get_resolution(CurrentResolution, data);
+    DEBUG1("CurrentResolution: %02x (%s)\n", CurrentResolution, data);
     switchResolution(CurrentResolution);
 }
 
@@ -157,14 +162,18 @@ void storeResolutionData(uint8_t data) {
 
 uint8_t remapResolution(uint8_t resd) {
     // only store base data
-    return (resd & 0x07);
+    return (resd & 0x03);
 }
 
 uint8_t mapResolution(uint8_t resd, bool skipDebug) {
     uint8_t targetres = remapResolution(resd);
 
-    if (CurrentResolutionData & RESOLUTION_DATA_240P) {
-        targetres |= RESOLUTION_MOD_240p;
+    if (CurrentResolutionData & RESOLUTION_DATA_ADD_LINE) {
+        if (CurrentResolutionData & RESOLUTION_DATA_IS_PAL) {
+            targetres |= RESOLUTION_MOD_288p;
+        } else {
+            targetres |= RESOLUTION_MOD_240p;
+        }
     } else if (CurrentResolutionData & FORCE_GENERATE_TIMING_AND_VIDEO) {
         targetres = RESOLUTION_1080p;
     } else if (
@@ -194,22 +203,16 @@ uint8_t mapResolution(uint8_t resd) {
     return mapResolution(resd, false);
 }
 
-void osd_get_resolution(char* buffer) {
-    uint8_t res = mapResolution(CurrentResolution, true);
-    char data[16];
-    const char* data2;
-
-    if (isRelaxedFirmware) {
-        data2 = " " DCHDMI_VERSION "-rlx";
-    } else {
-        data2 = " " DCHDMI_VERSION "-std";
-    }
-
+void _osd_get_resolution(uint8_t res, char* data) {
     switch (res) {
         case 0x00: OSD_RESOLUTION("1080p"); break;
         case 0x01: OSD_RESOLUTION("960p"); break;
         case 0x02: sprintf(data, "480p"); break;
         case 0x03: sprintf(data, "VGA"); break;
+        case 0x04: sprintf(data, "288p"); break;
+        case 0x05: sprintf(data, "288p"); break;
+        case 0x06: sprintf(data, "288p"); break;
+        case 0x07: sprintf(data, "288p"); break;
         case 0x08: sprintf(data, "576p"); break;
         case 0x09: sprintf(data, "576p"); break;
         case 0x0A: sprintf(data, "576p"); break;
@@ -226,7 +229,22 @@ void osd_get_resolution(char* buffer) {
         case 0x41: sprintf(data, "576i"); break;
         case 0x42: sprintf(data, "576i"); break;
         case 0x43: sprintf(data, "576i"); break;
+        default: sprintf(data, "UNKNOWN"); break;
     }
+}
+
+void osd_get_resolution(char* buffer) {
+    uint8_t res = mapResolution(CurrentResolution, true);
+    char data[16];
+    const char* data2;
+
+    if (isRelaxedFirmware) {
+        data2 = " " DCHDMI_VERSION "-rlx";
+    } else {
+        data2 = " " DCHDMI_VERSION "-std";
+    }
+
+    _osd_get_resolution(res, data);
 
     snprintf(buffer, 41, "%.*s%*s", 10, data, 31, " " MENU_SPACER);
     snprintf(&buffer[40 - strlen(data2)], 10, "%s", data2);

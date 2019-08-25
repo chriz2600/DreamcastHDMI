@@ -10,6 +10,7 @@ module dc_video_reconfig(
 `elsif hq2x
     `include "config/hq2x/dc_config.v"
 `endif
+`include "config/dc_config.v"
 
     reg [7:0] data_in_reg = 0;
     reg forceVGAMode_reg;
@@ -32,7 +33,12 @@ module dc_video_reconfig(
                 7'h01: dcVideoConfig_reg <= DC_VIDEO_CONFIG_960P;
                 7'h02: dcVideoConfig_reg <= DC_VIDEO_CONFIG_480P;
                 7'h03: dcVideoConfig_reg <= DC_VIDEO_CONFIG_VGA;
-                
+
+                7'h04: dcVideoConfig_reg <= DC_VIDEO_CONFIG_288P;
+                7'h05: dcVideoConfig_reg <= DC_VIDEO_CONFIG_288P;
+                7'h06: dcVideoConfig_reg <= DC_VIDEO_CONFIG_288P;
+                7'h07: dcVideoConfig_reg <= DC_VIDEO_CONFIG_288P;
+
                 7'h08: dcVideoConfig_reg <= DC_VIDEO_CONFIG_576P;
                 7'h09: dcVideoConfig_reg <= DC_VIDEO_CONFIG_576P;
                 7'h0A: dcVideoConfig_reg <= DC_VIDEO_CONFIG_576P;

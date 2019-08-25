@@ -10,6 +10,8 @@ module hdmi_video_reconfig(
 `elsif hq2x
     `include "config/hq2x/hdmi_config.v"
 `endif
+`include "config/hdmi_config.v"
+
 
     reg [7:0] data_in_reg = 0;
 
@@ -46,6 +48,23 @@ module hdmi_video_reconfig(
                 end
                 7'h03: begin
                     _hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_VGA;
+                    _r2v_f_reg <= 0;
+                end
+
+                7'h04: begin
+                    _hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_288P;
+                    _r2v_f_reg <= 0;
+                end
+                7'h05: begin
+                    _hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_288P;
+                    _r2v_f_reg <= 0;
+                end
+                7'h06: begin
+                    _hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_288P;
+                    _r2v_f_reg <= 0;
+                end
+                7'h07: begin
+                    _hdmiVideoConfig_reg <= HDMI_VIDEO_CONFIG_288P;
                     _r2v_f_reg <= 0;
                 end
 

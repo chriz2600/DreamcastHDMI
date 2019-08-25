@@ -86,23 +86,28 @@ module data(
 
     always @(*) begin
         if (line_doubler) begin
-            if (add_line) begin
+            if (is_pal && add_line) begin // 288p
+                VISIBLE_AREA_HSTART = 10'd257 - `OFFSET_V_AREA;
+                VISIBLE_AREA_VSTART = 10'd24;
+                VISIBLE_AREA_WIDTH  = 10'd720 + `OFFSET_V_AREA;
+                VISIBLE_AREA_HEIGHT = 10'd600;
+            end else if (add_line) begin // 240p
                 VISIBLE_AREA_HSTART = 10'd257 - `OFFSET_V_AREA;
                 VISIBLE_AREA_VSTART = 10'd18;
                 VISIBLE_AREA_WIDTH  = 10'd720 + `OFFSET_V_AREA;
                 VISIBLE_AREA_HEIGHT = 10'd504;
-            end else if (is_pal) begin
-                VISIBLE_AREA_HSTART = 10'd257 - `OFFSET_V_AREA;
+            end else if (is_pal) begin // 576i
+                VISIBLE_AREA_HSTART = 10'd268 - `OFFSET_V_AREA;
                 VISIBLE_AREA_VSTART = 10'd19;
                 VISIBLE_AREA_WIDTH  = 10'd720 + `OFFSET_V_AREA;
                 VISIBLE_AREA_HEIGHT = 10'd600;
-            end else begin
+            end else begin // 480i
                 VISIBLE_AREA_HSTART = 10'd257 - `OFFSET_V_AREA; // OK
                 VISIBLE_AREA_VSTART = 10'd18;
                 VISIBLE_AREA_WIDTH  = 10'd720 + `OFFSET_V_AREA;
                 VISIBLE_AREA_HEIGHT = 10'd504;
             end
-        end else begin
+        end else begin // VGA
             VISIBLE_AREA_HSTART = 10'd265 - `OFFSET_V_AREA; // OK, for commercial games
             VISIBLE_AREA_VSTART = 10'd40;
             VISIBLE_AREA_WIDTH  = 10'd720 + `OFFSET_V_AREA;
@@ -162,21 +167,26 @@ module data(
                             as we have to send a resync to the hdmi output side
                             if not, to keep the vertical alignment :)
                         */
-                        if (raw_counterY_reg == 262 || raw_counterY_reg == 524 || raw_counterY_reg == 624) begin
+                        if (raw_counterY_reg == 262
+                         || raw_counterY_reg == 524
+                         || raw_counterY_reg == 312
+                         || raw_counterY_reg == 624) begin
                             resync_reg <= 0;
                         end else begin
                             resync_reg <= 1;
                         end
 
-                        // 240p has only 263 lines per frame
-                        if (raw_counterY_reg == 262) begin
+                        // 240p/288p has only 263/313 lines per frame
+                        if (raw_counterY_reg == 262
+                         || raw_counterY_reg == 312) begin
                             add_line_reg <= 1'b1;
                         end else begin
                             add_line_reg <= 1'b0;
                         end
 
                         // PAL
-                        if (raw_counterY_reg == 624) begin
+                        if (raw_counterY_reg == 312
+                         || raw_counterY_reg == 624) begin
                             is_pal_reg <= 1'b1;
                         end else begin
                             is_pal_reg <= 1'b0;

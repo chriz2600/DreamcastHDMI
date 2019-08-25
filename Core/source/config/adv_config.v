@@ -40,6 +40,17 @@ const ADV7513Config ADV7513_CONFIG_480P = {
     8'h_02  // adv_reg_3c
 };
 
+const ADV7513Config ADV7513_CONFIG_288P = {
+    1'b0,   // fullrange
+    8'h_00, // adv_reg_01
+    8'h_18, // adv_reg_02
+    8'h_80, // adv_reg_03
+    8'h_00, // adv_reg_17
+    8'h_18, // adv_reg_56
+    8'h_80, // adv_reg_3b
+    8'h_11  // adv_reg_3c
+};
+
 const ADV7513Config ADV7513_CONFIG_576P = {
     1'b0,   // fullrange
     8'h_00, // adv_reg_01
