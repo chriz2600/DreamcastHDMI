@@ -97,8 +97,8 @@ module data(
                 VISIBLE_AREA_WIDTH  = 10'd720 + `OFFSET_V_AREA;
                 VISIBLE_AREA_HEIGHT = 10'd504;
             end else if (is_pal) begin // 576i
-                VISIBLE_AREA_HSTART = 10'd268 - `OFFSET_V_AREA;
-                VISIBLE_AREA_VSTART = 10'd19;
+                VISIBLE_AREA_HSTART = 10'd279 - `OFFSET_V_AREA;
+                VISIBLE_AREA_VSTART = 10'd22;
                 VISIBLE_AREA_WIDTH  = 10'd720 + `OFFSET_V_AREA;
                 VISIBLE_AREA_HEIGHT = 10'd600;
             end else begin // 480i

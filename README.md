@@ -14,7 +14,7 @@
 
     - [Issue #4: 31KHz 480p output has display area shifted left](https://github.com/chriz2600/DreamcastHDMI/issues/4)
 
-        Horizontal position for VGA can now be set in the OSD (Advanced Video Settings). There is also an *auto* option which detects the correct position, if a image with non-black pixels on the edges is detected.<br>
+        Horizontal position for VGA can now be set in the OSD (Advanced Video Settings). There is also an *auto* option which detects the correct position, if an image with non-black pixels on the edges is detected.<br>
         *Default position (0) is now correct for almost all commercial games*
 
     **Big thanks to [rdaviesuk](https://github.com/rdaviesuk) for reporting!**
