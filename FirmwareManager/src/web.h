@@ -154,6 +154,7 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
     responseHeader.clear();
     totalLength = -1;
     readLength = -1;
+    currentJobDone = false;
     last_error = NO_ERROR;
     md5.begin();
     flashFile = SPIFFS.open(filename, "w");
@@ -180,6 +181,7 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
                 String md5sum = md5.toString();
                 _writeFile((String(filename) + ".md5").c_str(), md5sum.c_str(), md5sum.length());
                 DEBUG("Disconnected");
+                currentJobDone = true;
                 PROGRESS_CALLBACK(true, NO_ERROR);
                 aClient = NULL;
                 delete c;

@@ -66,6 +66,7 @@ SPIFlash flash(CS);
 int last_error = NO_ERROR; 
 int totalLength;
 int readLength;
+bool currentJobDone = true;
 
 File flashFile;
 
@@ -568,9 +569,13 @@ void setupHTTPServer() {
             // clear last_error
             last_error = NO_ERROR;
         } else {
-            sprintf(msg, "%i\n", totalLength <= 0 ? 0 : (int)(readLength * 100 / totalLength));
+            int progress = totalLength <= 0 ? 0 : (int)(readLength * 100 / totalLength);
+            if (progress == 100 && !currentJobDone) {
+                progress = 99;
+            }
+            sprintf(msg, "%i\n", progress);
             request->send(200, "text/plain", msg);
-            DEBUG("...delivered: %s.\n", msg);
+            DEBUG2("...delivered: %s.\n", msg);
         }
     });
 

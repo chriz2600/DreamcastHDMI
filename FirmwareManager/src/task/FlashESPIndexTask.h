@@ -8,6 +8,7 @@ extern MD5Builder md5;
 extern int totalLength;
 extern int readLength;
 extern int last_error;
+extern bool currentJobDone;
 
 void _writeFile(const char *filename, const char *towrite, unsigned int len);
 void _readFile(const char *filename, char *target, unsigned int len);
@@ -43,6 +44,7 @@ class FlashESPIndexTask : public Task {
         File targetFile;
 
         virtual bool OnStart() {
+            currentJobDone = false;
             totalLength = -1;
             readLength = 0;
             prevPercentComplete = -1;
@@ -97,6 +99,7 @@ class FlashESPIndexTask : public Task {
                 String md5sum = md5.toString();
                 _writeFile("/index.html.gz.md5", md5sum.c_str(), md5sum.length());
             }
+            currentJobDone = true;
             InvokeCallback(true);
             DEBUG("2: flashing ESP index finished.\n");
         }

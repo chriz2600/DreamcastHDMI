@@ -10,6 +10,7 @@ extern File flashFile;
 extern int totalLength;
 extern int readLength;
 extern int last_error;
+extern bool currentJobDone;
 
 void _writeFile(const char *filename, const char *towrite, unsigned int len);
 void _readFile(const char *filename, char *target, unsigned int len);
@@ -43,6 +44,7 @@ class FlashESPTask : public Task {
         int prevPercentComplete;
 
         virtual bool OnStart() {
+            currentJobDone = false;
             totalLength = -1;
             readLength = 0;
             prevPercentComplete = -1;
@@ -108,6 +110,7 @@ class FlashESPTask : public Task {
                 String md5sum = md5.toString();
                 _writeFile("/etc/last_esp_flash_md5", md5sum.c_str(), md5sum.length());
             }
+            currentJobDone = true;
             InvokeCallback(true);
             DEBUG("2: flashing ESP finished.\n");
         }

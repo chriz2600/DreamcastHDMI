@@ -19,6 +19,7 @@ class FlashEraseTask : public Task {
         uint8_t dummy;
 
         virtual bool OnStart() {
+            currentJobDone = false;
             totalLength = -1;
             readLength = 0;
             last_error = NO_ERROR;
@@ -39,6 +40,7 @@ class FlashEraseTask : public Task {
             flash.disable();
             totalLength = 1;
             readLength = 1;
+            currentJobDone = true;
             last_error = NO_ERROR;
             DEBUG("done.\n");
         }

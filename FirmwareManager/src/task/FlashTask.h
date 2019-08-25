@@ -12,6 +12,7 @@ extern SPIFlash flash;
 extern int totalLength;
 extern int readLength;
 extern int last_error;
+extern bool currentJobDone;
 extern char firmwareVariant[64];
 
 void _writeFile(const char *filename, const char *towrite, unsigned int len);
@@ -77,6 +78,7 @@ class FlashTask : public Task {
         int bytesReadFromArchive;
 
         virtual bool OnStart() {
+            currentJobDone = false;
             page = 0;
             totalLength = -1;
             readLength = 0;
@@ -312,6 +314,7 @@ class FlashTask : public Task {
             chunk_buffer = NULL;
             result = NULL;
             result_start = NULL;
+            currentJobDone = true;
             InvokeCallback(true);
         }
 };
