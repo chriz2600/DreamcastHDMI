@@ -132,6 +132,10 @@ class FPGATask : public Task {
             readqueue.push(data);
         }
 
+        void WaitForNoKey() {
+            waitForNoKey = true;
+        }
+
         void ForceLoop() {
             next(READ);
         }
@@ -151,6 +155,7 @@ class FPGATask : public Task {
         bool GotError = false;
         uint8_t fpgaResetState = FPGA_RESET_INACTIVE;
         uint8_t nbpState = 0;
+        bool waitForNoKey = false;
 
         std::queue<osddata_t> osdqueue;
         std::queue<writedata_t> writequeue;
@@ -281,21 +286,31 @@ class FPGATask : public Task {
             brzo_i2c_write(buffer, 1, false);
             brzo_i2c_read(buffer2, I2C_CONTROLLER_AND_DATA_BASE_LENGTH, false);
 
-            // new controller data
-            if (!compareData(buffer2, data_out, 2)) {
-                //DEBUG1("I2C_CONTROLLER_AND_DATA_BASE, new controller data: %04x\n", buffer2[0] << 8 | buffer2[1]);
-                controller_handler(buffer2[0] << 8 | buffer2[1], false);
-                // reset repeat
-                eTime = millis();
-                repeatCount = 0;
-            } else {
-                // check repeat
-                if (buffer2[0] != 0x00 || buffer2[1] != 0x00) {
-                    unsigned long duration = (repeatCount == 0 ? REPEAT_DELAY : REPEAT_RATE);
-                    if (millis() - eTime > duration) {
-                        controller_handler(buffer2[0] << 8 | buffer2[1], true);
-                        eTime = millis();
-                        repeatCount++;
+            if (waitForNoKey) {
+                // no key found
+                if (buffer2[0] == 0 && buffer2[1] == 1) {
+                    DEBUG2("waitForNoKey reset!\n");
+                    waitForNoKey = false;
+                }
+            }
+
+            if (!waitForNoKey) {
+                // new controller data
+                if (!compareData(buffer2, data_out, 2)) {
+                    //DEBUG1("I2C_CONTROLLER_AND_DATA_BASE, new controller data: %04x\n", buffer2[0] << 8 | buffer2[1]);
+                    controller_handler(buffer2[0] << 8 | buffer2[1], false);
+                    // reset repeat
+                    eTime = millis();
+                    repeatCount = 0;
+                } else {
+                    // check repeat
+                    if (buffer2[0] != 0x00 || buffer2[1] != 0x00) {
+                        unsigned long duration = (repeatCount == 0 ? REPEAT_DELAY : REPEAT_RATE);
+                        if (millis() - eTime > duration) {
+                            controller_handler(buffer2[0] << 8 | buffer2[1], true);
+                            eTime = millis();
+                            repeatCount++;
+                        }
                     }
                 }
             }

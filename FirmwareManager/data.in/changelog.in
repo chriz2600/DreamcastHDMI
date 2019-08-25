@@ -10,6 +10,8 @@ v4.0
   480i/576i separately.                 
 - Thanks to rdaviesuk for reporting     
 - New: Keyboard support                 
+- Fixed: Prevent OSD from picking up    
+  controller buttons while opening OSD  
                                         
 v3.0.4/v2.3.4                           
 - Finally fixed: video output may not   

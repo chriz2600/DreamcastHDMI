@@ -658,6 +658,7 @@ void closeOSD() {
 FPGATask fpgaTask(1, [](uint16_t controller_data, bool isRepeat) {
     if (!isRepeat) {
         if (!OSDOpen && CHECK_BIT(controller_data, CTRLR_TRIGGER_OSD)) {
+            fpgaTask.WaitForNoKey();
             openOSD();
             return;
         }

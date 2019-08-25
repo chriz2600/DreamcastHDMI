@@ -33,6 +33,8 @@
 
 - [Keyboard support to control DCHDMI OSD](Keyboard.md)
 
+- Fixed: Prevent OSD from picking up controller buttons while opening OSD.
+
 #### 2019-08-09 *Firmware v3.0.4* (*Relaxed*)
 
 - Finally fixed: video output may not start on some systems
