@@ -293,7 +293,7 @@ void reapplyFPGAConfig() {
 }
 
 int8_t getEffectiveOffsetVGA() {
-    if (OffsetVGA == 1) {
+    if (OffsetVGA == VGA_OFFSET_AUTO_MODE) {
         return AutoOffsetVGA;
     }
     return OffsetVGA;

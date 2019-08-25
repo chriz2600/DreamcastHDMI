@@ -222,10 +222,10 @@ void readVGAOffset() {
     char buffer[32] = "";
     _readFile("/etc/vga/offset", buffer, 32, DEFAULT_VGA_OFFSET);
     OffsetVGA = atoi(buffer);
-    if (OffsetVGA < 0) {
-        OffsetVGA = 0;
-    } else if (OffsetVGA > 255) {
-        OffsetVGA = 255;
+    if (OffsetVGA < -120) {
+        OffsetVGA = -120;
+    } else if (OffsetVGA > 120) {
+        OffsetVGA = 120;
     }
 }
 

@@ -104,16 +104,16 @@ Menu advancedVideoMenu("AdvancedVideoMenu", OSD_ADVANCED_VIDEO_MENU, MENU_AV_FIR
             case MENU_AV_VGAPOS:
                 if (isRight) {
                     if (OffsetVGA == 2) {
-                        OffsetVGA = 1; // special value means auto
-                    } else if (OffsetVGA == 1) {
+                        OffsetVGA = VGA_OFFSET_AUTO_MODE; // special value means auto
+                    } else if (OffsetVGA == VGA_OFFSET_AUTO_MODE) {
                         OffsetVGA = 0;
                     } else if (OffsetVGA > -120) {
                         OffsetVGA = OffsetVGA - 2;
                     }
                 } else if (isLeft) {
                     if (OffsetVGA == 0) {
-                        OffsetVGA = 1; // special value means auto
-                    } else if (OffsetVGA == 1) {
+                        OffsetVGA = VGA_OFFSET_AUTO_MODE; // special value means auto
+                    } else if (OffsetVGA == VGA_OFFSET_AUTO_MODE) {
                         OffsetVGA = 2;
                     } else if (OffsetVGA < 120) {
                         OffsetVGA = OffsetVGA + 2;
@@ -121,7 +121,7 @@ Menu advancedVideoMenu("AdvancedVideoMenu", OSD_ADVANCED_VIDEO_MENU, MENU_AV_FIR
                 }
                 fpgaTask.Write(I2C_VGA_OFFSET, getEffectiveOffsetVGA(), [](uint8_t Address, uint8_t Value) {
                     char buffer[MENU_WIDTH] = "";
-                    if (OffsetVGA == 1) {
+                    if (OffsetVGA == VGA_OFFSET_AUTO_MODE) {
                         snprintf(buffer, 9, "%-8s", "auto");
                     } else {
                         snprintf(buffer, 9, "%-8d", -(OffsetVGA / 2));
@@ -179,7 +179,7 @@ Menu advancedVideoMenu("AdvancedVideoMenu", OSD_ADVANCED_VIDEO_MENU, MENU_AV_FIR
     memcpy(&menu_text[MENU_AV_DEINT_576I * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
     snprintf(buffer, 9, "%-8s", Offset240p == 20 ? "On" : "Off");
     memcpy(&menu_text[MENU_AV_240POS * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
-    if (OffsetVGA == 1) {
+    if (OffsetVGA == VGA_OFFSET_AUTO_MODE) {
         snprintf(buffer, 9, "%-8s", "auto");
     } else {
         snprintf(buffer, 9, "%-8d", -(OffsetVGA / 2));
