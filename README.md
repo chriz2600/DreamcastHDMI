@@ -1,8 +1,8 @@
 # DreamcastHDMI / DCHDMI
 
-#### 2019-XX-XX *Firmware v4.0* (*Unified*)
+#### 2019-08-25 *Firmware v4.0* (*Unified*)
 
-- *Standard (**-std**)* and *Relaxed (**-rlx**)* firmware flavours are now combined into one firmware release. When changing firmware flavour only the fpga firmware get re-flashed from the firmware bundle downloaded previously. 
+- *Standard (**-std**)* and *Relaxed (**-rlx**)* firmware flavours are now combined into one firmware release. When changing firmware flavour only the fpga firmware gets re-flashed from the firmware bundle downloaded previously.
 
     *When upgrading to v4.0 for the first time, it's necessary to update the firmware once again, to download this new bundle.*
 
