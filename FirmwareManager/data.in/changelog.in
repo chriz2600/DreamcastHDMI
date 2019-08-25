@@ -1,7 +1,15 @@
 v4.0                                    
-- Standard and Relaxed firmware flavours
-  are now built from the same source    
-- Keyboard support                      
+- Standard and Relaxed are recombined   
+  into one firmware bundle              
+- ESP: internal improvements            
+- Fixed: 31KHz output had display area  
+  shifted left for the mayjority of     
+  commercial games                      
+- New: PAL 288p support                 
+- New: Deinterlacing can now be set for 
+  480i/576i separately.                 
+- Thanks to rdaviesuk for reporting     
+- New: Keyboard support                 
                                         
 v3.0.4/v2.3.4                           
 - Finally fixed: video output may not   

@@ -18,6 +18,7 @@ class InfoTask : public Task {
         }
 
     private:
+        bool isStopped = true;
         bool isRunning = false;
         bool resetCounters = false;
 
@@ -31,12 +32,13 @@ class InfoTask : public Task {
         virtual bool OnStart() {
             DEBUG("InfoTask: OnStart\n");
             isRunning = true;
+            isStopped = false;
             return true;
         }
 
         virtual void OnUpdate(uint32_t deltaTime) {
-            if (!isRunning) {
-                DEBUG2("DebugTask: paused or stopped\n");
+            if (!isRunning || isStopped) {
+                DEBUG("DebugTask: paused or stopped\n");
                 return;
             }
 
@@ -147,9 +149,13 @@ class InfoTask : public Task {
                         control_resync_out_count - control_resync_out_offset
                     );
 
-                    fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_INF_RESULT_LINE, (uint8_t*) result, [&]() {
-                        isRunning = true;
-                    });
+                    if (!isStopped) {
+                        fpgaTask.DoWriteToOSD(0, MENU_OFFSET + MENU_INF_RESULT_LINE, (uint8_t*) result, [&]() {
+                            isRunning = true;
+                        });
+                    } else {
+                        DEBUG("InfoTask: already stopped\n");
+                    }
                 }
             });
         }
@@ -157,6 +163,7 @@ class InfoTask : public Task {
         virtual void OnStop() {
             DEBUG("InfoTask: OnStop\n");
             isRunning = false;
+            isStopped = true;
         }
 
         char checkPin(uint16_t pinok1, uint16_t pinok2, uint8_t pos1, uint8_t pos2) {
