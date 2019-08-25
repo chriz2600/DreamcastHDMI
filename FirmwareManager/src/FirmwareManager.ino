@@ -53,7 +53,8 @@ char host[64] = DEFAULT_HOST;
 char videoMode[16] = "";
 char configuredResolution[16] = "";
 char resetMode[16] = "";
-char deinterlaceMode[16] = "";
+char deinterlaceMode480i[16] = "";
+char deinterlaceMode576i[16] = "";
 char protectedMode[8] = "";
 char AP_NameChar[64];
 char WiFiAPPSK[12] = "";
@@ -73,7 +74,8 @@ uint8_t PrevCurrentResolution;
 uint8_t CurrentResolutionData = 0;
 uint8_t ForceVGA = VGA_ON;
 uint8_t CurrentResetMode = RESET_MODE_LED;
-uint8_t CurrentDeinterlaceMode = DEINTERLACE_MODE_BOB;
+uint8_t CurrentDeinterlaceMode480i = DEINTERLACE_MODE_BOB;
+uint8_t CurrentDeinterlaceMode576i = DEINTERLACE_MODE_BOB;
 uint8_t CurrentProtectedMode = PROTECTED_MODE_OFF;
 int8_t Offset240p;
 int8_t OffsetVGA;
@@ -136,7 +138,8 @@ void setupResetMode() {
 void setupOutputResolution() {
     readVideoMode();
     readCurrentResolution();
-    readCurrentDeinterlaceMode();
+    readCurrentDeinterlaceMode480i();
+    readCurrentDeinterlaceMode576i();
 
     DEBUG2(">> Setting up output resolution: %x\n", ForceVGA | CurrentResolution);
     reflashNeccessary = !forceI2CWrite(
@@ -646,7 +649,8 @@ void setupHTTPServer() {
         writeSetupParameter(request, "video_resolution", configuredResolution, "/etc/video/resolution", 16, DEFAULT_VIDEO_RESOLUTION);
         writeSetupParameter(request, "video_mode", videoMode, "/etc/video/mode", 16, DEFAULT_VIDEO_MODE);
         writeSetupParameter(request, "reset_mode", resetMode, "/etc/reset/mode", 16, DEFAULT_RESET_MODE);
-        writeSetupParameter(request, "deinterlace_mode", deinterlaceMode, "/etc/deinterlace/mode", 16, DEFAULT_DEINTERLACE_MODE);
+        writeSetupParameter(request, "deinterlace_mode", deinterlaceMode480i, "/etc/deinterlace/mode/480i", 16, DEFAULT_DEINTERLACE_MODE);
+        writeSetupParameter(request, "deinterlace_mode", deinterlaceMode576i, "/etc/deinterlace/mode/576i", 16, DEFAULT_DEINTERLACE_MODE);
         writeSetupParameter(request, "protected_mode", protectedMode, "/etc/protected/mode", 8, DEFAULT_PROTECTED_MODE);
         writeSetupParameter(request, "keyboard_layout", keyboardLayout, "/etc/keyblayout", 8, DEFAULT_KEYBOARD_LAYOUT);
         readCurrentProtectedMode(true);
@@ -680,7 +684,7 @@ void setupHTTPServer() {
         root["video_resolution"] = configuredResolution;
         root["video_mode"] = videoMode;
         root["reset_mode"] = resetMode;
-        root["deinterlace_mode"] = deinterlaceMode;
+        root["deinterlace_mode"] = deinterlaceMode480i;
         root["protected_mode"] = protectedMode;
         root["keyboard_layout"] = keyboardLayout;
 
@@ -815,7 +819,8 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        CurrentDeinterlaceMode = DEINTERLACE_MODE_BOB;
+        CurrentDeinterlaceMode480i = DEINTERLACE_MODE_BOB;
+        CurrentDeinterlaceMode576i = DEINTERLACE_MODE_BOB;
         switchResolution(CurrentResolution);
         request->send(200);
     });
@@ -824,7 +829,8 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        CurrentDeinterlaceMode = DEINTERLACE_MODE_PASSTHRU;
+        CurrentDeinterlaceMode480i = DEINTERLACE_MODE_PASSTHRU;
+        CurrentDeinterlaceMode576i = DEINTERLACE_MODE_PASSTHRU;
         switchResolution(CurrentResolution);
         request->send(200);
     });
@@ -900,11 +906,12 @@ void setupHTTPServer() {
         char msg[16];
         sprintf(
             msg, 
-            "%02x %02x %02x %02x\n",
+            "%02x %02x %02x %02x %02x\n",
             remapResolution(CurrentResolution),
             mapResolution(CurrentResolution, true),
             CurrentResolutionData,
-            CurrentDeinterlaceMode
+            CurrentDeinterlaceMode480i,
+            CurrentDeinterlaceMode576i
         );
         request->send(200, "text/plain", msg);
     });

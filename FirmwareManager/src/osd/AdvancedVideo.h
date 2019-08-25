@@ -14,8 +14,10 @@ void readUpscalingMode();
 void writeUpscalingMode();
 void readColorSpace();
 void writeColorSpace();
-void readCurrentDeinterlaceMode();
-void writeCurrentDeinterlaceMode();
+void readCurrentDeinterlaceMode480i();
+void readCurrentDeinterlaceMode576i();
+void writeCurrentDeinterlaceMode480i();
+void writeCurrentDeinterlaceMode576i();
 void safeSwitchResolution(uint8_t value, WriteCallbackHandlerFunction handler);
 void writeVideoOutputLine();
 int8_t getEffectiveOffsetVGA();
@@ -27,7 +29,8 @@ Menu advancedVideoMenu("AdvancedVideoMenu", OSD_ADVANCED_VIDEO_MENU, MENU_AV_FIR
         readVGAOffset();
         readUpscalingMode();
         readColorSpace();
-        readCurrentDeinterlaceMode();
+        readCurrentDeinterlaceMode480i();
+        readCurrentDeinterlaceMode576i();
         fpgaTask.Write(I2C_VGA_OFFSET, getEffectiveOffsetVGA(), [](uint8_t Address, uint8_t Value) {
             fpgaTask.Write(I2C_240P_OFFSET, Offset240p, [](uint8_t Address, uint8_t Value) {
                 fpgaTask.Write(I2C_UPSCALING_MODE, UpscalingMode, [](uint8_t Address, uint8_t Value) {
@@ -62,7 +65,8 @@ Menu advancedVideoMenu("AdvancedVideoMenu", OSD_ADVANCED_VIDEO_MENU, MENU_AV_FIR
         writeVGAOffset();
         writeUpscalingMode();
         writeColorSpace();
-        writeCurrentDeinterlaceMode();
+        writeCurrentDeinterlaceMode480i();
+        writeCurrentDeinterlaceMode576i();
         currentMenu = &mainMenu;
         currentMenu->Display();
         return;
@@ -73,12 +77,20 @@ Menu advancedVideoMenu("AdvancedVideoMenu", OSD_ADVANCED_VIDEO_MENU, MENU_AV_FIR
 
     if (isLeft || isRight) {
         switch (menu_activeLine) {
-            case MENU_AV_DEINT:
-                CurrentDeinterlaceMode = (CurrentDeinterlaceMode == DEINTERLACE_MODE_BOB ? DEINTERLACE_MODE_PASSTHRU : DEINTERLACE_MODE_BOB);
+            case MENU_AV_DEINT_480I:
+                CurrentDeinterlaceMode480i = (CurrentDeinterlaceMode480i == DEINTERLACE_MODE_BOB ? DEINTERLACE_MODE_PASSTHRU : DEINTERLACE_MODE_BOB);
                 safeSwitchResolution(CurrentResolution, [](uint8_t Address, uint8_t Value) {
                     char buffer[MENU_WIDTH] = "";
-                    snprintf(buffer, 9, "%-8s", (CurrentDeinterlaceMode == DEINTERLACE_MODE_BOB ? DEINTERLACE_MODE_STR_BOB : DEINTERLACE_MODE_STR_PASSTHRU));
-                    fpgaTask.DoWriteToOSD(MENU_AV_COLUMN, MENU_OFFSET + MENU_AV_DEINT, (uint8_t*) buffer);
+                    snprintf(buffer, 9, "%-8s", (CurrentDeinterlaceMode480i == DEINTERLACE_MODE_BOB ? DEINTERLACE_MODE_STR_BOB : DEINTERLACE_MODE_STR_PASSTHRU));
+                    fpgaTask.DoWriteToOSD(MENU_AV_COLUMN, MENU_OFFSET + MENU_AV_DEINT_480I, (uint8_t*) buffer);
+                });
+                break;
+            case MENU_AV_DEINT_576I:
+                CurrentDeinterlaceMode576i = (CurrentDeinterlaceMode576i == DEINTERLACE_MODE_BOB ? DEINTERLACE_MODE_PASSTHRU : DEINTERLACE_MODE_BOB);
+                safeSwitchResolution(CurrentResolution, [](uint8_t Address, uint8_t Value) {
+                    char buffer[MENU_WIDTH] = "";
+                    snprintf(buffer, 9, "%-8s", (CurrentDeinterlaceMode576i == DEINTERLACE_MODE_BOB ? DEINTERLACE_MODE_STR_BOB : DEINTERLACE_MODE_STR_PASSTHRU));
+                    fpgaTask.DoWriteToOSD(MENU_AV_COLUMN, MENU_OFFSET + MENU_AV_DEINT_576I, (uint8_t*) buffer);
                 });
                 break;
             case MENU_AV_240POS:
@@ -161,8 +173,10 @@ Menu advancedVideoMenu("AdvancedVideoMenu", OSD_ADVANCED_VIDEO_MENU, MENU_AV_FIR
     // write current values to menu
     char buffer[MENU_WIDTH] = "";
 
-    snprintf(buffer, 9, "%-8s", (CurrentDeinterlaceMode == DEINTERLACE_MODE_BOB ? DEINTERLACE_MODE_STR_BOB : DEINTERLACE_MODE_STR_PASSTHRU));
-    memcpy(&menu_text[MENU_AV_DEINT * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
+    snprintf(buffer, 9, "%-8s", (CurrentDeinterlaceMode480i == DEINTERLACE_MODE_BOB ? DEINTERLACE_MODE_STR_BOB : DEINTERLACE_MODE_STR_PASSTHRU));
+    memcpy(&menu_text[MENU_AV_DEINT_480I * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
+    snprintf(buffer, 9, "%-8s", (CurrentDeinterlaceMode576i == DEINTERLACE_MODE_BOB ? DEINTERLACE_MODE_STR_BOB : DEINTERLACE_MODE_STR_PASSTHRU));
+    memcpy(&menu_text[MENU_AV_DEINT_576I * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
     snprintf(buffer, 9, "%-8s", Offset240p == 20 ? "On" : "Off");
     memcpy(&menu_text[MENU_AV_240POS * MENU_WIDTH + MENU_AV_COLUMN], buffer, 8);
     if (OffsetVGA == 1) {

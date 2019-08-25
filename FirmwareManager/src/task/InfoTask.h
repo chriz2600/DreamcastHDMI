@@ -135,7 +135,7 @@ class InfoTask : public Task {
                         checkPin(pinok1, pinok2, 10, 10),
                         (resolX + 1) / 2, (resolY + 1),
                         remapResolution(CurrentResolution), mapResolution(CurrentResolution, true),
-                        CurrentResolutionData, CurrentDeinterlaceMode,
+                        CurrentResolutionData, CurrentDeinterlaceMode480i,
                         buffer[33], buffer[34],
                         buffer[16], buffer[17], buffer[18], buffer[19], buffer[20], buffer[21],
                         pinok1, pinok2,

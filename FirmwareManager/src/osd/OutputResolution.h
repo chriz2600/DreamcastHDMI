@@ -167,20 +167,25 @@ uint8_t mapResolution(uint8_t resd, bool skipDebug) {
         targetres |= RESOLUTION_MOD_240p;
     } else if (CurrentResolutionData & FORCE_GENERATE_TIMING_AND_VIDEO) {
         targetres = RESOLUTION_1080p;
-    } else if (CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER
-     && CurrentDeinterlaceMode == DEINTERLACE_MODE_PASSTHRU)
+    } else if (
+           CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER 
+        && CurrentDeinterlaceMode576i == DEINTERLACE_MODE_PASSTHRU 
+        && CurrentResolutionData & RESOLUTION_DATA_IS_PAL
+    )
     {
-        if (CurrentResolutionData & RESOLUTION_DATA_IS_PAL) {
-            targetres |= RESOLUTION_MOD_576i;
-        } else {
-            targetres |= RESOLUTION_MOD_480i;
-        }
+        targetres |= RESOLUTION_MOD_576i;
+    } else if (
+           CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER 
+        && CurrentDeinterlaceMode480i == DEINTERLACE_MODE_PASSTHRU
+    )
+    {
+        targetres |= RESOLUTION_MOD_480i;
     } else if (CurrentResolutionData & RESOLUTION_DATA_IS_PAL) {
         targetres |= RESOLUTION_MOD_576p;
     }
 
     if (!skipDebug) {
-        DEBUG1("   mapResolution: resd: %02x tres: %02x crd: %02x cdm: %02x\n", resd, targetres, CurrentResolutionData, CurrentDeinterlaceMode);
+        DEBUG1("   mapResolution: resd: %02x tres: %02x crd: %02x cdm: %02x|%02x\n", resd, targetres, CurrentResolutionData, CurrentDeinterlaceMode480i, CurrentDeinterlaceMode576i);
     }
     return targetres;
 }

@@ -6,7 +6,8 @@
 
 extern uint8_t ForceVGA;
 extern char resetMode[16];
-extern char deinterlaceMode[16];
+extern char deinterlaceMode480i[16];
+extern char deinterlaceMode576i[16];
 extern char protectedMode[8];
 
 bool DelayVGA = false;
@@ -66,9 +67,14 @@ void writeCurrentResetMode() {
     snprintf(resetMode, 16, "%s", cfgRst.c_str());
 }
 
-void readCurrentDeinterlaceMode() {
-    _readFile("/etc/deinterlace/mode", deinterlaceMode, 16, DEFAULT_DEINTERLACE_MODE);
-    CurrentDeinterlaceMode = cfgDeint2Int(deinterlaceMode);
+void readCurrentDeinterlaceMode480i() {
+    _readFile("/etc/deinterlace/mode/480i", deinterlaceMode480i, 16, DEFAULT_DEINTERLACE_MODE);
+    CurrentDeinterlaceMode480i = cfgDeint2Int(deinterlaceMode480i);
+}
+
+void readCurrentDeinterlaceMode576i() {
+    _readFile("/etc/deinterlace/mode/576i", deinterlaceMode576i, 16, DEFAULT_DEINTERLACE_MODE);
+    CurrentDeinterlaceMode576i = cfgDeint2Int(deinterlaceMode576i);
 }
 
 void readCurrentProtectedMode(bool skipRead) {
@@ -82,15 +88,26 @@ void readCurrentProtectedMode() {
     readCurrentProtectedMode(false);
 }
 
-void writeCurrentDeinterlaceMode() {
+void writeCurrentDeinterlaceMode480i() {
     String cfgDeint = DEINTERLACE_MODE_STR_BOB;
 
-    if (CurrentDeinterlaceMode == DEINTERLACE_MODE_PASSTHRU) {
+    if (CurrentDeinterlaceMode480i == DEINTERLACE_MODE_PASSTHRU) {
         cfgDeint = DEINTERLACE_MODE_STR_PASSTHRU;
     }
 
-    _writeFile("/etc/deinterlace/mode", cfgDeint.c_str(), 16);
-    snprintf(deinterlaceMode, 16, "%s", cfgDeint.c_str());
+    _writeFile("/etc/deinterlace/mode/480i", cfgDeint.c_str(), 16);
+    snprintf(deinterlaceMode480i, 16, "%s", cfgDeint.c_str());
+}
+
+void writeCurrentDeinterlaceMode576i() {
+    String cfgDeint = DEINTERLACE_MODE_STR_BOB;
+
+    if (CurrentDeinterlaceMode576i == DEINTERLACE_MODE_PASSTHRU) {
+        cfgDeint = DEINTERLACE_MODE_STR_PASSTHRU;
+    }
+
+    _writeFile("/etc/deinterlace/mode/576i", cfgDeint.c_str(), 16);
+    snprintf(deinterlaceMode576i, 16, "%s", cfgDeint.c_str());
 }
 
 void readCurrentResolution() {

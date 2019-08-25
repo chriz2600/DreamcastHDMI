@@ -15,7 +15,8 @@ extern Menu infoMenu;
 extern Menu changelogMenu;
 extern Menu *currentMenu;
 extern uint8_t CurrentResetMode;
-extern uint8_t CurrentDeinterlaceMode;
+extern uint8_t CurrentDeinterlaceMode480i;
+extern uint8_t CurrentDeinterlaceMode576i;
 extern uint8_t CurrentResolutionData;
 extern uint8_t CurrentProtectedMode;
 

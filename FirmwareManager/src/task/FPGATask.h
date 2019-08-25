@@ -334,7 +334,7 @@ class FPGATask : public Task {
 
             ///////////////////////////////////////////////////
             // calculate offset
-            if (OffsetVGA == 1 && !(remapResolution(CurrentResolution) & RESOLUTION_DATA_LINE_DOUBLER)) {
+            if (OffsetVGA == 1 && !(CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER)) {
                 if (nbpState == NBP_STATE_RESET) {
                     // trigger nbp data reset
                     buffer[0] = I2C_NBP_RESET;
