@@ -369,7 +369,9 @@ class FPGATask : public Task {
                         offset = offset + ((nbp1 - VGA_REFERENCE_POSITION) * 2);
 
                         if (offset != AutoOffsetVGA) {
-                            DEBUG2("New VGA offset: %d/%d %dx%d/%dx%d\n", AutoOffsetVGA, offset, nbp1, nbp2, nbp1 - (offset / 2), nbp2 - (offset / 2));
+                            int debug = (AutoOffsetVGA - offset) / 2;
+
+                            DEBUG2("New VGA offset: %d/%d %dx%d/%dx%d\n", AutoOffsetVGA, offset, nbp1, nbp2, nbp1 + debug, nbp2 + debug);
                             AutoOffsetVGA = offset;
                             Write(I2C_VGA_OFFSET, AutoOffsetVGA);
                         }
