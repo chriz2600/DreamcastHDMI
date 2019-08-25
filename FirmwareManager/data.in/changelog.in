@@ -3,7 +3,7 @@ v4.0
   into one firmware bundle              
 - ESP: internal improvements            
 - Fixed: 31KHz output had display area  
-  shifted left for the mayjority of     
+  shifted left for the majority of      
   commercial games                      
 - New: PAL 288p support                 
 - New: Deinterlacing can now be set for 
