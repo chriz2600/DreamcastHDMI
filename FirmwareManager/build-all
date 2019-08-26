@@ -28,11 +28,13 @@ if [ "$ret_vat" == "true" ] ; then
 
     if [ -f $FW_BIN ] ; then
         echo "artifact $FW_BIN found, copying"
+        mkdir -p .pio/build/unified
         cp $FW_BIN .pio/build/unified/firmware.bin
         skip_firmware_bin="true"
     fi
     if [ -f $SPIFFS_BIN ] ; then
         echo "artifact $SPIFFS_BIN found, copying"
+        mkdir -p .pio/build/unified
         cp $SPIFFS_BIN .pio/build/unified/spiffs.bin
         skip_spiffs_bin="true"
     fi
