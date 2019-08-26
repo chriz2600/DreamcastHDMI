@@ -13,5 +13,9 @@ notes.txt
 misc/test.html
 .vscode/.browse.c_cpp.db*
 data/esp.index.html.gz
+data/esp.index.html.gz.md5
+data/changelog
+data/firmware.dc
+data/firmware.dc.md5
 .pio
 build
