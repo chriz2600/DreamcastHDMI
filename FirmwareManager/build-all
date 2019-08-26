@@ -4,25 +4,67 @@ set -e
 
 cd $(dirname $0)
 
+ret_vat=""
+function iscibuild {
+    if [ "$CI_PROJECT_NAME" != "" -a "$CI_COMMIT_SHORT_SHA" != "" -a -d "$ARTIFACT_STORAGE_DIR" ] ; then
+        ret_vat="true"
+    else
+        ret_vat="false"
+    fi
+}
+
+FW_BIN="$ARTIFACT_STORAGE_DIR/$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA/firmware.bin"
+SPIFFS_BIN="$ARTIFACT_STORAGE_DIR/$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA/spiffs.bin"
+ARTIFACT_TARGET_DIR="$ARTIFACT_STORAGE_DIR/$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA"
+skip_firmware_bin=""
+skip_spiffs_bin=""
+
+iscibuild
+if [ "$ret_vat" == "true" ] ; then
+    echo "CI mode selected"
+
+    if [ -f $FW_BIN ] ; then
+        echo "artifact $FW_BIN found, copying"
+        cp $FW_BIN .pio/build/unified/firmware.bin
+        skip_firmware_bin="true"
+    fi
+    if [ -f $SPIFFS_BIN ] ; then
+        echo "artifact $SPIFFS_BIN found, copying"
+        cp $SPIFFS_BIN .pio/build/unified/spiffs.bin
+        skip_spiffs_bin="true"
+    fi
+fi
+
 # compile project
 export SOURCE_DATE_EPOCH=$(git --no-pager log -1 --pretty='format:%ct' src)
 echo $SOURCE_DATE_EPOCH
 
+if [ "$skip_firmware_bin" != "true" ] ; then
+    pio run
+fi
+
 ./local/prepare-index-html
-
-pio run
-pio run -t buildfs
-
 cat data.in/changelog.in | tr -d '\n\t' > data/changelog
-cp ../Core/output_files/DCxPlus-v2.dc data/firmware.dc
 
-md5sum data/firmware.dc | awk '{print $1;}' | tr -d '\n' > data/etc/last_flash_md5
-md5sum data/firmware.dc | awk '{print $1;}' | tr -d '\n' > data/firmware.dc.md5
-md5sum data/index.html.gz | awk '{print $1;}' | tr -d '\n' > data/index.html.gz.md5
-md5sum data/index.html.gz | awk '{print $1;}' | tr -d '\n' > data/esp.index.html.gz.md5
+if [ "$skip_spiffs_bin" != "true" ] ; then
+    cp ../Core/output_files/DCxPlus-v2.dc data/firmware.dc
+
+    md5sum data/firmware.dc | awk '{print $1;}' | tr -d '\n' > data/etc/last_flash_md5
+    md5sum data/firmware.dc | awk '{print $1;}' | tr -d '\n' > data/firmware.dc.md5
+    md5sum data/index.html.gz | awk '{print $1;}' | tr -d '\n' > data/index.html.gz.md5
+    md5sum data/index.html.gz | awk '{print $1;}' | tr -d '\n' > data/esp.index.html.gz.md5
+
+    pio run -t buildfs
+fi
 
 cp .pio/build/unified/firmware.bin .pio/build/
 cp .pio/build/unified/spiffs.bin .pio/build/
+
+if [ "$ret_vat" == "true" ] ; then
+    mkdir -p $ARTIFACT_TARGET_DIR
+    cp .pio/build/unified/firmware.bin $ARTIFACT_TARGET_DIR/
+    cp .pio/build/unified/spiffs.bin $ARTIFACT_TARGET_DIR/
+fi
 
 for variant in std hq2x; do
     mkdir -p build/$variant

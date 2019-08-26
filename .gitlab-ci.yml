@@ -5,6 +5,9 @@ stages:
   - deploy
   - publish
 
+variables:
+  ARTIFACT_STORAGE_DIR: "/srv/builds/artifacts"
+
 firmware-utils:
   image:
     name: chriz2600/firmware-utils-builder:latest
