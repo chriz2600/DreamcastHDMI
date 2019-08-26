@@ -4,18 +4,21 @@ set -e
 
 cd $(dirname $0)
 
+# workaround for platformio not producing reproducible builds,
+# by storing the build artifacts and reusing them, if the actual
+# commit ref hasn't changed
 ret_vat=""
 function iscibuild {
-    if [ "$CI_PROJECT_NAME" != "" -a "$CI_COMMIT_SHORT_SHA" != "" -a -d "$ARTIFACT_STORAGE_DIR" ] ; then
+    if [ "$CI_PROJECT_NAME" != "" -a "$CI_COMMIT_SHA" != "" -a -d "$ARTIFACT_STORAGE_DIR" ] ; then
         ret_vat="true"
     else
         ret_vat="false"
     fi
 }
 
-FW_BIN="$ARTIFACT_STORAGE_DIR/$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA/firmware.bin"
-SPIFFS_BIN="$ARTIFACT_STORAGE_DIR/$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA/spiffs.bin"
-ARTIFACT_TARGET_DIR="$ARTIFACT_STORAGE_DIR/$CI_PROJECT_NAME/$CI_COMMIT_SHORT_SHA"
+FW_BIN="$ARTIFACT_STORAGE_DIR/$CI_PROJECT_NAME/$CI_COMMIT_SHA/firmware.bin"
+SPIFFS_BIN="$ARTIFACT_STORAGE_DIR/$CI_PROJECT_NAME/$CI_COMMIT_SHA/spiffs.bin"
+ARTIFACT_TARGET_DIR="$ARTIFACT_STORAGE_DIR/$CI_PROJECT_NAME/$CI_COMMIT_SHA"
 skip_firmware_bin=""
 skip_spiffs_bin=""
 
@@ -33,6 +36,8 @@ if [ "$ret_vat" == "true" ] ; then
         cp $SPIFFS_BIN .pio/build/unified/spiffs.bin
         skip_spiffs_bin="true"
     fi
+else
+    echo "CI mode DEACTIVATED"
 fi
 
 # compile project
