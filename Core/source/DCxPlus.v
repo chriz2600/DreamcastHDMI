@@ -454,6 +454,7 @@ module DCxPlus(
 
     wire slowGlow_out;
     wire fastGlow_out;
+    wire dim_out;
 
     LEDglow #(
         .BITPOS(26)
@@ -467,6 +468,11 @@ module DCxPlus(
     ) fastGlow (
         .clk(control_clock),
         .LED(fastGlow_out)
+    );
+
+    LEDdim dimled (
+        .clk(control_clock),
+        .LED(dim_out)
     );
 
     Flag_CrossDomain control_rsync(
@@ -488,7 +494,7 @@ module DCxPlus(
     always @(posedge control_clock) begin
         if (reset_conf == 2'd0) begin // LED
             if (!pll_hdmi_ready) begin
-                status_led_nreset_reg <= 1'b1;
+                status_led_nreset_reg <= ~dim_out;
             end else if (control_resync_out) begin
                 status_led_nreset_reg <= ~fastGlow_out;
             end else if (control_force_generate_out) begin
