@@ -1074,6 +1074,7 @@ void setup(void) {
     if (SPIFFS.exists("/tmp/eraseConfig")) {
         ESP.eraseConfig();
         SPIFFS.remove("/tmp/eraseConfig");
+        DEBUG2("erased persistent config.\n");
     }
     DBG_OUTPUT_PORT.begin(115200);
     DEBUG2("\n>> FirmwareManager starting... " DCHDMI_VERSION "\n");
