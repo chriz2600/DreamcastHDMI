@@ -344,7 +344,7 @@ void setupWiFiStation() {
 
 void setupMDNS() {
     DEBUG2(">> Setting up mDNS...\n");
-    _writeFile("/tmp/eraseConfig", "invalid", 16);
+    _writeFile("/tmp/checkpoint", "invalid", 16);
     if (MDNS.begin(host, ipAddress)) {
         DEBUG2(">> mDNS started.\n");
         MDNS.addService("http", "tcp", 80);
@@ -352,7 +352,7 @@ void setupMDNS() {
             ">> http://%s.local/\n", 
             host
         );
-        SPIFFS.remove("/tmp/eraseConfig");
+        SPIFFS.remove("/tmp/checkpoint");
     } else {
         DEBUG2(">> mDNS setup failed.\n");
     }
@@ -1071,12 +1071,13 @@ void printSerialMenu() {
 }
 
 void setup(void) {
-    if (SPIFFS.exists("/tmp/eraseConfig")) {
-        ESP.eraseConfig();
-        SPIFFS.remove("/tmp/eraseConfig");
-        DEBUG2("erased persistent config.\n");
-    }
     DBG_OUTPUT_PORT.begin(115200);
+    if (SPIFFS.exists("/tmp/checkpoint")) {
+        ESP.eraseConfig();
+        SPIFFS.remove("/tmp/checkpoint");
+        DEBUG2("erased persistent config.\n");
+        resetall();
+    }
     DEBUG2("\n>> FirmwareManager starting... " DCHDMI_VERSION "\n");
     DEBUG2(">> %s\n", ESP.getFullVersion().c_str());
     DBG_OUTPUT_PORT.setDebugOutput(false);
