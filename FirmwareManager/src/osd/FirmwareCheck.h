@@ -6,6 +6,7 @@ extern char md5ESP[48];
 extern char md5IndexHtml[48];
 extern char firmwareVersion[64];
 extern char firmwareVariant[64];
+extern char firmwareServer[256];
 
 bool firmwareCheckStarted;
 bool md5CheckResult;
@@ -80,13 +81,13 @@ void md5Cascade(int pos) {
             readStoredMD5Sum(pos, MENU_FWC_INDEXHTML_LINE, LOCAL_ESP_INDEX_MD5, md5IndexHtml);
             break;
         case 5:
-            getMD5SumFromServer(REMOTE_FPGA_HOST, REMOTE_FPGA_MD5, createMD5Callback(pos, MENU_FWC_FPGA_LINE, md5FPGA));
+            getMD5SumFromServer(firmwareServer, REMOTE_FPGA_MD5, createMD5Callback(pos, MENU_FWC_FPGA_LINE, md5FPGA));
             break;
         case 6:
-            getMD5SumFromServer(REMOTE_ESP_HOST, REMOTE_ESP_MD5, createMD5Callback(pos, MENU_FWC_ESP_LINE, md5ESP));
+            getMD5SumFromServer(firmwareServer, REMOTE_ESP_MD5, createMD5Callback(pos, MENU_FWC_ESP_LINE, md5ESP));
             break;
         case 7:
-            getMD5SumFromServer(REMOTE_ESP_HOST, REMOTE_ESP_INDEX_MD5, createMD5Callback(pos, MENU_FWC_INDEXHTML_LINE, md5IndexHtml));
+            getMD5SumFromServer(firmwareServer, REMOTE_ESP_INDEX_MD5, createMD5Callback(pos, MENU_FWC_INDEXHTML_LINE, md5IndexHtml));
             break;
         case 8:
             handleChangelogDownload(NULL, createCheckProgressCallback(pos, MENU_FWC_CHANGELOG_LINE));

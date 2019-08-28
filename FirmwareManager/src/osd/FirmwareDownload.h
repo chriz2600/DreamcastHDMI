@@ -2,6 +2,7 @@
 #include "../Menu.h"
 
 extern FlashVerifyTask flashVerifyTask;
+extern char firmwareServer[256];
 
 bool firmwareDownloadStarted;
 bool newFWDownloaded;
@@ -59,7 +60,7 @@ void downloadCascade(int pos, bool forceDownload) {
             }
             break;
         case 3:
-            getMD5SumFromServer(REMOTE_FPGA_HOST, REMOTE_FPGA_MD5, createMD5DownloadCallback(pos, forceDownload, MENU_FWD_FPGA_LINE, md5FPGA, SERVER_FPGA_MD5));
+            getMD5SumFromServer(firmwareServer, REMOTE_FPGA_MD5, createMD5DownloadCallback(pos, forceDownload, MENU_FWD_FPGA_LINE, md5FPGA, SERVER_FPGA_MD5));
             break;
         case 4: // Download FPGA firmware
             handleFPGADownload(NULL, createProgressCallback(pos, forceDownload, MENU_FWD_FPGA_LINE, FIRMWARE_FILE, STAGED_FPGA_MD5));
@@ -75,7 +76,7 @@ void downloadCascade(int pos, bool forceDownload) {
             }
             break;
         case 6:
-            getMD5SumFromServer(REMOTE_ESP_HOST, REMOTE_ESP_MD5, createMD5DownloadCallback(pos, forceDownload, MENU_FWD_ESP_LINE, md5ESP, SERVER_ESP_MD5));
+            getMD5SumFromServer(firmwareServer, REMOTE_ESP_MD5, createMD5DownloadCallback(pos, forceDownload, MENU_FWD_ESP_LINE, md5ESP, SERVER_ESP_MD5));
             break;
         case 7: // Download ESP firmware
             handleESPDownload(NULL, createProgressCallback(pos, forceDownload, MENU_FWD_ESP_LINE, ESP_FIRMWARE_FILE, STAGED_ESP_MD5));
@@ -91,7 +92,7 @@ void downloadCascade(int pos, bool forceDownload) {
             }
             break;
         case 9:
-            getMD5SumFromServer(REMOTE_ESP_HOST, REMOTE_ESP_INDEX_MD5, createMD5DownloadCallback(pos, forceDownload, MENU_FWD_INDEXHTML_LINE, md5IndexHtml, SERVER_ESP_INDEX_MD5));
+            getMD5SumFromServer(firmwareServer, REMOTE_ESP_INDEX_MD5, createMD5DownloadCallback(pos, forceDownload, MENU_FWD_INDEXHTML_LINE, md5IndexHtml, SERVER_ESP_INDEX_MD5));
             break;
         case 10: // Download ESP index.html
             handleESPIndexDownload(NULL, createProgressCallback(pos, forceDownload, MENU_FWD_INDEXHTML_LINE, ESP_INDEX_STAGING_FILE, STAGED_ESP_INDEX_MD5));

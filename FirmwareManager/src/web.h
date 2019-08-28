@@ -8,7 +8,7 @@
 
 extern char httpAuthUser[64];
 extern char httpAuthPass[64];
-extern char firmwareServer[1024];
+extern char firmwareServer[256];
 
 static AsyncClient *aClient = NULL;
 String fname;
@@ -61,10 +61,10 @@ void handleESPIndexDownload(AsyncWebServerRequest *request) {
 }
 
 void handleChangelogDownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
-    String httpGet = "GET /" 
+    String httpGet = "GET /esp/" 
         + String(firmwareVersion) 
         + "/changelog"
-        + " HTTP/1.0\r\nHost: esp.i74.de\r\n\r\n";
+        + " HTTP/1.0\r\nHost: " + firmwareServer + "\r\n\r\n";
 
     _handleDownload(request, CHANGELOG_FILE, httpGet, progressCallback);
 }
@@ -74,27 +74,27 @@ void handleFPGADownload(AsyncWebServerRequest *request, ProgressCallback progres
         + String(firmwareVersion) 
         + "/DCxPlus-v2"
         + "." + FIRMWARE_EXTENSION 
-        + " HTTP/1.0\r\nHost: dc.i74.de\r\n\r\n";
+        + " HTTP/1.0\r\nHost: " + firmwareServer + "\r\n\r\n";
 
     _handleDownload(request, FIRMWARE_FILE, httpGet, progressCallback);
 }
 
 void handleESPDownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
-    String httpGet = "GET /" 
+    String httpGet = "GET /esp/" 
         + String(firmwareVersion) 
         + "/" + (ESP.getFlashChipSize() / 1024 / 1024) + "MB"
         + "-" + "firmware"
         + "." + ESP_FIRMWARE_EXTENSION 
-        + " HTTP/1.0\r\nHost: esp.i74.de\r\n\r\n";
+        + " HTTP/1.0\r\nHost: " + firmwareServer + "\r\n\r\n";
 
     _handleDownload(request, ESP_FIRMWARE_FILE, httpGet, progressCallback);
 }
 
 void handleESPIndexDownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
-    String httpGet = "GET /"
+    String httpGet = "GET /esp/"
         + String(firmwareVersion)
         + "/esp.index.html.gz"
-        + " HTTP/1.0\r\nHost: esp.i74.de\r\n\r\n";
+        + " HTTP/1.0\r\nHost: " + firmwareServer + "\r\n\r\n";
 
     _handleDownload(request, ESP_INDEX_STAGING_FILE, httpGet, progressCallback);
 }

@@ -1295,8 +1295,9 @@ function _getFPGAMD5File() {
 
 function _getESPMD5File() {
     return (
-          "//esp.i74.de/"
-          + currentConfigData["firmware_version"]
+          "//" + currentConfigData["firmware_server"]
+        + "/esp/"
+        + currentConfigData["firmware_version"]
         + "/" + currentConfigData["flash_chip_size"] / 1024 / 1024 + "MB"
         + "-" + "firmware"
         + "." + ESP_FIRMWARE_EXTENSION + ".md5?cc=" + Math.random()
@@ -1305,8 +1306,9 @@ function _getESPMD5File() {
 
 function _getESPIndexMD5File() {
     return (
-          "//esp.i74.de/"
-          + currentConfigData["firmware_version"]
+          "//" + currentConfigData["firmware_server"]
+        + "/esp/"
+        + currentConfigData["firmware_version"]
         + "/" + ESP_INDEX_STAGING_FILE + ".md5?cc=" + Math.random()
     );
 }
