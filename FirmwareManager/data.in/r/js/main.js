@@ -400,7 +400,6 @@ var term = $('#term').terminal(function(command, term) {
             cb([
                 "help",
                 "helpexpert",
-                "get",
                 "check",
                 "download",
                 "flash",
@@ -419,7 +418,6 @@ var term = $('#term').terminal(function(command, term) {
         cb([
             "help",
             "helpexpert",
-            "get",
             "check",
                 "checkfpga",
                 "checkesp",
