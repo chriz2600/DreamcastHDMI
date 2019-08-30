@@ -1,7 +1,5 @@
 # Web console commands
 
-These are the basic web console commands:
-
 ### Basic commands
 
 | Command | Description |
