@@ -48,10 +48,10 @@
 | `generate_off` | Disable test video image |
 | `testdata` | Shows test screen |
 | `resetpll` | Reset PLL |
-| `osd (on|off)` | Show/hide OSD |
-| `hq2x (on|off)` | Activate/deactivate HQ2X filter (only in 960p/1080p mode with *Relaxed* firmware active) |
+| `osd (on,off)` | Show/hide OSD |
+| `hq2x (on,off)` | Activate/deactivate HQ2X filter (only in 960p/1080p mode with *Relaxed* firmware active) |
 | `240p_offset ([0-9]+)` | Set offset for 240p mode (pixel x2) |
-| `osd (on|off)` | Show/hide OSD |
+| `osd (on,off)` | Show/hide OSD |
 | `spi_flash_erase` | Erase FPGA configuration memory |
 | `osdwrite`\ <br>&nbsp;&nbsp;`[column]`\ <br>&nbsp;&nbsp;`[row]`\ <br>&nbsp;&nbsp;`"[text]"` | Write `[text]` to OSD starting at `[column]`/`[row]` |
 
