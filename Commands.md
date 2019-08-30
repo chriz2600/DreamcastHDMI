@@ -4,99 +4,64 @@ These are the basic web console commands:
 
 ### Basic commands
 
-| Commands | Description |
-+----------+-------------+
-| `config` | Show current DCHDMI configuration data. |
-
-#### `setup`
-
-Enters setup mode, where you can edit the configuration.
-
-#### `check`
-
-Checks for new firmware using ***Firmware Server*** and ***Firmware Version*** configuration data.
-
-#### `download`
-
-Downloads (new) firmware from ***Firmware Server***.
-
-#### `flash`
-
-Flashes new firmware.
-
-#### `reset`
-
-Resets DCHDMI. This also resets the Dreamcast.
-
-#### help
+| Command | Description |
+| - | - |
+| `config` | Show current DCHDMI configuration data |
+| `setup`  | Enter setup mode, to edit configuration |
+| `check` | Check for new firmware using ***Firmware Server*** and ***Firmware Version*** configuration data |
+| `download` | Download firmware from ***Firmware Server*** to staging area |
+| `flash` | Flash firmware from staging area |
+| `reset` | Reset DCHDMI. This also resets the Dreamcast |
+| `help` | Show available basic commands |
+| `helpexpert` | Show available expert commands |
+| `clear` | Clear terminal screen |
+| `exit` | Exit terminal |
 
 
+### Expert commands
 
-#### helpexpert
+| Command | Description |
+| - | - |
+| `check[type]`*(1)* | Check for new *type* firmware using ***Firmware Server*** and ***Firmware Version*** configuration data |
+| `select` | Select a file to upload from your computer |
+| `upload[type]` | Upload selected file to staging area for *type* |
+| `file` | Print information about selected file |
+| `download[type]` | Download *type* firmware from ***Firmware Server*** to staging area |
+| `flash[type]` | Flash *type* from staging area |
+| `reset[type]`*(2)* | Reset *type* |
+| `cleanup` | Remove all staged firmware files and forget about previously flashed versions |
+| `ls` | List files in filesystem |
 
-
-clear                                  
-exit
-
-
-check[type]                            
-select                                 
-upload[type]                           
-    fpga
-    esp
-    index
-file                                   
-download[type]                         
-flash[type]
-    fpga
-    esp
-    index
-"flash",
-    "flashfpga",
-    "flashfpgasecure",
-    "flashesp",
-    "flashindex",
-
-reset[type]                            
-    fpga
-    esp
-                                       
-cleanup                                
-ls                                     
-                                       
-exit                                   
-"details",
-    "detailsfpga",
-    "detailsesp",
-    "detailsindex",
-"banner",
-
-==================================
-                                       
-get_mac
-factoryreset
-cleanup
-resetconfig
-flash_chip_size
-res_vga
-res_480p
-res_960p
-res_1080p
-deinterlace_bob
-deinterlace_passthru
-generate_on
-generate_off
-spi_flash_erase
-resetpll
-testdata
-osd (on|off)
-hq2x (on|off)
-osdwrite ([0-9]+) ([0-9]+) "([^"]*)"
-240p_offset ([0-9]+)
-debug
+*(1)* `[type]`: `fpga`, `esp` or `index`<br>
+*(2)* There is no `resetindex` command
 
 
+### Special commands
 
+| Command | Description |
+| - | - |
+| `flashfpgasecure` | Flash FPGA firmware while disabling the FPGA |
+| `banner` | Print DCHDMI banner |
+| `get_mac` | Print MAC address of DCHDMI |
+| `flash_chip_size` | Print ESP flash chip size |
+| `res_[resolution]`*(1)* | Switch to *resolution* |
+| `deinterlace_[deint]`*(2)* | Use deinterlacer *deint* (only works in 15kHz mode) |
+| `generate_on` | Generate test video image |
+| `generate_off` | Disable test video image |
+| `testdata` | Shows test screen |
+| `resetpll` | Reset PLL |
+| `osd (on|off)` | Show/hide OSD |
+| `hq2x (on|off)` | Activate/deactivate HQ2X filter (only in 960p/1080p mode with *Relaxed* firmware active) |
+| `240p_offset ([0-9]+)` | Set offset for 240p mode (pixel x2) |
+| `osd (on|off)` | Show/hide OSD |
+| `spi_flash_erase` | Erase FPGA configuration memory |
+| `osdwrite`\ <br>&nbsp;&nbsp;`[column]`\ <br>&nbsp;&nbsp;`[row]`\ <br>&nbsp;&nbsp;`"[text]"` | Write `[text]` to OSD starting at `[column]`/`[row]` |
+
+*(1)* `[resolution]`: `vga`, `480p`, `960p` or `1080p`
+<br>*(2)* `[deint]`: `bob` or `passthru`
+
+---
+<!--
     /upload/fpga", HTTP_POST
     /upload/esp", HTTP_POST
     /upload/index", HTTP_POST
@@ -147,7 +112,7 @@ debug
     /nbp/reset", HTTP_GET
     /testdata2", HTTP_GET
     /testdata", HTTP_GET
-
+-->
 <!--
 DCHDMI firmware consist of 3 firmware parts:
 
