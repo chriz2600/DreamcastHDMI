@@ -120,7 +120,7 @@ class InfoTask : public Task {
                         "  00 01 02 03 04 05 06 07 08 09 10 11   "
                         "   %c  %c  %c  %c  %c  %c  %c  %c  %c  %c  %c  %c   "
                         "Raw Input Resolution: %03ux%03u  WiFi:%3d%%"
-                        "Output Mode re-m/map: %02x %02x             "
+                        "Output Mode re-m/map: %02x %02x      ch: %2d "
                         "Res data/deint data : %02x %02x        %02x %02x"
                         "Raw data: %02x %02x %02x %02x %02x %02x %04x %04x   "
                         "advll: %05u   hpdl: %05u  msen: %05u "
@@ -138,7 +138,7 @@ class InfoTask : public Task {
                         checkPin(pinok1, pinok2, 9, 10),
                         checkPin(pinok1, pinok2, 10, 10),
                         (resolX + 1) / 2, (resolY + 1), getWiFiQuality(WiFi.RSSI()),
-                        remapResolution(CurrentResolution), mapResolution(CurrentResolution, true),
+                        remapResolution(CurrentResolution), mapResolution(CurrentResolution, true), WiFi.channel(),
                         CurrentResolutionData, CurrentDeinterlaceMode480i,
                         buffer[33], buffer[34],
                         buffer[16], buffer[17], buffer[18], buffer[19], buffer[20], buffer[21],

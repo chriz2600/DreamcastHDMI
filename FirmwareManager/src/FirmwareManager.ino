@@ -1170,7 +1170,7 @@ void loop(void){
             }
         } else if (incomingByte == 'w') {
             int dBm = WiFi.RSSI();
-            DEBUG2("RSSI: %d dBm, quality: %d%%\n", dBm, getWiFiQuality(dBm));
+            DEBUG2("RSSI: %d dBm, quality: %d%%, channel: %d\n", dBm, getWiFiQuality(dBm), WiFi.channel());
         }
     }
 }
