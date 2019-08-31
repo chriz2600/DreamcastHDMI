@@ -1065,6 +1065,7 @@ void printSerialMenu() {
     DEBUG2("p: reset PLL\n");
     DEBUG2("t: show visible area counters\n");
     DEBUG2("o: activate OTA update\n");
+    DEBUG2("w: print wifi rssi information\n");
     DEBUG2("h: print this menu\n");
     DEBUG2("------------------------------\n");
 }
@@ -1126,6 +1127,16 @@ void showInfo() {
     DEBUG2("Free heap size: %u\n\n", ESP.getFreeHeap());
 }
 
+int getWiFiQuality(int dBm) {
+  if (WiFi.status() != WL_CONNECTED)
+    return -1;
+  if (dBm <= -100)
+    return 0;
+  if (dBm >= -50)
+    return 100;
+  return 2 * (dBm + 100);
+}
+
 void loop(void){
     ArduinoOTA.handle();
     taskManager.Loop();
@@ -1157,6 +1168,9 @@ void loop(void){
             } else {
                 DEBUG2("Please set an OTA password via web interface first!\n");
             }
+        } else if (incomingByte == 'w') {
+            int dBm = WiFi.RSSI();
+            DEBUG2("RSSI: %d dBm, quality: %d%%\n", dBm, getWiFiQuality(dBm));
         }
     }
 }

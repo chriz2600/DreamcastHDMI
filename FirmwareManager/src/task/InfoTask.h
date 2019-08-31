@@ -4,6 +4,8 @@
 #include "../global.h"
 #include <Task.h>
 
+int getWiFiQuality(int dBm);
+
 extern TaskManager taskManager;
 
 class InfoTask : public Task {
@@ -117,7 +119,7 @@ class InfoTask : public Task {
                         "No signal should be X on VMU screen!    "
                         "  00 01 02 03 04 05 06 07 08 09 10 11   "
                         "   %c  %c  %c  %c  %c  %c  %c  %c  %c  %c  %c  %c   "
-                        "Raw Input Resolution: %03ux%03u           "
+                        "Raw Input Resolution: %03ux%03u  WiFi:%3d%%"
                         "Output Mode re-m/map: %02x %02x             "
                         "Res data/deint data : %02x %02x        %02x %02x"
                         "Raw data: %02x %02x %02x %02x %02x %02x %04x %04x   "
@@ -135,7 +137,7 @@ class InfoTask : public Task {
                         checkPin(pinok1, pinok2, 8, 9),
                         checkPin(pinok1, pinok2, 9, 10),
                         checkPin(pinok1, pinok2, 10, 10),
-                        (resolX + 1) / 2, (resolY + 1),
+                        (resolX + 1) / 2, (resolY + 1), getWiFiQuality(WiFi.RSSI()),
                         remapResolution(CurrentResolution), mapResolution(CurrentResolution, true),
                         CurrentResolutionData, CurrentDeinterlaceMode480i,
                         buffer[33], buffer[34],
