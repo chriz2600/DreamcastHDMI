@@ -21,7 +21,7 @@ firmware-utils:
       - firmware-utils/firmware-packer
       - firmware-utils/firmware-unpacker
   tags:
-    - dreamcast-hdmi
+    - docker
   only:
     - develop
     - master
@@ -51,7 +51,7 @@ fpga-firmware:
   dependencies:
     - firmware-utils
   tags:
-    - dreamcast-hdmi
+    - docker
   only:
     - develop
     - master
@@ -79,7 +79,7 @@ esp-firmware:
   dependencies:
     - fpga-firmware
   tags:
-    - platformio
+    - docker
   only:
     - develop
     - master
@@ -98,7 +98,7 @@ fpga-publish:
   dependencies:
     - fpga-firmware
   tags:
-    - index-gen
+    - shell
   only:
     - develop
     - master
@@ -117,7 +117,7 @@ esp-publish:
   dependencies:
     - esp-firmware
   tags:
-    - index-gen
+    - shell
   only:
     - develop
     - master
@@ -137,7 +137,7 @@ finish-publish:
     - fpga-publish
     - esp-publish
   tags:
-    - index-gen
+    - shell
   only:
     - develop
     - master
