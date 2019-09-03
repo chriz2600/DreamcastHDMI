@@ -7,5 +7,6 @@
         $_SESSION["progress"] = 0;
     }
 
-    $_SESSION["progress"] = $_SESSION["progress"] + 10;
+    $tmp = $_SESSION["progress"] + 5 + rand(0, 17);
+    $_SESSION["progress"] = $tmp > 100 ? 100 : $tmp;
     echo $_SESSION["progress"];

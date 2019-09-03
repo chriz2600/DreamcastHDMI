@@ -7,17 +7,41 @@
         $j = json_decode($_SESSION["config"], true);
     }
 
-    function _getMD5File() {
+    function _getMD5FileFPGA() {
         global $j;
         return (
               "https://" . $j["firmware_server"]
             . "/fw/" . $j["firmware_version"]
-            . "/DCxPlus-" . $j["firmware_fpga"]
-            . "-" . $j["firmware_format"]
-            . ".dc.md5?cc=" . rand()
+            . "/DCxPlus-v2.dc.md5?cc=" . rand()
+        );
+    }
+    function _getMD5FileESP() {
+        global $j;
+        return (
+              "https://" . $j["firmware_server"]
+            . "/esp/" . $j["firmware_version"]
+            . "/4MB-firmware.bin.md5?cc=" . rand()
+        );
+    }
+    function _getMD5FileIndex() {
+        global $j;
+        return (
+              "https://" . $j["firmware_server"]
+            . "/esp/" . $j["firmware_version"]
+            . "/esp.index.html.gz.md5?cc=" . rand()
         );
     }
     $_SESSION["progress"] = 0;
-    $_SESSION["firmware.dc.md5"] = trim(file_get_contents(_getMD5File()));
 
-    echo "[" . _getMD5File() . "]<br>[".$_SESSION["firmware.dc.md5"]."]";
+    if ($_SERVER['REQUEST_URI'] == "/download/fpga") {
+        $_SESSION["firmware.dc.md5"] = trim(file_get_contents(_getMD5FileFPGA()));
+        echo "[" . _getMD5FileFPGA() . "]<br>[".$_SESSION["firmware.dc.md5"]."]";
+    } else if ($_SERVER['REQUEST_URI'] == "/download/esp") {
+        $_SESSION["firmware.bin.md5"] = trim(file_get_contents(_getMD5FileESP()));
+        echo "[" . _getMD5FileESP() . "]<br>[".$_SESSION["firmware.bin.md5"]."]";
+    } else if ($_SERVER['REQUEST_URI'] == "/download/index") {
+        $_SESSION["esp_index_html_gz_md5"] = trim(file_get_contents(_getMD5FileIndex()));
+        echo "[" . _getMD5FileIndex() . "]<br>[".$_SESSION["esp_index_html_gz_md5"]."]";
+    }
+
+    

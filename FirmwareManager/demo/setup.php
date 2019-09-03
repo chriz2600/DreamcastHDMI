@@ -23,10 +23,19 @@
     get("ota_pass", "");
     get("firmware_server", "dc.i74.de");
     get("firmware_version", "master");
-    get("firmware_fpga", "10CL025");
-    get("firmware_format", "VGA");
-    get("http_auth_user", "Test");
-    get("http_auth_pass", "testtest");
+    get("http_auth_user", "dchdmi");
+    get("http_auth_pass", "");
+    get("conf_ip_addr", "");
+    get("conf_ip_gateway", "");
+    get("conf_ip_mask", "");
+    get("conf_ip_dns", "");
+    get("hostname", "dc-firmware-manager");
+    get("video_resolution", "VGA");
+    get("video_mode", "CableDetect");
+    get("reset_mode", "led");
+    get("deinterlace_mode", "bob");
+    get("protected_mode", "off");
+    get("keyboard_layout", "us");
 
     $_SESSION["config"] = json_encode($j);
     echo "OK";
