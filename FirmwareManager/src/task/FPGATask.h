@@ -21,6 +21,8 @@
 
 #define NBP_STATE_RESET 31
 #define NBP_STATE_CHECK 63
+#define MAX_OSD_QUEUE_SIZE 4
+#define MAX_RW_QUEUE_SIZE 256
 
 typedef std::function<void(uint16_t controller_data, bool isRepeat)> FPGAEventHandlerFunction;
 typedef std::function<void(uint8_t shiftcode, uint8_t chardata, bool isRepeat)> FPGAKeyboardHandlerFunction;
@@ -109,6 +111,16 @@ class FPGATask : public Task {
             data.left = len;
             data.localAddress = data.row * 40 + data.column;
             data.handler = handler;
+            if (osdqueue.size() > MAX_OSD_QUEUE_SIZE) {
+                //DEBUG2("osdqueue.size() exceeded: %d\n", osdqueue.size());
+                osddata_t &data = osdqueue.front();
+                // handle as if osd write was already done
+                free(data.charData); data.charData = NULL;
+                if (data.handler != NULL) {
+                    data.handler();
+                }
+                osdqueue.pop();
+            }
             osdqueue.push(data);
         }
 
@@ -121,6 +133,10 @@ class FPGATask : public Task {
             data.address = address;
             data.value = value;
             data.handler = handler;
+            if (writequeue.size() > MAX_RW_QUEUE_SIZE) {
+                DEBUG2("writequeue.size() exceeded: %d\n", writequeue.size());
+                writequeue.pop();
+            }
             writequeue.push(data);
         }
 
@@ -129,6 +145,10 @@ class FPGATask : public Task {
             data.address = address;
             data.len = len;
             data.handler = handler;
+            if (readqueue.size() > MAX_RW_QUEUE_SIZE) {
+                DEBUG2("readqueue.size() exceeded: %d\n", readqueue.size());
+                readqueue.pop();
+            }
             readqueue.push(data);
         }
 
