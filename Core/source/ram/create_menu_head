@@ -1,0 +1,48 @@
+#!/usr/bin/perl -w
+
+use strict;
+use File::Basename;
+
+chdir dirname($0);
+
+open(OUT, "> ../../../FirmwareManager/src/menu_head.h");
+printf OUT "#ifndef H_MENU_HEAD\n#define H_MENU_HEAD\nuint8_t MENU_HEAD[960] = {";
+
+my $version = $ENV{'CI_COMMIT_REF_NAME'};
+
+unless (defined($version)) {
+    $version = "";
+}
+
+if ($version eq "master") {
+    $version = $ENV{'CI_COMMIT_SHA'};
+}
+
+if ($version eq "") {
+    $version = `date +"%Y%m%d%H%M%S"`
+}
+
+chomp($version);
+$version = sprintf("%13s", $version);
+
+my $x = 0;
+my $data="";
+open(TXT, "< text_ram.txt");
+while (<TXT>) {
+    chomp($_);
+    $_ =~ s/__FW_VERSION__/$version/g;
+    $data .= $_;
+}
+
+for my $c (split //, $data) {
+    if ($x % 20 == 0) {
+	printf OUT "\n    ";
+    }
+    printf OUT "0x%02X, ",  ord($c);
+    $x++;
+}
+
+close(TXT);
+
+printf OUT "\n};\n#endif\n";
+close(OUT);

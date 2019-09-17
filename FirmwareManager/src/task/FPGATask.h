@@ -2,6 +2,7 @@
 #define FPGA_TASK_H
 
 #include "../global.h"
+#include "../menu_head.h"
 #include <Task.h>
 #include <inttypes.h>
 #include <string.h>
@@ -14,6 +15,10 @@
 #define REPEAT_DELAY_KEYB 600
 #define REPEAT_RATE_KEYB 166
 
+#define OSD_ROWS 40
+#define OSD_LINES 24
+#define OSD_SIZE (OSD_LINES * OSD_ROWS)
+
 #define FPGA_RESET_INACTIVE 0
 #define FPGA_RESET_STAGE1 1
 #define FPGA_RESET_STAGE2 2
@@ -21,8 +26,7 @@
 
 #define NBP_STATE_RESET 31
 #define NBP_STATE_CHECK 63
-#define MAX_OSD_QUEUE_SIZE 4
-#define MAX_RW_QUEUE_SIZE 256
+#define MAX_QUEUE_SIZE 255
 
 typedef std::function<void(uint16_t controller_data, bool isRepeat)> FPGAEventHandlerFunction;
 typedef std::function<void(uint8_t shiftcode, uint8_t chardata, bool isRepeat)> FPGAKeyboardHandlerFunction;
@@ -51,14 +55,13 @@ void setupI2C() {
 }
 
 typedef struct osddata {
-    uint8_t column;
-    uint8_t row;
-    uint8_t *charData;
     WriteOSDCallbackHandlerFunction handler;
-    uint16_t length;
-    uint16_t left;
-    uint16_t localAddress;
 } osddata_t;
+
+typedef struct osdmeta {
+    uint16_t left;
+    uint16_t address;
+} osdmeta_t;
 
 typedef struct writedata {
     uint8_t address;
@@ -99,29 +102,20 @@ class FPGATask : public Task {
             if (column > 39) { column = 39; }
             if (row > 23) { row = 23; }
 
-            osddata_t data;
-            data.column = column;
-            data.row = row;
-
-            uint16_t len = strlen((char*) charData);
-            data.charData = (uint8_t*) malloc(len + 1);
-            memcpy(data.charData, charData, len);
-            data.charData[len] = '\0';
-            data.length = len;
-            data.left = len;
-            data.localAddress = data.row * 40 + data.column;
-            data.handler = handler;
-            if (osdqueue.size() > MAX_OSD_QUEUE_SIZE) {
-                //DEBUG2("osdqueue.size() exceeded: %d\n", osdqueue.size());
-                osddata_t &data = osdqueue.front();
-                // handle as if osd write was already done
-                free(data.charData); data.charData = NULL;
-                if (data.handler != NULL) {
-                    data.handler();
+            int start = row * 40 + column;
+            int _len = strlen((char*) charData);
+            int length = _len > (OSD_SIZE) ? OSD_SIZE : _len;
+            
+            memcpy(&osdbuffer[start], charData, length);
+            if (handler != NULL || osdqueue.empty()) {
+                osddata_t data = {};
+                data.handler = handler;
+                if (osdqueue.size() > MAX_QUEUE_SIZE) {
+                    DEBUG2("osdqueue.size() exceeded: %d\n", osdqueue.size());
+                    osdqueue.pop();
                 }
-                osdqueue.pop();
+                osdqueue.push(data);
             }
-            osdqueue.push(data);
         }
 
         virtual void Write(uint8_t address, uint8_t value) {
@@ -129,11 +123,11 @@ class FPGATask : public Task {
         }
 
         virtual void Write(uint8_t address, uint8_t value, WriteCallbackHandlerFunction handler) {
-            writedata_t data;
+            writedata_t data = {};
             data.address = address;
             data.value = value;
             data.handler = handler;
-            if (writequeue.size() > MAX_RW_QUEUE_SIZE) {
+            if (writequeue.size() > MAX_QUEUE_SIZE) {
                 DEBUG2("writequeue.size() exceeded: %d\n", writequeue.size());
                 writequeue.pop();
             }
@@ -141,11 +135,11 @@ class FPGATask : public Task {
         }
 
         virtual void Read(uint8_t address, uint8_t len, ReadCallbackHandlerFunction handler) {
-            readdata_t data;
+            readdata_t data = {};
             data.address = address;
             data.len = len;
             data.handler = handler;
-            if (readqueue.size() > MAX_RW_QUEUE_SIZE) {
+            if (readqueue.size() > MAX_QUEUE_SIZE) {
                 DEBUG2("readqueue.size() exceeded: %d\n", readqueue.size());
                 readqueue.pop();
             }
@@ -164,9 +158,11 @@ class FPGATask : public Task {
         FPGAEventHandlerFunction controller_handler;
         FPGAKeyboardHandlerFunction keyboard_handler;
 
+        uint8_t *osdbuffer;
         uint8_t data_out[MAX_ADDR_SPACE+1];
         uint8_t data_out_keyb[MAX_ADDR_SPACE+1];
         uint8_t data_write[MAX_ADDR_SPACE+1];
+        osdmeta_t osdmeta = { OSD_SIZE, 0 };
 
         long eTime;
         long eTime_keyb;
@@ -182,7 +178,14 @@ class FPGATask : public Task {
         std::queue<readdata_t> readqueue;
 
         virtual bool OnStart() {
-            return true;
+            // create osdbuffer
+            osdbuffer = (uint8_t*) malloc(OSD_LINES * OSD_ROWS);
+            if (osdbuffer != NULL) {
+                // copy MENU_HEAD
+                memcpy(osdbuffer, MENU_HEAD, OSD_LINES * OSD_ROWS);
+                return true;
+            }
+            return false;
         }
 
         void handleWrite() {
@@ -252,25 +255,27 @@ class FPGATask : public Task {
         void handleOSD() {
             osddata_t &data = osdqueue.front();
             //DEBUG2("updateOSDContent: length: %u, left: %u\n", data.length, data.left);
-            if (data.left > 0) {
-                uint8_t upperAddress = data.localAddress / MAX_ADDR_SPACE;
-                uint8_t lowerAddress = data.localAddress % MAX_ADDR_SPACE;
+            if (osdmeta.left > 0) {
+                uint8_t upperAddress = osdmeta.address / MAX_ADDR_SPACE;
+                uint8_t lowerAddress = osdmeta.address % MAX_ADDR_SPACE;
                 data_write[0] = I2C_OSD_ADDR_OFFSET;
                 data_write[1] = upperAddress;
                 brzo_i2c_write(data_write, 2, false);
                 data_write[0] = lowerAddress;
                 uint8_t towrite = MAX_ADDR_SPACE - lowerAddress;
-                if (towrite > data.left) { towrite = data.left; }
-                memcpy(&data_write[1], &data.charData[data.length-data.left], towrite);
+                if (towrite > osdmeta.left) { towrite = osdmeta.left; }
+                memcpy(&data_write[1], &osdbuffer[OSD_SIZE-osdmeta.left], towrite);
                 brzo_i2c_write(data_write, towrite + 1, false);
-                data.left -= towrite;
-                data.localAddress += towrite;
+                osdmeta.left -= towrite;
+                osdmeta.address += towrite;
             } else {
-                free(data.charData); data.charData = NULL;
                 if (data.handler != NULL) {
                     data.handler();
                 }
                 osdqueue.pop();
+                // prepare for next update
+                osdmeta.left = OSD_SIZE;
+                osdmeta.address = 0;
             }
         }
 
@@ -414,6 +419,10 @@ class FPGATask : public Task {
 
         virtual void OnStop() {
             DEBUG("OnStop\n");
+            if (osdbuffer != NULL) {
+                free(osdbuffer); 
+                osdbuffer = NULL;
+            }
         }
 };
 
