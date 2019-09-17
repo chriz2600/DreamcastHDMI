@@ -61,7 +61,7 @@ fpga-firmware:
 
 esp-firmware:
   image:
-    name: chriz2600/platformio:4.0.0
+    name: chriz2600/platformio:4.0
   stage: build-esp
   script:
     - "./FirmwareManager/build-all"
