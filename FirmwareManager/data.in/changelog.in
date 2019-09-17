@@ -1,3 +1,7 @@
+v4.1                                    
+- Fixed: Memory overflow in osd write   
+- New: Control OSD with an arcade stick 
+                                        
 v4.0                                    
 - Standard and Relaxed are recombined   
   into one firmware bundle              

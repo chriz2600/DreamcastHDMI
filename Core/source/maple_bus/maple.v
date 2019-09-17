@@ -150,16 +150,22 @@ always @(posedge clk or posedge reset) begin
                         pullup_osd[2] <= 1'b1;
                     end else if (maple_data == 8'b_1111_1101) begin // buttons[15:8] Y pressed
                         trig_def_res[2] <= 1'b1;
+                    end else if (maple_data == 8'b_1111_1100) begin // buttons[15:8] Z pressed, Y pressed
+                        pullup_osd[1:0] <= 2'b11;
                     end
                     cdata_in.y <= ~maple_data[1];
                     cdata_in.x <= ~maple_data[2];
                     keydata_in.leds <= maple_data;
+                    // map arcade stick Z to ltrigger/cancel
+                    cdata_in.ltrigger <= ~maple_data[0] | cdata_in.ltrigger;
                 end
                 11: begin
                     if (maple_data == 8'b_1111_0011) begin // buttons[7:0] A pressed, START pressed
                         pullup_osd[3] <= 1'b1;
                     end else if (maple_data == 8'b_1111_0101) begin // buttons[7:0] B pressed, START pressed
                         trig_def_res[3] <= 1'b1;
+                    end else if (maple_data == 8'b_1111_0100) begin // buttons[7:0] C pressed, B pressed, START pressed
+                        pullup_osd[3:2] <= 2'b11;
                     end
                     cdata_in.b <= ~maple_data[1];
                     cdata_in.a <= ~maple_data[2];
@@ -169,6 +175,8 @@ always @(posedge clk or posedge reset) begin
                     cdata_in.left <= ~maple_data[6];
                     cdata_in.right <= ~maple_data[7];
                     keydata_in.shiftcode <= maple_data;
+                    // map arcade stick C to rtrigger/ok
+                    cdata_in.rtrigger <= ~maple_data[0] | cdata_in.rtrigger;
                 end
                 12: begin
                     keydata_in.key6 <= maple_data;

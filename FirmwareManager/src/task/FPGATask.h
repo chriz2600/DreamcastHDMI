@@ -98,7 +98,7 @@ class FPGATask : public Task {
         }
 
         virtual void DoWriteToOSD(uint8_t column, uint8_t row, uint8_t charData[], WriteOSDCallbackHandlerFunction handler) {
-            //DEBUG2("DoWriteToOSD: %u %u %u %u %s %u\n", column, row, strlen((char*) charData), left, (updateOSDContent ? "true" : "false"), counter++);
+            //DEBUG2("DoWriteToOSD: %u %u %u %u\n", column, row, strlen((char*) charData), osdqueue.size());
             if (column > 39) { column = 39; }
             if (row > 23) { row = 23; }
 
@@ -107,7 +107,14 @@ class FPGATask : public Task {
             int length = _len > (OSD_SIZE) ? OSD_SIZE : _len;
             
             memcpy(&osdbuffer[start], charData, length);
-            if (handler != NULL || osdqueue.empty()) {
+            /*
+                Only add to queue, if there is no handler left or handler is set.
+                If the last handler adds an osd write (without handler), it's still
+                in the queue (while the handler is executed), so add another one then
+                to trigger the update:
+                This is the reason for checking "osdqueue.size() <= 1"
+            */
+            if (handler != NULL || osdqueue.size() <= 1) {
                 osddata_t data = {};
                 data.handler = handler;
                 if (osdqueue.size() > MAX_QUEUE_SIZE) {
