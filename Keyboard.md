@@ -1,6 +1,6 @@
 ## Keyboard support
 
-DCHDMI firmwares v2.3.5 and v3.0.5 added support for a dreamcast keyboard. Currently only US and German keyboard layout is supported, and it has to be configured using the web console `setup` command (default is `us`).
+DCHDMI firmware v4.0 added support for a dreamcast keyboard. Currently only US and German keyboard layout is supported, and it has to be configured using the web console `setup` command (default is `us`).
 
 The keyboard has to be connected to dreamcast port A.
 
