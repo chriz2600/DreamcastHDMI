@@ -29,6 +29,8 @@
 
     This firmware/software will always remain free and will always only send out the minimum information required to perform a firmware upgrade.
 
+    Also check out [Web console](Web_console.md) documentation, on how to perform a firmware update without connecting your DCHDMI to a WiFi network.
+
 #### 2019-08-25 *Firmware v4.0* (*Unified*)
 
 - *Standard (**-std**)* and *Relaxed (**-rlx**)* firmware flavours are now combined into one firmware release. When changing firmware flavour only the fpga firmware gets re-flashed from the firmware bundle downloaded previously.
