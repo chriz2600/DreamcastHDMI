@@ -78,11 +78,11 @@ If your DCHDMI is already connected to your local WiFi network:
 
 9) `uploadfpga` to upload the file.
 
-10) Use `select` again to select the previously downloaded **ESP firmware**.
+10) Use `select` again to select the previously downloaded **ESP firmware** (`4MB-firmware.bin`).
 
 11) `uploadesp` to upload.
 
-12) Use `select` once again to select the **Web console** file.
+12) Use `select` once again to select the **Web console** (`esp.index.html.gz`) file.
 
 13) And upload it using `uploadindex`.
 
