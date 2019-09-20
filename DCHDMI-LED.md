@@ -1,6 +1,6 @@
 ## DCHDMI LED status patterns
 
-*LED status is only available, when `Opt. reset mode` in console setup is set to `led`*
+*LED status is only available, when `Opt. reset mode` in Web console `setup` is set to `led`*
 
 #### **LED off**
 
