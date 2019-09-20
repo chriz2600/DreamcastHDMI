@@ -17,6 +17,8 @@ If your DCHDMI is already connected to your local WiFi network:
 
 4) Use a browser of your choice and enter the IP address shown next to `IP address` in the browsers address bar.
 
+    *If you are using macOS or Linux with a running avahi daemon or Windows with iTunes, you can also use DCHDMI's zeroconf-`Hostname` (default: `dc-firmware-manager.local`)*
+
 5) A login windows should open. Enter `Web login username` and `Web login password`.
 
 6) A command prompt should be displayed.
@@ -39,15 +41,15 @@ If your DCHDMI is already connected to your local WiFi network:
 
 ## I don't want to connect my DCHDMI to my WiFi network, how do I update manually?
 
-*This assumes your DCHDMI is not connected to your local WiFi network. It also assumes you're using v4.0 or newer.*
-
 1) Download the firmware files to your computer:
 
-    a) FPGA firmware: https://dc.i74.de/fw/master/DCxPlus-v2.dc
+    a) **Unified FPGA firmware**: https://dc.i74.de/fw/master/DCxPlus-v2.dc
 
-    b) ESP firmware: https://dc.i74.de/esp/master/4MB-firmware.bin
+    *If you're current firmware isn't v4.0 or newer, also download this **Transitional FPGA firmware**:*<br>https://dc.i74.de/fw/master/DCxPlus-default.dc
 
-    c) Web console: https://dc.i74.de/esp/master/esp.index.html.gz
+    b) **ESP firmware**: https://dc.i74.de/esp/master/4MB-firmware.bin
+
+    c) **Web console**: https://dc.i74.de/esp/master/esp.index.html.gz
 
 2) Open the OSD and enter the `WiFi Setup` page.
 
@@ -69,15 +71,18 @@ If your DCHDMI is already connected to your local WiFi network:
 
 7) The *Web console* should be displayed and setup mode should be started. Just hit `CTRL-D` to exit the setup.
 
-8) Use the `select` command and select the previously downloaded FPGA firmware from the file chooser.
+8)  
+    *If your current firmware is v4.0 or newer:*<br>Use the `select` command and select the previously downloaded **Unified FPGA firmware** (`DCxPlus-v2.dc`) from the file chooser.
+
+    *If you're current firmware isn't v4.0 or newer:*<br>Use the `select` command and select the previously downloaded **Transitional FPGA firmware** (`DCxPlus-default.dc`) from the file chooser.
 
 9) `uploadfpga` to upload the file.
 
-10) Use `select` again to select the previously downloaded ESP firmware.
+10) Use `select` again to select the previously downloaded **ESP firmware**.
 
 11) `uploadesp` to upload.
 
-12) Use `select` once again to select the Web console file.
+12) Use `select` once again to select the **Web console** file.
 
 13) And upload it using `uploadindex`.
 
@@ -85,6 +90,13 @@ If your DCHDMI is already connected to your local WiFi network:
 
 15) `reset` DCHDMI to (re-)start with the new firmware
 
+16) **Only if you ugraded from a version before v4.0**:
+
+    1) Use the `select` command and select **Unified FPGA firmware** (`DCxPlus-v2.dc`) from the file chooser.
+
+    2) `uploadfpga` to upload the file.
+
+    3) You're now able to switch between `Standard` and `Relaxed`.
 
 ## Commands
 
