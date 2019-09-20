@@ -1,4 +1,92 @@
-# Web console commands
+# Web console
+
+[Jump to command reference](#commands)
+
+## How to connect
+
+If your DCHDMI is already connected to your local WiFi network:
+
+1) Open the OSD and go to `WiFi Setup`.
+
+2) Make sure it says `[Connected]` instead of `[Access point]` on the screen.
+
+    <img src="https://github.com/chriz2600/DreamcastHDMI/raw/bleeding/assets/DCHDMI-connected.png" alt="WiFi connected" width="50%"/>
+
+
+3) Press `Y` to reveal the `Web login password`. You can skip that, if you set an password in the Web console's setup.
+
+4) Use a browser of your choice and enter the IP address shown next to `IP address` in the browsers address bar.
+
+5) A login windows should open. Enter `Web login username` and `Web login password`.
+
+6) A command prompt should be displayed.
+
+
+## How to update the Firmware from the web console
+
+*This assumes your DCHDMI is connected to a WiFi network.*
+
+1) Connect to the web console.
+
+2) *Optional*: use `check` to see, if a new firmware is available.
+
+3) `download` new firmware
+
+4) `flash` new firmware
+
+5) `reset` DCHDMI to (re-)start with the new firmware.
+
+
+## I don't want to connect my DCHDMI to my WiFi network, how do I update manually?
+
+*This assumes your DCHDMI is not connected to your local WiFi network. It also assumes you're using v4.0 or newer.*
+
+1) Download the firmware files to your computer:
+
+    a) FPGA firmware: https://dc.i74.de/fw/master/DCxPlus-v2.dc
+
+    b) ESP firmware: https://dc.i74.de/esp/master/4MB-firmware.bin
+
+    c) Web console: https://dc.i74.de/esp/master/esp.index.html.gz
+
+2) Open the OSD and enter the `WiFi Setup` page.
+
+3) Make sure it says `[Access point]` on the screen.
+
+    <img src="https://github.com/chriz2600/DreamcastHDMI/raw/bleeding/assets/DCHDMI-accesspoint.png" alt="WiFi connected" width="50%"/>
+
+4) Press `Y` to reveal passwords.<br>To be able to connect to access point you will need the information marked <span style="padding:3px;background-color:black;color:red;">**red**</span>.<br>For web console access you will need the information marked <span style="padding:3px;background-color:black;color:yellow">**yellow**</span>.
+
+    <img src="https://github.com/chriz2600/DreamcastHDMI/raw/bleeding/assets/DCHDMI-accesspoint-markers.png" alt="WiFi connected" width="50%"/>
+
+5) Connect your WiFi capable computer to the DCHDMI access point using:
+    
+    - SSID: `Access point SSID`
+    
+    - Password: `Access point password`
+
+6) When connected to DCHDMI AP, use a browser of your choice and enter `192.168.4.1` in the browsers address bar.
+
+7) The *Web console* should be displayed and setup mode should be started. Just hit `CTRL-D` to exit the setup.
+
+8) Use the `select` command and select the previously downloaded FPGA firmware from the file chooser.
+
+9) `uploadfpga` to upload the file.
+
+10) Use `select` again to select the previously downloaded ESP firmware.
+
+11) `uploadesp` to upload.
+
+12) Use `select` once again to select the Web console file.
+
+13) And upload it using `uploadindex`.
+
+14) Now use `flash` to flash/apply all files to your DCHDMI.
+
+15) `reset` DCHDMI to (re-)start with the new firmware
+
+
+## Commands
 
 ### Basic commands
 
@@ -124,3 +212,4 @@ DCHDMI firmware consist of 3 firmware parts:
     - [`esp.index.html.gz`](https://dc.i74.de/esp/master/esp.index.html.gz)
 
 -->
+

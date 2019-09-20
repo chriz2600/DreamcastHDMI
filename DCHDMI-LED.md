@@ -4,6 +4,12 @@
 
 #### **LED off**
 
+No power to DCHDMI or FPGA configuration is corrupt.
+
+*If the FPGA configuration has been corrupted, just wait for 2 minutes, as it will be reflashed by the ESP.*
+
+#### **LED dim on**
+
 No clock from Dreamcast. 
 
 *Check connection to `VCLK`*
@@ -20,7 +26,7 @@ Dreamcast clock and sync signals are fine, no cable plugged into HDMI port.
 
 *Plug in HDMI cable or replace with another cable*
 
-#### **LED on**
+#### **LED fully on**
 
 Normal operation.
 
@@ -30,4 +36,4 @@ Indicates video test pattern generation. Only used in test rig or using the `gen
 
 ---
 
-![vdac](https://github.com/chriz2600/DreamcastHDMI/raw/hq2x-experimental/assets/vdac.png)
+![vdac](https://github.com/chriz2600/DreamcastHDMI/raw/experimental/assets/vdac.png)

@@ -1,5 +1,26 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2019-XX-XX *Firmware v4.1* (*Unified*)
+
+- Fixed: Memory overflow in osd write.
+
+    This can cause DCHDMI to restart during firmware download. If this happens, just restart the download again until it finishes or use the [Web console](Web_console.md) to update firmware.
+
+- New: Control OSD with an arcade stick.
+
+    OSD now can be controlled using an arcade stick.
+
+    | Device | How to open OSD | Notes |
+    | --- | --- | --- |
+    | Standard controller | `Left Trigger` + `Right Trigger` + `X` + `A` + `Start` |   |
+    | Dreamcast Keyboard | `CTRL`+`SHIFT`+`ESC` | See [Keyboard reference](Keyboard.md) for details |
+    | Arcade stick | `Y` + `B` + `Z` + `C` + `Start` | `C` maps to `R-trigger`/`ok`<br>`Z` maps to `L-trigger`/`cancel`  |
+
+- Fixed: Do not drive pin 6, when in `Cable Detect` mode (Thanks to Ste!)
+
+- Documentation: [DCHDMI LED status patterns](DCHDMI-LED.md)
+
+
 #### 2019-08-25 *Firmware v4.0* (*Unified*)
 
 - *Standard (**-std**)* and *Relaxed (**-rlx**)* firmware flavours are now combined into one firmware release. When changing firmware flavour only the fpga firmware gets re-flashed from the firmware bundle downloaded previously.
