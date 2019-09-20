@@ -8,8 +8,6 @@
 
 - New: Control OSD with an arcade stick.
 
-    OSD now can be controlled using an arcade stick.
-
     | Device | How to open OSD | Notes |
     | --- | --- | --- |
     | Standard controller | `Left Trigger` + `Right Trigger` + `X` + `A` + `Start` |   |
