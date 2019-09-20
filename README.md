@@ -18,6 +18,16 @@
 
 - Documentation: [DCHDMI LED status patterns](DCHDMI-LED.md)
 
+- ***Regarding WiFi connection and firmware updates:***
+
+    DCHDMI connects - when SSID and password are configured - to your local WiFi network immediately after startup, but it will not send out any information by itself, without you actually checking and/or downloading new firmware.
+    
+    If you are connected to a network and access the `Firmware` -> `Check`/`Download` function, it sends out your desired firmware release (`master`/`develop`/...) and your IP address. No further personal data is sent: no serial number, no SSID/passwords/config data.
+    
+    This can be easily verified by checking out the firmware/software here: [DreamcastHDMI](https://github.com/chriz2600/DreamcastHDMI)<br>
+    I encourage everyone to do so. If you want, you can easily build your own update server. Everything needed to do so is in this project. If you have questions, don't hesitate to contact me.
+
+    This firmware/software will always remain free and will always only send out the minimum information required to perform a firmware upgrade.
 
 #### 2019-08-25 *Firmware v4.0* (*Unified*)
 
@@ -53,17 +63,6 @@
 - [Keyboard support to control DCHDMI OSD](Keyboard.md)
 
 - Fixed: Prevent OSD from picking up controller buttons while opening OSD.
-
-- ***Regarding WiFi connection and firmware updates:***
-
-    DCHDMI connects - when SSID and password are configured - to your local WiFi network immediately after startup, but it will not send out any information by itself, without you actually checking and/or downloading new firmware.
-    
-    If you are connected to a network and access the `Firmware` -> `Check`/`Download` function, it sends out your desired firmware release (`master`/`develop`/...) and your IP address. No further personal data is sent: no serial number, no SSID/passwords/config data.
-    
-    This can be easily verified by checking out the firmware/software here: [DreamcastHDMI](https://github.com/chriz2600/DreamcastHDMI)<br>
-    I encourage everyone to do so. If you want, you can easily build your own update server. Everything needed to do so is in this project. If you have questions, don't hesitate to contact me.
-
-    This firmware/software will always remain free and will always only send out the minimum information required to perform a firmware upgrade.
 
 #### 2019-08-09 *Firmware v3.0.4* (*Relaxed*)
 
