@@ -1,6 +1,6 @@
 # DreamcastHDMI / DCHDMI
 
-#### 2019-XX-XX *Firmware v4.1* (*Unified*)
+#### 2019-09-20 *Firmware v4.1* (*Unified*)
 
 - Fixed: Memory overflow in osd write.
 
@@ -15,6 +15,8 @@
     | Arcade stick | `Y` + `B` + `Z` + `C` + `Start` | `C` maps to `R-trigger`/`ok`<br>`Z` maps to `L-trigger`/`cancel`  |
 
 - Fixed: Do not drive pin 6, when in `Cable Detect` mode (Thanks to Ste!)
+
+- New: Display WiFi signal quality and channel on `Test/Info` OSD screen.
 
 - Documentation: [DCHDMI LED status patterns](DCHDMI-LED.md)
 

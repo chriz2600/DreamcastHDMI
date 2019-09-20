@@ -1,6 +1,8 @@
 v4.1                                    
 - Fixed: Memory overflow in osd write   
 - New: Control OSD with an arcade stick 
+- New: Display WiFi signal quality and  
+  channel on Test/Info OSD screen.      
 - Fixed: Do not drive pin 6, when in    
   CableDetect mode (Thanks to Ste!)     
                                         
