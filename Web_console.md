@@ -17,9 +17,9 @@ If your DCHDMI is already connected to your local WiFi network:
 
 4) Use a browser of your choice and enter the IP address shown next to `IP address` in the browsers address bar.
 
-    *If you are using macOS or Linux with a running avahi daemon or Windows with iTunes, you can also use DCHDMI's zeroconf-`Hostname` (default: `dc-firmware-manager.local`)*
+    *If you are using macOS or Linux with a running avahi daemon or Windows with iTunes installed, you can also use DCHDMI's zeroconf-`Hostname` (default: `dc-firmware-manager.local`)*
 
-5) A login windows should open. Enter `Web login username` and `Web login password`.
+5) A login window should open. Enter `Web login username` and `Web login password`.
 
 6) A command prompt should be displayed.
 
