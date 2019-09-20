@@ -1,6 +1,8 @@
 v4.1                                    
 - Fixed: Memory overflow in osd write   
 - New: Control OSD with an arcade stick 
+- Fixed: Do not drive pin 6, when in    
+  CableDetect mode (Thanks to Ste!)     
                                         
 v4.0                                    
 - Standard and Relaxed are recombined   
