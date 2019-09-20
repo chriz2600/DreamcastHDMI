@@ -57,7 +57,7 @@ If your DCHDMI is already connected to your local WiFi network:
 
     <img src="https://github.com/chriz2600/DreamcastHDMI/raw/bleeding/assets/DCHDMI-accesspoint.png" alt="WiFi connected" width="50%"/>
 
-4) Press `Y` to reveal passwords.<br>To be able to connect to access point you will need the information marked <span style="padding:3px;background-color:black;color:red;">**red**</span>.<br>For web console access you will need the information marked <span style="padding:3px;background-color:black;color:yellow">**yellow**</span>.
+4) Press `Y` to reveal passwords.<br>To be able to connect to the DCHDMI access point you will need the information marked <span style="padding:3px;background-color:black;color:red;">**red**</span>.<br>For web console access you will need the information marked <span style="padding:3px;background-color:black;color:yellow">**yellow**</span>.
 
     <img src="https://github.com/chriz2600/DreamcastHDMI/raw/bleeding/assets/DCHDMI-accesspoint-markers.png" alt="WiFi connected" width="50%"/>
 
