@@ -30,13 +30,16 @@ if [ "$ret_vat" == "true" ] ; then
     # check if files are there
     for f in jic rbf ; do
         for variant in std hq2x ; do
+            mkdir -p output_files/$variant/
             if [ -f "$ARTIFACT_TARGET_DIR/$variant/DCxPlus-default.$f" ] ; then
                 cp $ARTIFACT_TARGET_DIR/$variant/DCxPlus-default.$f output_files/$variant/
+                echo "copied $ARTIFACT_TARGET_DIR/$variant/DCxPlus-default.$f to output_files/$variant/"
             else
                 missed_files="true"
             fi
             if [ -f "$ARTIFACT_TARGET_DIR/DCxPlus-$variant.$f" ] ; then
                 cp $ARTIFACT_TARGET_DIR/DCxPlus-$variant.$f output_files/
+                echo "copied $ARTIFACT_TARGET_DIR/DCxPlus-$variant.$f to output_files/"
             else
                 missed_files="true"
             fi
