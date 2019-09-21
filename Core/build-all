@@ -4,7 +4,18 @@ set -e
 
 cd $(dirname $0)
 
+ret_vat=""
+function iscibuild {
+    if [ "$CI_PROJECT_NAME" != "" -a "$CI_COMMIT_SHA" != "" -a -d "$ARTIFACT_STORAGE_DIR" ] ; then
+        ret_vat="true"
+    else
+        ret_vat="false"
+    fi
+}
+
+ARTIFACT_TARGET_DIR="$ARTIFACT_STORAGE_DIR/$CI_PROJECT_NAME/$CI_COMMIT_SHA"
 FWP=$(command -v firmware-packer || echo ../firmware-utils/firmware-packer)
+missed_files=""
 
 test -x "$FWP" || {
     echo "building firmware-utils"
@@ -13,9 +24,44 @@ test -x "$FWP" || {
     cd ../Core
 }
 
-for variant in std hq2x ; do
-    ./build $variant
-done
+iscibuild
+if [ "$ret_vat" == "true" ] ; then
+    echo "CI mode selected"
+    # check if files are there
+    for f in jic rbf ; do
+        for variant in std hq2x ; do
+            if [ -f "$ARTIFACT_TARGET_DIR/$variant/DCxPlus-default.$f" ] ; then
+                cp $ARTIFACT_TARGET_DIR/$variant/DCxPlus-default.$f output_files/$variant/
+            else
+                missed_files="true"
+            fi
+            if [ -f "$ARTIFACT_TARGET_DIR/DCxPlus-$variant.$f" ] ; then
+                cp $ARTIFACT_TARGET_DIR/DCxPlus-$variant.$f output_files/
+            else
+                missed_files="true"
+            fi
+        done
+    done
+else
+    echo "CI mode DEACTIVATED"
+fi
+
+if [ "$missed_files" != "" ] ; then
+    for variant in std hq2x ; do
+        ./build $variant
+    done
+
+    if [ "$ret_vat" == "true" ] ; then
+        # store files for repeated ci build
+        for f in jic rbf ; do
+            for variant in std hq2x ; do
+                mkdir -p $ARTIFACT_TARGET_DIR/$variant
+                cp output_files/$variant/DCxPlus-default.$f $ARTIFACT_TARGET_DIR/$variant/
+                cp output_files/DCxPlus-$variant.$f $ARTIFACT_TARGET_DIR/
+            done
+        done
+    fi
+fi
 
 # backwards compatible packages
 $FWP -v1 output_files/std/DCxPlus-default.rbf output_files/std/DCxPlus-default.dc
