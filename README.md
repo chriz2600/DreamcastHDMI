@@ -251,7 +251,7 @@ It was possible to brick DCHDMI with that, so access to the serial port was nece
 
         Debug information.
 
-- Integrated **FirmwareManager** into this project, as the coupling between ESP and FPGA is very tight now.
+- Integrated **~~FirmwareManager~~ ESP companion** into this project, as the coupling between ESP and FPGA is very tight now.
 
 - Added upscaling of 480i content to 960p/1080p.
 
@@ -290,7 +290,7 @@ Finally finalized hardware 🎉 All interference issues are solved, we're now en
 
 The `master` branch will now contain the latest stable release. Development version moved to `develop`.
 
-Firmware updates are easily downloaded and installed via WiFi [FirmwareManager](https://github.com/chriz2600/FirmwareManager).
+Firmware updates are easily downloaded and installed via WiFi [ESP companion](https://github.com/chriz2600/DreamcastHDMI/tree/bleeding/ESP).
 
 Currently the following features are planned:
 
@@ -351,7 +351,7 @@ Details on the available versions can be found [here][firmware-docs].
 
 Added ESP-12 based firmware management tool, for upgrading firmware via WiFi.
 
-- A demo of the FirmwareManager could be found here: [Demo][dcfwdemo]
+- A demo of the ~~FirmwareManager~~ ESP companion could be found here: [Demo][dcfwdemo]
 
 #### 2017-06-11
 

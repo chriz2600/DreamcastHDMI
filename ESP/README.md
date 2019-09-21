@@ -1,4 +1,4 @@
-# Firmware Manager for DreamcastHDMI / DCHDMI
+# ESP8266 companion for DreamcastHDMI / DCHDMI
 
 This was designed to provide an easy way to upgrade the firmware of the DreamcastHDMI/DCHDMI project using an **ESP-07S**, but it should be easily adapted to other projects, where a SPI Flash should be programmed (in a failsafe manner, as the ESP-07S firmware is not altered).
 
@@ -6,7 +6,7 @@ This was designed to provide an easy way to upgrade the firmware of the Dreamcas
 
 The ESP is operating inside the dreamcast's metal shielding, so it is necassary to mount the antenna outside of this. A perfect match for this is the ESP-07S, which comes without an external antenna. It usually also has 4MB instead of 1MB of flash memory.
 
-![ESP-07S on DCHDMI](https://raw.githubusercontent.com/chriz2600/FirmwareManager/master/misc/esp07s_2.jpg)
+![ESP-07S on DCHDMI](https://media.githubusercontent.com/media/chriz2600/DreamcastHDMI/bleeding/ESP/misc/esp07s_2.jpg)
 
 ## Initial setup:
 
@@ -148,15 +148,15 @@ Each data packet looks like this:
 
 ##### Notes
 
-- C language implementation of both packer and unpacker can be found [here](https://github.com/chriz2600/FirmwareManager/tree/master/firmware-utils). The packer is used in the automatic build chain, to create firmware files on [dc.i74.de](https://dc.i74.de).
+- C language implementation of both packer and unpacker can be found [here](https://github.com/chriz2600/DreamcastHDMI/tree/master/firmware-utils). The packer is used in the automatic build chain, to create firmware files on [dc.i74.de](https://dc.i74.de).
 
-- Decompression/flashing implementation can be found [here](https://github.com/chriz2600/FirmwareManager/blob/master/src/FlashTask.h).
+- Decompression/flashing implementation can be found [here](https://github.com/chriz2600/DreamcastHDMI/blob/bleeding/ESP/src/task/FlashTask.h).
 
 - Standard `block_size` is `1536`. Greater `block_size` may increase achievable compression, but keep in mind that the ESP8266 has only 80kB of RAM.
 
 ## Schematic:
 
-![Schematic](https://raw.githubusercontent.com/chriz2600/FirmwareManager/master/misc/DCFirmwareManager.png)
+![Schematic](https://media.githubusercontent.com/media/chriz2600/DreamcastHDMI/bleeding/ESP/misc/DCFirmwareManager.png)
 
 ----
 

@@ -64,18 +64,18 @@ esp-firmware:
     name: chriz2600/platformio:4.0
   stage: build-esp
   script:
-    - "./FirmwareManager/build-all"
+    - "./ESP/build-all"
   artifacts:
     name: "esp-firmware-${CI_COMMIT_REF_NAME}"
     paths:
-      - FirmwareManager/.pio/build/std/firmware.bin
-      - FirmwareManager/.pio/build/std/spiffs.bin
-      - FirmwareManager/.pio/build/hq2x/firmware.bin
-      - FirmwareManager/.pio/build/hq2x/spiffs.bin
-      - FirmwareManager/.pio/build/firmware.bin
-      - FirmwareManager/.pio/build/spiffs.bin
-      - FirmwareManager/data/index.html.gz
-      - FirmwareManager/data/changelog
+      - ESP/.pio/build/std/firmware.bin
+      - ESP/.pio/build/std/spiffs.bin
+      - ESP/.pio/build/hq2x/firmware.bin
+      - ESP/.pio/build/hq2x/spiffs.bin
+      - ESP/.pio/build/firmware.bin
+      - ESP/.pio/build/spiffs.bin
+      - ESP/data/index.html.gz
+      - ESP/data/changelog
   dependencies:
     - fpga-firmware
   tags:

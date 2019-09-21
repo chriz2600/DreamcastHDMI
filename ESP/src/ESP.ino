@@ -1078,7 +1078,7 @@ void setup(void) {
         DEBUG2("erased persistent config.\n");
         resetall();
     }
-    DEBUG2("\n>> FirmwareManager starting... " DCHDMI_VERSION "\n");
+    DEBUG2("\n>> ESP starting... " DCHDMI_VERSION "\n");
     DEBUG2(">> %s\n", ESP.getFullVersion().c_str());
     DBG_OUTPUT_PORT.setDebugOutput(false);
 
@@ -1119,7 +1119,7 @@ void setup(void) {
 }
 
 void showInfo() {
-    DEBUG2("FirmwareManager: " DCHDMI_VERSION "\n");
+    DEBUG2("ESP: " DCHDMI_VERSION "\n");
     DEBUG2("Arduino ESP version: %s\n", ESP.getFullVersion().c_str());
     DEBUG2("Free sketch space: %u\n", ESP.getFreeSketchSpace());
     DEBUG2("Max sketch space: %u\n", (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000);

@@ -5,7 +5,7 @@ use File::Basename;
 
 chdir dirname($0);
 
-open(OUT, "> ../../../FirmwareManager/src/menu_head.h");
+open(OUT, "> ../../../ESP/src/menu_head.h");
 printf OUT "#ifndef H_MENU_HEAD\n#define H_MENU_HEAD\nuint8_t MENU_HEAD[960] = {";
 
 my $version = $ENV{'CI_COMMIT_REF_NAME'};
