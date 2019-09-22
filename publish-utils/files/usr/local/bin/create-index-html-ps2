@@ -1,0 +1,74 @@
+#!/usr/bin/env python
+
+from jinja2 import Environment, FileSystemLoader
+from os import listdir, chdir, system, environ, stat
+from os.path import isdir, isfile, join
+import datetime
+import hashlib
+
+BUF_SIZE = 65536  # lets read stuff in 64kb chunks!
+def sha1version(filename):
+    sha1 = hashlib.sha1()
+    with open(filename, 'rb') as f:
+        while True:
+            data = f.read(BUF_SIZE)
+            if not data:
+                break
+            sha1.update(data)
+    return sha1.hexdigest()[:8]
+
+def md5version(filename):
+    md5 = hashlib.md5()
+    with open(filename, 'rb') as f:
+        while True:
+            data = f.read(BUF_SIZE)
+            if not data:
+                break
+            md5.update(data)
+    return md5.hexdigest()[:8]
+
+now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+targetdir = "/srv/incoming/ps2/_" + environ['CI_COMMIT_REF_NAME']
+
+print "CI_COMMIT_REF_NAME: " + environ['CI_COMMIT_REF_NAME']
+system("rm -rf " + targetdir)
+system("mkdir -p " + targetdir)
+system("mv fpga-firmware.pof " + targetdir + "/")
+system("mv esp-firmware.zip " + targetdir + "/")
+system("mv esp-firmware.bin " + targetdir + "/")
+system("mv esp.index.html.gz " + targetdir + "/")
+if isfile("changelog"):
+    system("mv changelog " + targetdir + "/")
+if isfile("fpga-firmware.svf.dc"):
+    system("mv fpga-firmware.svf.dc " + targetdir + "/")
+if isfile("fpga-firmware.jam"):
+    system("mv fpga-firmware.jam " + targetdir + "/")
+
+binfiles = [(f, md5version(targetdir + '/' + f), stat(targetdir + '/' + f).st_size) for f in listdir(targetdir) if f.endswith(".bin") or f.endswith(".gz") or f.endswith(".dc") or f.endswith(".pof") or f.endswith(".jam") or f.endswith(".zip") ]
+env = Environment(
+    loader=FileSystemLoader('/usr/local/bin/templates'),
+)
+
+binfiles.sort()
+template = env.get_template('index.html.ps2.j2')
+indexHtml = template.render(binfiles=binfiles, branch=environ['CI_COMMIT_REF_NAME'], lm=now)
+
+with open(targetdir + "/index.html", "wb") as fh:
+    fh.write(indexHtml)
+
+print targetdir
+chdir(targetdir)
+system("md5sum *.bin *.gz *.dc *.pof *.jam *.zip > md5sum.txt")
+system("sha1sum *.bin *.gz *.dc *.pof *.jam *.zip > sha1sum.txt")
+
+versions = [ f for f in listdir("/srv/incoming/ps2/") if isdir(join("/srv/incoming/ps2/", f)) and not f.startswith("_") ]
+versions.sort()
+template = env.get_template('root-index.html.ps2.j2')
+indexHtml = template.render(versions=versions, lm=now)
+with open("/srv/incoming/ps2/_index.html", "wb") as fh:
+    fh.write(indexHtml)
+
+print "generating md5 files"
+rbfs = [ f for f in listdir(targetdir) if f.endswith(".bin") or f.endswith(".gz") or f.endswith(".dc") or f.endswith(".pof") or f.endswith(".jam") or f.endswith(".zip") ]
+for rbf in rbfs:
+    system("md5sum " + rbf + " | awk '{print $1;}' > " + rbf + ".md5")

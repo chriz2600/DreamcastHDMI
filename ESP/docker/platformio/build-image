@@ -5,7 +5,7 @@ set -e
 cd $(dirname $0)
 
 echo building chriz2600/platformio
-docker build --no-cache -t chriz2600/platformio .
+docker build --no-cache -t chriz2600/platformio:latest .
 echo 
 echo "to add to docker hub: "
 echo "docker push chriz2600/platformio"

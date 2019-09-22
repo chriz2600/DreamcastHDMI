@@ -1,0 +1,65 @@
+#!/bin/sh
+
+set -x
+
+VARIANT=""
+if [ "$1" != "" ] ; then
+    VARIANT=$1"-"
+fi
+BRANCH="${VARIANT}${CI_COMMIT_REF_NAME}"
+
+# fpga
+if [ -d "/srv/incoming/fw/_${BRANCH}" ] ; then
+    if [ -d "/srv/incoming/fw/${BRANCH}" ] ; then
+        mv "/srv/incoming/fw/${BRANCH}" "/srv/incoming/fw/_old_${BRANCH}"
+    else
+        "skipped fpga: no previous ${BRANCH} folder found"
+    fi
+    mv "/srv/incoming/fw/_${BRANCH}" "/srv/incoming/fw/${BRANCH}"
+else
+    echo "skipped fpga: no new '_${BRANCH}' folder found"
+fi
+
+# esp
+if [ -d "/srv/incoming/esp/_${BRANCH}" ] ; then
+    if [ -d "/srv/incoming/esp/${BRANCH}" ] ; then
+        mv "/srv/incoming/esp/${BRANCH}" "/srv/incoming/esp/_old_${BRANCH}"
+    else
+        echo "skipped esp: no pervious ${BRANCH} folder found"
+    fi
+    mv "/srv/incoming/esp/_${BRANCH}" "/srv/incoming/esp/${BRANCH}"
+else
+    echo "skipped esp: no new '_${BRANCH}' folder found"
+fi
+
+# index.html
+if [ -f "/srv/incoming/fw/_index.html" ] ; then
+    if [ -f "/srv/incoming/fw/index.html" ] ; then
+        mv "/srv/incoming/fw/index.html" "/srv/incoming/fw/_old_index.html"
+    else
+        echo "skipped fpga index old"
+    fi
+    mv "/srv/incoming/fw/_index.html" "/srv/incoming/fw/index.html"
+else
+    echo "skipped fpga index"
+fi
+if [ -f "/srv/incoming/esp/_index.html" ] ; then
+    if [ -f "/srv/incoming/esp/index.html" ] ; then
+        mv "/srv/incoming/esp/index.html" "/srv/incoming/esp/_old_index.html"
+    else
+        echo "skipped esp index old"
+    fi
+    mv "/srv/incoming/esp/_index.html" "/srv/incoming/esp/index.html"
+else
+    echo "skipped esp index"
+fi
+
+# cleanup
+for f in fw esp ; do
+    if [ -d "/srv/incoming/${f}/_old_${BRANCH}" ] ; then
+        rm -rf "/srv/incoming/${f}/_old_${BRANCH}"
+    fi
+    if [ -f "/srv/incoming/${f}/_old_index.html" ] ; then
+        rm "/srv/incoming/${f}/_old_index.html"
+    fi
+done

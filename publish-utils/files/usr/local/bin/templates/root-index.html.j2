@@ -1,0 +1,22 @@
+<html>
+<head>
+    <style>
+        body {
+            font-family:'Courier New', Courier, monospace;
+        }
+    </style>
+</head>
+<body>
+<h3>DreamcastHDMI firmware versions</h3>
+<div>&nbsp;</div>
+{% for v in versions %}
+{% if v == ".old" %}
+    <!-- .old -->
+{% else %}
+    <div><a href="fw/{{ v }}">{{ v }}</a></div>
+{% endif %}
+{% endfor %}
+<div>&nbsp;</div>
+<div><i>last modified: {{ lm }}</i></div>
+</body>
+</html>

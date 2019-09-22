@@ -1,0 +1,12 @@
+#!/bin/bash
+
+set -e
+
+cd $(dirname $0)
+
+echo building chriz2600/publish-utils
+docker build -t chriz2600/publish-utils:latest .
+echo 
+echo "to add to docker hub: "
+echo "docker push chriz2600/publish-utils"
+echo

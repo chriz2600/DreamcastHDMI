@@ -1,0 +1,85 @@
+<html>
+<head>
+    <style>
+        body {
+            font-family:'Courier New', Courier, monospace;
+        }
+        .version {
+            width:9ch;
+            display:inline-block;
+        }
+        .name {
+            width:25ch;
+            display:inline-block;
+        }
+        .size {
+            width:9ch;
+            display:inline-block;
+            text-align:right;
+        }
+    </style>
+</head>
+<body>
+<h3>{{ branch }}</h3>
+<div><a href="https://github.com/chriz2600/DreamcastHDMI/blob/master/Firmware.md">details on firmware versions</a></div>
+<div>&nbsp;</div>
+{% if branch == "v0.1" %}
+<div>
+    <div><strong>FPGA-&lt;implementation>.&lt;filetype></strong></div>
+    <div>&nbsp;</div>
+    implementation:
+    <ul>
+        <li><strong><em>CycloneIV-ADV7513-Enhanced_EPCS16</em></strong><br>version for Waveshare CycloneIV board with ADV7513 dev board and ICS664-03</li>
+        <li><strong><em>CycloneIV-ADV7513_EPCS16</em></strong><br>version for Waveshare CycloneIV board with ADV7513 dev board (without ICS664-03), does not recode 480p to VGA</li>
+        <li><strong><em>CycloneIV_EPCS16</em></strong><br>version for Waveshare CycloneIV board without ADV7513 dev board nor ICS664-03, HDMI output is done via basic LVDS to TMDS converter</li>
+    </ul>
+    filetype:
+    <ul>
+        <li><strong><em>jic</em></strong><br>active serial configuration file for use with programmer (e.g. USBBlaster</li>
+        <li><strong><em>rbf</em></strong><br>raw binary configuration file for use with firmware manager</li>
+        <i>Note: not all versions are available as .rbf file</i>
+    </ul>
+</div>
+{% else %}
+<div>ZIP file containing all firmware versions: <a href="https://gitlab.com/chriz2600/DreamcastHDMI/-/jobs/artifacts/{{ branch }}/download?job=fpga-firmware" download="{{ branch }}.zip">{{ branch }}.zip</a>
+</div>
+<div>&nbsp;</div>
+<div>
+    <div><strong>DCxPlus.&lt;filetype></strong></div>
+    <div>&nbsp;</div>
+    <!--cyclone_fpga:
+    <ul>
+        <li><strong><em>10CL016</em></strong><br>Cyclone 10 LP 10CL016YE144</li>
+        <li><strong><em>10CL025</em></strong><br>Cyclone 10 LP 10CL025YE144</li>
+        <li><strong><em>EP4CE6</em></strong><br>Cyclone IV EP4CE6E22</li>
+    </ul>
+    hdmi_output_format:
+    <ul>
+        <li><strong><em>VGA</em></strong><br>640x480</li>
+        <li><strong><em>480p</em></strong><br>720x480 (original output, incorrect pixel/aspect ratio)</li>
+        <li><strong><em>960p</em></strong><br>1280x960</li>
+        <li><strong><em>1080p</em></strong><br>1280x960 framed in 1920x1080</li>
+    </ul>-->
+    filetype:
+    <ul>
+        <li><strong><em>jic</em></strong><br>active serial configuration file for use with programmer (e.g. USBBlaster)</li>
+        <li><strong><em>rbf</em></strong><br>raw binary configuration file</li>
+        <li><strong><em>dc</em></strong><br>compressed configuration file for use with firmware manager</li>
+    </ul>
+</div>
+{% endif %}
+<div>&nbsp;</div>
+<div><strong class="version">Version</strong><strong class="name">Firmware</strong><strong class="size">Filesize</strong></div>
+<div>-------------------------------------------</div>
+{% for f in jicfiles %}
+<div><span class="version">{{ f[1] }}</span><span class="name"><a href="{{ f[0] }}">{{ f[0] }}</a></span><span class="size">{{ f[2] }}</span></div>
+{% endfor %}
+<div>&nbsp;</div>
+<div><a href="md5sum.txt">MD5 checksums</a></div>
+<div><a href="sha1sum.txt">SHA1 checksums</a></div>
+<div>&nbsp;</div>
+<div><a href="/">top</a></div>
+<div>&nbsp;</div>
+<div><i>last modified: {{ lm }}</i></div>
+</body>
+</html>
