@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -x
-
 VARIANT=""
 if [ "$1" != "" ] ; then
     VARIANT=$1"-"
