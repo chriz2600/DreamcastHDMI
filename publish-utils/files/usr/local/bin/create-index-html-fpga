@@ -3,13 +3,14 @@
 from jinja2 import Environment, FileSystemLoader
 from os import listdir
 from os.path import isdir, join
+import datetime
 
 now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 env = Environment(loader=FileSystemLoader('/usr/local/bin/templates'))
+
 versions = [ f for f in listdir("/srv/incoming/fw/") if isdir(join("/srv/incoming/fw/", f)) and not f.startswith("_") ]
 versions.sort()
 template = env.get_template('root-index.html.fpga.j2')
 indexHtml = template.render(versions=versions, lm=now)
-with open("/srv/incoming/fw/_index.html", "wb") as fh:
+with open("/srv/incoming/fw/index.html", "wb") as fh:
     fh.write(indexHtml)
-

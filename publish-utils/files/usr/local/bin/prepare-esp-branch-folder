@@ -1,0 +1,82 @@
+#!/usr/bin/env python
+
+from jinja2 import Environment, FileSystemLoader
+from os import listdir, chdir, system, environ, stat
+from os.path import isdir, isfile, join
+from shutil import copy2 as copy
+import datetime
+import hashlib
+import sys
+
+BUF_SIZE = 65536  # lets read stuff in 64kb chunks!
+def sha1version(filename):
+    sha1 = hashlib.sha1()
+    with open(filename, 'rb') as f:
+        while True:
+            data = f.read(BUF_SIZE)
+            if not data:
+                break
+            sha1.update(data)
+    return sha1.hexdigest()[:8]
+
+def md5version(filename):
+    md5 = hashlib.md5()
+    with open(filename, 'rb') as f:
+        while True:
+            data = f.read(BUF_SIZE)
+            if not data:
+                break
+            md5.update(data)
+    return md5.hexdigest()[:8]
+
+now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+variant = ""
+pioenv = ""
+sdir = "FirmwareManager"
+if len(sys.argv) > 1:
+    pioenv = sys.argv[1]
+if len(sys.argv) > 2:
+    sdir = sys.argv[2]
+if pioenv != "":
+    variant = pioenv + "-"
+branch = variant + environ['CI_COMMIT_REF_NAME']
+targetdir = "docroot/esp/" + branch
+
+print("branch:  [" + branch + "]")
+print("variant: [" + variant + "]")
+print("pioenv:  [" + pioenv + "]")
+print("sdir:    [" + sdir + "]")
+system("mkdir -p " + targetdir)
+
+for pair in ( ("firmware.bin","4MB-firmware.bin"), ("spiffs.bin","4MB-spiffs.bin"), ("index.html.gz","esp.index.html.gz"), ("changelog","changelog") ):
+    sf1 = sdir + "/.pio/build/" + pioenv + "/" + pair[0]
+    sf2 = sdir + "/.pioenvs/" + pioenv + "/" + pair[0]
+    sf3 = sdir + "/data/" + pair[0]
+    tf = targetdir + "/" + pair[1]
+    if isfile(sf1):
+        copy(sf1, tf)
+    if isfile(sf2):
+        copy(sf2, tf)
+    if isfile(sf3):
+        copy(sf3, tf)
+    
+binfiles = [(f, md5version(targetdir + '/' + f), stat(targetdir + '/' + f).st_size) for f in listdir(targetdir) if f.endswith(".bin") or f.endswith(".gz") ]
+env = Environment(
+    loader=FileSystemLoader('/usr/local/bin/templates'),
+)
+
+binfiles.sort()
+template = env.get_template('index.html.esp.j2')
+indexHtml = template.render(binfiles=binfiles, branch=branch, lm=now)
+
+with open(targetdir + "/index.html", "wb") as fh:
+    fh.write(indexHtml)
+
+print("generating md5 files")
+rbfs = [ f for f in listdir(targetdir) if f.endswith(".bin") or f.endswith(".gz") ]
+for rbf in rbfs:
+    system("md5sum " + targetdir + "/" + rbf + " | awk '{print $1;}' > " + targetdir + "/" + rbf + ".md5")
+
+chdir(targetdir)
+system("md5sum *.bin *.gz > md5sum.txt")
+system("sha1sum *.bin *.gz > sha1sum.txt")

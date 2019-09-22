@@ -55,22 +55,26 @@ env = Environment(
 )
 
 jicfiles.sort()
-template = env.get_template('index.html.j2')
+template = env.get_template('index.html.fpga.j2')
 indexHtml = template.render(jicfiles=jicfiles, branch=environ['CI_COMMIT_REF_NAME'], lm=now)
 
 with open(targetdir + "/index.html", "wb") as fh:
     fh.write(indexHtml)
 
-print(targetdir)
-chdir(targetdir)
-system("md5sum *.jic > md5sum.txt")
-system("sha1sum *.jic > sha1sum.txt")
-system("md5sum *.rbf >> md5sum.txt")
-system("sha1sum *.rbf >> sha1sum.txt")
-system("md5sum *.dc >> md5sum.txt")
-system("sha1sum *.dc >> sha1sum.txt")
-
 print("generating md5 files")
 ffs = [ f for f in listdir(targetdir) if f.endswith(".rbf") or f.endswith(".dc") ]
 for ff in ffs:
-    system("md5sum " + ff + " | awk '{print $1;}' > " + ff + ".md5")
+    system("md5sum " + targetdir + "/" + ff + " | awk '{print $1;}' > " + targetdir + "/" + ff + ".md5")
+
+chdir(targetdir)
+
+system("md5sum *.jic > md5sum.txt")
+system("md5sum *.rbf >> md5sum.txt")
+system("md5sum *.dc >> md5sum.txt")
+
+system("sha1sum *.jic > sha1sum.txt")
+system("sha1sum *.rbf >> sha1sum.txt")
+system("sha1sum *.dc >> sha1sum.txt")
+
+system("test -d hq2x && rmdir hq2x");
+system("test -d std && rmdir std");
