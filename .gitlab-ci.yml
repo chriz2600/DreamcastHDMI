@@ -99,7 +99,7 @@ prepare-fpga-branch-folder:
   artifacts:
     name: "fpga-${CI_COMMIT_REF_NAME}"
     paths:
-      - "/docroot"
+      - "docroot"
   dependencies:
     - fpga-firmware
   tags:
