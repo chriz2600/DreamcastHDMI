@@ -2,8 +2,9 @@ stages:
   - build-firmware-utils
   - build-fpga
   - build-esp
-  - deploy
-  - publish
+  - prepare-folders
+  # - deploy
+  # - publish
 
 variables:
   ARTIFACT_STORAGE_DIR: "/srv/builds/artifacts"
@@ -86,6 +87,30 @@ esp-firmware:
     - experimental
     - bleeding
     - tags
+
+prepare-fpga-branch-folder:
+  image:
+    name: chriz2600/publish-utils:latest
+  stage: prepare-folders
+  script:
+    - "prepare-fpga-branch-folder std"
+    - "prepare-fpga-branch-folder hq2x"
+    - "prepare-fpga-branch-folder"
+  artifacts:
+    name: "fpga-${CI_COMMIT_REF_NAME}"
+    paths:
+      - "/docroot"
+  dependencies:
+    - fpga-firmware
+  tags:
+    - docker
+  only:
+    - develop
+    - master
+    - experimental
+    - bleeding
+    - tags
+
 
 fpga-publish:
   image:
