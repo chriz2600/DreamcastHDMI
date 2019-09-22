@@ -112,66 +112,66 @@ prepare-fpga-branch-folder:
     - tags
 
 
-fpga-publish:
-  image:
-    name: chriz2600/publish-utils:latest
-  stage: deploy
-  script: 
-    - "create-index-html std"
-    - "create-index-html hq2x"
-    - "create-index-html"
-  artifacts:
-    expire_in: 1 sec
-  dependencies:
-    - fpga-firmware
-  tags:
-    - docker
-  only:
-    - develop
-    - master
-    - experimental
-    - bleeding
-    - tags
+# fpga-publish:
+#   image:
+#     name: chriz2600/publish-utils:latest
+#   stage: deploy
+#   script: 
+#     - "create-index-html std"
+#     - "create-index-html hq2x"
+#     - "create-index-html"
+#   artifacts:
+#     expire_in: 1 sec
+#   dependencies:
+#     - fpga-firmware
+#   tags:
+#     - docker
+#   only:
+#     - develop
+#     - master
+#     - experimental
+#     - bleeding
+#     - tags
 
-esp-publish:
-  image:
-    name: chriz2600/publish-utils:latest
-  stage: deploy
-  script: 
-    - "create-index-html-esp std ESP"
-    - "create-index-html-esp hq2x ESP"
-    - "create-index-html-esp '' ESP"
-  artifacts:
-    expire_in: 1 sec
-  dependencies:
-    - esp-firmware
-  tags:
-    - docker
-  only:
-    - develop
-    - master
-    - experimental
-    - bleeding
-    - tags
+# esp-publish:
+#   image:
+#     name: chriz2600/publish-utils:latest
+#   stage: deploy
+#   script: 
+#     - "create-index-html-esp std ESP"
+#     - "create-index-html-esp hq2x ESP"
+#     - "create-index-html-esp '' ESP"
+#   artifacts:
+#     expire_in: 1 sec
+#   dependencies:
+#     - esp-firmware
+#   tags:
+#     - docker
+#   only:
+#     - develop
+#     - master
+#     - experimental
+#     - bleeding
+#     - tags
 
-finish-publish:
-  image:
-    name: chriz2600/publish-utils:latest
-  stage: publish
-  script:
-    - "dc-atomic-move std"
-    - "dc-atomic-move hq2x"
-    - "dc-atomic-move"
-  artifacts:
-    expire_in: 1 sec
-  dependencies:
-    - fpga-publish
-    - esp-publish
-  tags:
-    - docker
-  only:
-    - develop
-    - master
-    - experimental
-    - bleeding
-    - tags
+# finish-publish:
+#   image:
+#     name: chriz2600/publish-utils:latest
+#   stage: publish
+#   script:
+#     - "dc-atomic-move std"
+#     - "dc-atomic-move hq2x"
+#     - "dc-atomic-move"
+#   artifacts:
+#     expire_in: 1 sec
+#   dependencies:
+#     - fpga-publish
+#     - esp-publish
+#   tags:
+#     - docker
+#   only:
+#     - develop
+#     - master
+#     - experimental
+#     - bleeding
+#     - tags
