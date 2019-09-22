@@ -109,9 +109,9 @@ fpga-publish:
 esp-publish:
   stage: deploy
   script: 
-    - "create-index-html-esp std"
-    - "create-index-html-esp hq2x"
-    - "create-index-html-esp"
+    - "create-index-html-esp std ESP"
+    - "create-index-html-esp hq2x ESP"
+    - "create-index-html-esp '' ESP"
   artifacts:
     expire_in: 1 sec
   dependencies:
