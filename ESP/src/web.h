@@ -9,6 +9,7 @@
 extern char httpAuthUser[64];
 extern char httpAuthPass[64];
 extern char firmwareServer[256];
+extern char firmwareServerPath[256];
 
 static AsyncClient *aClient = NULL;
 String fname;
@@ -61,7 +62,9 @@ void handleESPIndexDownload(AsyncWebServerRequest *request) {
 }
 
 void handleChangelogDownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
-    String httpGet = "GET /esp/" 
+    String httpGet = "GET "
+        + String(firmwareServerPath)
+        + "/esp/"
         + String(firmwareVersion) 
         + "/changelog"
         + " HTTP/1.0\r\nHost: " + firmwareServer + "\r\n\r\n";
@@ -70,7 +73,9 @@ void handleChangelogDownload(AsyncWebServerRequest *request, ProgressCallback pr
 }
 
 void handleFPGADownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
-    String httpGet = "GET /fw/" 
+    String httpGet = "GET "
+        + String(firmwareServerPath)
+        + "/fw/"
         + String(firmwareVersion) 
         + "/DCxPlus-v2"
         + "." + FIRMWARE_EXTENSION 
@@ -80,7 +85,9 @@ void handleFPGADownload(AsyncWebServerRequest *request, ProgressCallback progres
 }
 
 void handleESPDownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
-    String httpGet = "GET /esp/" 
+    String httpGet = "GET "
+        + String(firmwareServerPath)
+        + "/esp/"
         + String(firmwareVersion) 
         + "/" + (ESP.getFlashChipSize() / 1024 / 1024) + "MB"
         + "-" + "firmware"
@@ -91,7 +98,9 @@ void handleESPDownload(AsyncWebServerRequest *request, ProgressCallback progress
 }
 
 void handleESPIndexDownload(AsyncWebServerRequest *request, ProgressCallback progressCallback) {
-    String httpGet = "GET /esp/"
+    String httpGet = "GET "
+        + String(firmwareServerPath)
+        + "/esp/"
         + String(firmwareVersion)
         + "/esp.index.html.gz"
         + " HTTP/1.0\r\nHost: " + firmwareServer + "\r\n\r\n";

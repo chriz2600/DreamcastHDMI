@@ -707,28 +707,29 @@ var validIpMsg = "[[ib;lightblue;]valid IPv4 address]"
 var setupData = {};
 var currentConfigData = {};
 var setupDataMapping = {
-    ssid:             [ "WiFi SSID        ", "empty" ],
-    password:         [ "WiFi Password    ", "empty" ],
-    ota_pass:         [ "OTA Password     ", "empty" ],
-    firmware_server:  [ "Firmware Server  ", "dc.i74.de", "[[ib;lightblue;]valid domain name]", domainCheck ],
-    firmware_version: [ "Firmware Version ", "master", "[[b;lightblue;]master] / [[b;lightblue;]develop] / [[b;lightblue;]vX.Y.Z]", /^(master|develop|bleeding|experimental|v\d+\.\d+\.\d+)$/ ],
-    http_auth_user:   [ "HTTP User        ", "dchdmi" ],
-    http_auth_pass:   [ "HTTP Password    ", "generated", null, null, null, "[[b;red;]If you do not set a password, a new one will be]\n    [[b;red;]generated each time DCHDMI starts!]" ],
-    conf_ip_addr:     [ "IP address       ", "empty", validIpMsg, ipCheck ],
-    conf_ip_gateway:  [ "Gateway          ", "empty", validIpMsg, ipCheck ],
-    conf_ip_mask:     [ "Netmask          ", "empty", validIpMsg, ipCheck ],
-    conf_ip_dns:      [ "DNS              ", "empty", validIpMsg, ipCheck ],
-    hostname:         [ "Hostname         ", "dc-firmware-manager" ],
-    video_resolution: [ "Video output     ", "VGA", "[[b;lightblue;]VGA] / [[b;lightblue;]480p] / [[b;lightblue;]960p] / [[b;lightblue;]1080p]", /^(VGA|480p|960p|1080p)$/ ],
-    video_mode:       [ "Video mode       ", "CableDetect", "[[b;lightblue;]ForceVGA] / [[b;lightblue;]CableDetect] / [[b;lightblue;]SwitchTrick]", /^(ForceVGA|CableDetect|SwitchTrick)$/ ],
-    reset_mode:       [ "Opt. reset mode  ", "led", "[[b;lightblue;]led] / [[b;lightblue;]gdemu] / [[b;lightblue;]usb-gdrom]", /^(led|gdemu|usb-gdrom)$/ ],
-    deinterlace_mode: [ "Deinterlacer     ", "bob", "[[b;lightblue;]bob] / [[b;lightblue;]passthru]", /^(bob|passthru)$/ ],
-    protected_mode:   [ "Protected mode   ", "off", "[[b;lightblue;]on] / [[b;lightblue;]off]", /^(on|off)$/, null, 
+    ssid:                 [ "WiFi SSID            ", "empty" ],
+    password:             [ "WiFi Password        ", "empty" ],
+    ota_pass:             [ "OTA Password         ", "empty" ],
+    firmware_server:      [ "Firmware Server      ", "dc.i74.de", "[[ib;lightblue;]valid domain name]", domainCheck, null, "Only needed, if you want to connect to a custom fw server." ],
+    firmware_server_path: [ "Firmware Server Path ", "empty", "[[ib;lightblue;]path prefix]", null, null, "Only needed, if you want to connect to a custom fw server." ],
+    firmware_version:     [ "Firmware Version     ", "master", "[[b;lightblue;]master] / [[b;lightblue;]develop] / [[b;lightblue;]vX.Y.Z]", /^(master|develop|bleeding|experimental|v\d+\.\d+\.\d+)$/ ],
+    http_auth_user:       [ "HTTP User            ", "dchdmi" ],
+    http_auth_pass:       [ "HTTP Password        ", "generated", null, null, null, "[[b;red;]If you do not set a password, a new one will be]\n    [[b;red;]generated each time DCHDMI starts!]" ],
+    conf_ip_addr:         [ "IP address           ", "empty", validIpMsg, ipCheck ],
+    conf_ip_gateway:      [ "Gateway              ", "empty", validIpMsg, ipCheck ],
+    conf_ip_mask:         [ "Netmask              ", "empty", validIpMsg, ipCheck ],
+    conf_ip_dns:          [ "DNS                  ", "empty", validIpMsg, ipCheck ],
+    hostname:             [ "Hostname             ", "dc-firmware-manager" ],
+    video_resolution:     [ "Video output         ", "VGA", "[[b;lightblue;]VGA] / [[b;lightblue;]480p] / [[b;lightblue;]960p] / [[b;lightblue;]1080p]", /^(VGA|480p|960p|1080p)$/ ],
+    video_mode:           [ "Video mode           ", "CableDetect", "[[b;lightblue;]ForceVGA] / [[b;lightblue;]CableDetect] / [[b;lightblue;]SwitchTrick]", /^(ForceVGA|CableDetect|SwitchTrick)$/ ],
+    reset_mode:           [ "Opt. reset mode      ", "led", "[[b;lightblue;]led] / [[b;lightblue;]gdemu] / [[b;lightblue;]usb-gdrom]", /^(led|gdemu|usb-gdrom)$/ ],
+    deinterlace_mode:     [ "Deinterlacer         ", "bob", "[[b;lightblue;]bob] / [[b;lightblue;]passthru]", /^(bob|passthru)$/ ],
+    protected_mode:       [ "Protected mode       ", "off", "[[b;lightblue;]on] / [[b;lightblue;]off]", /^(on|off)$/, null, 
           "[[b;red;]If you set protected mode to 'on', you will not be able]\n    "
         + "[[b;red;]to reveal your HTTP Password in the OSD!]\n    "
         + "[[b;red;]While setting to 'on' is recommended, you will need]\n    "
         + "[[b;red;]access to the serial port to recover your password, if forgotten.]" ],
-    keyboard_layout:  [ "Keyboard layout  ", "us", "[[b;lightblue;]us] / [[b;lightblue;]de]", /^(us|de|jp)$/ ] //  / [[b;lightblue;]jp]
+    keyboard_layout:      [ "Keyboard layout      ", "us", "[[b;lightblue;]us] / [[b;lightblue;]de]", /^(us|de|jp)$/ ] //  / [[b;lightblue;]jp]
 };
 var dataExcludeMap = {
     "flash_chip_size":"",
@@ -1284,6 +1285,7 @@ function checkSetupStatus() {
 function _getFPGAMD5File() {
     return (
           "//" + currentConfigData["firmware_server"]
+        + currentConfigData["firmware_server_path"]
         + "/fw/" 
         + currentConfigData["firmware_version"]
         + "/DCxPlus-v2"
@@ -1294,6 +1296,7 @@ function _getFPGAMD5File() {
 function _getESPMD5File() {
     return (
           "//" + currentConfigData["firmware_server"]
+        + currentConfigData["firmware_server_path"]
         + "/esp/"
         + currentConfigData["firmware_version"]
         + "/" + currentConfigData["flash_chip_size"] / 1024 / 1024 + "MB"
@@ -1305,6 +1308,7 @@ function _getESPMD5File() {
 function _getESPIndexMD5File() {
     return (
           "//" + currentConfigData["firmware_server"]
+        + currentConfigData["firmware_server_path"]
         + "/esp/"
         + currentConfigData["firmware_version"]
         + "/" + ESP_INDEX_STAGING_FILE + ".md5?cc=" + Math.random()
