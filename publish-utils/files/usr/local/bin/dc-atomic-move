@@ -1,38 +1,53 @@
 #!/bin/sh
 
+DOCROOT=""
+if [ "$1" != "" ] ; then
+    DOCROOT=$1
+    shift
+fi
 VARIANT=""
 if [ "$1" != "" ] ; then
     VARIANT=$1"-"
+    shift
 fi
 BRANCH="${VARIANT}${CI_COMMIT_REF_NAME}"
 
+echo "DOCROOT: [$DOCROOT]"
+echo "VARIANT: [$VARIANT]"
+echo "BRANCH:  [$BRANCH]"
+
+if [ -z "$DOCROOT" -o ! -d "$DOCROOT" ] ; then
+    echo "[$DOCROOT] is not a directory, skipping"
+    exit 0
+fi
+
 # fpga
 if [ -d "docroot/fw/${BRANCH}" ] ; then
-    if [ -d "/srv/incoming/fw/${BRANCH}" ] ; then
-        mv "/srv/incoming/fw/${BRANCH}" "/srv/incoming/fw/_old_${BRANCH}"
+    if [ -d "${DOCROOT}/fw/${BRANCH}" ] ; then
+        mv "${DOCROOT}/fw/${BRANCH}" "${DOCROOT}/fw/_old_${BRANCH}"
     else
         "skipped fpga: no previous ${BRANCH} folder found"
     fi
-    mv "docroot/fw/${BRANCH}" "/srv/incoming/fw/${BRANCH}"
+    mv "docroot/fw/${BRANCH}" "${DOCROOT}/fw/${BRANCH}"
 else
     echo "skipped fpga: no new '_${BRANCH}' folder found"
 fi
 
 # esp
 if [ -d "docroot/esp/${BRANCH}" ] ; then
-    if [ -d "/srv/incoming/esp/${BRANCH}" ] ; then
-        mv "/srv/incoming/esp/${BRANCH}" "/srv/incoming/esp/_old_${BRANCH}"
+    if [ -d "${DOCROOT}/esp/${BRANCH}" ] ; then
+        mv "${DOCROOT}/esp/${BRANCH}" "${DOCROOT}/esp/_old_${BRANCH}"
     else
         echo "skipped esp: no pervious ${BRANCH} folder found"
     fi
-    mv "docroot/esp/${BRANCH}" "/srv/incoming/esp/${BRANCH}"
+    mv "docroot/esp/${BRANCH}" "${DOCROOT}/esp/${BRANCH}"
 else
     echo "skipped esp: no new '_${BRANCH}' folder found"
 fi
 
 # cleanup
 for f in fw esp ; do
-    if [ -d "/srv/incoming/${f}/_old_${BRANCH}" ] ; then
-        rm -rf "/srv/incoming/${f}/_old_${BRANCH}"
+    if [ -d "${DOCROOT}/${f}/_old_${BRANCH}" ] ; then
+        rm -rf "${DOCROOT}/${f}/_old_${BRANCH}"
     fi
 done
