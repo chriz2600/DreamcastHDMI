@@ -89,7 +89,7 @@ esp-firmware:
 
 prepare-folders:
   image:
-    name: chriz2600/publish-utils:latest
+    name: chriz2600/dc-publish-utils:latest
   stage: prepare-folders
   script:
     - "prepare-fpga-branch-folder std"
@@ -116,7 +116,7 @@ prepare-folders:
 
 finish-publish:
   image:
-    name: chriz2600/publish-utils:latest
+    name: chriz2600/dc-publish-utils:latest
   stage: publish
   script:
     - "dc-atomic-move /srv/incoming std"
