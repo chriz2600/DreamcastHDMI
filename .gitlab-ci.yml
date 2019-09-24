@@ -119,9 +119,9 @@ finish-publish:
     name: chriz2600/dc-publish-utils:latest
   stage: publish
   script:
-    - "dc-atomic-move /srv/incoming std"
-    - "dc-atomic-move /srv/incoming hq2x"
-    - "dc-atomic-move /srv/incoming"
+    - "atomic-move /srv/incoming std"
+    - "atomic-move /srv/incoming hq2x"
+    - "atomic-move /srv/incoming"
     - "create-index-html /srv/incoming/fw root-index.html.fpga.j2"
     - "create-index-html /srv/incoming/esp root-index.html.esp.j2"
   artifacts:
