@@ -42,10 +42,11 @@ if pioenv != "":
 branch = variant + environ['CI_COMMIT_REF_NAME']
 targetdir = "docroot/esp/" + branch
 
-print("branch:  [" + branch + "]")
-print("variant: [" + variant + "]")
-print("pioenv:  [" + pioenv + "]")
-print("sdir:    [" + sdir + "]")
+print("branch:    [" + branch + "]")
+print("variant:   [" + variant + "]")
+print("pioenv:    [" + pioenv + "]")
+print("sdir:      [" + sdir + "]")
+print("targetdir: [" + targetdir + "]")
 system("mkdir -p " + targetdir)
 
 for pair in ( ("firmware.bin","4MB-firmware.bin"), ("spiffs.bin","4MB-spiffs.bin"), ("index.html.gz","esp.index.html.gz"), ("changelog","changelog") ):

@@ -39,9 +39,9 @@ branch = variant + environ['CI_COMMIT_REF_NAME']
 sourcedir = "Core/output_files/" + sourcepart
 targetdir = "docroot/fw/" + branch
 
-print("branch: " + branch)
-print("sourcedir: " + sourcedir)
-print("targetdir: " + targetdir)
+print("branch:    [" + branch + "]")
+print("sourcedir: [" + sourcedir + "]")
+print("targetdir: [" + targetdir + "]")
 system("mkdir -p " + targetdir)
 
 if isdir(sourcedir):
