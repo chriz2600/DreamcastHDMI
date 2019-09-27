@@ -101,3 +101,42 @@ But this didn't prevent you from flashing the corrupted file leading to a bricke
 
 - Be sure to set switch 2 of SW1 on DCHDMI to `off`, otherwise the ESP will still boot up in "ROM serial bootloader" mode once your Dreamcast is reassembled.
 
+# How to recover from a restarting v4.1 firmware
+
+There are two ways to recover from the **Console keeps restarting with v4.1** bug:
+
+1) Try start your console and wait if the restarts stop occuring. If it keeps restarting (more than 5 times), try powering the console off and on again. As soon as it manages to get beyond the MDNS configuration stage, it will run without an issue (until next boot). Now you can update the firmware as usual.
+
+2) Use AP mode and web console to manually update the firmware. In AP mode, the MDNS initialization is skipped.
+
+    1) Make sure your dreamcast is forced into AP mode by disconnecting it from your wifi network. Easiest way to achieve this is to change the wifi password of your wifi router, so DCHDMI will fall back to AP mode (this can take up to 30 seconds).
+
+    2) Download the new (ESP) firmware here: https://dc.i74.de/esp/master/4MB-firmware.bin
+
+    3) Open the OSD and enter the `WiFi Setup` page.
+
+    4) Make sure it says `[Access point]` on the screen.
+
+        <img src="https://github.com/chriz2600/DreamcastHDMI/raw/bleeding/assets/DCHDMI-accesspoint.png" alt="WiFi connected" width="50%"/>
+
+    5) Press `Y` to reveal passwords.<br>To be able to connect to the DCHDMI access point you will need the information marked <span style="padding:3px;background-color:black;color:red;">**red**</span>.<br>For web console access you will need the information marked <span style="padding:3px;background-color:black;color:yellow">**yellow**</span>.
+
+        <img src="https://github.com/chriz2600/DreamcastHDMI/raw/bleeding/assets/DCHDMI-accesspoint-markers.png" alt="WiFi connected" width="50%"/>
+
+    6) Connect your WiFi capable computer to the DCHDMI access point using:
+        
+        - SSID: `Access point SSID`
+        
+        - Password: `Access point password`
+
+    7) When connected to DCHDMI AP, use a browser of your choice and enter `192.168.4.1` in the browsers address bar.
+
+    8) The *Web console* should be displayed and setup mode should be started. Just hit `CTRL-D` to exit the setup.
+
+    9) Use `select` to select the previously downloaded **ESP firmware** (`4MB-firmware.bin`).
+
+    10) `uploadesp` to upload.
+
+    11) Now use `flashesp` to flash the ESP firmware.
+
+    12) `reset` DCHDMI to (re-)start with the new firmware
