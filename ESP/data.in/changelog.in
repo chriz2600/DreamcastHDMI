@@ -1,3 +1,10 @@
+v4.2                                    
+- MDNS initialization can cause a crash 
+  leading to reset loop on startup, so  
+  MDNS is deactivated until fix is      
+  available on esp8266 arduino stable   
+  branch.                               
+                                        
 v4.1                                    
 - Fixed: Memory overflow in osd write   
 - New: Control OSD with an arcade stick 
