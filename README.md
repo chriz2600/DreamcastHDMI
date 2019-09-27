@@ -1,5 +1,9 @@
 # DreamcastHDMI / DCHDMI
 
+#### 2019-09-27 *Firmware v4.2* (*Unified*)
+
+- MDNS initialization can cause a crash leading to reset loop on startup, so MDNS is deactivated until fix is available on esp8266 arduino stable branch. (https://github.com/esp8266/Arduino/pull/6261/commits/7d8bb51a8059a673bd57efba03b04142a0ba9d35)
+
 #### 2019-09-20 *Firmware v4.1* (*Unified*)
 
 - Fixed: Memory overflow in osd write.
