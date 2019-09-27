@@ -107,6 +107,8 @@ There are two ways to recover from the **Console keeps restarting with v4.1** bu
 
 1) Try start your console and wait if the restarts stop occuring. If it keeps restarting (more than 5 times), try powering the console off and on again. As soon as it manages to get beyond the MDNS configuration stage, it will run without an issue (until next boot). Now you can update the firmware as usual.
 
+    **--OR--**
+
 2) Use AP mode and web console to manually update the firmware. In AP mode, the MDNS initialization is skipped.
 
     1) Make sure your dreamcast is forced into AP mode by disconnecting it from your wifi network. Easiest way to achieve this is to change the wifi password of your wifi router, so DCHDMI will fall back to AP mode (this can take up to 30 seconds).
