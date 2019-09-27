@@ -254,6 +254,9 @@ class FPGATask : public Task {
                 if (GotError) {
                     last_error = NO_ERROR;
                     DEBUG1("<-- FINISHED_I2C_TRANSACTION\n");
+                    /* not be necessary on DCHDMI:
+                    reapplyFPGAConfig();
+                    */
                 }
                 GotError = false;
             }
