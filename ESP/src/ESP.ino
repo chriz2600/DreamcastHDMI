@@ -346,7 +346,6 @@ void setupWiFiStation() {
 
 void setupMDNS() {
     DEBUG2(">> Setting up mDNS...\n");
-    _writeFile("/tmp/checkpoint", "invalid", 16);
     if (MDNS.begin(host, ipAddress)) {
         DEBUG2(">> mDNS started.\n");
         MDNS.addService("http", "tcp", 80);
@@ -354,7 +353,6 @@ void setupMDNS() {
             ">> http://%s.local/\n", 
             host
         );
-        SPIFFS.remove("/tmp/checkpoint");
     } else {
         DEBUG2(">> mDNS setup failed.\n");
     }
@@ -1075,12 +1073,6 @@ void printSerialMenu() {
 
 void setup(void) {
     DBG_OUTPUT_PORT.begin(115200);
-    if (SPIFFS.exists("/tmp/checkpoint")) {
-        ESP.eraseConfig();
-        SPIFFS.remove("/tmp/checkpoint");
-        DEBUG2("erased persistent config.\n");
-        resetall();
-    }
     DEBUG2("\n>> ESP starting... " DCHDMI_VERSION "\n");
     DEBUG2(">> %s\n", ESP.getFullVersion().c_str());
     DBG_OUTPUT_PORT.setDebugOutput(false);
@@ -1107,7 +1099,8 @@ void setup(void) {
     fpgaTask.DoWriteToOSD(0, MENU_WIDTH, (uint8_t*) buff); fpgaTask.ForceLoop();
 
     if (!inInitialSetupMode) {
-        setupMDNS();
+        // skip MDNS setup, because it can cause random crashes on startup
+        //setupMDNS();
     }
 
     if (reflashNeccessary && reflashNeccessary2 && reflashNeccessary3) {
