@@ -270,8 +270,8 @@ void reapplyFPGAConfig() {
         currentMenu = &mainMenu; // reset menu
         currentMenu->StoreMenuActiveLine(MENU_M_FIRST_SELECT_LINE);
         DEBUG1(" -> menu reset\n");
-        setOSD(false, [](uint8_t Address, uint8_t Value) {
-            DEBUG1(" -> disabled OSD\n");
+        // setOSD(false, [](uint8_t Address, uint8_t Value) {
+        //     DEBUG1(" -> disabled OSD\n");
             setScanlines(getScanlinesUpperPart(), getScanlinesLowerPart(), [](uint8_t Address, uint8_t Value) {
                 DEBUG1(" -> set scanlines %d/%d\n", getScanlinesUpperPart(), getScanlinesLowerPart());
                 fpgaTask.Write(I2C_VGA_OFFSET, getEffectiveOffsetVGA(), [](uint8_t Address, uint8_t Value) {
@@ -288,7 +288,7 @@ void reapplyFPGAConfig() {
                     });
                 });
             });
-        });
+        //});
     });
 }
 

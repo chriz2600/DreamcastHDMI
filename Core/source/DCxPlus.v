@@ -138,7 +138,10 @@ module DCxPlus(
     wire [11:0] nonBlackPos2;
     wire [11:0] nonBlackPos1_out;
     wire [11:0] nonBlackPos2_out;
-    
+
+    wire [23:0] color_space_explorer;
+    wire [23:0] color_space_explorer_out;
+
     wire resetpll;
 
     assign clock54_out = clock54_net;
@@ -270,7 +273,8 @@ module DCxPlus(
         .conf240p(conf240p_out),
         .nonBlackPos1(nonBlackPos1),
         .nonBlackPos2(nonBlackPos2),
-        .nonBlackPixelReset(nonBlackPixelReset)
+        .nonBlackPixelReset(nonBlackPixelReset),
+        .color_space_explorer(color_space_explorer)
     );
 
     video2ram video2ram(
@@ -421,12 +425,12 @@ module DCxPlus(
     );
 
     data_cross #(
-        .WIDTH(24 + 24 + 24 + 12 + 12)
+        .WIDTH(24 + 24 + 24 + 12 + 12 + 24)
     ) pinok_cross(
         .clkIn(clock54_net),
         .clkOut(control_clock),
-        .dataIn({ pinok, timingInfo, rgbData, nonBlackPos1, nonBlackPos2 }),
-        .dataOut({ pinok_out, timingInfo_out, rgbData_out, nonBlackPos1_out, nonBlackPos2_out })
+        .dataIn({ pinok, timingInfo, rgbData, nonBlackPos1, nonBlackPos2, color_space_explorer }),
+        .dataOut({ pinok_out, timingInfo_out, rgbData_out, nonBlackPos1_out, nonBlackPos2_out, color_space_explorer_out })
     );
 
     Signal_CrossDomain addLine(
@@ -624,6 +628,7 @@ module DCxPlus(
         .nonBlackPos1(nonBlackPos1_out),
         .nonBlackPos2(nonBlackPos2_out),
         .nonBlackPixelReset(_nonBlackPixelReset),
+        .color_space_explorer(color_space_explorer_out),
         .resetpll(resetpll)
     );
 

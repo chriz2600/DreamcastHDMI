@@ -86,6 +86,7 @@ module i2cSlave (
   input [11:0] nonBlackPos1,
   input [11:0] nonBlackPos2,
   output nonBlackPixelReset,
+  input [23:0] color_space_explorer,
   output resetpll
 );
 
@@ -227,6 +228,7 @@ registerInterface u_registerInterface(
     .nonBlackPos1(nonBlackPos1),
     .nonBlackPos2(nonBlackPos2),
     .nonBlackPixelReset(nonBlackPixelReset),
+    .color_space_explorer(color_space_explorer),
     .resetpll(resetpll)
 );
 

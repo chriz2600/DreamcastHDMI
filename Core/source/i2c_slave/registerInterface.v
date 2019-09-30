@@ -89,6 +89,7 @@ module registerInterface (
     input [11:0] nonBlackPos1,
     input [11:0] nonBlackPos2,
     output nonBlackPixelReset,
+    input [23:0] color_space_explorer,
     output resetpll
 );
 
@@ -232,6 +233,11 @@ always @(posedge clk) begin
         8'hE6: dataOut_reg <= keyboard_data.key4;
         8'hE7: dataOut_reg <= keyboard_data.key5;
         8'hE8: dataOut_reg <= keyboard_data.key6;
+
+        // color space data
+        8'hF5: dataOut_reg <= color_space_explorer[23:16];
+        8'hF6: dataOut_reg <= color_space_explorer[15:8];
+        8'hF7: dataOut_reg <= color_space_explorer[7:0];
 
         default: dataOut_reg <= 0;
     endcase

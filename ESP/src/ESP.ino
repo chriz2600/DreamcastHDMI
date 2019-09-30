@@ -281,6 +281,10 @@ void setupWiFiStation() {
     WiFi.softAPdisconnect(true);
     // WiFi.setAutoConnect(true);
     // WiFi.setAutoReconnect(true);
+    //WiFi.setPhyMode(WIFI_PHY_MODE_11B);
+    //WiFi.setPhyMode(WIFI_PHY_MODE_11G);
+    //WiFi.setPhyMode(WIFI_PHY_MODE_11N);
+    WiFi.setSleepMode(WIFI_NONE_SLEEP, 0);
 
     DEBUG(">> Do static ip configuration: %i\n", doStaticIpConfig);
     if (doStaticIpConfig) {
@@ -904,6 +908,27 @@ void setupHTTPServer() {
             DEBUG2("nbp reset.\n");
         });
         request->send(200, "text/plain", "OK\n");
+    });
+
+    server.on("/testdata3", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        fpgaTask.Read(0xF5, 3, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+            if (len == 3) {
+                char msg[3 * 3 + 1] = "";
+                int p = 0;
+                for (int i = 0 ; i < 3 ; i++) {
+                    sprintf((char*) &msg[p], "%02x ", buffer[i]);
+                    p = p + 3;
+                }
+                sprintf((char*) &msg[p], "\n");
+                request->send(200, "text/plain", msg);
+            } else {
+                request->send(200, "text/plain", "SOMETHING_IS_WRONG\n");
+            }
+        }); 
+        fpgaTask.ForceLoop();
     });
 
     server.on("/testdata2", HTTP_GET, [](AsyncWebServerRequest *request) {
