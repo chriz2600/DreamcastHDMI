@@ -1,4 +1,4 @@
-# WiFi connectivity of DCHDMI and the GDROM/ODE
+# WiFi connectivity of DCHDMI and the GDEMU
 
 ### TL;DR
 
@@ -50,7 +50,7 @@ I recently did some more testing on this issue, with interesting results.
 | 12      | :white_check_mark: | :white_check_mark: | `1.486 / 2.355 /4.992 / 1.030` |
 | 13      | :white_check_mark: | :white_check_mark: | `1.543 / 2.150 /4.732 / 0.693` |
 
-##### Original GDROM *(Original antenna placement)*
+##### GDROM *(Original antenna placement)*
 
 | Channel |  Web console | Firmware download | Ping (round-trip min/avg/max/stddev) |
 | ------: | :----------: | :---------------: | :---------------------------------- |
@@ -67,6 +67,24 @@ I recently did some more testing on this issue, with interesting results.
 | 11      | :white_check_mark: | :white_check_mark: | `1.643/3.693/15.249/2.847` |
 | 12      | :white_check_mark: | :white_check_mark: | `1.584/3.432/8.134/1.771` |
 | 13      | :white_check_mark: | :white_check_mark: | `1.471/2.271/6.411/1.048` |
+
+##### GDEMU *(Original antenna placement)*
+
+| Channel |  Web console | Firmware download | Ping (round-trip min/avg/max/stddev) |
+| ------: | :----------: | :---------------: | :---------------------------------- |
+|  1      | :white_check_mark: | :white_check_mark: | `1.700/5.477/12.030/3.056` |
+|  2      | :white_check_mark: | :white_check_mark: | `1.638/2.421/4.208/0.676` |
+|  3      | :white_check_mark: | :white_check_mark: | `1.617/2.527/5.984/1.052` |
+|  4      | :white_check_mark: | :white_check_mark: | `1.628/2.499/3.676/0.543` |
+|  5      | :x: | :x: | `not pingable` |
+|  6      | :x: | :x: | `barely pingable` |
+|  7      | :x: | :x: | `no connection` |
+|  8      | :x: | :x: | `not pingable` |
+|  9      | :white_check_mark: | :white_check_mark: | `1.698/3.021/6.412/1.098` |
+| 10      | :white_check_mark: | :white_check_mark: | `1.543/2.637/6.944/1.174` |
+| 11      | :white_check_mark: | :white_check_mark: | `1.534/2.937/5.199/1.068` |
+| 12      | :x: | :x: | `5.342/98.759/349.069/119.892 (55% loss)` |
+| 13      | :white_check_mark: | :white_check_mark: | `1.759/2.748/6.252/0.947` |
 
 ##### Clone GDEMU 1 *(Original antenna placement)*
 
@@ -131,8 +149,8 @@ Overview of all test results in one table:
 | Setup | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 |
 | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- | ----- |
 | USB-GDROM (in metal GDROM case) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| Original GDROM | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
-| Original GDEMU | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: | :x: | :x: | :x: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: | :white_check_mark: |
+| GDROM | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| GDEMU | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: | :x: | :x: | :x: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: | :white_check_mark: |
 | Clone GDEMU 1 | :x: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: | :x: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: | :x: |
 | Clone GDEMU 2 | :x: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: | :x: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: | :x: |
 | Clone GDEMU 1 (New antenna placement) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
