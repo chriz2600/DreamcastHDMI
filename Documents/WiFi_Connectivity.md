@@ -8,7 +8,7 @@ To get better wifi connectivity, when using a GDEMU together with DCHDMI, move t
 
 ### Long version
 
-The ESP module used on DCHDMI uses an external wifi antenna. The initial documentation suggested placing this antenna on top of the modem, but it quickly became apparent, that when using a GDEMU ODE, the wifi connection was not stable in every setup, so the suggestion for firmware updates was to remove the GDEMU from the console and replace it with the original GDROM during firmware updates.
+The ESP module used on DCHDMI uses an external wifi antenna. The initial documentation suggested placing this antenna on top of the modem, but it quickly became apparent, that when using a GDEMU ODE, the wifi connection was not stable in every setup, so the suggested procedure for firmware updates was to remove the GDEMU from the console and replace it with the original GDROM during firmware updates.
 
 I recently did some more testing on this issue, with interesting results.
 
