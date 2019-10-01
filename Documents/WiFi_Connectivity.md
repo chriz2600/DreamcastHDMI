@@ -14,7 +14,8 @@ I recently did some more testing on this issue, with interesting results.
 
 #### Setup
 
-- For the tests I used an Asus RT-AC68U wifi router.
+- All tests are performed running upcoming DCHDMI version v4.3, but should apply to all v4.x firmware versions.
+- For the tests I used an [Asus RT-AC68U](https://www.asus.com/Networking/RTAC68U/) wifi router.
 - Only 2 clients are connected, the dreamcast under test (DUT) and a computer. The computer is connected to the 5GHz network, the dreamcast is the only 2.4GHz station on this access point.
 - Access point is about 2.5m away from the console. Neither the console, computer nor the access point were moved between measurements.
 - The surrounding wifi networks and channels of at least the 5 most powerful stations were the same on all test runs.
@@ -31,7 +32,7 @@ I recently did some more testing on this issue, with interesting results.
 
 #### Detailed results
 
-##### USB-GDROM (in metal GDROM case)
+##### USB-GDROM (in metal GDROM case) *(Original antenna placement)*
 
 | Channel |  Web console | Firmware download | Ping (round-trip min/avg/max/stddev) |
 | ------: | :----------: | :---------------: | :---------------------------------- |
@@ -49,7 +50,7 @@ I recently did some more testing on this issue, with interesting results.
 | 12      | :white_check_mark: | :white_check_mark: | `1.486 / 2.355 /4.992 / 1.030` |
 | 13      | :white_check_mark: | :white_check_mark: | `1.543 / 2.150 /4.732 / 0.693` |
 
-##### Original GDROM
+##### Original GDROM *(Original antenna placement)*
 
 | Channel |  Web console | Firmware download | Ping (round-trip min/avg/max/stddev) |
 | ------: | :----------: | :---------------: | :---------------------------------- |
@@ -67,7 +68,7 @@ I recently did some more testing on this issue, with interesting results.
 | 12      | :white_check_mark: | :white_check_mark: | `1.584/3.432/8.134/1.771` |
 | 13      | :white_check_mark: | :white_check_mark: | `1.471/2.271/6.411/1.048` |
 
-##### Clone GDEMU 1
+##### Clone GDEMU 1 *(Original antenna placement)*
 
 | Channel |  Web console | Firmware download | Ping (round-trip min/avg/max/stddev) |
 | ------: | :----------: | :---------------: | :---------------------------------- |
@@ -85,7 +86,7 @@ I recently did some more testing on this issue, with interesting results.
 | 12      | :x: | :x: | `9.267/61.743/223.698/51.321`|
 | 13      | :x: | :x: | `2.027/39.032/223.471/50.065 (20% loss)`|
 
-##### Clone GDEMU 2
+##### Clone GDEMU 2 *(Original antenna placement)*
 
 | Channel |  Web console | Firmware download | Ping (round-trip min/avg/max/stddev) |
 | ------: | :----------: | :---------------: | :---------------------------------- |
@@ -103,7 +104,7 @@ I recently did some more testing on this issue, with interesting results.
 | 12      | :x: | :x: | `no connection`|
 | 13      | :x: | :x: | `2.585/42.562/176.111/53.222 (45% loss)`|
 
-##### Clone GDEMU 1 (new antenna placement)
+##### Clone GDEMU 1 *(New antenna placement)*
 
 | Channel |  Web console | Firmware download | Ping (round-trip min/avg/max/stddev) |
 | ------: | :----------: | :---------------: | :---------------------------------- |
@@ -121,6 +122,8 @@ I recently did some more testing on this issue, with interesting results.
 | 12      | :white_check_mark: | :white_check_mark: | `2.060/10.849/52.846/11.187` |
 | 13      | :white_check_mark: | :white_check_mark: | `1.717/14.923/101.227/26.540` |
 
+*More results will be added in the future*
+
 #### Conclusion
 
 Overview of all test results in one table:
@@ -132,4 +135,6 @@ Overview of all test results in one table:
 | Original GDEMU | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: | :x: | :x: | :x: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: | :white_check_mark: |
 | Clone GDEMU 1 | :x: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: | :x: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: | :x: |
 | Clone GDEMU 2 | :x: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: | :x: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x: | :x: |
-| Clone GDEMU 1 (new antenna placement) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+| Clone GDEMU 1 (New antenna placement) | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: |
+
+Although the ping results with the new antenna placement are worse than with the usbgdrom, the connection is stable and reliable.
