@@ -712,7 +712,7 @@ var setupDataMapping = {
     ota_pass:             [ "OTA Password         ", "empty" ],
     firmware_server:      [ "Firmware Server      ", "dc.i74.de", "[[ib;lightblue;]valid domain name]", domainCheck, null, "Only needed, if you want to connect to a custom fw server." ],
     firmware_server_path: [ "Firmware Server Path ", "empty", "[[ib;lightblue;]path prefix]", null, null, "Only needed, if you want to connect to a custom fw server." ],
-    firmware_version:     [ "Firmware Version     ", "master", "[[b;lightblue;]master] / [[b;lightblue;]develop] / [[b;lightblue;]vX.Y.Z]", /^(master|develop|bleeding|experimental|v\d+\.\d+\.\d+)$/ ],
+    firmware_version:     [ "Firmware Version     ", "master", "[[b;lightblue;]master] / [[b;lightblue;]develop] / [[b;lightblue;]vX.Y.Z]", /^(master|develop|bleeding|experimental|v\d+\.\d+\.\d+)$/, null, "Leave this on [[b;white;]master], if you want to get firmware updates\n    from the stable branch, set to [[b;white;]develop] to get updates from\n    develop branch, use [[b;white;]vX.Y.Z] to pin to a specific version." ],
     http_auth_user:       [ "HTTP User            ", "dchdmi" ],
     http_auth_pass:       [ "HTTP Password        ", "generated", null, null, null, "[[b;red;]If you do not set a password, a new one will be]\n    [[b;red;]generated each time DCHDMI starts!]" ],
     conf_ip_addr:         [ "IP address           ", "empty", validIpMsg, ipCheck ],
