@@ -124,7 +124,7 @@ module data(
 
     `define RAW_WIDTH 1716
     `define RAW_HEIGHT 525
-    `define HORIZONTAL_OFFSET 40
+    `define HORIZONTAL_OFFSET 52
 
     always @(posedge clock or posedge reset) begin
         if (reset) begin
@@ -350,6 +350,10 @@ module data(
                     green_reg <= 8'd0;
                     blue_reg <= val;
                 end
+            end else begin
+                red_reg <= 8'd0;
+                green_reg <= 8'd0;
+                blue_reg <= 8'd0;
             end
         end
     endtask
