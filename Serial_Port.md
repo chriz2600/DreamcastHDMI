@@ -28,6 +28,8 @@ A 3.3V serial port adapter.
 
 **If connecting to DCHDMI, when mounted inside the console and connected to the flat flex, only `GND`, `RX` and `TX` have to be connected.**
 
+**Keep in mind that the serial port adapter `RX` has to be connected to the `TX` on DCHDMI and vice versa (It's a serial port :)).**
+
 #### Example output on first start
 
 ```
