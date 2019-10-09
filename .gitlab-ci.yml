@@ -1,17 +1,18 @@
+variables:
+  ARTIFACT_STORAGE_DIR: "/srv/builds/artifacts"
+  REGISTRY_PREFIX: "registry.gitlab.com/chriz2600"
+  FW_UTILS_VERSION: "1.0.0_quartus-19.1.0"
+  PIO_VERSION: "4.0.3"
+
 stages:
   - build-fpga
   - build-esp
   - prepare-folders
   - publish
 
-variables:
-  ARTIFACT_STORAGE_DIR: "/srv/builds/artifacts"
-  FIRMWARE_UTILS_VERSION: "1.0.0_quartus-19.1.0"
-  PLATFORMIO_VERSION: "4.0.3"
-
 fpga-firmware:
   image:
-    name: "registry.gitlab.com/chriz2600/firmware-utils/firmware-utils:${FIRMWARE_UTILS_VERSION}"
+    name: "${REGISTRY_PREFIX}/firmware-utils/firmware-utils:${FW_UTILS_VERSION}"
   stage: build-fpga
   script: 
     - ./Core/source/ram/create_text_ram.pl
@@ -39,7 +40,7 @@ fpga-firmware:
 
 esp-firmware:
   image:
-    name: "registry.gitlab.com/chriz2600/platformio:${PLATFORMIO_VERSION}"
+    name: "${REGISTRY_PREFIX}/platformio:${PIO_VERSION}"
   stage: build-esp
   script:
     - "./ESP/build-all"
@@ -67,7 +68,7 @@ esp-firmware:
 
 prepare-folders:
   image:
-    name: "registry.gitlab.com/chriz2600/firmware-utils/dc-publish-utils:${FIRMWARE_UTILS_VERSION}"
+    name: "${REGISTRY_PREFIX}/firmware-utils/dc-publish-utils:${FW_UTILS_VERSION}"
   stage: prepare-folders
   script:
     - "prepare-fpga-branch-folder std"
@@ -94,7 +95,7 @@ prepare-folders:
 
 finish-publish:
   image:
-    name: "registry.gitlab.com/chriz2600/firmware-utils/dc-publish-utils:${FIRMWARE_UTILS_VERSION}"
+    name: "${REGISTRY_PREFIX}/firmware-utils/dc-publish-utils:${FW_UTILS_VERSION}"
   stage: publish
   script:
     - "atomic-move /srv/incoming std"
