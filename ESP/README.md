@@ -113,46 +113,7 @@ platformio.ini:
 
 ## DC firmware file format
 
-The firmware manager uses a custom [FastLZ][fastlz] based archive format. The byte order for values is little-endian.
-
-##### Header
-
-The header is 16-bytes long.
-
-| Byte | Description | Value | Notes |
-| -:| - |:-:| - |
-| `0`<br>`1`<br>`2`<br>`3` | 4 byte file identification | `0x44`<br>`0x43`<br>`0x07`<br>`0x04` | *fixed* |
-| `4`<br>`5` | 2 byte version number | `0x0n`<br>`0x00` | *version can be 1 or 2* |
-| `6`<br>`7` | 2 byte `block_size` used during compression | `block_size[0]`<br>`block_size[2]` | *default is 1536*<br>`00` `06` |
-| `8`<br>`9`<br>`10`<br>`11` | 4 bytes `file_size` of the decompressed file | `file_size[0]`<br>`file_size[1]`<br>`file_size[2]`<br>`file_size[3]` |   |
-| `12`<br>`13`<br>`14`<br>`15` | **v1**: 4 bytes reserved<br>**v2**: 1 byte `bundled_archives`, <br>3 bytes reserved | `bundled_archives`(v2)<br>`0x00`<br>`0x00`<br>`0x00` | *v2 supports bundling up to 8 archives into one bundle* |
-
-##### Footer ***(v2 only)***
-
-Version 2 allows bundling multiple archives in one archive bundle. The start position of each archive is stored at the end of the bundle after the last archive.
-
-| Word | Description | Value | Notes |
-| - | - |:-:| - |
-| `position first archive`<br>`...`<br>`position last archive` | Up to 8 4-byte words | `pos_0[0:3]`<br>`...`<br>`pos_N[0:3]` |   |
-
-##### Payload
-
-The data payload contains the compressed firmware configuration data, which is decompressed and then flashed - in chunks of `256` byte - to the configuration memory/SPI flash.
-
-Each data packet looks like this:
-
-| Byte | Description | Value | Notes |
-| - | - |:-:| - |
-| `0`<br>`1` | 2 byte `chunk_size` | `chunk_size[0]`<br>`chunk_size[1]` |   |
-| `2`<br>...<br>`2`<br>+`chunk_size` | `chunk_size` bytes [FastLZ][fastlz] compressed data, which decompresses to `block_size` bytes | *`data`* |   |
-
-##### Notes
-
-- C language implementation of both packer and unpacker can be found [here](https://github.com/chriz2600/DreamcastHDMI/tree/master/firmware-utils). The packer is used in the automatic build chain, to create firmware files on [dc.i74.de](https://dc.i74.de).
-
-- Decompression/flashing implementation can be found [here](https://github.com/chriz2600/DreamcastHDMI/blob/bleeding/ESP/src/task/FlashTask.h).
-
-- Standard `block_size` is `1536`. Greater `block_size` may increase achievable compression, but keep in mind that the ESP8266 has only 80kB of RAM.
+See [`firmware-utils`](https://gitlab.com/chriz2600/firmware-utils) for details.
 
 ## Schematic:
 
