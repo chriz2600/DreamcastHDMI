@@ -10,7 +10,7 @@ variables:
 
 firmware-utils:
   image:
-    name: chriz2600/firmware-utils-builder:latest
+    name: registry.gitlab.com/chriz2600/firmware-utils/firmware-utils-builder:1.0.0
   stage: build-firmware-utils
   script:
     - "cd firmware-utils"
@@ -31,7 +31,7 @@ firmware-utils:
 
 fpga-firmware:
   image:
-      name: chriz2600/quartus-lite:18.1.1
+      name: registry.gitlab.com/chriz2600/quartus-lite:19.1.0
   stage: build-fpga
   script: 
     - ./Core/source/ram/create_text_ram.pl
@@ -61,7 +61,7 @@ fpga-firmware:
 
 esp-firmware:
   image:
-    name: chriz2600/platformio:4.0.3
+    name: registry.gitlab.com/chriz2600/platformio:4.0.3
   stage: build-esp
   script:
     - "./ESP/build-all"
@@ -89,7 +89,7 @@ esp-firmware:
 
 prepare-folders:
   image:
-    name: chriz2600/dc-publish-utils:latest
+    name: registry.gitlab.com/chriz2600/firmware-utils/dc-publish-utils:1.0.0
   stage: prepare-folders
   script:
     - "prepare-fpga-branch-folder std"
@@ -116,7 +116,7 @@ prepare-folders:
 
 finish-publish:
   image:
-    name: chriz2600/dc-publish-utils:latest
+    name: registry.gitlab.com/chriz2600/firmware-utils/dc-publish-utils:1.0.0
   stage: publish
   script:
     - "atomic-move /srv/incoming std"
