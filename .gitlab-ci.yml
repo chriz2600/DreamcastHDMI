@@ -1,5 +1,4 @@
 stages:
-  - build-firmware-utils
   - build-fpga
   - build-esp
   - prepare-folders
@@ -7,31 +6,12 @@ stages:
 
 variables:
   ARTIFACT_STORAGE_DIR: "/srv/builds/artifacts"
-
-firmware-utils:
-  image:
-    name: registry.gitlab.com/chriz2600/firmware-utils/firmware-utils-builder:1.0.0
-  stage: build-firmware-utils
-  script:
-    - "cd firmware-utils"
-    - "make install"
-  artifacts:
-    name: "firmware-utils-${CI_COMMIT_REF_NAME}"
-    paths:
-      - firmware-utils/firmware-packer
-      - firmware-utils/firmware-unpacker
-  tags:
-    - docker
-  only:
-    - develop
-    - master
-    - experimental
-    - bleeding
-    - tags
+  FIRMWARE_UTILS_VERSION: "1.0.0_quartus-19.1.0"
+  PLATFORMIO_VERSION: "4.0.3"
 
 fpga-firmware:
   image:
-      name: registry.gitlab.com/chriz2600/quartus-lite:19.1.0
+    name: "registry.gitlab.com/chriz2600/firmware-utils/firmware-utils:{{ FIRMWARE_UTILS_VERSION }}"
   stage: build-fpga
   script: 
     - ./Core/source/ram/create_text_ram.pl
@@ -48,8 +28,6 @@ fpga-firmware:
       - Core/output_files/*.dc
       - Core/output_files/*.jic
       - Core/output_files/*.rbf
-  dependencies:
-    - firmware-utils
   tags:
     - docker
   only:
@@ -61,7 +39,7 @@ fpga-firmware:
 
 esp-firmware:
   image:
-    name: registry.gitlab.com/chriz2600/platformio:4.0.3
+    name: "registry.gitlab.com/chriz2600/platformio:{{ PLATFORMIO_VERSION }}"
   stage: build-esp
   script:
     - "./ESP/build-all"
@@ -89,7 +67,7 @@ esp-firmware:
 
 prepare-folders:
   image:
-    name: registry.gitlab.com/chriz2600/firmware-utils/dc-publish-utils:1.0.0
+    name: "registry.gitlab.com/chriz2600/firmware-utils/dc-publish-utils:{{ FIRMWARE_UTILS_VERSION }}"
   stage: prepare-folders
   script:
     - "prepare-fpga-branch-folder std"
@@ -116,7 +94,7 @@ prepare-folders:
 
 finish-publish:
   image:
-    name: registry.gitlab.com/chriz2600/firmware-utils/dc-publish-utils:1.0.0
+    name: "registry.gitlab.com/chriz2600/firmware-utils/dc-publish-utils:{{ FIRMWARE_UTILS_VERSION }}"
   stage: publish
   script:
     - "atomic-move /srv/incoming std"
