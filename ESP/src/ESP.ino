@@ -1090,6 +1090,7 @@ void printSerialMenu() {
     DEBUG2("r: reset visible area counters\n");
     DEBUG2("p: reset PLL\n");
     DEBUG2("t: show visible area counters\n");
+    DEBUG2("c: show color space markers\n");
     DEBUG2("o: activate OTA update\n");
     DEBUG2("w: print wifi rssi information\n");
     DEBUG2("h: print this menu\n");
@@ -1158,6 +1159,18 @@ int getWiFiQuality(int dBm) {
   return 2 * (dBm + 100);
 }
 
+void toBinaryString(char* msg, uint8_t* a, int len) {
+    uint8_t i, ii = 0;
+    for(int j = 0 ; j < len ; j++) {
+        if (j > 0) {
+            sprintf((char*) &msg[ii++], " ");
+        }
+        for(i = 0x80 ; i != 0 ; i >>= 1) {
+            sprintf((char*) &msg[ii++], "%c", (a[j]&i)?'1':'0');
+        }
+    }
+}
+
 void loop(void){
     ArduinoOTA.handle();
     taskManager.Loop();
@@ -1183,6 +1196,12 @@ void loop(void){
                 int nbp2 = ((buffer[36] & 0xF) << 8) | buffer[37];
                 DEBUG2("nbp: %02x %02x %02x %dx%d\n", buffer[35], buffer[36], buffer[37], nbp1, nbp2);
             });
+        } else if (incomingByte == 'c') {
+            fpgaTask.Read(0xF5, 3, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+                char msg[9*3+1] = "";
+                toBinaryString(msg, buffer, 3);
+                DEBUG2("cse: %s %02x %02x %02x\n", msg, buffer[0], buffer[1], buffer[2]);
+            }); 
         } else if (incomingByte == 'o') {
             if (strlen(otaPassword)) {
                 setupArduinoOTA();
