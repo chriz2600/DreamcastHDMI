@@ -8,11 +8,12 @@ extern uint8_t CurrentResolution;
 extern uint8_t CurrentResolutionData;
 extern uint8_t ForceVGA;
 extern uint8_t UpscalingMode;
+extern uint8_t ColorExpansionMode;
+extern uint8_t GammaMode;
 extern char configuredResolution[16];
 extern int8_t Offset240p;
 extern int8_t OffsetVGA;
 extern int8_t AutoOffsetVGA;
-extern uint8_t UpscalingMode;
 extern uint8_t ColorSpace;
 extern uint8_t CurrentResetMode;
 
@@ -282,7 +283,10 @@ void reapplyFPGAConfig() {
                             DEBUG1(" -> set upscaling mode %d\n", UpscalingMode);
                             fpgaTask.Write(I2C_COLOR_SPACE, ColorSpace, [](uint8_t Address, uint8_t Value) {
                                 DEBUG1(" -> set color space %d\n", ColorSpace);
-                                switchResolution();
+                                fpgaTask.Write(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, ColorExpansionMode | GammaMode << 3, [](uint8_t Address, uint8_t Value) {
+                                    DEBUG1(" -> set color expansion and gamma %d\n", ColorExpansionMode | GammaMode << 3);
+                                    switchResolution();
+                                });
                             });
                         });
                     });

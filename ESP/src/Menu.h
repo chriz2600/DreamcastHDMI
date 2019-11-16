@@ -72,7 +72,9 @@ static const char OSD_OUTPUT_RES_MENU[521] PROGMEM = (
 #define MENU_AV_240POS 4
 #define MENU_AV_VGAPOS 5
 #define MENU_AV_COLOR_SPACE 6
-#define MENU_AV_UPSCALING_MODE 7
+#define MENU_AV_COLOR_EXPANSION 7
+#define MENU_AV_GAMMA_CORRECTION 8
+#define MENU_AV_UPSCALING_MODE 9
 #define MENU_AV_COLUMN 24
 #define MENU_AV_FIRST_SELECT_LINE 2
 #define MENU_AV_LAST_SELECT_LINE MENU_AV_UPSCALING_MODE
@@ -85,9 +87,9 @@ static const char OSD_ADVANCED_VIDEO_MENU[521] PROGMEM = (
     "- 240p adjust position: _______         "
     "- VGA adjust position:  _______         "
     "- RGB color space:      _______         "
+    "- Color expansion:      _______         "
+    "- Gamma correction:     _______         "
     "                                        "
-    "                                        "
-    "  left/right (d-pad): change value.     "
     "                                        "
     "                                        "
     "          " MENU_OK_STR ": Save   " MENU_CANCEL_STR ": Cancel           "

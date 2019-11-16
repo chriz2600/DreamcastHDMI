@@ -28,6 +28,8 @@
 #define NBP_STATE_CHECK 63
 #define MAX_QUEUE_SIZE 255
 
+#define DC_COLOR_MODE_SWITCH_TRIGGER 4
+
 typedef std::function<void(uint16_t controller_data, bool isRepeat)> FPGAEventHandlerFunction;
 typedef std::function<void(uint8_t shiftcode, uint8_t chardata, bool isRepeat)> FPGAKeyboardHandlerFunction;
 typedef std::function<void(uint8_t Address, uint8_t Value)> WriteCallbackHandlerFunction;
@@ -40,6 +42,8 @@ extern uint8_t CurrentResolution;
 extern uint8_t CurrentResolutionData;
 extern int8_t OffsetVGA;
 extern int8_t AutoOffsetVGA;
+extern uint8_t ColorExpansionMode;
+extern uint8_t GammaMode;
 
 void switchResolution();
 void storeResolutionData(uint8_t data);
@@ -183,6 +187,10 @@ class FPGATask : public Task {
         std::queue<osddata_t> osdqueue;
         std::queue<writedata_t> writequeue;
         std::queue<readdata_t> readqueue;
+
+        uint32_t lastDCColorMode = 0;
+        uint8_t lastDCColorModeCount = 0;
+        uint8_t lastEffectiveColorMode = COLOR_EXP_AUTO;
 
         virtual bool OnStart() {
             // create osdbuffer
@@ -358,8 +366,55 @@ class FPGATask : public Task {
             }
             memcpy(data_out, buffer2, I2C_CONTROLLER_AND_DATA_BASE_LENGTH);
 
-            // TODO: handle colorspace data
+            /////////////////////////////////////////////////////////////
+            // color expansion handling
+            // in auto mode: handle/collect colorspace data, also switch
+            if (ColorExpansionMode == COLOR_EXP_AUTO) {
+                uint32_t value = buffer2[3] << 16 | buffer2[4] << 8 | buffer2[5];
+                if (value == lastDCColorMode) {
+                    if (lastDCColorModeCount == DC_COLOR_MODE_SWITCH_TRIGGER) {
+                        lastDCColorModeCount = 0;
 
+                        uint8_t effective = COLOR_EXP_AUTO;
+                        switch (value) {
+                            case 0xFFFFFF:
+                                effective = COLOR_EXP_OFF;
+                                break;
+                            case 0xF8F8F8:
+                                effective = COLOR_EXP_RGB555;
+                                break;
+                            case 0xF8FCF8:
+                                effective = COLOR_EXP_RGB565;
+                                break;
+                        }
+                        if (effective != lastEffectiveColorMode) {
+                            // switch
+                            DEBUG2("Switch from %u to: %u\n", lastEffectiveColorMode, effective);
+                            Write(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, effective | GammaMode << 3);
+                            lastEffectiveColorMode = effective;
+                        }
+                    } else {
+                        lastDCColorModeCount++;
+                    }
+                } else {
+                    switch (value) {
+                        case 0xFFFFFF:
+                        case 0xF8F8F8:
+                        case 0xF8FCF8:
+                            lastDCColorMode = value;
+                            lastDCColorModeCount = 0;
+                            break;
+                        default:
+                            lastDCColorMode = 0;
+                            lastDCColorModeCount = 0;
+                            break;
+                    }
+                }
+            } else {
+                lastDCColorMode = 0;
+                lastDCColorModeCount = 0;
+                lastEffectiveColorMode = COLOR_EXP_AUTO;
+            }
             ///////////////////////////////////////////////////
             // read keyboard data
             buffer[0] = I2C_KEYBOARD_BASE;

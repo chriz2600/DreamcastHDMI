@@ -235,6 +235,18 @@ void readUpscalingMode() {
     UpscalingMode = atoi(buffer);
 }
 
+void readColorExpansionMode() {
+    char buffer[32] = "";
+    _readFile("/etc/color/expansion", buffer, 32, DEFAULT_COLOR_EXPANSION_MODE);
+    ColorExpansionMode = atoi(buffer);
+}
+
+void readGammaMode() {
+    char buffer[32] = "";
+    _readFile("/etc/gamma/mode", buffer, 32, DEFAULT_GAMMA_MODE);
+    GammaMode = atoi(buffer);
+}
+
 void readColorSpace() {
     char buffer[32] = "";
     _readFile("/etc/color/space", buffer, 32, DEFAULT_COLOR_SPACE);
@@ -263,6 +275,18 @@ void writeUpscalingMode() {
     char buffer[32] = "";
     snprintf(buffer, 31, "%d", UpscalingMode);
     _writeFile("/etc/upscaling/mode", buffer, 32);
+}
+
+void writeColorExpansionMode() {
+    char buffer[32] = "";
+    snprintf(buffer, 31, "%d", ColorExpansionMode);
+    _writeFile("/etc/color/expansion", buffer, 32);
+}
+
+void writeGammaMode() {
+    char buffer[32] = "";
+    snprintf(buffer, 31, "%d", GammaMode);
+    _writeFile("/etc/gamma/mode", buffer, 32);
 }
 
 void writeColorSpace() {

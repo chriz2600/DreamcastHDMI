@@ -83,6 +83,8 @@ int8_t Offset240p;
 int8_t OffsetVGA;
 int8_t AutoOffsetVGA = 0;
 uint8_t UpscalingMode;
+uint8_t ColorExpansionMode;
+uint8_t GammaMode;
 uint8_t ColorSpace;
 
 char md5FPGA[48];
@@ -179,6 +181,15 @@ void setupUpscalingMode() {
     forceI2CWrite(
         I2C_UPSCALING_MODE, UpscalingMode,
         I2C_UPSCALING_MODE, UpscalingMode
+    );
+}
+
+void setupColorExpansionAndGamma() {
+    readColorExpansionMode();
+    readGammaMode();
+    forceI2CWrite(
+        I2C_COLOR_EXPANSION_AND_GAMMA_MODE, ColorExpansionMode | GammaMode << 3,
+        I2C_COLOR_EXPANSION_AND_GAMMA_MODE, ColorExpansionMode | GammaMode << 3
     );
 }
 
@@ -1114,6 +1125,7 @@ void setup(void) {
     setupOffsets();
     setupUpscalingMode();
     setupColorSpace();
+    setupColorExpansionAndGamma();
     setupTaskManager();
     setupCredentials();
     waitForController();
@@ -1146,6 +1158,7 @@ void showInfo() {
     DEBUG2("Free sketch space: %u\n", ESP.getFreeSketchSpace());
     DEBUG2("Max sketch space: %u\n", (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000);
     DEBUG2("Flash chip size: %u\n", ESP.getFlashChipSize());
+    DEBUG2("Heap fragmentation: %u\n", ESP.getHeapFragmentation());
     DEBUG2("Free heap size: %u\n\n", ESP.getFreeHeap());
 }
 
@@ -1171,12 +1184,9 @@ void toBinaryString(char* msg, uint8_t* a, int len) {
     }
 }
 
-uint8_t cmode = 0x3;
-uint8_t gmode = 0x0F;
-
 void setColorMode() {
-    uint8_t val = cmode | gmode << 3;
-    fpgaTask.Write(0xD1, val, [](uint8_t Address, uint8_t Value) {
+    uint8_t val = ColorExpansionMode | GammaMode << 3;
+    fpgaTask.Write(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, val, [&](uint8_t Address, uint8_t Value) {
         char msg[9] = "";
         toBinaryString(msg, &Value, 1);
         DEBUG2("set color mode to %s (0x%02x/0x%02x).\n", msg, (Value & 0xF8) >> 3, Value & 0x7);
@@ -1213,7 +1223,12 @@ void loop(void){
                 char msg[9*I2C_CSEDATA_LENGTH+1] = "";
                 toBinaryString(msg, buffer, I2C_CSEDATA_LENGTH);
                 DEBUG2("cse: %s %02x %02x %02x\n", msg, buffer[0], buffer[1], buffer[2]);
-            }); 
+            });
+            fpgaTask.Read(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, 1, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+                char msg[9] = "";
+                toBinaryString(msg, buffer, 1);
+                DEBUG2("Color mode: %s (0x%02x/0x%02x) [0x%02x].\n", msg, (buffer[0] & 0xF8) >> 3, buffer[0] & 0x7, ColorExpansionMode);
+            });
         } else if (incomingByte == 'o') {
             if (strlen(otaPassword)) {
                 setupArduinoOTA();
@@ -1224,17 +1239,19 @@ void loop(void){
             int dBm = WiFi.RSSI();
             DEBUG2("RSSI: %d dBm, quality: %d%%, channel: %d\n", dBm, getWiFiQuality(dBm), WiFi.channel());
         } else if (incomingByte == '0') {
-            cmode = 0; setColorMode();
+            ColorExpansionMode = 0; setColorMode();
         } else if (incomingByte == '1') {
-            cmode = 1; setColorMode();
+            ColorExpansionMode = 1; setColorMode();
         } else if (incomingByte == '3') {
-            cmode = 3; setColorMode();
+            ColorExpansionMode = 3; setColorMode();
         } else if (incomingByte == '+') {
-            gmode++; setColorMode();
+            GammaMode++; setColorMode();
         } else if (incomingByte == '-') {
-            gmode--; setColorMode();
+            GammaMode--; setColorMode();
         } else if (incomingByte == '=') {
-            gmode = 0x0F; setColorMode();
+            GammaMode = 0x0F; setColorMode();
+        } else {
+            DEBUG2("DEBUG serial key: %u\n", incomingByte);
         }
     }
 }
