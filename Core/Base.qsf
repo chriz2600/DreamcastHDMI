@@ -70,6 +70,8 @@ set_global_assignment -name VERILOG_FILE source/video2ram.v
 set_global_assignment -name VERILOG_FILE source/ram2video.v
 set_global_assignment -name VERILOG_FILE source/typedef.v
 set_global_assignment -name VERILOG_FILE source/preproc/colorconv.v
+set_global_assignment -name VERILOG_FILE source/preproc/gammaconv.v
+set_global_assignment -name VERILOG_FILE source/preproc/gamma.v
 set_global_assignment -name VERILOG_FILE source/adv7513/I2C.v
 set_global_assignment -name VERILOG_FILE source/adv7513/ADV7513.v
 set_global_assignment -name VERILOG_FILE source/adv7513/adv7513_reconfig.v

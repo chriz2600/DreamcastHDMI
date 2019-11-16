@@ -45,7 +45,7 @@
 //////////////////////////////////////////////////////////////////////
 //
 `include "i2cSlave_define.v"
-
+`include "config.inc"
 
 module registerInterface (
     input clk,
@@ -114,7 +114,7 @@ reg activateHDMIoutput_reg = 0;
 reg hq2x_reg = 0;
 reg [1:0] colorspace_reg;
 reg [7:0] clock_config_data_reg = 3;
-reg [7:0] color_config_data_reg = 8'hFF;
+reg [7:0] color_config_data_reg = `GAMMA_1_0 | `RGB888;
 
 assign dataOut = dataOut_reg;
 assign ram_wraddress = wraddress_reg;
@@ -167,10 +167,10 @@ always @(posedge clk) begin
         */
         8'h86: dataOut_reg <= { controller_data[4:0], 2'b00, controller_data.valid_packet };
         8'h87: dataOut_reg <= { add_line, line_doubler, is_pal, force_generate, enable_osd_reg, 2'b00, `HQ2X_FLAG };
-
-        // scanline data
-        8'h88: dataOut_reg <= scanline_reg.intensity[8:1];
-        8'h89: dataOut_reg <= { scanline_reg.intensity[0], scanline_reg.thickness, scanline_reg.oddeven, scanline_reg.active, 4'b0000 };
+        // color space data
+        8'h88: dataOut_reg <= color_space_explorer[23:16];
+        8'h89: dataOut_reg <= color_space_explorer[15:8];
+        8'h8A: dataOut_reg <= color_space_explorer[7:0];
 
         // pll_adv_lockloss_count
         8'hA0: dataOut_reg <= pll_adv_lockloss_count[31:24];
@@ -239,10 +239,9 @@ always @(posedge clk) begin
         8'hE7: dataOut_reg <= keyboard_data.key5;
         8'hE8: dataOut_reg <= keyboard_data.key6;
 
-        // color space data
-        8'hF5: dataOut_reg <= color_space_explorer[23:16];
-        8'hF6: dataOut_reg <= color_space_explorer[15:8];
-        8'hF7: dataOut_reg <= color_space_explorer[7:0];
+        // scanline data
+        8'hF5: dataOut_reg <= scanline_reg.intensity[8:1];
+        8'hF6: dataOut_reg <= { scanline_reg.intensity[0], scanline_reg.thickness, scanline_reg.oddeven, scanline_reg.active, 4'b0000 };
 
         default: dataOut_reg <= 0;
     endcase
@@ -266,14 +265,6 @@ always @(posedge clk) begin
         // generate video reconfiguration
         end else if (addr == 8'h84) begin
             video_gen_data_reg <= dataIn;
-        // scanline data
-        end else if (addr == 8'h88) begin
-            scanline_reg.intensity[8:1] <= dataIn;
-        end else if (addr == 8'h89) begin
-            scanline_reg.intensity[0] <= dataIn[7];
-            scanline_reg.thickness <= dataIn[6];
-            scanline_reg.oddeven <= dataIn[5];
-            scanline_reg.active <= dataIn[4];
         // 240p offset config
         end else if (addr == 8'h90) begin
             conf240p_reg <= { conf240p_reg[23:8], dataIn };
@@ -308,6 +299,14 @@ always @(posedge clk) begin
         // reset input PLL
         end else if (addr == 8'hF4) begin
             resetpll_reg <= 1'b1;
+        // scanline data
+        end else if (addr == 8'hF5) begin
+            scanline_reg.intensity[8:1] <= dataIn;
+        end else if (addr == 8'hF6) begin
+            scanline_reg.intensity[0] <= dataIn[7];
+            scanline_reg.thickness <= dataIn[6];
+            scanline_reg.oddeven <= dataIn[5];
+            scanline_reg.active <= dataIn[4];
         // OSD data
         end else if (addr < 8'h80) begin
             wraddress_reg <= { addr_offset, addr[6:0] };

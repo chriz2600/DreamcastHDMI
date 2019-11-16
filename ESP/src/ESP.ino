@@ -1171,9 +1171,15 @@ void toBinaryString(char* msg, uint8_t* a, int len) {
     }
 }
 
-void setColorMode(uint8_t val) {
-    fpgaTask.Write(0xD1, val, [val](uint8_t Address, uint8_t Value) {
-        DEBUG2("set color mode to %u.\n", val);
+uint8_t cmode = 0x3;
+uint8_t gmode = 0x0F;
+
+void setColorMode() {
+    uint8_t val = cmode | gmode << 3;
+    fpgaTask.Write(0xD1, val, [](uint8_t Address, uint8_t Value) {
+        char msg[9] = "";
+        toBinaryString(msg, &Value, 1);
+        DEBUG2("set color mode to %s (0x%02x/0x%02x).\n", msg, (Value & 0xF8) >> 3, Value & 0x7);
     });
 }
 
@@ -1203,9 +1209,9 @@ void loop(void){
                 DEBUG2("nbp: %02x %02x %02x %dx%d\n", buffer[35], buffer[36], buffer[37], nbp1, nbp2);
             });
         } else if (incomingByte == 'c') {
-            fpgaTask.Read(0xF5, 3, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
-                char msg[9*3+1] = "";
-                toBinaryString(msg, buffer, 3);
+            fpgaTask.Read(I2C_CSEDATA_BASE, I2C_CSEDATA_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+                char msg[9*I2C_CSEDATA_LENGTH+1] = "";
+                toBinaryString(msg, buffer, I2C_CSEDATA_LENGTH);
                 DEBUG2("cse: %s %02x %02x %02x\n", msg, buffer[0], buffer[1], buffer[2]);
             }); 
         } else if (incomingByte == 'o') {
@@ -1218,13 +1224,17 @@ void loop(void){
             int dBm = WiFi.RSSI();
             DEBUG2("RSSI: %d dBm, quality: %d%%, channel: %d\n", dBm, getWiFiQuality(dBm), WiFi.channel());
         } else if (incomingByte == '0') {
-            setColorMode(0);
+            cmode = 0; setColorMode();
         } else if (incomingByte == '1') {
-            setColorMode(1);
-        } else if (incomingByte == '2') {
-            setColorMode(2);
+            cmode = 1; setColorMode();
         } else if (incomingByte == '3') {
-            setColorMode(3);
+            cmode = 3; setColorMode();
+        } else if (incomingByte == '+') {
+            gmode++; setColorMode();
+        } else if (incomingByte == '-') {
+            gmode--; setColorMode();
+        } else if (incomingByte == '=') {
+            gmode = 0x0F; setColorMode();
         }
     }
 }

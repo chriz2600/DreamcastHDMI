@@ -132,8 +132,9 @@
 #define I2C_VIDEO_GEN (0x84)
 #define I2C_CONTROLLER_AND_DATA_BASE (0x85)
 #define I2C_METADATA (0x87)
-#define I2C_SCANLINE_UPPER (0x88)
-#define I2C_SCANLINE_LOWER (0x89)
+#define I2C_CSEDATA_BASE (0x88)
+#define I2C_SCANLINE_UPPER (0xF5)
+#define I2C_SCANLINE_LOWER (0xF6)
 #define I2C_240P_OFFSET (0x90)
 #define I2C_ACTIVATE_HDMI (0x91)
 #define I2C_UPSCALING_MODE (0x92)
@@ -155,12 +156,14 @@
 #define I2C_NBP_LENGTH 3
 
 // controller and data
-#define I2C_CONTROLLER_AND_DATA_BASE_LENGTH 3
+#define I2C_CONTROLLER_AND_DATA_BASE_LENGTH 6
 #define I2C_KEYBOARD_LENGTH 4
 
 // pinok data
 #define I2C_TESTDATA_BASE (0xA0)
 #define I2C_TESTDATA_LENGTH 38
+
+#define I2C_CSEDATA_LENGTH 3
 
 // // controller data, int16
 // /*

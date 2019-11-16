@@ -29,7 +29,20 @@
     `define HQ2X_FLAG 1'b1
 `endif
 
-`define RGB555 8'd_0
-`define RGB565 8'd_1
+`define RGB555 3'd_0
+`define RGB565 3'd_1
+`define RGB888 3'd_3
+
+`define GAMMA_BOOST_0_83 5'd_0
+
+`define GAMMA_0_714290 5'h_0B
+`define GAMMA_0_769231 5'h_0C
+`define GAMMA_0_833330 5'h_0D
+`define GAMMA_0_909090 5'h_0E
+`define GAMMA_1_0 5'h_0F
+`define GAMMA_1_1 5'h_10
+`define GAMMA_1_2 5'h_11
+`define GAMMA_1_3 5'h_12
+`define GAMMA_1_4 5'h_13
 
 `endif

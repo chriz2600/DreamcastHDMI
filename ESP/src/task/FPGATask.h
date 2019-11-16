@@ -313,7 +313,7 @@ class FPGATask : public Task {
         void handleMetadata() {
             // update controller data and meta
             uint8_t buffer[2];
-            uint8_t buffer2[I2C_KEYBOARD_LENGTH];
+            uint8_t buffer2[I2C_CONTROLLER_AND_DATA_BASE_LENGTH];
             
             ///////////////////////////////////////////////////
             // read controller data
@@ -357,6 +357,8 @@ class FPGATask : public Task {
                 switchResolution();
             }
             memcpy(data_out, buffer2, I2C_CONTROLLER_AND_DATA_BASE_LENGTH);
+
+            // TODO: handle colorspace data
 
             ///////////////////////////////////////////////////
             // read keyboard data

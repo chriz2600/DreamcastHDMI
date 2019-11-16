@@ -3,11 +3,13 @@
 module colorconv(
     input clock,
     
-    input [7:0] color_config_data,
+    input [2:0] color_config,
 
     input in_wren,
     input [`RAM_WIDTH-1:0] in_wraddr,
-    input [23:0] in_wrdata,
+    input [7:0] in_red,
+    input [7:0] in_green,
+    input [7:0] in_blue,
     input in_starttrigger,
 
     output reg wren,
@@ -19,18 +21,18 @@ module colorconv(
     always @(posedge clock) begin
         wren <= in_wren;
         wraddr <= in_wraddr;
-        case (color_config_data)
+        case (color_config)
             `RGB555: wrdata <= {
-                in_wrdata[23:16] | in_wrdata[23:16] >> 5,
-                in_wrdata[15:8] | in_wrdata[15:8] >> 5,
-                in_wrdata[7:0] | in_wrdata[7:0] >> 5,
+                in_red | in_red >> 5,
+                in_green | in_green >> 5,
+                in_blue | in_blue >> 5,
             }; // RGB555
             `RGB565: wrdata <= {
-                in_wrdata[23:16] | in_wrdata[23:16] >> 5,
-                in_wrdata[15:8] | in_wrdata[15:8] >> 6,
-                in_wrdata[7:0] | in_wrdata[7:0] >> 5,
+                in_red | in_red >> 5,
+                in_green | in_green >> 6,
+                in_blue | in_blue >> 5,
             }; // RGB565
-            default: wrdata <= in_wrdata; // RGB888
+            default: wrdata <= { in_red, in_green, in_blue }; // RGB888
         endcase
         starttrigger <= in_starttrigger;
     end
