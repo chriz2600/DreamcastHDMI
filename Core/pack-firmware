@@ -4,4 +4,4 @@ cd $(dirname $0)
 
 source .setup
 
-docker_run /root/firmware-packer "$@"
+docker_run /root/firmware-packer -mDC "$@"

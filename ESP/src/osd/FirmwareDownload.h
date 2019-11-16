@@ -3,6 +3,7 @@
 
 extern FlashVerifyTask flashVerifyTask;
 extern char firmwareServer[256];
+extern char firmwareServerPath[256];
 
 bool firmwareDownloadStarted;
 bool newFWDownloaded;

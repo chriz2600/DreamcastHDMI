@@ -44,10 +44,8 @@ class InfoTask : public Task {
                 return;
             }
 
+            isRunning = false;
             fpgaTask.Read(I2C_TESTDATA_BASE, I2C_TESTDATA_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
-                // pause and wait for osd write to finish ...
-                isRunning = false;
-                // leave, if task is no longer running
                 char result[(MENU_INF_RESULT_HEIGHT * MENU_WIDTH) + 1] = "";
 
                 if (address == I2C_TESTDATA_BASE && len == I2C_TESTDATA_LENGTH) {

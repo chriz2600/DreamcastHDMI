@@ -11,6 +11,7 @@
         global $j;
         return (
               "https://" . $j["firmware_server"]
+            + $j["firmware_server_path"]
             . "/fw/" . $j["firmware_version"]
             . "/DCxPlus-v2.dc.md5?cc=" . rand()
         );
@@ -19,6 +20,7 @@
         global $j;
         return (
               "https://" . $j["firmware_server"]
+            + $j["firmware_server_path"]
             . "/esp/" . $j["firmware_version"]
             . "/4MB-firmware.bin.md5?cc=" . rand()
         );
@@ -27,6 +29,7 @@
         global $j;
         return (
               "https://" . $j["firmware_server"]
+            + $j["firmware_server_path"]
             . "/esp/" . $j["firmware_version"]
             . "/esp.index.html.gz.md5?cc=" . rand()
         );

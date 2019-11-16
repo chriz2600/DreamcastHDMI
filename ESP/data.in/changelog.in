@@ -1,3 +1,5 @@
+v4.3                                    
+                                        
 v4.2                                    
 - MDNS initialization can cause a crash 
   leading to reset loop on startup, so  

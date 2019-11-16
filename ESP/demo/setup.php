@@ -22,6 +22,7 @@
     get("password", "");
     get("ota_pass", "");
     get("firmware_server", "dc.i74.de");
+    get("firmware_server_path", "");
     get("firmware_version", "master");
     get("http_auth_user", "dchdmi");
     get("http_auth_pass", "");

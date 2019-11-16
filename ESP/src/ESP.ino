@@ -41,6 +41,7 @@ char ssid[64] = DEFAULT_SSID;
 char password[64] = DEFAULT_PASSWORD;
 char otaPassword[64] = DEFAULT_OTA_PASSWORD; 
 char firmwareServer[256] = DEFAULT_FW_SERVER;
+char firmwareServerPath[256] = DEFAULT_FW_SERVER_PATH;
 char firmwareVersion[64] = DEFAULT_FW_VERSION;
 char firmwareVariant[64] = DEFAULT_FW_VARIANT;
 char httpAuthUser[64] = DEFAULT_HTTP_USER;
@@ -82,6 +83,8 @@ int8_t Offset240p;
 int8_t OffsetVGA;
 int8_t AutoOffsetVGA = 0;
 uint8_t UpscalingMode;
+uint8_t ColorExpansionMode;
+uint8_t GammaMode;
 uint8_t ColorSpace;
 
 char md5FPGA[48];
@@ -181,6 +184,15 @@ void setupUpscalingMode() {
     );
 }
 
+void setupColorExpansionAndGamma() {
+    readColorExpansionMode();
+    readGammaMode();
+    forceI2CWrite(
+        I2C_COLOR_EXPANSION_AND_GAMMA_MODE, ColorExpansionMode | GammaMode << 3,
+        I2C_COLOR_EXPANSION_AND_GAMMA_MODE, ColorExpansionMode | GammaMode << 3
+    );
+}
+
 void setupColorSpace() {
     readColorSpace();
     forceI2CWrite(
@@ -202,6 +214,7 @@ void setupCredentials(void) {
     _readFile("/etc/password", password, 64, DEFAULT_PASSWORD);
     _readFile("/etc/ota_pass", otaPassword, 64, DEFAULT_OTA_PASSWORD);
     _readFile("/etc/firmware_server", firmwareServer, 256, DEFAULT_FW_SERVER);
+    _readFile("/etc/firmware_server_path", firmwareServerPath, 256, DEFAULT_FW_SERVER_PATH);
     _readFile("/etc/firmware_variant", firmwareVariant, 64, DEFAULT_FW_VARIANT);
     _readFile("/etc/firmware_version", firmwareVersion, 64, DEFAULT_FW_VERSION);
     _readFile("/etc/http_auth_user", httpAuthUser, 64, DEFAULT_HTTP_USER);
@@ -279,6 +292,10 @@ void setupWiFiStation() {
     WiFi.softAPdisconnect(true);
     // WiFi.setAutoConnect(true);
     // WiFi.setAutoReconnect(true);
+    //WiFi.setPhyMode(WIFI_PHY_MODE_11B);
+    //WiFi.setPhyMode(WIFI_PHY_MODE_11G);
+    //WiFi.setPhyMode(WIFI_PHY_MODE_11N);
+    WiFi.setSleepMode(WIFI_NONE_SLEEP, 0);
 
     DEBUG(">> Do static ip configuration: %i\n", doStaticIpConfig);
     if (doStaticIpConfig) {
@@ -642,6 +659,7 @@ void setupHTTPServer() {
         writeSetupParameter(request, "password", password, 64, DEFAULT_PASSWORD);
         writeSetupParameter(request, "ota_pass", otaPassword, 64, DEFAULT_OTA_PASSWORD);
         writeSetupParameter(request, "firmware_server", firmwareServer, 256, DEFAULT_FW_SERVER);
+        writeSetupParameter(request, "firmware_server_path", firmwareServerPath, 256, DEFAULT_FW_SERVER_PATH);
         writeSetupParameter(request, "firmware_version", firmwareVersion, 64, DEFAULT_FW_VERSION);
         writeSetupParameter(request, "http_auth_user", httpAuthUser, 64, DEFAULT_HTTP_USER, true);
         writeSetupParameter(request, "http_auth_pass", httpAuthPass, 64, DEFAULT_HTTP_PASS, true);
@@ -674,7 +692,7 @@ void setupHTTPServer() {
         root["password"] = password;
         root["ota_pass"] = otaPassword;
         root["firmware_server"] = firmwareServer;
-        //root["firmware_variant"] = firmwareVariant;
+        root["firmware_server_path"] = firmwareServerPath;
         root["firmware_version"] = firmwareVersion;
         root["http_auth_user"] = httpAuthUser;
         root["http_auth_pass"] = httpAuthPass;
@@ -903,6 +921,27 @@ void setupHTTPServer() {
         request->send(200, "text/plain", "OK\n");
     });
 
+    server.on("/testdata3", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        fpgaTask.Read(0xF5, 3, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+            if (len == 3) {
+                char msg[3 * 3 + 1] = "";
+                int p = 0;
+                for (int i = 0 ; i < 3 ; i++) {
+                    sprintf((char*) &msg[p], "%02x ", buffer[i]);
+                    p = p + 3;
+                }
+                sprintf((char*) &msg[p], "\n");
+                request->send(200, "text/plain", msg);
+            } else {
+                request->send(200, "text/plain", "SOMETHING_IS_WRONG\n");
+            }
+        }); 
+        fpgaTask.ForceLoop();
+    });
+
     server.on("/testdata2", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
@@ -1062,6 +1101,7 @@ void printSerialMenu() {
     DEBUG2("r: reset visible area counters\n");
     DEBUG2("p: reset PLL\n");
     DEBUG2("t: show visible area counters\n");
+    DEBUG2("c: show color space markers\n");
     DEBUG2("o: activate OTA update\n");
     DEBUG2("w: print wifi rssi information\n");
     DEBUG2("h: print this menu\n");
@@ -1085,6 +1125,7 @@ void setup(void) {
     setupOffsets();
     setupUpscalingMode();
     setupColorSpace();
+    setupColorExpansionAndGamma();
     setupTaskManager();
     setupCredentials();
     waitForController();
@@ -1117,6 +1158,7 @@ void showInfo() {
     DEBUG2("Free sketch space: %u\n", ESP.getFreeSketchSpace());
     DEBUG2("Max sketch space: %u\n", (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000);
     DEBUG2("Flash chip size: %u\n", ESP.getFlashChipSize());
+    DEBUG2("Heap fragmentation: %u\n", ESP.getHeapFragmentation());
     DEBUG2("Free heap size: %u\n\n", ESP.getFreeHeap());
 }
 
@@ -1128,6 +1170,27 @@ int getWiFiQuality(int dBm) {
   if (dBm >= -50)
     return 100;
   return 2 * (dBm + 100);
+}
+
+void toBinaryString(char* msg, uint8_t* a, int len) {
+    uint8_t i, ii = 0;
+    for(int j = 0 ; j < len ; j++) {
+        if (j > 0) {
+            sprintf((char*) &msg[ii++], " ");
+        }
+        for(i = 0x80 ; i != 0 ; i >>= 1) {
+            sprintf((char*) &msg[ii++], "%c", (a[j]&i)?'1':'0');
+        }
+    }
+}
+
+void setColorMode() {
+    uint8_t val = ColorExpansionMode | GammaMode << 3;
+    fpgaTask.Write(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, val, [&](uint8_t Address, uint8_t Value) {
+        char msg[9] = "";
+        toBinaryString(msg, &Value, 1);
+        DEBUG2("set color mode to %s (0x%02x/0x%02x).\n", msg, (Value & 0xF8) >> 3, Value & 0x7);
+    });
 }
 
 void loop(void){
@@ -1155,6 +1218,17 @@ void loop(void){
                 int nbp2 = ((buffer[36] & 0xF) << 8) | buffer[37];
                 DEBUG2("nbp: %02x %02x %02x %dx%d\n", buffer[35], buffer[36], buffer[37], nbp1, nbp2);
             });
+        } else if (incomingByte == 'c') {
+            fpgaTask.Read(I2C_CSEDATA_BASE, I2C_CSEDATA_LENGTH, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+                char msg[9*I2C_CSEDATA_LENGTH+1] = "";
+                toBinaryString(msg, buffer, I2C_CSEDATA_LENGTH);
+                DEBUG2("cse: %s %02x %02x %02x\n", msg, buffer[0], buffer[1], buffer[2]);
+            });
+            fpgaTask.Read(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, 1, [&](uint8_t address, uint8_t* buffer, uint8_t len) {
+                char msg[9] = "";
+                toBinaryString(msg, buffer, 1);
+                DEBUG2("Color mode: %s (0x%02x/0x%02x) [0x%02x].\n", msg, (buffer[0] & 0xF8) >> 3, buffer[0] & 0x7, ColorExpansionMode);
+            });
         } else if (incomingByte == 'o') {
             if (strlen(otaPassword)) {
                 setupArduinoOTA();
@@ -1164,6 +1238,20 @@ void loop(void){
         } else if (incomingByte == 'w') {
             int dBm = WiFi.RSSI();
             DEBUG2("RSSI: %d dBm, quality: %d%%, channel: %d\n", dBm, getWiFiQuality(dBm), WiFi.channel());
+        } else if (incomingByte == '0') {
+            ColorExpansionMode = 0; setColorMode();
+        } else if (incomingByte == '1') {
+            ColorExpansionMode = 1; setColorMode();
+        } else if (incomingByte == '3') {
+            ColorExpansionMode = 3; setColorMode();
+        } else if (incomingByte == '+') {
+            GammaMode++; setColorMode();
+        } else if (incomingByte == '-') {
+            GammaMode--; setColorMode();
+        } else if (incomingByte == '=') {
+            GammaMode = 0x0F; setColorMode();
+        } else {
+            DEBUG2("DEBUG serial key: %u\n", incomingByte);
         }
     }
 }

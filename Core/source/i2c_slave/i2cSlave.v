@@ -83,9 +83,11 @@ module i2cSlave (
   input [31:0] monitor_sense_low_count,
   input [15:0] testdata,
   output [7:0] clock_config_data,
+  output [7:0] color_config_data,
   input [11:0] nonBlackPos1,
   input [11:0] nonBlackPos2,
   output nonBlackPixelReset,
+  input [23:0] color_space_explorer,
   output resetpll
 );
 
@@ -224,9 +226,11 @@ registerInterface u_registerInterface(
     .monitor_sense_low_count(monitor_sense_low_count),
     .testdata(testdata),
     .clock_config_data(clock_config_data),
+    .color_config_data(color_config_data),
     .nonBlackPos1(nonBlackPos1),
     .nonBlackPos2(nonBlackPos2),
     .nonBlackPixelReset(nonBlackPixelReset),
+    .color_space_explorer(color_space_explorer),
     .resetpll(resetpll)
 );
 

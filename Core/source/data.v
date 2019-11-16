@@ -25,6 +25,9 @@ module data(
 
     output [11:0] nonBlackPos1,
     output [11:0] nonBlackPos2,
+
+    output reg [23:0] color_space_explorer,
+
     output reg force_generate
 );
 
@@ -71,6 +74,8 @@ module data(
     reg [11:0] nonBlackPos1_reg_q;
     reg [11:0] nonBlackPos2_reg_q;
 
+    reg [23:0] color_space_explorer_reg;
+
     initial begin
         raw_counterX_reg <= 0;
         raw_counterY_reg <= 0;
@@ -82,6 +87,8 @@ module data(
         pinok2 <= 0;
         nonBlackPos1_reg = 12'b111111111111;
         nonBlackPos2_reg = 12'b000000000000;
+        color_space_explorer = 24'd0;
+        color_space_explorer_reg = 24'd0;
     end
 
     always @(*) begin
@@ -117,7 +124,7 @@ module data(
 
     `define RAW_WIDTH 1716
     `define RAW_HEIGHT 525
-    `define HORIZONTAL_OFFSET 40
+    `define HORIZONTAL_OFFSET 52
 
     always @(posedge clock or posedge reset) begin
         if (reset) begin
@@ -126,6 +133,8 @@ module data(
             force_generate <= 0;
             pinok1 <= 0;
             pinok2 <= 0;
+            color_space_explorer <= 24'b0;
+            color_space_explorer_reg <= 24'b0;
         end else begin
             if (force_generate || generate_timing) begin
                 if (raw_counterX_reg < `RAW_WIDTH - 1) begin
@@ -213,6 +222,9 @@ module data(
                     pinok2_reg <= pinok2;
                     pinok1 <= 0;
                     pinok2 <= 0;
+                    // store bits used once per frame
+                    color_space_explorer <= color_space_explorer_reg;
+                    color_space_explorer_reg <= 24'd0;
                 end else begin
                     counterY_reg <= counterY_reg + 1'b1;
                 end
@@ -247,6 +259,8 @@ module data(
                         if (counterX_reg == 120 && counterY_reg == 120) begin
                             rgbData_buf <= { red_reg_buf, green_reg_buf[7:4], indata[11:8], indata[7:0] };
                         end
+                        // mark bits used in frame
+                        color_space_explorer_reg <= color_space_explorer_reg | { red_reg_buf, green_reg_buf[7:4], indata[11:8], indata[7:0] };
                     end
                 end
             end else begin
@@ -336,6 +350,10 @@ module data(
                     green_reg <= 8'd0;
                     blue_reg <= val;
                 end
+            end else begin
+                red_reg <= 8'd0;
+                green_reg <= 8'd0;
+                blue_reg <= 8'd0;
             end
         end
     endtask

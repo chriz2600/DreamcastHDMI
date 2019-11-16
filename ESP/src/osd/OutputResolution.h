@@ -8,11 +8,12 @@ extern uint8_t CurrentResolution;
 extern uint8_t CurrentResolutionData;
 extern uint8_t ForceVGA;
 extern uint8_t UpscalingMode;
+extern uint8_t ColorExpansionMode;
+extern uint8_t GammaMode;
 extern char configuredResolution[16];
 extern int8_t Offset240p;
 extern int8_t OffsetVGA;
 extern int8_t AutoOffsetVGA;
-extern uint8_t UpscalingMode;
 extern uint8_t ColorSpace;
 extern uint8_t CurrentResetMode;
 
@@ -270,8 +271,8 @@ void reapplyFPGAConfig() {
         currentMenu = &mainMenu; // reset menu
         currentMenu->StoreMenuActiveLine(MENU_M_FIRST_SELECT_LINE);
         DEBUG1(" -> menu reset\n");
-        setOSD(false, [](uint8_t Address, uint8_t Value) {
-            DEBUG1(" -> disabled OSD\n");
+        // setOSD(false, [](uint8_t Address, uint8_t Value) {
+        //     DEBUG1(" -> disabled OSD\n");
             setScanlines(getScanlinesUpperPart(), getScanlinesLowerPart(), [](uint8_t Address, uint8_t Value) {
                 DEBUG1(" -> set scanlines %d/%d\n", getScanlinesUpperPart(), getScanlinesLowerPart());
                 fpgaTask.Write(I2C_VGA_OFFSET, getEffectiveOffsetVGA(), [](uint8_t Address, uint8_t Value) {
@@ -282,13 +283,16 @@ void reapplyFPGAConfig() {
                             DEBUG1(" -> set upscaling mode %d\n", UpscalingMode);
                             fpgaTask.Write(I2C_COLOR_SPACE, ColorSpace, [](uint8_t Address, uint8_t Value) {
                                 DEBUG1(" -> set color space %d\n", ColorSpace);
-                                switchResolution();
+                                fpgaTask.Write(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, ColorExpansionMode | GammaMode << 3, [](uint8_t Address, uint8_t Value) {
+                                    DEBUG1(" -> set color expansion and gamma %d\n", ColorExpansionMode | GammaMode << 3);
+                                    switchResolution();
+                                });
                             });
                         });
                     });
                 });
             });
-        });
+        //});
     });
 }
 

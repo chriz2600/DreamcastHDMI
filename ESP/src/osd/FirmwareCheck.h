@@ -7,6 +7,7 @@ extern char md5IndexHtml[48];
 extern char firmwareVersion[64];
 extern char firmwareVariant[64];
 extern char firmwareServer[256];
+extern char firmwareServerPath[256];
 
 bool firmwareCheckStarted;
 bool md5CheckResult;

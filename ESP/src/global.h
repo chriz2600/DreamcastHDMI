@@ -19,6 +19,7 @@
 #define DEFAULT_PASSWORD ""
 #define DEFAULT_OTA_PASSWORD ""
 #define DEFAULT_FW_SERVER "dc.i74.de"
+#define DEFAULT_FW_SERVER_PATH ""
 #define DEFAULT_FW_VERSION "master"
 #define DEFAULT_FW_VARIANT FIRMWARE_STANDARD_FLAVOUR
 #define DEFAULT_HTTP_USER "dchdmi"
@@ -35,6 +36,8 @@
 #define DEFAULT_240P_OFFSET "0"
 #define DEFAULT_VGA_OFFSET VGA_OFFSET_AUTO_MODE_STR
 #define DEFAULT_UPSCALING_MODE "0"
+#define DEFAULT_COLOR_EXPANSION_MODE "3"
+#define DEFAULT_GAMMA_MODE "15"
 #define DEFAULT_COLOR_SPACE "0"
 #define DEFAULT_SCANLINES_ODDEVEN SCANLINES_EVEN
 #define DEFAULT_SCANLINES_THICKNESS SCANLINES_THIN
@@ -131,13 +134,15 @@
 #define I2C_VIDEO_GEN (0x84)
 #define I2C_CONTROLLER_AND_DATA_BASE (0x85)
 #define I2C_METADATA (0x87)
-#define I2C_SCANLINE_UPPER (0x88)
-#define I2C_SCANLINE_LOWER (0x89)
+#define I2C_CSEDATA_BASE (0x88)
+#define I2C_SCANLINE_UPPER (0xF5)
+#define I2C_SCANLINE_LOWER (0xF6)
 #define I2C_240P_OFFSET (0x90)
 #define I2C_ACTIVATE_HDMI (0x91)
 #define I2C_UPSCALING_MODE (0x92)
 #define I2C_COLOR_SPACE (0x93)
 #define I2C_VGA_OFFSET (0x94)
+#define I2C_COLOR_EXPANSION_AND_GAMMA_MODE (0xD1)
 #define I2C_KEYBOARD_BASE (0xE0)
 #define I2C_DC_RESET (0xF0)
 #define I2C_OPT_RESET (0xF1)
@@ -154,12 +159,14 @@
 #define I2C_NBP_LENGTH 3
 
 // controller and data
-#define I2C_CONTROLLER_AND_DATA_BASE_LENGTH 3
+#define I2C_CONTROLLER_AND_DATA_BASE_LENGTH 6
 #define I2C_KEYBOARD_LENGTH 4
 
 // pinok data
 #define I2C_TESTDATA_BASE (0xA0)
 #define I2C_TESTDATA_LENGTH 38
+
+#define I2C_CSEDATA_LENGTH 3
 
 // // controller data, int16
 // /*
@@ -191,17 +198,17 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 #define LOCAL_FPGA_MD5 "/etc/last_flash_md5"
 #define STAGED_FPGA_MD5 "/firmware.dc.md5"
 #define SERVER_FPGA_MD5 "/server/firmware.dc.md5"
-#define REMOTE_FPGA_MD5 ("/fw/" + String(firmwareVersion) + "/DCxPlus-v2.dc.md5")
+#define REMOTE_FPGA_MD5 (String(firmwareServerPath) + "/fw/" + String(firmwareVersion) + "/DCxPlus-v2.dc.md5")
 
 #define LOCAL_ESP_MD5 "/etc/last_esp_flash_md5"
 #define STAGED_ESP_MD5 "/firmware.bin.md5"
 #define SERVER_ESP_MD5 "/server/firmware.bin.md5"
-#define REMOTE_ESP_MD5 ("/esp/" + String(firmwareVersion) + "/4MB-firmware.bin.md5")
+#define REMOTE_ESP_MD5 (String(firmwareServerPath) + "/esp/" + String(firmwareVersion) + "/4MB-firmware.bin.md5")
 
 #define LOCAL_ESP_INDEX_MD5 "/index.html.gz.md5"
 #define STAGED_ESP_INDEX_MD5 "/esp.index.html.gz.md5"
 #define SERVER_ESP_INDEX_MD5 "/server/esp.index.html.gz.md5"
-#define REMOTE_ESP_INDEX_MD5 ("/esp/" + String(firmwareVersion) + "/esp.index.html.gz.md5")
+#define REMOTE_ESP_INDEX_MD5 (String(firmwareServerPath) + "/esp/" + String(firmwareVersion) + "/esp.index.html.gz.md5")
 
 #define DEBUG_BASE_ADDRESS 0x90
 #define DBG_DATA_PLL_ERRORS 0
@@ -273,5 +280,10 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 #define VGA_OFFSET_AUTO_MODE 1
 #define VGA_OFFSET_AUTO_MODE_STR "1"
 #define VGA_REFERENCE_POSITION 52
+
+#define COLOR_EXP_RGB555 0
+#define COLOR_EXP_RGB565 1
+#define COLOR_EXP_OFF 3
+#define COLOR_EXP_AUTO 7
 
 #endif

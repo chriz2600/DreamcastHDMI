@@ -11,6 +11,7 @@
             "password": "SomePassword",
             "ota_pass": "SomeOTAPassword",
             "firmware_server": "dc.i74.de",
+            "firmware_server_path": "",
             "firmware_version": "master",
             "http_auth_user": "dchdmi",
             "http_auth_pass": "testtest",
