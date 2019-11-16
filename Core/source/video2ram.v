@@ -19,7 +19,8 @@ module video2ram(
     
     output starttrigger,
 
-    input DCVideoConfig dcVideoConfig
+    input DCVideoConfig dcVideoConfig,
+    input [7:0] color_config_data
 );
 
     reg [9:0] H_CAPTURE_START;
@@ -35,6 +36,22 @@ module video2ram(
     reg [11:0] counterX_prev;
     reg line_doubler_reg = 0;
     reg is_pal_reg = 0;
+
+    colorconv cv(
+        .clock(clock),
+
+        .color_config_data(color_config_data),
+
+        .in_wren(wren_reg),
+        .in_wraddr(wraddr_reg),
+        .in_wrdata(wrdata_reg),
+        .in_starttrigger(trigger),
+
+        .wren(wren),
+        .wraddr(wraddr),
+        .wrdata(wrdata),
+        .starttrigger(starttrigger)
+    );
 
     always @(*) begin
         if (line_doubler_reg) begin
@@ -113,9 +130,9 @@ module video2ram(
         end
     end
 
-    assign wren = wren_reg;
-    assign wraddr = wraddr_reg;
-    assign wrdata = wrdata_reg;
-    assign starttrigger = trigger;
+    // assign wren = wren_reg;
+    // assign wraddr = wraddr_reg;
+    // assign wrdata = wrdata_reg;
+    // assign starttrigger = trigger;
     
 endmodule

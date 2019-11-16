@@ -1171,6 +1171,12 @@ void toBinaryString(char* msg, uint8_t* a, int len) {
     }
 }
 
+void setColorMode(uint8_t val) {
+    fpgaTask.Write(0xD1, val, [val](uint8_t Address, uint8_t Value) {
+        DEBUG2("set color mode to %u.\n", val);
+    });
+}
+
 void loop(void){
     ArduinoOTA.handle();
     taskManager.Loop();
@@ -1211,6 +1217,14 @@ void loop(void){
         } else if (incomingByte == 'w') {
             int dBm = WiFi.RSSI();
             DEBUG2("RSSI: %d dBm, quality: %d%%, channel: %d\n", dBm, getWiFiQuality(dBm), WiFi.channel());
+        } else if (incomingByte == '0') {
+            setColorMode(0);
+        } else if (incomingByte == '1') {
+            setColorMode(1);
+        } else if (incomingByte == '2') {
+            setColorMode(2);
+        } else if (incomingByte == '3') {
+            setColorMode(3);
         }
     }
 }

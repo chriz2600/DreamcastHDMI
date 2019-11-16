@@ -86,6 +86,7 @@ module registerInterface (
     input [31:0] monitor_sense_low_count,
     input [15:0] testdata,
     output [7:0] clock_config_data,
+    output [7:0] color_config_data,
     input [11:0] nonBlackPos1,
     input [11:0] nonBlackPos2,
     output nonBlackPixelReset,
@@ -113,6 +114,7 @@ reg activateHDMIoutput_reg = 0;
 reg hq2x_reg = 0;
 reg [1:0] colorspace_reg;
 reg [7:0] clock_config_data_reg = 3;
+reg [7:0] color_config_data_reg = 8'hFF;
 
 assign dataOut = dataOut_reg;
 assign ram_wraddress = wraddress_reg;
@@ -131,6 +133,7 @@ assign activateHDMIoutput = activateHDMIoutput_reg;
 assign hq2x = hq2x_reg;
 assign colorspace = colorspace_reg;
 assign clock_config_data = clock_config_data_reg;
+assign color_config_data = color_config_data_reg;
 assign nonBlackPixelReset = nonBlackPixelReset_reg;
 assign resetpll = resetpll_reg;
 
@@ -223,6 +226,8 @@ always @(posedge clk) begin
 
         // clock_config_data
         8'hD0: dataOut_reg <= clock_config_data;
+        // color_config_data
+        8'hD1: dataOut_reg <= color_config_data;
 
         8'hE0: dataOut_reg <= { 7'd0, keyboard_data.valid_packet };
         8'hE1: dataOut_reg <= keyboard_data.shiftcode;
@@ -285,6 +290,9 @@ always @(posedge clk) begin
         // clock_config_data
         end else if (addr == 8'hD0) begin
             clock_config_data_reg <= dataIn;
+        // color_config_data
+        end else if (addr == 8'hD1) begin
+            color_config_data_reg <= dataIn;
         // reset dreamcast
         end else if (addr == 8'hF0) begin
             reset_dc_reg <= 1'b1;

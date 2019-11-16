@@ -142,6 +142,8 @@ module DCxPlus(
     wire [23:0] color_space_explorer;
     wire [23:0] color_space_explorer_out;
 
+    wire [7:0] color_config_data;
+    wire [7:0] color_config_data_out;
     wire resetpll;
 
     assign clock54_out = clock54_net;
@@ -234,12 +236,12 @@ module DCxPlus(
     wire [7:0] reconf_data_clock54;
 
     data_cross #(
-        .WIDTH($bits(DCVideoConfig) + 3 + $bits(conf240p) + $bits(video_gen_data))
+        .WIDTH($bits(DCVideoConfig) + 3 + $bits(conf240p) + $bits(video_gen_data) + $bits(color_config_data))
     ) dcVideoConfig_cross(
         .clkIn(control_clock),
         .clkOut(clock54_net),
-        .dataIn({ _dcVideoConfig, _config_changed, line_doubler_sync2, _nonBlackPixelReset, conf240p, video_gen_data }),
-        .dataOut({ dcVideoConfig, config_changed, _240p_480i_mode, nonBlackPixelReset, conf240p_out, { 6'bzzzzzz, generate_video, generate_timing } })
+        .dataIn({ _dcVideoConfig, _config_changed, line_doubler_sync2, _nonBlackPixelReset, conf240p, video_gen_data, color_config_data }),
+        .dataOut({ dcVideoConfig, config_changed, _240p_480i_mode, nonBlackPixelReset, conf240p_out, { 6'bzzzzzz, generate_video, generate_timing }, color_config_data_out })
     );
 
     dc_video_reconfig dc_video_configurator(
@@ -291,7 +293,8 @@ module DCxPlus(
         .starttrigger(buffer_ready_trigger),
         .wraddr(ram_wraddress),
         .wrdata(ram_wrdata),
-        .dcVideoConfig(dcVideoConfig)
+        .dcVideoConfig(dcVideoConfig),
+        .color_config_data(color_config_data_out)
     );
 
     /////////////////////////////////
@@ -625,6 +628,7 @@ module DCxPlus(
             3'b0 
         }),
         .clock_config_data(clock_config_data),
+        .color_config_data(color_config_data),
         .nonBlackPos1(nonBlackPos1_out),
         .nonBlackPos2(nonBlackPos2_out),
         .nonBlackPixelReset(_nonBlackPixelReset),

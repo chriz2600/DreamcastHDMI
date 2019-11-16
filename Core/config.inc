@@ -29,4 +29,7 @@
     `define HQ2X_FLAG 1'b1
 `endif
 
+`define RGB555 8'd_0
+`define RGB565 8'd_1
+
 `endif
