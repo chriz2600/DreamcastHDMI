@@ -375,7 +375,7 @@ class FPGATask : public Task {
                     if (lastDCColorModeCount == DC_COLOR_MODE_SWITCH_TRIGGER) {
                         lastDCColorModeCount = 0;
 
-                        uint8_t effective = COLOR_EXP_AUTO;
+                        uint8_t effective = lastEffectiveColorMode;
                         switch (value) {
                             case 0xFFFFFF:
                                 effective = COLOR_EXP_OFF;
