@@ -1,4 +1,8 @@
 v4.3                                    
+- New: Color expansion                  
+  Convert 15bit/16bit colors to 24bit   
+- New: Gamma adjust                     
+  Adjust the gamma of the video image   
                                         
 v4.2                                    
 - MDNS initialization can cause a crash 

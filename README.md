@@ -1,7 +1,33 @@
 # DreamcastHDMI / DCHDMI
 
-#### 2019-XX-XX *Firmware v4.3* (*Unified*)
+#### 2019-11-17 *Firmware v4.3* (*Unified*)
 
+- New: **Color expansion**
+
+    A lot, if not most Dreamcast games are using 16bit color (RGB565), so blue and red are only using the upper 5bit and green uses the upper 6bit in the 8bit data coming from the console.
+
+    So a full white picture in RGB565 is (248,252,248) instead of (255,255,255). The new color expansion feature converts the 5bit/6bit color to 8bit using this formula:
+
+    ```
+    out8 = in5 | in5 >> 5;
+    out8 = in6 | in6 >> 6;
+    ```
+
+    The settings for ***Color expansion*** are:
+
+    - **Off** No color expansion is done.
+
+    - **Auto** DCHDMI tries to detect the color mode used and automatically selects the proper expansion mode. *Seems to work fine, but detection may fail, if the image contents are ambiguous.*
+
+    - **RGB565** 16bit to 24bit expansion
+
+    - **RGB555** 15bit to 24bit expansion
+
+- New: **Gamma adjust**
+
+    This can be used to adjust the gamma of the video image. Currently these predefined adjustments are possible: <br>*Click on image to enlarge*
+
+    [<img width="33%" alt="Gamma adjust" src="https://dc.i74.de/gamma-adjust.png">](https://dc.i74.de/gamma-adjust.png)
 
 #### 2019-09-27 *Firmware v4.2* (*Unified*)
 

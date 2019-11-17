@@ -88,7 +88,7 @@ static const char OSD_ADVANCED_VIDEO_MENU[521] PROGMEM = (
     "- VGA adjust position:  _______         "
     "- RGB color space:      _______         "
     "- Color expansion:      _______         "
-    "- Gamma correction:     _______         "
+    "- Gamma adjust:         _______         "
     "                                        "
     "                                        "
     "                                        "
