@@ -43,7 +43,7 @@ Menu advancedVideoMenu("AdvancedVideoMenu", OSD_ADVANCED_VIDEO_MENU, MENU_AV_FIR
             fpgaTask.Write(I2C_240P_OFFSET, Offset240p, [](uint8_t Address, uint8_t Value) {
                 fpgaTask.Write(I2C_UPSCALING_MODE, UpscalingMode, [](uint8_t Address, uint8_t Value) {
                     fpgaTask.Write(I2C_COLOR_SPACE, ColorSpace, [](uint8_t Address, uint8_t Value) {
-                        fpgaTask.Write(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, ColorExpansionMode | GammaMode << 3, [](uint8_t Address, uint8_t Value) {
+                        fpgaTask.Write(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, fpgaTask.GetColorExpansion() | GammaMode << 3, [](uint8_t Address, uint8_t Value) {
                             safeSwitchResolution(CurrentResolution, [](uint8_t Address, uint8_t Value) {
                                 currentMenu = &mainMenu;
                                 currentMenu->Display();
@@ -184,7 +184,7 @@ Menu advancedVideoMenu("AdvancedVideoMenu", OSD_ADVANCED_VIDEO_MENU, MENU_AV_FIR
                         ColorExpansionMode = isLeft ? COLOR_EXP_OFF : COLOR_EXP_RGB555;
                         break;
                 }
-                fpgaTask.Write(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, ColorExpansionMode | GammaMode << 3, [](uint8_t Address, uint8_t Value) {
+                fpgaTask.Write(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, fpgaTask.GetColorExpansion() | GammaMode << 3, [](uint8_t Address, uint8_t Value) {
                     char buffer[MENU_WIDTH] = "";
                     switch (Value & 0x7) {
                         case COLOR_EXP_RGB555: // RGB555
@@ -209,7 +209,7 @@ Menu advancedVideoMenu("AdvancedVideoMenu", OSD_ADVANCED_VIDEO_MENU, MENU_AV_FIR
                 } else if (isRight && GammaMode < 0x13) {
                     GammaMode++;
                 }
-                fpgaTask.Write(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, ColorExpansionMode | GammaMode << 3, [](uint8_t Address, uint8_t Value) {
+                fpgaTask.Write(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, fpgaTask.GetColorExpansion() | GammaMode << 3, [](uint8_t Address, uint8_t Value) {
                     char buffer[MENU_WIDTH] = "";
                     Value = (Value & 0xF8) >> 3;
                     if (Value == 0xF) {

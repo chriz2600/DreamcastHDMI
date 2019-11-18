@@ -373,9 +373,13 @@ var term = $('#term').terminal(function(command, term) {
         startTransaction(null, function() {
             osdWrite(match[1], match[2], match[3]);
         });
-    } else if (match = command.match(/^\s*mapperset\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*$/)) {
+    } else if (match = command.match(/^\s*mapper\s+set\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*$/)) {
         startTransaction(null, function() {
             mapperSet(match[1], match[2], match[3]);
+        });
+    } else if (match = command.match(/^\s*mapper\s+apply\s*$/)) {
+        startTransaction(null, function() {
+            mapperApply();
         });
     } else if (match = command.match(/^\s*240p_offset\s*([0-9]+)\s*$/)) {
         startTransaction(null, function() {
@@ -929,6 +933,15 @@ function mapperSet(color, value, mvalue) {
         endTransaction('[[b;#fff;]Done].\n');
     }).fail(function() {
         endTransaction('Error.', true);
+    });
+}
+
+function mapperApply() {
+    term.set_prompt(progress(0, progressSize));
+    $.ajax("/mapper/apply").done(function (data) {
+        doProgress(function() { endTransaction("Apply mapper data done!"); });
+    }).fail(function() {
+        endTransaction("Error applying mapper data!", true);
     });
 }
 

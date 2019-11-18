@@ -17,4 +17,9 @@ function doFlash() {
         "http://${hostname}/flash/${target}" && echo "OK" || echo "Error"
 }
 
+function invoke() {
+    curl --digest --user ${username}:${password} \
+        "http://${hostname}${1}" && echo "OK" || echo "Error"
+}
+
 

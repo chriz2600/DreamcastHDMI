@@ -25,6 +25,7 @@
 #include "task/TimeoutTask.h"
 #include "task/FlashCheckTask.h"
 #include "task/FlashEraseTask.h"
+#include "task/ReadGammaMapTask.h"
 #include "task/InfoTask.h"
 #include "util.h"
 #include "data.h"
@@ -111,6 +112,7 @@ FlashCheckTask flashCheckTask(1, NULL);
 FlashVerifyTask flashVerifyTask(1);
 FlashEraseTask flashEraseTask(1);
 InfoTask infoTask(16);
+ReadGammaMapTask readGammaMapTask(1);
 
 extern Menu mainMenu;
 Menu *currentMenu;
@@ -750,6 +752,16 @@ void setupHTTPServer() {
         request->send(200);
     });
 
+    server.on("/mapper/apply", HTTP_ANY, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+
+        readGammaMapTask.SetProgressCallback(createConsoleCallback());
+        taskManager.StartTask(&readGammaMapTask);
+        request->send(200);
+    });
+
     server.on("/mapperset", HTTP_POST, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
@@ -762,6 +774,7 @@ void setupHTTPServer() {
         fpgaTask.Write(0xD2, atoi(color->value().c_str()));
         fpgaTask.Write(0xD3, atoi(value->value().c_str()));
         fpgaTask.Write(0xD4, atoi(mvalue->value().c_str()));
+        request->send(200);
     });
 
     server.on("/240p_offset", HTTP_POST, [](AsyncWebServerRequest *request) {
@@ -1208,12 +1221,28 @@ void toBinaryString(char* msg, uint8_t* a, int len) {
 }
 
 void setColorMode() {
-    uint8_t val = ColorExpansionMode | GammaMode << 3;
+    uint8_t val = fpgaTask.GetColorExpansion() | GammaMode << 3;
     fpgaTask.Write(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, val, [&](uint8_t Address, uint8_t Value) {
         char msg[9] = "";
         toBinaryString(msg, &Value, 1);
         DEBUG2("set color mode to %s (0x%02x/0x%02x).\n", msg, (Value & 0xF8) >> 3, Value & 0x7);
     });
+}
+
+ProgressCallback createConsoleCallback() {
+    return [](int read, int total, bool done, int error) {
+        if (error != NO_ERROR) {
+            DEBUG1("\nERROR: %u\n", error);
+            return;
+        }
+
+        if (done) {
+            DEBUG1("\nFINISHED.\n");
+            return;
+        }
+
+        DEBUG1(" %02u/%02u (%-3u%%)\r", read, total, (uint8_t)(((float)read / total) * 100));
+    };
 }
 
 void loop(void){
@@ -1276,10 +1305,8 @@ void loop(void){
         } else if (incomingByte == 'q') {
             GammaMode = 0x1F; setColorMode();
         } else if (incomingByte == '>') {
-            DEBUG2("Loading /mapper.gdata");
-            // File mapper = SPIFFS.open("/mapper.gdata");
-
-            // mapper.close();
+            readGammaMapTask.SetProgressCallback(createConsoleCallback());
+            taskManager.StartTask(&readGammaMapTask);
         } else {
             DEBUG2("DEBUG serial key: %u\n", incomingByte);
         }

@@ -283,7 +283,7 @@ void reapplyFPGAConfig() {
                             DEBUG1(" -> set upscaling mode %d\n", UpscalingMode);
                             fpgaTask.Write(I2C_COLOR_SPACE, ColorSpace, [](uint8_t Address, uint8_t Value) {
                                 DEBUG1(" -> set color space %d\n", ColorSpace);
-                                fpgaTask.Write(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, ColorExpansionMode | GammaMode << 3, [](uint8_t Address, uint8_t Value) {
+                                fpgaTask.Write(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, fpgaTask.GetColorExpansion() | GammaMode << 3, [](uint8_t Address, uint8_t Value) {
                                     DEBUG1(" -> set color expansion and gamma %d\n", ColorExpansionMode | GammaMode << 3);
                                     switchResolution();
                                 });

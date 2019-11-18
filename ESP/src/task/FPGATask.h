@@ -93,6 +93,14 @@ class FPGATask : public Task {
             keyboard_handler(khandler)
         { };
 
+        virtual uint8_t GetColorExpansion() {
+            if (ColorExpansionMode == COLOR_EXP_AUTO) {
+                return lastEffectiveColorMode;
+            } else {
+                return ColorExpansionMode;
+            }
+        }
+
         virtual void DoResetFPGA() {
             fpgaResetState = FPGA_RESET_STAGE1;
         }
@@ -143,6 +151,10 @@ class FPGATask : public Task {
                 writequeue.pop();
             }
             writequeue.push(data);
+        }
+
+        virtual bool AvailableWriteSlots(uint count) {
+            return (writequeue.size() < MAX_QUEUE_SIZE - count);
         }
 
         virtual void Read(uint8_t address, uint8_t len, ReadCallbackHandlerFunction handler) {
