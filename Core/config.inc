@@ -45,4 +45,10 @@
 `define GAMMA_1_3 5'h_12
 `define GAMMA_1_4 5'h_13
 
+`define GAMMA_CUSTOM 5'h_1F
+
+`define MAPPER_CONF_RED 8'h_10
+`define MAPPER_CONF_GREEN 8'h_11
+`define MAPPER_CONF_BLUE 8'h_12
+
 `endif

@@ -87,6 +87,7 @@ module registerInterface (
     input [15:0] testdata,
     output [7:0] clock_config_data,
     output [7:0] color_config_data,
+    output [23:0] mapper_output,
     input [11:0] nonBlackPos1,
     input [11:0] nonBlackPos2,
     output nonBlackPixelReset,
@@ -115,6 +116,7 @@ reg hq2x_reg = 0;
 reg [1:0] colorspace_reg;
 reg [7:0] clock_config_data_reg = 3;
 reg [7:0] color_config_data_reg = `GAMMA_1_0 | `RGB888;
+reg [23:0] mapper_output_reg;
 
 assign dataOut = dataOut_reg;
 assign ram_wraddress = wraddress_reg;
@@ -134,6 +136,7 @@ assign hq2x = hq2x_reg;
 assign colorspace = colorspace_reg;
 assign clock_config_data = clock_config_data_reg;
 assign color_config_data = color_config_data_reg;
+assign mapper_output = mapper_output_reg;
 assign nonBlackPixelReset = nonBlackPixelReset_reg;
 assign resetpll = resetpll_reg;
 
@@ -284,6 +287,13 @@ always @(posedge clk) begin
         // color_config_data
         end else if (addr == 8'hD1) begin
             color_config_data_reg <= dataIn;
+        // mapper config
+        end else if (addr == 8'hD2) begin
+            mapper_output_reg <= { dataIn, mapper_output_reg[15:0] };
+        end else if (addr == 8'hD3) begin
+            mapper_output_reg <= { mapper_output_reg[23:16], dataIn, mapper_output_reg[7:0] };
+        end else if (addr == 8'hD4) begin
+            mapper_output_reg <= { mapper_output_reg[23:8], dataIn };
         // reset dreamcast
         end else if (addr == 8'hF0) begin
             reset_dc_reg <= 1'b1;

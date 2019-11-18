@@ -20,7 +20,8 @@ module video2ram(
     output starttrigger,
 
     input DCVideoConfig dcVideoConfig,
-    input [7:0] color_config_data
+    input [7:0] color_config_data,
+    input [23:0] mapperconf
 );
 
     reg [9:0] H_CAPTURE_START;
@@ -64,6 +65,7 @@ module video2ram(
         .clock(clock),
 
         .gamma_config(color_config_data[7:3]),
+        .mapperconf(mapperconf),
 
         .in_wren(wren_cv),
         .in_wraddr(wraddr_cv),

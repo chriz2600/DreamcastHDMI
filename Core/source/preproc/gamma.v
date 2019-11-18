@@ -4,6 +4,7 @@ module gamma(
     input clock,
     input [4:0] gamma_config,
     input [7:0] in,
+    input [7:0] mapper [0:255],
     output reg [7:0] out
 );
 
@@ -48,6 +49,9 @@ module gamma(
                 case (in)
                     `include "config/gamma_1_4.v"
                 endcase
+            end
+            `GAMMA_CUSTOM: begin
+                out <= mapper[in];
             end
             default: out <= in;
         endcase

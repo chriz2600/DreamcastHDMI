@@ -403,6 +403,15 @@ void setupHTTPServer() {
         handleUpload(request, ESP_INDEX_STAGING_FILE, index, data, len, final);
     });
 
+    server.on("/upload/mapper", HTTP_POST, [](AsyncWebServerRequest *request){
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        request->send(200);
+    }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
+        handleUpload(request, "/mapper.gdata", index, data, len, final);
+    });
+
     server.on("/debug", HTTP_GET, [](AsyncWebServerRequest *request){
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
@@ -739,6 +748,20 @@ void setupHTTPServer() {
 
         fpgaTask.DoWriteToOSD(atoi(column->value().c_str()), atoi(row->value().c_str()), (uint8_t*) text->value().c_str());
         request->send(200);
+    });
+
+    server.on("/mapperset", HTTP_POST, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+
+        AsyncWebParameter *color = request->getParam("color", true);
+        AsyncWebParameter *value = request->getParam("value", true);
+        AsyncWebParameter *mvalue = request->getParam("mvalue", true);
+
+        fpgaTask.Write(0xD2, atoi(color->value().c_str()));
+        fpgaTask.Write(0xD3, atoi(value->value().c_str()));
+        fpgaTask.Write(0xD4, atoi(mvalue->value().c_str()));
     });
 
     server.on("/240p_offset", HTTP_POST, [](AsyncWebServerRequest *request) {
@@ -1250,6 +1273,13 @@ void loop(void){
             GammaMode--; setColorMode();
         } else if (incomingByte == '=') {
             GammaMode = 0x0F; setColorMode();
+        } else if (incomingByte == 'q') {
+            GammaMode = 0x1F; setColorMode();
+        } else if (incomingByte == '>') {
+            DEBUG2("Loading /mapper.gdata");
+            // File mapper = SPIFFS.open("/mapper.gdata");
+
+            // mapper.close();
         } else {
             DEBUG2("DEBUG serial key: %u\n", incomingByte);
         }

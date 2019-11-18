@@ -373,6 +373,10 @@ var term = $('#term').terminal(function(command, term) {
         startTransaction(null, function() {
             osdWrite(match[1], match[2], match[3]);
         });
+    } else if (match = command.match(/^\s*mapperset\s*([0-9]+)\s*([0-9]+)\s*([0-9]+)\s*$/)) {
+        startTransaction(null, function() {
+            mapperSet(match[1], match[2], match[3]);
+        });
     } else if (match = command.match(/^\s*240p_offset\s*([0-9]+)\s*$/)) {
         startTransaction(null, function() {
             write240p_offset(match[1]);
@@ -903,6 +907,23 @@ function osdWrite(column, row, text) {
     $.ajax({
         'type': "POST",
         'url': "/osdwrite",
+        'data': $.param(data, true)
+    }).done(function (data) {
+        endTransaction('[[b;#fff;]Done].\n');
+    }).fail(function() {
+        endTransaction('Error.', true);
+    });
+}
+
+function mapperSet(color, value, mvalue) {
+    var data = {
+        'color': color,
+        'value': value,
+        'mvalue': mvalue
+    };
+    $.ajax({
+        'type': "POST",
+        'url': "/mapperset",
         'data': $.param(data, true)
     }).done(function (data) {
         endTransaction('[[b;#fff;]Done].\n');
