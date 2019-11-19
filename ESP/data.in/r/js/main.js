@@ -4,6 +4,7 @@ keyboardeventKeyPolyfill.polyfill();
 var FIRMWARE_FILE = "/firmware.dc";
 var FIRMWARE_EXTENSION = "dc";
 var ESP_FIRMWARE_FILE = "/firmware.bin";
+var MAPPER_FILE = "/mapper.gdata";
 var ESP_INDEX_STAGING_FILE = "/esp.index.html.gz";
 var ESP_FIRMWARE_EXTENSION = "bin";
 var DEFAULT_PROMPT = 'dc-hdmi> ';
@@ -186,6 +187,10 @@ var term = $('#term').terminal(function(command, term) {
                 setTimeout(waitForDialog, 350);
             }
         })();
+    } else if (command.match(/^\s*uploadmapper\s*$/)) {
+        startTransaction(null, function() {
+            uploadMapper();
+        });
     } else if (command.match(/^\s*uploadfpga\s*$/)) {
         startTransaction(null, function() {
             uploadFPGA();
@@ -647,6 +652,10 @@ function progress(percent, width) {
         left += ' ';
     }
     return '[' + taken + left + '] ' + percent + '%';
+}
+
+function uploadMapper(isRetry) {
+    upload(false, "/upload/mapper", MAPPER_FILE);
 }
 
 function uploadFPGA(isRetry) {
