@@ -1185,7 +1185,7 @@ void toBinaryString(char* msg, uint8_t* a, int len) {
 }
 
 void setColorMode() {
-    uint8_t val = ColorExpansionMode | GammaMode << 3;
+    uint8_t val = fpgaTask.GetColorExpansion() | GammaMode << 3;
     fpgaTask.Write(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, val, [&](uint8_t Address, uint8_t Value) {
         char msg[9] = "";
         toBinaryString(msg, &Value, 1);

@@ -93,6 +93,14 @@ class FPGATask : public Task {
             keyboard_handler(khandler)
         { };
 
+        virtual uint8_t GetColorExpansion() {
+            if (ColorExpansionMode == COLOR_EXP_AUTO) {
+                return lastEffectiveColorMode;
+            } else {
+                return ColorExpansionMode;
+            }
+        }
+
         virtual void DoResetFPGA() {
             fpgaResetState = FPGA_RESET_STAGE1;
         }
