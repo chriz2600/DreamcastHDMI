@@ -117,6 +117,8 @@ reg [1:0] colorspace_reg;
 reg [7:0] clock_config_data_reg = 3;
 reg [7:0] color_config_data_reg = `GAMMA_1_0 | `RGB888;
 reg [23:0] mapper_output_reg;
+reg [7:0] mapper_color_reg;
+reg [7:0] mapper_base_addr_reg;
 
 assign dataOut = dataOut_reg;
 assign ram_wraddress = wraddress_reg;
@@ -289,19 +291,11 @@ always @(posedge clk) begin
             color_config_data_reg <= dataIn;
         // mapper config
         end else if (addr == 8'hD2) begin
-            mapper_output_reg <= { dataIn, mapper_output_reg[15:0] };
+            mapper_color_reg <= dataIn;
         end else if (addr == 8'hD3) begin
-            mapper_output_reg <= { mapper_output_reg[23:16], dataIn, mapper_output_reg[7:0] };
-        end else if (addr == 8'hD4) begin
-            mapper_output_reg <= { mapper_output_reg[23:8], dataIn };
-        /*
-        end else if (addr == 8'hD2) begin
-            tmp_mapper_output_reg <= { dataIn, tmp_mapper_output_reg[7:0] };
-        end else if (addr == 8'hD3) begin
-            tmp_mapper_output_reg <= { tmp_mapper_output_reg[15:8], dataIn };
-        end else if (addr == 8'hD4) begin
-            mapper_output_reg <= { tmp_mapper_output_reg[15:0], dataIn };
-        */
+            mapper_base_addr_reg <= dataIn;
+        end else if (addr >= 8'hD4 && addr <= 8'hE3) begin
+            mapper_output_reg <= { mapper_color_reg, mapper_base_addr_reg + (addr - 8'hD4), dataIn };
         // reset dreamcast
         end else if (addr == 8'hF0) begin
             reset_dc_reg <= 1'b1;

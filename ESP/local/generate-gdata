@@ -9,9 +9,9 @@ parser.add_argument('input', help='input csv file', type=argparse.FileType('r'))
 parser.add_argument('output', help='output binary file', type=argparse.FileType('w'))
 args = parser.parse_args()
 
-red_map = range(0, 256)
-green_map = range(0, 256)
-blue_map = range(0, 256)
+red_map = [ x for x in range(0, 256) ]
+green_map = [ x for x in range(0, 256) ]
+blue_map = [ x for x in range(0, 256) ]
 
 line = args.input.readline()
 while line:
@@ -27,9 +27,9 @@ while line:
         blue_map[in_val] = int(values[3]) & 0xFF
     line = args.input.readline()
 
-for x in red_map:
+for x in range(256):
     args.output.write(struct.pack('>B', red_map[x]))
-for x in green_map:
+for x in range(256):
     args.output.write(struct.pack('>B', green_map[x]))
-for x in blue_map:
+for x in range(256):
     args.output.write(struct.pack('>B', blue_map[x]))

@@ -68,8 +68,8 @@ typedef struct osdmeta {
 } osdmeta_t;
 
 typedef struct writedata {
-    uint8_t address;
-    uint8_t value;
+    uint8_t len;
+    uint8_t* data;
     WriteCallbackHandlerFunction handler;
 } writedata_t;
 
@@ -142,9 +142,15 @@ class FPGATask : public Task {
         }
 
         virtual void Write(uint8_t address, uint8_t value, WriteCallbackHandlerFunction handler) {
+            Write(address, &value, 1, handler);
+        }
+
+        virtual void Write(uint8_t address, uint8_t* values, uint8_t len, WriteCallbackHandlerFunction handler) {
             writedata_t data = {};
-            data.address = address;
-            data.value = value;
+            data.len = len + 1;
+            data.data = (uint8_t*) malloc(sizeof(uint8_t) * (len + 1));
+            data.data[0] = address;
+            memcpy(&data.data[1], values, len);
             data.handler = handler;
             if (writequeue.size() > MAX_QUEUE_SIZE) {
                 DEBUG2("writequeue.size() exceeded: %d\n", writequeue.size());
@@ -218,14 +224,12 @@ class FPGATask : public Task {
         void handleWrite() {
             writedata_t data = writequeue.front();
             //DEBUG2("handleWrite: %02x %02x\n", data.address, data.value);
-            uint8_t buffer[2];
-            buffer[0] = data.address;
-            buffer[1] = data.value;
-            brzo_i2c_write(buffer, 2, false);
+            brzo_i2c_write(data.data, data.len, false);
             if (data.handler != NULL) {
-                data.handler(data.address, data.value);
+                data.handler(data.data[0], data.data[1]);
             }
             writequeue.pop();
+            free(data.data);
         }
 
         void handleRead() {

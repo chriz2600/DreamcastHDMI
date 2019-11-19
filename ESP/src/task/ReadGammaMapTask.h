@@ -15,6 +15,7 @@ void _readFile(const char *filename, char *target, unsigned int len);
 extern TaskManager taskManager;
 
 #define RGM_BUFFER_SIZE 32
+#define RGM_BURST_SIZE 16
 #define WRITE_SLOTS_NEEDED 3
 
 class ReadGammaMapTask : public Task {
@@ -53,7 +54,14 @@ class ReadGammaMapTask : public Task {
             if (sourceFile) {
                 DEBUG2("Started loading /mapper.gdata\n");
                 totalLength = sourceFile.size();
-                return true;
+                if (totalLength % RGM_BURST_SIZE == 0) {
+                    return true;
+                } else {
+                    DEBUG2("ERROR starting loading /mapper.gdata, invalid length\n");
+                    last_error = ERROR_FILE;
+                    InvokeCallback(false);
+                    return false;
+                }
             } else {
                 DEBUG2("ERROR starting loading /mapper.gdata\n");
                 last_error = ERROR_FILE;
@@ -72,7 +80,8 @@ class ReadGammaMapTask : public Task {
                     if (bytes_read == 0) {
                         taskManager.StopTask(this);
                     } else {
-                        for (int i = 0 ; i < bytes_read ; i++) {
+                        for (int i = 0 ; i < bytes_read ; i += RGM_BURST_SIZE) {
+                            uint8_t writez[RGM_BURST_SIZE];
                             switch (readLength + i) {
                                 case 0:
                                     DEBUG2("...loading red\n");
@@ -88,7 +97,10 @@ class ReadGammaMapTask : public Task {
                                     break;
                             }
                             fpgaTask.Write(0xD3, ((readLength + i) % 256));
-                            fpgaTask.Write(0xD4, buffer[i]);
+                            for (int j = 0 ; j < RGM_BURST_SIZE ; j++) {
+                                writez[j] = buffer[i+j];
+                            }
+                            fpgaTask.Write(0xD4, writez, RGM_BURST_SIZE, NULL);
                         }
                     }
                 } else {
