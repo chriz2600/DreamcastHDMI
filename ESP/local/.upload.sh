@@ -1,7 +1,7 @@
 #!/bin/bash
 
-username="dchdmi"
-password="testtest"
+username=${ESP_USERNAME:-dchdmi}
+password=${ESP_PASSWORD:-testtest}
 hostname=${ESP_HOSTNAME:-dc-firmware-manager.local}
 
 function doUpload() {
@@ -21,5 +21,3 @@ function invoke() {
     curl --digest --user ${username}:${password} \
         "http://${hostname}${1}" && echo "OK" || echo "Error"
 }
-
-

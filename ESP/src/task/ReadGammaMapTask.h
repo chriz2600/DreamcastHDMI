@@ -4,6 +4,8 @@
 #include "../global.h"
 #include <Task.h>
 
+extern uint8_t GammaMode;
+
 extern int totalLength;
 extern int readLength;
 extern int last_error;
@@ -121,6 +123,8 @@ class ReadGammaMapTask : public Task {
         virtual void OnStop() {
             sourceFile.close();
             if (last_error == NO_ERROR) {
+                GammaMode = 0x1F;
+                fpgaTask.Write(I2C_COLOR_EXPANSION_AND_GAMMA_MODE, fpgaTask.GetColorExpansion() | GammaMode << 3);
             }
             currentJobDone = true;
             InvokeCallback(true);
