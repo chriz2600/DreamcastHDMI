@@ -20,9 +20,9 @@ module gammaconv(
     output reg starttrigger
 );
 
-    (* ramstyle = "logic" *) reg [7:0] r_mapper [256];
-    (* ramstyle = "logic" *) reg [7:0] g_mapper [256];
-    (* ramstyle = "logic" *) reg [7:0] b_mapper [256];
+    (* ramstyle = "logic" *) reg [7:0] r_mapper [0:255];
+    (* ramstyle = "logic" *) reg [7:0] g_mapper [0:255];
+    (* ramstyle = "logic" *) reg [7:0] b_mapper [0:255];
     initial begin
         for (int i = 0 ; i < 256 ; i++) begin
             r_mapper[i] = i[7:0];
@@ -75,9 +75,7 @@ module gammaconv(
     reg [7:0] mdata = 0;
 
     always @(posedge clock) begin
-        mconf <= mapperconf[23:16];
-        mposi <= mapperconf[15:8];
-        mdata <= mapperconf[7:0];
+        { mconf, mposi, mdata } <= mapperconf;
         case(mconf)
             `MAPPER_CONF_RED: r_mapper[mposi] <= mdata;
             `MAPPER_CONF_GREEN: g_mapper[mposi] <= mdata;

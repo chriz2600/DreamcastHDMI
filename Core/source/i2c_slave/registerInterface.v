@@ -294,6 +294,14 @@ always @(posedge clk) begin
             mapper_output_reg <= { mapper_output_reg[23:16], dataIn, mapper_output_reg[7:0] };
         end else if (addr == 8'hD4) begin
             mapper_output_reg <= { mapper_output_reg[23:8], dataIn };
+        /*
+        end else if (addr == 8'hD2) begin
+            tmp_mapper_output_reg <= { dataIn, tmp_mapper_output_reg[7:0] };
+        end else if (addr == 8'hD3) begin
+            tmp_mapper_output_reg <= { tmp_mapper_output_reg[15:8], dataIn };
+        end else if (addr == 8'hD4) begin
+            mapper_output_reg <= { tmp_mapper_output_reg[15:0], dataIn };
+        */
         // reset dreamcast
         end else if (addr == 8'hF0) begin
             reset_dc_reg <= 1'b1;

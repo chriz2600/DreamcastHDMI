@@ -268,7 +268,7 @@ class FlashTask : public Task {
                 if (chunk_buffer != NULL) {
                     free(chunk_buffer);
                 }
-                chunk_buffer = (uint8_t *) malloc(block_size);
+                chunk_buffer = (uint8_t *) malloc(chunk_size * sizeof(uint8_t));
                 flashFile.readBytes((char *) chunk_buffer, chunk_size);
                 md5.add(chunk_buffer, chunk_size);
                 return 0; /* no bytes written yet */
