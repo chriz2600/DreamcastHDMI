@@ -31,7 +31,7 @@ set_global_assignment -name ENABLE_BOOT_SEL_PIN OFF
 set_global_assignment -name ENABLE_CONFIGURATION_PINS OFF
 set_global_assignment -name TRI_STATE_SPI_PINS ON
 set_global_assignment -name CYCLONEII_RESERVE_NCEO_AFTER_CONFIGURATION "USE AS REGULAR IO"
-set_global_assignment -name NUM_PARALLEL_PROCESSORS 2
+set_global_assignment -name NUM_PARALLEL_PROCESSORS 4
 set_global_assignment -name OPTIMIZATION_MODE "AGGRESSIVE PERFORMANCE"
 set_global_assignment -name ROUTER_CLOCKING_TOPOLOGY_ANALYSIS ON
 set_global_assignment -name PLACEMENT_EFFORT_MULTIPLIER 16.0
@@ -49,7 +49,7 @@ set_global_assignment -name PHYSICAL_SYNTHESIS_COMBO_LOGIC ON
 set_global_assignment -name PHYSICAL_SYNTHESIS_REGISTER_DUPLICATION ON
 set_global_assignment -name ROUTER_TIMING_OPTIMIZATION_LEVEL MAXIMUM
 set_global_assignment -name QII_AUTO_PACKED_REGISTERS NORMAL
-#set_global_assignment -name SMART_RECOMPILE ON
+set_global_assignment -name SMART_RECOMPILE ON
 set_global_assignment -name MUX_RESTRUCTURE OFF
 
 set_global_assignment -name ADVANCED_PHYSICAL_OPTIMIZATION ON

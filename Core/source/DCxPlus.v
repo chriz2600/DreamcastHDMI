@@ -238,12 +238,43 @@ module DCxPlus(
     wire [7:0] reconf_data_clock54;
 
     data_cross #(
-        .WIDTH($bits(DCVideoConfig) + 3 + $bits(conf240p) + $bits(video_gen_data) + $bits(color_config_data) + $bits(mapper_output))
+        .WIDTH(
+              $bits(DCVideoConfig)
+            + 3
+            + $bits(conf240p)
+            + $bits(video_gen_data)
+            + $bits(color_config_data)
+`ifdef ENABLE_CUSTOM_MAPPER
+            + $bits(mapper_output)
+`endif
+        )
     ) dcVideoConfig_cross(
         .clkIn(control_clock),
         .clkOut(clock54_net),
-        .dataIn({ _dcVideoConfig, _config_changed, line_doubler_sync2, _nonBlackPixelReset, conf240p, video_gen_data, color_config_data, mapper_output }),
-        .dataOut({ dcVideoConfig, config_changed, _240p_480i_mode, nonBlackPixelReset, conf240p_out, { 6'bzzzzzz, generate_video, generate_timing }, color_config_data_out, mapper_output_out })
+        .dataIn({
+            _dcVideoConfig
+            , _config_changed
+            , line_doubler_sync2
+            , _nonBlackPixelReset
+            , conf240p
+            , video_gen_data
+            , color_config_data
+`ifdef ENABLE_CUSTOM_MAPPER
+            , mapper_output
+`endif
+        }),
+        .dataOut({
+            dcVideoConfig
+            , config_changed
+            , _240p_480i_mode
+            , nonBlackPixelReset
+            , conf240p_out
+            , { 6'bzzzzzz, generate_video, generate_timing }
+            , color_config_data_out
+`ifdef ENABLE_CUSTOM_MAPPER
+            , mapper_output_out
+`endif
+        })
     );
 
     dc_video_reconfig dc_video_configurator(

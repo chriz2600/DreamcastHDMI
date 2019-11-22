@@ -5,12 +5,16 @@ set -e
 cd $(dirname $0)
 
 variant=$1
+enableCustomMapper=$2
 if [ "$variant" = "" ] ; then
-    echo "usage: $0 <std|hq2x>"
+    echo "usage: $0 <std|hq2x> [enableCustomMapper:true|false]"
     exit 1
 fi
 
 echo "set_global_assignment -name VERILOG_MACRO $variant" > local.qsf
+if [ "$enableCustomMapper" = "true" ] ; then
+    echo "set_global_assignment -name VERILOG_MACRO ENABLE_CUSTOM_MAPPER" >> local.qsf
+fi
 ./compile DCxPlus
 ./create-jic DCxPlus.cof
 ./create-jic DCxPlus-raw.cof

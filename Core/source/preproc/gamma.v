@@ -50,9 +50,11 @@ module gamma(
                     `include "config/gamma_1_4.v"
                 endcase
             end
+`ifdef ENABLE_CUSTOM_MAPPER
             `GAMMA_CUSTOM: begin
                 out <= mapper[in];
             end
+`endif
             default: out <= in;
         endcase
     end
