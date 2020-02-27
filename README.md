@@ -1,4 +1,8 @@
-# DreamcastHDMI / DCHDMI
+# DreamcastHDMI / DCDigital
+
+#### 2020-02-28 *Firmware v4.4* (*Unified*)
+
+- New name/logo
 
 #### 2019-11-17 *Firmware v4.3* (*Unified*)
 
