@@ -14,7 +14,7 @@
 #define NO_SELECT_LINE 32
 #define MENU_START_LINE "          " MENU_OK_STR ": Start    " MENU_CANCEL_STR ": Back           "
 #define MENU_BACK_LINE  "                " MENU_CANCEL_STR ": Back                 "
-#define MENU_BUTTON_LINE 12
+#define MENU_BUTTON_LINE 14
 
 #define MENU_RST_GDEMU_BUTTON_LINE    "     X: Reset DC  Y: GDEMU button       "
 #define MENU_RST_NORMAL_BUTTON_LINE   "              X: Reset DC               "
@@ -563,7 +563,7 @@ class Menu
         if (pre_hook != NULL) {
             menu_activeLine = pre_hook(Menu_OSD_buffer, menu_activeLine);
         }
-        fpgaTask.DoWriteToOSD(0, 9, Menu_OSD_buffer, [&]() {
+        fpgaTask.DoWriteToOSD(0, MENU_OFFSET, Menu_OSD_buffer, [&]() {
             //DEBUG("%i %i\n", menu_activeLine, MENU_OFFSET + menu_activeLine);
             fpgaTask.Write(I2C_OSD_ACTIVE_LINE, MENU_OFFSET + menu_activeLine, display_callback);
         });
