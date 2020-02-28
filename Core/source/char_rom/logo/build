@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd $(dirname $0)
+
+convert dc-logo.png -monochrome -depth 1 dc-logo-1bit.png
+./convert-to-verilog-snippet 128 dc-logo-1bit.png > logo.v

@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+
+from PIL import Image
+from math import floor
+import sys
+
+if len(sys.argv) < 3:
+    print("usage: %s <offset> <image-to-convert>" % sys.argv[0])
+    exit(0)
+
+im = Image.open(sys.argv[2])
+pix = im.load()
+(width, height) = im.size
+offset = int(sys.argv[1]) * 16
+out = ""
+addr = 0
+pxl = 0
+charWidth = 8
+charHeight = 16
+charsPerLine = im.width / charWidth
+charsPerColumn = im.height / charHeight
+totalChars = int(charsPerLine * charsPerColumn)
+
+chz = {}
+outer = ""
+x = 0
+y = 0
+
+#print("%d %d" % (charsPerLine, charsPerColumn))
+
+ybase = 0
+for char in range(totalChars):
+    charpos = char % charsPerLine
+    xbase = charpos * charWidth
+    yref = floor(char / charsPerLine)
+    ybase = yref * charHeight
+    #print("--> %d/%d" % (charpos, yref))
+
+    for yc in range(charHeight):
+        y = yc + ybase
+        for pxl in range(charWidth):
+            x = xbase + pxl
+            if pix[x,y] == 255:
+                out = out + "1"
+            else:
+                out = out + "0"
+        out = "%%04d: q_reg <= 8'b%s;\n" % (out)
+        outer = outer + out;
+        out = ""
+
+    #print("%d: %s" % (char, outer))
+    if outer != '':
+        if outer in chz:
+            prev = chz[outer]
+            chz[outer] = prev + ( char , )
+        else:
+            chz[outer] = ( char , )
+    outer = ""
+
+map = {}
+i = 0
+for key in chz:
+    y = i * 16 + offset
+    for val in chz[key]:
+        print("// %d" % (val))
+        map[val] = i + floor(offset / 16)
+    print("// --> (%d) code: 0x%02x\n%s" % (i, i + floor(offset / 16), key % (y,y+1,y+2,y+3,y+4,y+5,y+6,y+7,y+8,y+9,y+10,y+11,y+12,y+13,y+14,y+15)))
+    i = i + 1
+
+w = 0
+print("/*")
+for x in range(0, int(charsPerLine * charsPerColumn)):
+    print("0x%02x, " % (map[x]), end = '')
+    w = w + 1
+    if width == w * 8:
+        print("")
+        w = 0
+
+print("*/")

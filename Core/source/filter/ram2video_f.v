@@ -125,7 +125,7 @@ module ram2video_f(
         .data_out(outpixel2)
     );
 
-    wire [10:0] char_addr;
+    wire [11:0] char_addr;
     wire [7:0] char_data;
     char_rom char_rom_inst(
         .address(char_addr),

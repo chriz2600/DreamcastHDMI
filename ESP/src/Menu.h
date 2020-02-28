@@ -7,8 +7,9 @@
 #include "task/FPGATask.h"
 #include "keymap.h"
 
-#define MENU_OFFSET 9
+#define MENU_OFFSET 7
 #define MENU_WIDTH 40
+#define MENU_BUFFER_LEN 601
 
 #define NO_SELECT_LINE 32
 #define MENU_START_LINE "          " MENU_OK_STR ": Start    " MENU_CANCEL_STR ": Back           "
@@ -33,7 +34,7 @@
 #define MENU_M_INF 8
 #define MENU_M_FIRST_SELECT_LINE 2
 #define MENU_M_LAST_SELECT_LINE MENU_M_INF
-static const char OSD_MAIN_MENU[521] PROGMEM = (
+static const char OSD_MAIN_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Main Menu                               "
     "                                        "
     "- Output Resolution                     "
@@ -46,12 +47,14 @@ static const char OSD_MAIN_MENU[521] PROGMEM = (
     "                                        "
     "                                        "
     "                                        "
+    "                                        "
+    "                                        "
     "          " MENU_OK_STR ": Select  " MENU_CANCEL_STR ": Exit            "
 );
 
 #define MENU_OR_LAST_SELECT_LINE 5
 #define MENU_OR_FIRST_SELECT_LINE (MENU_OR_LAST_SELECT_LINE-3)
-static const char OSD_OUTPUT_RES_MENU[521] PROGMEM = (
+static const char OSD_OUTPUT_RES_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Output Resolution                       "
     "                                        "
     "- VGA                                   "
@@ -60,6 +63,8 @@ static const char OSD_OUTPUT_RES_MENU[521] PROGMEM = (
     "- 1080p                                 "
     "                                        "
     "  '>' marks the stored setting          "
+    "                                        "
+    "                                        "
     "                                        "
     "                                        "
     "                                        "
@@ -79,7 +84,7 @@ static const char OSD_OUTPUT_RES_MENU[521] PROGMEM = (
 #define MENU_AV_FIRST_SELECT_LINE 2
 #define MENU_AV_LAST_SELECT_LINE MENU_AV_UPSCALING_MODE
 #define MENU_AV_STD_LINE_OFFSET 1
-static const char OSD_ADVANCED_VIDEO_MENU[521] PROGMEM = (
+static const char OSD_ADVANCED_VIDEO_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Advanced Video Settings                 "
     "                                        "
     "- Deinterlacer 480i:    _______         "
@@ -92,14 +97,18 @@ static const char OSD_ADVANCED_VIDEO_MENU[521] PROGMEM = (
     "                                        "
     "                                        "
     "                                        "
+    "                                        "
+    "                                        "
     "          " MENU_OK_STR ": Save   " MENU_CANCEL_STR ": Cancel           "
 );
 
 #define MENU_SS_RESULT_LINE 4
-static const char OSD_OUTPUT_RES_SAVE_MENU[521] PROGMEM = (
+static const char OSD_OUTPUT_RES_SAVE_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Output Resolution                       "
     "                                        "
     "         Keep this resolution?          "
+    "                                        "
+    "                                        "
     "                                        "
     "                                        "
     "                                        "
@@ -117,7 +126,7 @@ static const char OSD_OUTPUT_RES_SAVE_MENU[521] PROGMEM = (
 #define MENU_VM_SWITCH_TRICK_LINE 4
 #define MENU_VM_FIRST_SELECT_LINE 2
 #define MENU_VM_LAST_SELECT_LINE 4
-static const char OSD_VIDEO_MODE_MENU[521] PROGMEM = (
+static const char OSD_VIDEO_MODE_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Video Mode Settings                     "
     "                                        "
     "- Force VGA                             "
@@ -130,10 +139,12 @@ static const char OSD_VIDEO_MODE_MENU[521] PROGMEM = (
     "                                        "
     "                                        "
     "                                        "
+    "                                        "
+    "                                        "
     "          " MENU_OK_STR ": Save  " MENU_CANCEL_STR ": Cancel            "
 );
 
-static const char OSD_VIDEO_MODE_SAVE_MENU[521] PROGMEM = (
+static const char OSD_VIDEO_MODE_SAVE_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Video Mode Settings                     "
     "                                        "
     "    Apply changes and reset console?    "
@@ -146,10 +157,12 @@ static const char OSD_VIDEO_MODE_SAVE_MENU[521] PROGMEM = (
     "                                        "
     "                                        "
     "                                        "
+    "                                        "
+    "                                        "
     "         " MENU_OK_STR ": Reset  " MENU_CANCEL_STR ": Not now           "
 );
 
-static const char OSD_DC_RESET_CONFIRM_MENU[521] PROGMEM = (
+static const char OSD_DC_RESET_CONFIRM_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Reset Dreamcast                         "
     "                                        "
     "      Do you really want to reset       "
@@ -161,15 +174,19 @@ static const char OSD_DC_RESET_CONFIRM_MENU[521] PROGMEM = (
     "                                        "
     "                                        "
     "                                        "
+    "                                        "
+    "                                        "
     "             Y: Full Reset              "
     "         " MENU_OK_STR ": Reset  " MENU_CANCEL_STR ": Not now           "
 );
 
-static const char OSD_OPT_RESET_CONFIRM_MENU[521] PROGMEM = (
+static const char OSD_OPT_RESET_CONFIRM_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "GDEMU button                            "
     "                                        "
     "      Do you really want to press       "
     "          the GDEMU button?             "
+    "                                        "
+    "                                        "
     "                                        "
     "                                        "
     "                                        "
@@ -188,7 +205,7 @@ static const char OSD_OPT_RESET_CONFIRM_MENU[521] PROGMEM = (
 #define MENU_FW_RESET_LINE 6
 #define MENU_FW_FIRST_SELECT_LINE 2
 #define MENU_FW_LAST_SELECT_LINE 6
-static const char OSD_FIRMWARE_MENU[521] PROGMEM = (
+static const char OSD_FIRMWARE_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Firmware                                "
     "                                        "
     "- Configure                             "
@@ -201,6 +218,8 @@ static const char OSD_FIRMWARE_MENU[521] PROGMEM = (
     "                                        "
     "                                        "
     "                                        "
+    "                                        "
+    "                                        "
     "          " MENU_OK_STR ": Select  " MENU_CANCEL_STR ": Exit            "
 );
 
@@ -208,7 +227,7 @@ static const char OSD_FIRMWARE_MENU[521] PROGMEM = (
 #define MENU_FWCONF_FIRST_SELECT_LINE 2
 #define MENU_FWCONF_LAST_SELECT_LINE 2
 #define MENU_FWCONF_COLUMN 20
-static const char OSD_FIRMWARE_CONFIG_MENU[521] PROGMEM = (
+static const char OSD_FIRMWARE_CONFIG_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Configure Firmware                      "
     "                                        "
     "- Firmware Flavour: ___________         "
@@ -221,12 +240,14 @@ static const char OSD_FIRMWARE_CONFIG_MENU[521] PROGMEM = (
     "  " MENU_OK_STR ": switch firmware flavour.           "
     "  " MENU_CANCEL_STR ": discard changes and exit.          "
     "                                        "
+    "                                        "
+    "                                        "
     "          " MENU_OK_STR ": Apply  " MENU_CANCEL_STR ": Cancel           "
 );
 
 #define MENU_FWCONF_RECONF_FPGA_LINE 5
 #define MENU_FWCONF_RECONF_RESULT_LINE 7
-static const char OSD_FIRMWARE_CONFIG_RECONFIG_MENU[521] PROGMEM = (
+static const char OSD_FIRMWARE_CONFIG_RECONFIG_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Switch firmware flavour                 "
     "                                        "
     "   FPGA will be flashed with selected   "
@@ -239,10 +260,12 @@ static const char OSD_FIRMWARE_CONFIG_RECONFIG_MENU[521] PROGMEM = (
     "                                        "
     "                                        "
     "                                        "
+    "                                        "
+    "                                        "
     "          " MENU_OK_STR ": Switch  " MENU_CANCEL_STR ": Cancel          "
 );
 
-static const char OSD_FIRMWARE_TRANSITIONAL_MENU[521] PROGMEM = (
+static const char OSD_FIRMWARE_TRANSITIONAL_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Transitional firmware detected          "
     "                                        "
     "    You recently updated your DCHDMI    "
@@ -255,6 +278,8 @@ static const char OSD_FIRMWARE_TRANSITIONAL_MENU[521] PROGMEM = (
     "  firmware flavour, you have to down-   "
     " load and flash the firmware once again."
     "                                        "
+    "                                        "
+    "                                        "
     "                " MENU_CANCEL_STR ": Back                 "
 );
 
@@ -264,7 +289,7 @@ static const char OSD_FIRMWARE_TRANSITIONAL_MENU[521] PROGMEM = (
 #define MENU_FWC_INDEXHTML_LINE 6
 #define MENU_FWC_CHANGELOG_LINE 7
 #define MENU_FWC_RESULT_LINE 9
-static const char OSD_FIRMWARE_CHECK_MENU[521] PROGMEM = (
+static const char OSD_FIRMWARE_CHECK_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Check Firmware                          "
     "                                        "
     "Check, if newer firmware is available.  "
@@ -277,6 +302,8 @@ static const char OSD_FIRMWARE_CHECK_MENU[521] PROGMEM = (
     "                                        "
     "                                        "
     "                                        "
+    "                                        "
+    "                                        "
     MENU_START_LINE
 );
 
@@ -284,7 +311,7 @@ static const char OSD_FIRMWARE_CHECK_MENU[521] PROGMEM = (
 #define MENU_FWD_ESP_LINE 5
 #define MENU_FWD_INDEXHTML_LINE 6
 #define MENU_FWD_RESULT_LINE 8
-static const char OSD_FIRMWARE_DOWNLOAD_MENU[521] PROGMEM = (
+static const char OSD_FIRMWARE_DOWNLOAD_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Download Firmware                       "
     "                                        "
     "Download firmware files.                "
@@ -297,6 +324,8 @@ static const char OSD_FIRMWARE_DOWNLOAD_MENU[521] PROGMEM = (
     "                                        "
     "                                        "
     "                                        "
+    "                                        "
+    "                                        "
     MENU_START_LINE
 );
 
@@ -304,7 +333,7 @@ static const char OSD_FIRMWARE_DOWNLOAD_MENU[521] PROGMEM = (
 #define MENU_FWF_ESP_LINE 5
 #define MENU_FWF_INDEXHTML_LINE 6
 #define MENU_FWF_RESULT_LINE 8
-static const char OSD_FIRMWARE_FLASH_MENU[521] PROGMEM = (
+static const char OSD_FIRMWARE_FLASH_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Flash Firmware                          "
     "                                        "
     "Flash downloaded firmware files.        "
@@ -317,14 +346,18 @@ static const char OSD_FIRMWARE_FLASH_MENU[521] PROGMEM = (
     "                                        "
     "                                        "
     "                                        "
+    "                                        "
+    "                                        "
     MENU_START_LINE
 );
 
-static const char OSD_FIRMWARE_RESET_MENU[521] PROGMEM = (
+static const char OSD_FIRMWARE_RESET_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Restart Firmware                        "
     "                                        "
     "           Restart DCHDMI?              "
     "   This will also reset the dreamcast!  "
+    "                                        "
+    "                                        "
     "                                        "
     "                                        "
     "                                        "
@@ -343,13 +376,15 @@ static const char OSD_FIRMWARE_RESET_MENU[521] PROGMEM = (
 #define MENU_SL_FIRST_SELECT_LINE 2
 #define MENU_SL_LAST_SELECT_LINE 5
 #define MENU_SL_COLUMN 12
-static const char OSD_SCANLINES_MENU[521] PROGMEM = (
+static const char OSD_SCANLINES_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Scanlines                               "
     "                                        "
     "- On/Off:    _____                      "
     "- Intensity: _____                      "
     "- Odd/Even:  _____                      "
     "- Thickness: _____                      "
+    "                                        "
+    "                                        "
     "                                        "
     "                                        "
     "                                        "
@@ -361,8 +396,10 @@ static const char OSD_SCANLINES_MENU[521] PROGMEM = (
 
 #define MENU_INF_RESULT_LINE 2
 #define MENU_INF_RESULT_HEIGHT 9
-static const char OSD_INFO_MENU[521] PROGMEM = (
+static const char OSD_INFO_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Test/Info                               "
+    "                                        "
+    "                                        "
     "                                        "
     "                                        "
     "                                        "
@@ -379,9 +416,11 @@ static const char OSD_INFO_MENU[521] PROGMEM = (
 
 #define MENU_CHNGL_RESULT_LINE 2
 #define MENU_CHNGL_RESULT_HEIGHT 9
-static const char OSD_CHANGELOG_MENU[521] PROGMEM = (
+static const char OSD_CHANGELOG_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Changelog                               "
     "----------------------------------------"
+    "                                        "
+    "                                        "
     "                                        "
     "                                        "
     "                                        "
@@ -400,7 +439,7 @@ static const char OSD_CHANGELOG_MENU[521] PROGMEM = (
 #define MENU_RST_USB_GDROM_LINE 4
 #define MENU_RST_FIRST_SELECT_LINE 2
 #define MENU_RST_LAST_SELECT_LINE 4
-static const char OSD_RESET_MENU[521] PROGMEM = (
+static const char OSD_RESET_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Reset Options                           "
     "                                        "
     "- LED                                   "
@@ -413,6 +452,8 @@ static const char OSD_RESET_MENU[521] PROGMEM = (
     "GDEMU:     OPT -> GDEMU button          "
     "USB-GDROM: OPT -> USB-GDROM reset       "
     "                                        "
+    "                                        "
+    "                                        "
     "          " MENU_OK_STR ": Apply   " MENU_CANCEL_STR ": Back            "
 );
 
@@ -421,12 +462,14 @@ static const char OSD_RESET_MENU[521] PROGMEM = (
 #define MENU_WIFI_RESTART_LINE 4
 #define MENU_WIFI_FIRST_SELECT_LINE 2
 #define MENU_WIFI_LAST_SELECT_LINE MENU_WIFI_RESTART_LINE
-static const char OSD_WIFI_MENU[521] PROGMEM = (
+static const char OSD_WIFI_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "WiFi Setup                              "
     "                                        "
     "- SSID:     ___________________________ "
     "- Password: ___________________________ "
     "- Restart to apply changes              "
+    "                                        "
+    "                                        "
     "                                        "
     "                                        "
     "                                        "
@@ -440,7 +483,7 @@ static const char OSD_WIFI_MENU[521] PROGMEM = (
 #define MENU_WIFI_EDIT_NAME_LINE 2
 #define MENU_WIFI_EDIT_VALUE_LINE 3
 #define MENU_WIFI_EDIT_CURSOR_LINE 4
-static const char OSD_WIFI_EDIT_MENU[521] PROGMEM = (
+static const char OSD_WIFI_EDIT_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "WiFi Setup Edit                         "
     "                                        "
     " ______________________________________ "
@@ -450,6 +493,8 @@ static const char OSD_WIFI_EDIT_MENU[521] PROGMEM = (
     "- D-pad left/right to move cursor       "
     "- D-pad up/down to cylce thru chars     "
     "- Trailing whitespace is removed on save"
+    "                                        "
+    "                                        "
     "                                        "
     "                                        "
     "                                        "
@@ -463,7 +508,7 @@ typedef std::function<uint8_t(uint8_t* menu_text, uint8_t menu_activeLine)> PreD
 extern FPGATask fpgaTask;
 bool OSDOpen = false;
 
-uint8_t Menu_OSD_buffer[521];
+uint8_t Menu_OSD_buffer[MENU_BUFFER_LEN];
 
 class Menu
 {
@@ -514,7 +559,7 @@ class Menu
 
     void Display() {
         // copy contents from flash to buffer
-        memcpy_P(Menu_OSD_buffer, menu_text, 521);
+        memcpy_P(Menu_OSD_buffer, menu_text, MENU_BUFFER_LEN);
         if (pre_hook != NULL) {
             menu_activeLine = pre_hook(Menu_OSD_buffer, menu_activeLine);
         }

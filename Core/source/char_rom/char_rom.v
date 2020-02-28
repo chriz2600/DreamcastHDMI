@@ -1,5 +1,5 @@
 module char_rom (
-    input [10:0] address,
+    input [11:0] address,
     input clock,
     output [7:0] q
 );
@@ -556,6 +556,7 @@ always @(posedge clock) begin
         0510: q_reg <= 8'b00000000; // e
         0511: q_reg <= 8'b00000000; // f
         `include "font/8x16-font.v"
+        `include "logo/logo.v"
     endcase
     q_reg_2 <= q_reg;
 end
