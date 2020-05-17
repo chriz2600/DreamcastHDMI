@@ -1,5 +1,9 @@
 # DreamcastHDMI / DCDigital
 
+#### 2020-05-17 *Firmware v4.5* (*Unified*)
+
+- Terraonion MODE disc switch support
+
 #### 2020-02-28 *Firmware v4.4* (*Unified*)
 
 - New name/logo

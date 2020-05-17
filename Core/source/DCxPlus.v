@@ -517,7 +517,7 @@ module DCxPlus(
                     status_led_nreset_reg <= ~slowGlow_out;
                 end
             end
-        end else if (reset_conf == 2'd1) begin // GDEMU
+        end else if (reset_conf == 2'd1 || reset_conf == 2'd3) begin // GDEMU || MODE
             status_led_nreset_reg <= (opt_nreset_reg ? 1'bz : 1'b0);
         end else if (reset_conf == 2'd2) begin // USBGDROM
             status_led_nreset_reg <= (dc_nreset_reg ? 1'bz : 1'b0);

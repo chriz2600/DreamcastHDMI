@@ -722,7 +722,7 @@ var setupDataMapping = {
     hostname:             [ "Hostname             ", "dc-firmware-manager" ],
     video_resolution:     [ "Video output         ", "VGA", "[[b;lightblue;]VGA] / [[b;lightblue;]480p] / [[b;lightblue;]960p] / [[b;lightblue;]1080p]", /^(VGA|480p|960p|1080p)$/ ],
     video_mode:           [ "Video mode           ", "CableDetect", "[[b;lightblue;]ForceVGA] / [[b;lightblue;]CableDetect] / [[b;lightblue;]SwitchTrick]", /^(ForceVGA|CableDetect|SwitchTrick)$/ ],
-    reset_mode:           [ "Opt. reset mode      ", "led", "[[b;lightblue;]led] / [[b;lightblue;]gdemu] / [[b;lightblue;]usb-gdrom]", /^(led|gdemu|usb-gdrom)$/ ],
+    reset_mode:           [ "Opt. reset mode      ", "led", "[[b;lightblue;]led] / [[b;lightblue;]gdemu] / [[b;lightblue;]usb-gdrom] / [[b;lightblue;]mode]", /^(led|gdemu|usb-gdrom|mode)$/ ],
     deinterlace_mode:     [ "Deinterlacer         ", "bob", "[[b;lightblue;]bob] / [[b;lightblue;]passthru]", /^(bob|passthru)$/ ],
     protected_mode:       [ "Protected mode       ", "off", "[[b;lightblue;]on] / [[b;lightblue;]off]", /^(on|off)$/, null, 
           "[[b;red;]If you set protected mode to 'on', you will not be able]\n    "

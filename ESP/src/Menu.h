@@ -16,7 +16,8 @@
 #define MENU_BACK_LINE  "                " MENU_CANCEL_STR ": Back                 "
 #define MENU_BUTTON_LINE 14
 
-#define MENU_RST_GDEMU_BUTTON_LINE    "     X: Reset DC  Y: GDEMU button       "
+#define MENU_RST_GDEMU_BUTTON_LINE    "      X: Reset DC  Y: GDEMU button      "
+#define MENU_RST_MODE_BUTTON_LINE     "    X: Reset DC  Y: MODE disc switch    "
 #define MENU_RST_NORMAL_BUTTON_LINE   "              X: Reset DC               "
 
 #define MENU_OK CTRLR_RTRIGGER
@@ -181,10 +182,10 @@ static const char OSD_DC_RESET_CONFIRM_MENU[MENU_BUFFER_LEN] PROGMEM = (
 );
 
 static const char OSD_OPT_RESET_CONFIRM_MENU[MENU_BUFFER_LEN] PROGMEM = (
-    "GDEMU button                            "
     "                                        "
-    "      Do you really want to press       "
-    "          the GDEMU button?             "
+    "                                        "
+    "                                        "
+    "                                        "
     "                                        "
     "                                        "
     "                                        "
@@ -196,6 +197,20 @@ static const char OSD_OPT_RESET_CONFIRM_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "                                        "
     "                                        "
     "         " MENU_OK_STR ": Press  " MENU_CANCEL_STR ": Not now           "
+);
+
+static const char OSD_OPT_RESET_CONFIRM_MENU_GDEMU[MENU_WIDTH*4+1] PROGMEM = (
+    "GDEMU button                            "
+    "                                        "
+    "      Do you really want to press       "
+    "          the GDEMU button?             "
+);
+
+static const char OSD_OPT_RESET_CONFIRM_MENU_MODE[MENU_WIDTH*4+1] PROGMEM = (
+    "MODE disc switch                        "
+    "                                        "
+    "     Do you really want to execute      "
+    "         the MODE disc switch?          "
 );
 
 #define MENU_FW_CONFIG_LINE 2
@@ -437,22 +452,23 @@ static const char OSD_CHANGELOG_MENU[MENU_BUFFER_LEN] PROGMEM = (
 #define MENU_RST_LED_LINE 2
 #define MENU_RST_GDEMU_LINE 3
 #define MENU_RST_USB_GDROM_LINE 4
+#define MENU_RST_MODE_LINE 5
 #define MENU_RST_FIRST_SELECT_LINE 2
-#define MENU_RST_LAST_SELECT_LINE 4
+#define MENU_RST_LAST_SELECT_LINE 5
 static const char OSD_RESET_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Reset Options                           "
     "                                        "
     "- LED                                   "
     "- GDEMU                                 "
     "- USB-GDROM                             "
+    "- MODE                                  "
     "                                        "
     "  '>' marks the stored setting          "
     "                                        "
     "LED:       OPT -> not connected         "
     "GDEMU:     OPT -> GDEMU button          "
     "USB-GDROM: OPT -> USB-GDROM reset       "
-    "                                        "
-    "                                        "
+    "MODE:      OPT -> MODE disc switch      "
     "                                        "
     "          " MENU_OK_STR ": Apply   " MENU_CANCEL_STR ": Back            "
 );

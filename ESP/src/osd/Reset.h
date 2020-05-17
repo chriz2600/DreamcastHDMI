@@ -20,6 +20,9 @@ Menu resetMenu("ResetMenu", OSD_RESET_MENU, MENU_RST_FIRST_SELECT_LINE, MENU_RST
             case MENU_RST_USB_GDROM_LINE:
                 CurrentResetMode = RESET_MODE_USBGDROM;
                 break;
+            case MENU_RST_MODE_LINE:
+                CurrentResetMode = RESET_MODE_MODE;
+                break;
         }
 
         writeCurrentResetMode();

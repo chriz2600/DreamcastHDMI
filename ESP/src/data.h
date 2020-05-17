@@ -61,6 +61,8 @@ void writeCurrentResetMode() {
         cfgRst = RESET_MODE_STR_GDEMU;
     } else if (CurrentResetMode == RESET_MODE_USBGDROM) {
         cfgRst = RESET_MODE_STR_USBGDROM;
+    } else if (CurrentResetMode == RESET_MODE_MODE) {
+        cfgRst = RESET_MODE_STR_MODE;
     }
 
     _writeFile("/etc/reset/mode", cfgRst.c_str(), 16);
@@ -122,6 +124,8 @@ uint8_t cfgRst2Int(char* rstMode) {
         return RESET_MODE_GDEMU;
     } else if (cfgRst == RESET_MODE_STR_USBGDROM) {
         return RESET_MODE_USBGDROM;
+    } else if (cfgRst == RESET_MODE_STR_MODE) {
+        return RESET_MODE_MODE;
     }
     // default is LED
     return RESET_MODE_LED;

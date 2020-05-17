@@ -67,7 +67,7 @@ Menu mainMenu("MainMenu", OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, MENU_M_LAST_S
         currentMenu->Display();
         return;
     }
-    if (!isRepeat && CurrentResetMode == RESET_MODE_GDEMU && CHECK_CTRLR_MASK(controller_data, CTRLR_BUTTON_Y)) {
+    if (!isRepeat && (CurrentResetMode == RESET_MODE_GDEMU || CurrentResetMode == RESET_MODE_MODE) && CHECK_CTRLR_MASK(controller_data, CTRLR_BUTTON_Y)) {
         currentMenu = &optResetConfirmMenu;
         currentMenu->Display();
         return;
@@ -75,6 +75,8 @@ Menu mainMenu("MainMenu", OSD_MAIN_MENU, MENU_M_FIRST_SELECT_LINE, MENU_M_LAST_S
 }, [](uint8_t* menu_text, uint8_t menu_activeLine) {
     if (CurrentResetMode == RESET_MODE_GDEMU) {
         memcpy(&menu_text[(MENU_BUTTON_LINE - 1) * MENU_WIDTH], MENU_RST_GDEMU_BUTTON_LINE, MENU_WIDTH);
+    } else if (CurrentResetMode == RESET_MODE_MODE) {
+        memcpy(&menu_text[(MENU_BUTTON_LINE - 1) * MENU_WIDTH], MENU_RST_MODE_BUTTON_LINE, MENU_WIDTH);
     } else {
         memcpy(&menu_text[(MENU_BUTTON_LINE - 1) * MENU_WIDTH], MENU_RST_NORMAL_BUTTON_LINE, MENU_WIDTH);
     }
@@ -126,5 +128,12 @@ Menu optResetConfirmMenu("OptResetConfirm", OSD_OPT_RESET_CONFIRM_MENU, NO_SELEC
         currentMenu->Display();
         return;
     }
-}, NULL, NULL, true);
+}, [](uint8_t* menu_text, uint8_t menu_activeLine) {
+    if (CurrentResetMode == RESET_MODE_GDEMU) {
+        memcpy_P(menu_text, OSD_OPT_RESET_CONFIRM_MENU_GDEMU, MENU_WIDTH*4);
+    } else if (CurrentResetMode == RESET_MODE_MODE) {
+        memcpy_P(menu_text, OSD_OPT_RESET_CONFIRM_MENU_MODE, MENU_WIDTH*4);
+    }
+    return menu_activeLine;
+}, NULL, true);
 

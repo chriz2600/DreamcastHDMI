@@ -258,10 +258,12 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 #define RESET_MODE_STR_LED "led"
 #define RESET_MODE_STR_GDEMU "gdemu"
 #define RESET_MODE_STR_USBGDROM "usb-gdrom"
+#define RESET_MODE_STR_MODE "mode"
 
 #define RESET_MODE_LED (0x00)
 #define RESET_MODE_GDEMU (0x01)
 #define RESET_MODE_USBGDROM (0x02)
+#define RESET_MODE_MODE (0x03)
 
 #define DEINTERLACE_MODE_BOB (0x00)
 #define DEINTERLACE_MODE_PASSTHRU (0x01)
