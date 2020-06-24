@@ -329,7 +329,9 @@ module DCxPlus(
     wire [7:0] reconf_data_hdmi;
     wire is_interlaced;
 
-    Flag_CrossDomain rsync_trigger(
+    Flag_CrossDomain #(
+        .INIT_STATE(1'b1)
+    ) rsync_trigger (
         .clkA(clock54_net),
         .FlagIn_clkA(resync),
         .clkB(hdmi_clock),

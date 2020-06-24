@@ -7,7 +7,9 @@ module Flag_CrossDomain(
     input clkB,
     output FlagOut_clkB
 );
-    reg data_out;
+    parameter INIT_STATE = 0;
+
+    reg data_out = INIT_STATE;
     reg [3:0] rCount;
     reg [2:0] data_out_reg;
 
