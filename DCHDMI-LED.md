@@ -32,7 +32,7 @@ Normal operation.
 
 #### **LED rapid intermittent blinking**
 
-Indicates video test pattern generation. Only used in test rig or using the `generate_on` console command.
+Indicates video test pattern generation when in test jig. The `generate_on` console command does not trigger this status.
 
 ---
 
