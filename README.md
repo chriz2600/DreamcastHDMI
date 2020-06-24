@@ -1,5 +1,11 @@
 # DreamcastHDMI / DCDigital
 
+#### 2020-06-24 *Firmware v4.6* (*Unified*)
+
+- Fixed: LED pattern when no input clock is present
+
+- ESP firmware is now built using PlatformIO 4.3.4
+
 #### 2020-05-17 *Firmware v4.5* (*Unified*)
 
 - Terraonion MODE disc switch support
