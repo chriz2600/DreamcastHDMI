@@ -484,7 +484,9 @@ module DCxPlus(
         .LED(dim_out)
     );
 
-    Flag_CrossDomain control_rsync(
+    Flag_CrossDomain #(
+        .INIT_STATE(1'b1)
+    ) control_rsync (
         .clkA(clock54_net),
         .FlagIn_clkA(resync),
         .clkB(control_clock),
@@ -502,7 +504,7 @@ module DCxPlus(
 
     always @(posedge control_clock) begin
         if (reset_conf == 2'd0) begin // LED
-            if (!pll_hdmi_ready) begin
+            if (~pll_ready) begin
                 status_led_nreset_reg <= ~dim_out;
             end else if (control_resync_out) begin
                 status_led_nreset_reg <= ~fastGlow_out;
@@ -617,7 +619,7 @@ module DCxPlus(
             HDMI_INT_N, 
             adv7513_reconf, 
             startup_ready, 
-            pll_hdmi_ready, 
+            pll_ready, 
             ram2video_fullcycle, 
             status_led_nreset, 
             is_pll54_locked, 
@@ -685,13 +687,13 @@ module DCxPlus(
     wire reconf_fifo2_rdempty;
     wire [7:0] reconf_fifo2_q;
     wire reconf_fifo2_rdreq;
-    wire pll_hdmi_ready;
+    wire pll_ready;
     wire ram2video_fullcycle;
 
     Signal_CrossDomain pll_hdmi_locked_check_adv(
-        .SignalIn_clkA(pll_hdmi_locked),
+        .SignalIn_clkA(pll54_locked),
         .clkB(control_clock),
-        .SignalOut_clkB(pll_hdmi_ready)
+        .SignalOut_clkB(pll_ready)
     );
 
     Signal_CrossDomain ram2video_fullcycle_check_adv(
@@ -725,7 +727,7 @@ module DCxPlus(
         .clk(control_clock),
         .reset(startup_ready),
         .hdmi_int(HDMI_INT_N & ~adv7513_reconf),
-        .output_ready(startup_ready & pll_hdmi_ready & ram2video_fullcycle & ~adv7513_reconf),
+        .output_ready(startup_ready & pll_ready & ram2video_fullcycle & ~adv7513_reconf),
         .sda(SDAT),
         .scl(SCLK),
         .ready(adv7513_ready),

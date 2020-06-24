@@ -77,14 +77,14 @@ module data(
     reg [23:0] color_space_explorer_reg;
 
     initial begin
-        raw_counterX_reg <= 0;
-        raw_counterY_reg <= 0;
-        add_line_reg <= 0;
-        is_pal_reg <= 0;
-        resync_reg <= 1;
-        force_generate <= 0;
-        pinok1 <= 0;
-        pinok2 <= 0;
+        raw_counterX_reg = 0;
+        raw_counterY_reg = 0;
+        add_line_reg = 0;
+        is_pal_reg = 0;
+        resync_reg = 1;
+        force_generate = 0;
+        pinok1 = 0;
+        pinok2 = 0;
         nonBlackPos1_reg = 12'b111111111111;
         nonBlackPos2_reg = 12'b000000000000;
         color_space_explorer = 24'd0;
