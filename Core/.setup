@@ -11,7 +11,7 @@ function docker_run {
             -e "JTAG_SERVER=$JTAG_SERVER" \
             -e "JTAG_PASSWD=$JTAG_PASSWD" \
             -v $(pwd):/build \
-            registry.gitlab.com/chriz2600/firmware-utils/firmware-utils:1.0.0_quartus-19.1.0 \
+            registry.gitlab.com/chriz2600/firmware-utils/firmware-utils:1.0.10_quartus-19.1.0 \
             /usr/local/bin/quartus_wrapper "$@"
     fi
 }

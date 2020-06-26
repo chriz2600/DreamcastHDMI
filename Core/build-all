@@ -37,11 +37,19 @@ if [ "$ret_vat" == "true" ] ; then
             fi
         done
     done
+    if [ -f "$ARTIFACT_TARGET_DIR/DCxPlus-diag.rbf" ] ; then
+        cp $ARTIFACT_TARGET_DIR/DCxPlus-diag.rbf output_files/
+        echo "copied $ARTIFACT_TARGET_DIR/DCxPlus-diag.rbf to output_files/"
+    else
+        missed_files="true"
+    fi
 else
     echo "CI mode DEACTIVATED"
 fi
 
 if [ "$missed_files" != "" ] ; then
+    ./build-diag
+
     for variant in std hq2x ; do
         ./build $variant
     done
@@ -53,6 +61,7 @@ if [ "$missed_files" != "" ] ; then
                 mkdir -p $ARTIFACT_TARGET_DIR/$variant
                 cp output_files/$variant/DCxPlus-default.$f $ARTIFACT_TARGET_DIR/$variant/
                 cp output_files/DCxPlus-$variant.$f $ARTIFACT_TARGET_DIR/
+                cp output_files/DCxPlus-diag.rbf $ARTIFACT_TARGET_DIR/
             done
         done
     fi
@@ -66,6 +75,9 @@ firmware-packer -v1 -mDC output_files/hq2x/DCxPlus-default.rbf output_files/hq2x
 firmware-packer -v2 -mDC output_files/std/DCxPlus-default.rbf output_files/hq2x/DCxPlus-default.rbf output_files/DCxPlus-v2.dc
 # this is needed for older master/develog/experimental transition
 cp output_files/std/DCxPlus-default.dc output_files/DCxPlus-default.dc
+
+# test jig fw
+cat output_files/DCxPlus-diag.rbf | bit-order-reverse > output_files/DCxPlus-diag.bin
 
 # debug
 ls -alF output_files/std/DCxPlus-default.dc output_files/hq2x/DCxPlus-default.dc output_files/DCxPlus-v2.dc

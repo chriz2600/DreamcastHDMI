@@ -22,7 +22,11 @@
 // ----------------------------------------------------------------
 
 // i2c device address
-`define I2C_ADDRESS 7'h3c
+`ifdef DIAG_MODE
+    `define I2C_ADDRESS 7'h3d
+`else
+    `define I2C_ADDRESS 7'h3c
+`endif
 
 // System clock frequency in MHz
 // If you are using a clock frequency below 24MHz, then the macro

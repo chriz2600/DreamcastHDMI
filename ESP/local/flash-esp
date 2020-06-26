@@ -1,8 +1,10 @@
 #!/bin/bash
 
+SERIAL_PORT=${SERIAL_PORT:-/dev/tty.usbserial-DN0511X8}
+
 esptool.py \
     -b 921600 \
-    -p /dev/tty.SLAB_USBtoUART \
+    -p ${SERIAL_PORT} \
     write_flash \
-    0x00000000 .pioenvs/esp07s/firmware.bin \
-    0x00100000 .pioenvs/esp07s/spiffs.bin
+    0x00000000 .pio/build/unified/firmware.bin \
+    0x00100000 .pio/build/unified/spiffs.bin

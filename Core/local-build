@@ -1,0 +1,9 @@
+#!/bin/bash
+
+cd $(dirname $0)
+
+./build hq2x && \
+    firmware-packer -v1 -mDC output_files/hq2x/DCxPlus-default.rbf output_files/DCxPlus.dc && \
+    md5sum output_files/DCxPlus.dc && \
+    cat output_files/hq2x/DCxPlus-default.rbf | bit-order-reverse > output_files/DCxPlus.bin
+

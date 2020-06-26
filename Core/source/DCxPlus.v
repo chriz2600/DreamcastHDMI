@@ -502,11 +502,22 @@ module DCxPlus(
 
     reg [31:0] led_counter = 0;
 
+`ifdef DIAG_MODE
+    always @(posedge control_clock) begin
+        if (adv_i2c_working) begin
+            status_led_nreset_reg <= ~slowGlow_out;
+        end else if (~pll_ready) begin
+            status_led_nreset_reg <= ~dim_out;
+        end else begin
+            status_led_nreset_reg <= ~fastGlow_out;
+        end
+    end
+`else
     always @(posedge control_clock) begin
         if (reset_conf == 2'd0) begin // LED
             if (~pll_ready) begin
                 status_led_nreset_reg <= ~dim_out;
-            end else if (control_resync_out) begin
+            end else if (control_resync_out || ~adv7513_ready) begin
                 status_led_nreset_reg <= ~fastGlow_out;
             end else if (control_force_generate_out) begin
                 if (led_counter[24]) begin
@@ -530,6 +541,7 @@ module DCxPlus(
         end
         led_counter <= led_counter + 1'b1;
     end
+`endif
 
     localparam RESET_HOLD_TIME = 32'd32_000_000;
 
@@ -709,6 +721,7 @@ module DCxPlus(
         .startup_delay(32'd_64_000_000)
     );
 
+    wire adv_i2c_working;
     wire adv7513_reconf;
     wire [7:0] clock_config_data;
     wire [7:0] clock_data;
@@ -738,7 +751,8 @@ module DCxPlus(
         .hpd_detected(hpd_detected),
         .pll_adv_lockloss_count(pll_adv_lockloss_count),
         .hpd_low_count(hpd_low_count),
-        .monitor_sense_low_count(monitor_sense_low_count)
+        .monitor_sense_low_count(monitor_sense_low_count),
+        .i2c_working(adv_i2c_working)
     );
 
 endmodule

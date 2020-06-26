@@ -17,7 +17,9 @@ module ADV7513(
 
     input [7:0] clock_data,
     input [1:0] colorspace,
-    input ADV7513Config adv7513Config
+    input ADV7513Config adv7513Config,
+
+    output i2c_working
 );
 
 reg [6:0] i2c_chip_addr;
@@ -25,6 +27,9 @@ reg [7:0] i2c_reg_addr;
 reg [7:0] i2c_value;
 reg i2c_enable;
 reg i2c_is_read;
+reg i2c_working_reg;
+
+assign i2c_working = i2c_working_reg;
 
 wire [7:0] i2c_data;
 wire i2c_done;
@@ -74,10 +79,11 @@ reg prev_hpd_state = 0;
 reg prev_monitor_sense_state = 0;
 
 initial begin
-    ready <= 0;
-    pll_adv_lockloss_count <= 0;
-    hpd_low_count <= 0;
-    monitor_sense_low_count <= 0;
+    ready = 0;
+    i2c_working_reg = 0;
+    pll_adv_lockloss_count = 0;
+    hpd_low_count = 0;
+    monitor_sense_low_count = 0;
 end
 
 reg [32:0] counter = 0;
@@ -380,6 +386,7 @@ task adv7513_powerdown;
             1: write_i2c(CHIP_ADDR, 16'h_D6_D1); // enable soft turn on
             2: write_i2c(CHIP_ADDR, 16'h_A1_3C); // power down all TMDS channels
             default: begin
+                i2c_working_reg <= 1'b1;
                 cmd_counter <= next_cmd;
                 subcmd_counter <= scs_start;
             end

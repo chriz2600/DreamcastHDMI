@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cd $(dirname $0)
+
+source .setup
+
+echo "set_global_assignment -name VERILOG_MACRO std" > local.qsf
+echo "set_global_assignment -name VERILOG_MACRO DIAG_MODE" >> local.qsf
+docker_run quartus_sh --flow compile DCxPlus
+./create-jic DCxPlus-raw.cof
+mv output_files/DCxPlus.rbf output_files/DCxPlus-diag.rbf

@@ -1,7 +1,7 @@
 variables:
   ARTIFACT_STORAGE_DIR: "/srv/builds/artifacts"
   REGISTRY_PREFIX: "registry.gitlab.com/chriz2600"
-  FW_UTILS_VERSION: "1.0.0_quartus-19.1.0"
+  FW_UTILS_VERSION: "1.1.0_quartus-19.1.0"
   PIO_VERSION: "4.3.4"
 
 stages:
@@ -29,6 +29,7 @@ fpga-firmware:
       - Core/output_files/*.dc
       - Core/output_files/*.jic
       - Core/output_files/*.rbf
+      - Core/output_files/DCxPlus-diag.bin
   tags:
     - docker
   only:
@@ -77,6 +78,7 @@ prepare-folders:
     - "prepare-esp-branch-folder std ESP"
     - "prepare-esp-branch-folder hq2x ESP"
     - "prepare-esp-branch-folder '' ESP"
+    - "cp Core/output_files/DCxPlus-diag.bin docroot/fw/${CI_COMMIT_REF_NAME}/"
   artifacts:
     name: "docroot-${CI_COMMIT_REF_NAME}"
     paths:
