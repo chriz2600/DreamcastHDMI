@@ -72,6 +72,7 @@ prepare-folders:
     name: "${REGISTRY_PREFIX}/firmware-utils/dc-publish-utils:${FW_UTILS_VERSION}"
   stage: prepare-folders
   script:
+    - "mkdir -p docroot/fw/${CI_COMMIT_REF_NAME}"
     - "cp Core/output_files/DCxPlus-diag.bin docroot/fw/${CI_COMMIT_REF_NAME}/"
     - "prepare-fpga-branch-folder std"
     - "prepare-fpga-branch-folder hq2x"
