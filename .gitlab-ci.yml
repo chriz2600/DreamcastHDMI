@@ -72,13 +72,13 @@ prepare-folders:
     name: "${REGISTRY_PREFIX}/firmware-utils/dc-publish-utils:${FW_UTILS_VERSION}"
   stage: prepare-folders
   script:
+    - "cp Core/output_files/DCxPlus-diag.bin docroot/fw/${CI_COMMIT_REF_NAME}/"
     - "prepare-fpga-branch-folder std"
     - "prepare-fpga-branch-folder hq2x"
     - "prepare-fpga-branch-folder"
     - "prepare-esp-branch-folder std ESP"
     - "prepare-esp-branch-folder hq2x ESP"
     - "prepare-esp-branch-folder '' ESP"
-    - "cp Core/output_files/DCxPlus-diag.bin docroot/fw/${CI_COMMIT_REF_NAME}/"
   artifacts:
     name: "docroot-${CI_COMMIT_REF_NAME}"
     paths:
