@@ -1,0 +1,3 @@
+[submodule "ESP/lib/ESPAsyncWebServer"]
+	path = ESP/lib/ESPAsyncWebServer
+	url = https://github.com/me-no-dev/ESPAsyncWebServer.git

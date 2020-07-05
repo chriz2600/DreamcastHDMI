@@ -1,4 +1,5 @@
 variables:
+  GIT_SUBMODULE_STRATEGY: recursive
   ARTIFACT_STORAGE_DIR: "/srv/builds/artifacts"
   REGISTRY_PREFIX: "registry.gitlab.com/chriz2600"
   FW_UTILS_VERSION: "1.1.1_quartus-19.1.0"

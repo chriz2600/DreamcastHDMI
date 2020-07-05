@@ -287,6 +287,7 @@ void setupWiFiStation() {
 
     //WIFI INIT
     WiFi.mode(WIFI_STA);
+    WiFi.setAutoConnect(false);
     WiFi.begin();
     WiFi.disconnect(true);
     WiFi.softAPdisconnect(true);
@@ -1237,7 +1238,9 @@ void loop(void){
             }
         } else if (incomingByte == 'w') {
             int dBm = WiFi.RSSI();
-            DEBUG2("RSSI: %d dBm, quality: %d%%, channel: %d\n", dBm, getWiFiQuality(dBm), WiFi.channel());
+            DEBUG2("RSSI: %d dBm, quality: %d%%, channel: %d, bssid: %s\n", dBm, getWiFiQuality(dBm), WiFi.channel(), WiFi.BSSIDstr().c_str());
+            WiFi.printDiag(Serial);
+            DEBUG2("------------------------------------------------------------------\n");
         } else if (incomingByte == '0') {
             ColorExpansionMode = 0; setColorMode();
         } else if (incomingByte == '1') {
