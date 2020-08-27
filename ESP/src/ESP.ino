@@ -95,6 +95,7 @@ bool scanlinesActive;
 int scanlinesIntensity;
 bool scanlinesOddeven;
 bool scanlinesThickness;
+bool scanlinesDopre;
 
 bool reflashNeccessary;
 bool reflashNeccessary2;
@@ -158,6 +159,7 @@ void setupScanlines() {
     readScanlinesIntensity();
     readScanlinesOddeven();
     readScanlinesThickness();
+    readScanlinesDopost();
 
     uint8_t upper = getScanlinesUpperPart();
     uint8_t lower = getScanlinesLowerPart();
@@ -274,7 +276,22 @@ void setupWiFi() {
     }
 }
 
+int _getWiFiQuality(int dBm) {
+  if (dBm <= -100)
+    return 0;
+  if (dBm >= -50)
+    return 100;
+  return 2 * (dBm + 100);
+}
+
 void setupWiFiStation() {
+    // int n = WiFi.scanNetworks();
+    // DEBUG2("Found %d networks\n", n);
+    // for (int i = 0; i < n; i++) {
+    //     int dBm = WiFi.RSSI(i);
+    //     DEBUG2("%02d) SSID: %s\n    BSSID: %s\n    Channel: %d\n    Quality: %d%%\n", i, WiFi.SSID(i).c_str(), WiFi.BSSIDstr(i).c_str(), WiFi.channel(i), _getWiFiQuality(dBm));
+    // }
+
     bool doStaticIpConfig = false;
     IPAddress ipAddr;
     doStaticIpConfig = ipAddr.fromString(confIPAddr);
@@ -287,10 +304,11 @@ void setupWiFiStation() {
 
     //WIFI INIT
     WiFi.mode(WIFI_STA);
+    WiFi.persistent(false);
     WiFi.setAutoConnect(false);
-    WiFi.begin();
     WiFi.disconnect(true);
     WiFi.softAPdisconnect(true);
+    WiFi.begin();
     // WiFi.setAutoConnect(true);
     // WiFi.setAutoReconnect(true);
     //WiFi.setPhyMode(WIFI_PHY_MODE_11B);
@@ -761,11 +779,13 @@ void setupHTTPServer() {
         AsyncWebParameter *s_thickness = request->getParam("thickness", true);
         AsyncWebParameter *s_oddeven = request->getParam("oddeven", true);
         AsyncWebParameter *s_active = request->getParam("active", true);
+        AsyncWebParameter *s_dopre = request->getParam("dopre", true);
 
         scanlinesIntensity = atoi(s_intensity->value().c_str());
         scanlinesThickness = atoi(s_thickness->value().c_str());
         scanlinesOddeven = atoi(s_oddeven->value().c_str());
         scanlinesActive = atoi(s_active->value().c_str());
+        scanlinesDopre = atoi(s_dopre->value().c_str());
 
         uint8_t upper = getScanlinesUpperPart();
         uint8_t lower = getScanlinesLowerPart();
@@ -1241,6 +1261,11 @@ void loop(void){
             DEBUG2("RSSI: %d dBm, quality: %d%%, channel: %d, bssid: %s\n", dBm, getWiFiQuality(dBm), WiFi.channel(), WiFi.BSSIDstr().c_str());
             WiFi.printDiag(Serial);
             DEBUG2("------------------------------------------------------------------\n");
+        } else if (incomingByte == 'e') {
+            ESP.eraseConfig();
+            DEBUG2("executed ESP.eraseConfig()\n");
+        } else if (incomingByte == 'x') {
+            resetall();
         } else if (incomingByte == '0') {
             ColorExpansionMode = 0; setColorMode();
         } else if (incomingByte == '1') {

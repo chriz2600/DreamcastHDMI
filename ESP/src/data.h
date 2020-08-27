@@ -331,12 +331,24 @@ void writeScanlinesThickness() {
     _writeFile("/etc/scanlines/thickness", scanlinesThickness ? SCANLINES_THICK : SCANLINES_THIN, 32);
 }
 
+void readScanlinesDopost() {
+    char buffer[32] = "";
+    _readFile("/etc/scanlines/dopre", buffer, 32, "1");
+    scanlinesDopre = atoi(buffer) & 0x1;
+}
+
+void writeScanlinesDopost() {
+    char buffer[32] = "";
+    snprintf(buffer, 31, "%d", scanlinesDopre);
+    _writeFile("/etc/scanlines/dopre", buffer, 32);
+}
+
 uint8_t getScanlinesUpperPart() {
     return (scanlinesIntensity >> 1);
 }
 
 uint8_t getScanlinesLowerPart() {
-    return (scanlinesIntensity << 7) | (scanlinesThickness << 6) | (scanlinesOddeven << 5) | (scanlinesActive << 4);
+    return (scanlinesIntensity << 7) | (scanlinesThickness << 6) | (scanlinesOddeven << 5) | (scanlinesActive << 4) | (scanlinesDopre << 3);
 }
 
 #endif

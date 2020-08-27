@@ -5,6 +5,8 @@ extern bool scanlinesActive;
 extern int scanlinesIntensity;
 extern bool scanlinesOddeven;
 extern bool scanlinesThickness;
+extern bool scanlinesDopre;
+int _scanlineThickness;
 
 void readScanlinesActive();
 void writeScanlinesActive();
@@ -14,9 +16,23 @@ void readScanlinesOddeven();
 void writeScanlinesOddeven();
 void readScanlinesThickness();
 void writeScanlinesThickness();
+void readScanlinesDopost();
+void writeScanlinesDopost();
 uint8_t getScanlinesUpperPart();
 uint8_t getScanlinesLowerPart();
 void setScanlines(uint8_t upper, uint8_t lower, WriteCallbackHandlerFunction handler);
+
+char* getScanlineThicknessStr() {
+    if (_scanlineThickness == 2) {
+        return (char*)SCANLINES_THICK;
+    } else if (_scanlineThickness == 1) {
+        return (char*)SCANLINES_THIN;
+    } else if (_scanlineThickness == 0) {
+        return (char*)SCANLINES_VERY_THIN;
+    } else {
+        return "unkown";
+    }
+}
 
 Menu scanlinesMenu("ScanlinesMenu", OSD_SCANLINES_MENU, MENU_SL_FIRST_SELECT_LINE, MENU_SL_LAST_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
     if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_CANCEL)) {
@@ -25,6 +41,7 @@ Menu scanlinesMenu("ScanlinesMenu", OSD_SCANLINES_MENU, MENU_SL_FIRST_SELECT_LIN
         readScanlinesIntensity();
         readScanlinesThickness();
         readScanlinesOddeven();
+        readScanlinesDopost();
         setScanlines(getScanlinesUpperPart(), getScanlinesLowerPart(), [](uint8_t Address, uint8_t Value) {
             currentMenu = &mainMenu;
             currentMenu->Display();
@@ -38,6 +55,7 @@ Menu scanlinesMenu("ScanlinesMenu", OSD_SCANLINES_MENU, MENU_SL_FIRST_SELECT_LIN
         writeScanlinesIntensity();
         writeScanlinesThickness();
         writeScanlinesOddeven();
+        writeScanlinesDopost();
         currentMenu = &mainMenu;
         currentMenu->Display();
         return;
@@ -52,15 +70,26 @@ Menu scanlinesMenu("ScanlinesMenu", OSD_SCANLINES_MENU, MENU_SL_FIRST_SELECT_LIN
                 scanlinesActive = !scanlinesActive;
                 setScanlines(getScanlinesUpperPart(), getScanlinesLowerPart(), [](uint8_t Address, uint8_t Value) {
                     char buffer[MENU_WIDTH] = "";
-                    snprintf(buffer, 7, "%6s", (scanlinesActive ? SCANLINES_ENABLED : SCANLINES_DISABLED));
+                    snprintf(buffer, 7, "%-6s", (scanlinesActive ? SCANLINES_ENABLED : SCANLINES_DISABLED));
                     fpgaTask.DoWriteToOSD(MENU_SL_COLUMN, MENU_OFFSET + MENU_SL_ACTIVE, (uint8_t*) buffer);
                 });
                 break;
             case MENU_SL_THICKNESS:
-                scanlinesThickness = !scanlinesThickness;
+                if (isLeft) {
+                    if (_scanlineThickness < 2) {
+                        _scanlineThickness += 1;
+                    }
+                } else if (isRight) {
+                    if (_scanlineThickness > 0) {
+                        _scanlineThickness -= 1;
+                    }
+                }
+                scanlinesThickness = _scanlineThickness == 2 ? true : false;
+                scanlinesDopre = _scanlineThickness == 0 ? false : true;
+
                 setScanlines(getScanlinesUpperPart(), getScanlinesLowerPart(), [](uint8_t Address, uint8_t Value) {
                     char buffer[MENU_WIDTH] = "";
-                    snprintf(buffer, 7, "%6s", (scanlinesThickness ? SCANLINES_THICK : SCANLINES_THIN));
+                    snprintf(buffer, 11, "%-10s", getScanlineThicknessStr());
                     fpgaTask.DoWriteToOSD(MENU_SL_COLUMN, MENU_OFFSET + MENU_SL_THICKNESS, (uint8_t*) buffer);
                 });
                 break;
@@ -68,7 +97,7 @@ Menu scanlinesMenu("ScanlinesMenu", OSD_SCANLINES_MENU, MENU_SL_FIRST_SELECT_LIN
                 scanlinesOddeven = !scanlinesOddeven;
                 setScanlines(getScanlinesUpperPart(), getScanlinesLowerPart(), [](uint8_t Address, uint8_t Value) {
                     char buffer[MENU_WIDTH] = "";
-                    snprintf(buffer, 7, "%6s", (scanlinesOddeven ? SCANLINES_ODD : SCANLINES_EVEN));
+                    snprintf(buffer, 7, "%-6s", (scanlinesOddeven ? SCANLINES_ODD : SCANLINES_EVEN));
                     fpgaTask.DoWriteToOSD(MENU_SL_COLUMN, MENU_OFFSET + MENU_SL_ODDEVEN, (uint8_t*) buffer);
                 });
                 break;
@@ -84,7 +113,7 @@ Menu scanlinesMenu("ScanlinesMenu", OSD_SCANLINES_MENU, MENU_SL_FIRST_SELECT_LIN
                 }
                 setScanlines(getScanlinesUpperPart(), getScanlinesLowerPart(), [](uint8_t Address, uint8_t Value) {
                     char buffer[MENU_WIDTH] = "";
-                    snprintf(buffer, 7, "%6d", scanlinesIntensity);
+                    snprintf(buffer, 7, "%-6d", scanlinesIntensity);
                     fpgaTask.DoWriteToOSD(MENU_SL_COLUMN, MENU_OFFSET + MENU_SL_INTENSITY, (uint8_t*) buffer);
                 });
                 break;
@@ -94,13 +123,15 @@ Menu scanlinesMenu("ScanlinesMenu", OSD_SCANLINES_MENU, MENU_SL_FIRST_SELECT_LIN
     // write current values to menu
     char buffer[MENU_WIDTH] = "";
 
-    snprintf(buffer, 7, "%6s", (scanlinesActive ? SCANLINES_ENABLED : SCANLINES_DISABLED));
+    _scanlineThickness = scanlinesThickness + scanlinesDopre;
+
+    snprintf(buffer, 7, "%-6s", (scanlinesActive ? SCANLINES_ENABLED : SCANLINES_DISABLED));
     memcpy(&menu_text[MENU_SL_ACTIVE * MENU_WIDTH + MENU_SL_COLUMN], buffer, 6);
-    snprintf(buffer, 7, "%6d", scanlinesIntensity);
+    snprintf(buffer, 7, "%-6d", scanlinesIntensity);
     memcpy(&menu_text[MENU_SL_INTENSITY * MENU_WIDTH + MENU_SL_COLUMN], buffer, 6);
-    snprintf(buffer, 7, "%6s", (scanlinesThickness ? SCANLINES_THICK : SCANLINES_THIN));
-    memcpy(&menu_text[MENU_SL_THICKNESS * MENU_WIDTH + MENU_SL_COLUMN], buffer, 6);
-    snprintf(buffer, 7, "%6s", (scanlinesOddeven ? SCANLINES_ODD : SCANLINES_EVEN));
+    snprintf(buffer, 11, "%-10s", getScanlineThicknessStr());
+    memcpy(&menu_text[MENU_SL_THICKNESS * MENU_WIDTH + MENU_SL_COLUMN], buffer, 10);
+    snprintf(buffer, 7, "%-6s", (scanlinesOddeven ? SCANLINES_ODD : SCANLINES_EVEN));
     memcpy(&menu_text[MENU_SL_ODDEVEN * MENU_WIDTH + MENU_SL_COLUMN], buffer, 6);
 
     return MENU_SL_FIRST_SELECT_LINE;

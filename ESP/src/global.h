@@ -245,6 +245,7 @@ typedef std::function<void(int read, int total, bool done, int error)> ProgressC
 #define SCANLINES_EVEN "even"
 #define SCANLINES_THICK "thick"
 #define SCANLINES_THIN "thin"
+#define SCANLINES_VERY_THIN "very thin"
 
 #define UPSCALING_MODE_2X 0x00
 #define UPSCALING_MODE_HQ2X 0x01

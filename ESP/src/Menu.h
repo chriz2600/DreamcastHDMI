@@ -390,7 +390,7 @@ static const char OSD_FIRMWARE_RESET_MENU[MENU_BUFFER_LEN] PROGMEM = (
 #define MENU_SL_THICKNESS 5
 #define MENU_SL_FIRST_SELECT_LINE 2
 #define MENU_SL_LAST_SELECT_LINE 5
-#define MENU_SL_COLUMN 12
+#define MENU_SL_COLUMN 13
 static const char OSD_SCANLINES_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Scanlines                               "
     "                                        "

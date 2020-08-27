@@ -368,7 +368,7 @@ module ram2video(
             //////////////////////////////////////////////////////////////////////
             // SCANLINES
             if (scanline.active) begin
-                if (hdmiVideoConfig.line_doubling) begin
+                if (hdmiVideoConfig.line_doubling && scanline.dopre) begin
                     isScanline <= counterY_reg[2:1] >> scanline.thickness ^ scanline.oddeven;
                 end else begin
                     isScanline <= counterY_reg[1:0] >> scanline.thickness ^ scanline.oddeven;

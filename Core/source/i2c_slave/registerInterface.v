@@ -241,7 +241,7 @@ always @(posedge clk) begin
 
         // scanline data
         8'hF5: dataOut_reg <= scanline_reg.intensity[8:1];
-        8'hF6: dataOut_reg <= { scanline_reg.intensity[0], scanline_reg.thickness, scanline_reg.oddeven, scanline_reg.active, 4'b0000 };
+        8'hF6: dataOut_reg <= { scanline_reg.intensity[0], scanline_reg.thickness, scanline_reg.oddeven, scanline_reg.active, scanline_reg.dopre, 3'b000 };
 
         default: dataOut_reg <= 0;
     endcase
@@ -307,6 +307,7 @@ always @(posedge clk) begin
             scanline_reg.thickness <= dataIn[6];
             scanline_reg.oddeven <= dataIn[5];
             scanline_reg.active <= dataIn[4];
+            scanline_reg.dopre <= dataIn[3];
         // OSD data
         end else if (addr < 8'h80) begin
             wraddress_reg <= { addr_offset, addr[6:0] };

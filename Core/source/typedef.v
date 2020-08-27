@@ -158,10 +158,11 @@ typedef struct packed {
 } DCVideoConfig;
 
 typedef struct packed {
-    reg[8:0] intensity; // 03-10 256=100% brightness, 0=complete black
-    reg thickness;      // 02: 1 thick, 0 thin
-    reg oddeven;        // 01: 1 odd, 0 even
-    reg active;         // 00
+    reg[8:0] intensity; // 04-11 256=100% brightness, 0=complete black
+    reg thickness;      // 03: 1 thick, 0 thin
+    reg oddeven;        // 02: 1 odd, 0 even
+    reg active;         // 01
+    reg dopre;         // 00: 1 pre, 0 post
 } Scanline;
 
 typedef struct packed {

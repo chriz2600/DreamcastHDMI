@@ -1,6 +1,8 @@
 v4.6                                    
 - Fixed: LED pattern when no input      
   clock is present                      
+- Scanlines: New 'very thin' setting    
+  (Thanks to @SvtTerminator)            
                                         
 v4.5                                    
 - Terraonion MODE disc switch support   
