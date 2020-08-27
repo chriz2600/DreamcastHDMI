@@ -1,10 +1,12 @@
 # DreamcastHDMI / DCDigital
 
-#### 2020-06-24 *Firmware v4.6* (*Unified*)
+#### 2020-08-27 *Firmware v4.6* (*Unified*)
 
 - Fixed: LED pattern when no input clock is present
 
 - ESP firmware is now built using PlatformIO 4.3.4
+
+- Scanlines: New `very thin` setting (Thanks to @SvtTerminator)
 
 #### 2020-05-17 *Firmware v4.5* (*Unified*)
 
