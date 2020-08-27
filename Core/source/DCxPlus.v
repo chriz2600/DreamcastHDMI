@@ -517,7 +517,7 @@ module DCxPlus(
         if (reset_conf == 2'd0) begin // LED
             if (~pll_ready) begin
                 status_led_nreset_reg <= ~dim_out;
-            end else if (control_resync_out || ~adv7513_ready) begin
+            end else if (control_resync_out) begin
                 status_led_nreset_reg <= ~fastGlow_out;
             end else if (control_force_generate_out) begin
                 if (led_counter[24]) begin
