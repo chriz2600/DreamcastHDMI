@@ -8,6 +8,8 @@
 
 - Scanlines: New `very thin` setting (Thanks to @SvtTerminator)
 
+- Generated passwords: Avoid ambiguous characters.
+
 #### 2020-05-17 *Firmware v4.5* (*Unified*)
 
 - Terraonion MODE disc switch support

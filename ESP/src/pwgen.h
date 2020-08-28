@@ -81,5 +81,5 @@ try_again:
 }
 
 bool generate_password(char *buffer) {
-    return pw_rand(buffer, 10, PW_DIGITS | PW_UPPERS);
+    return pw_rand(buffer, 10, PW_DIGITS | PW_UPPERS | PW_AMBIGUOUS);
 }

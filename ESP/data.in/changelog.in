@@ -3,6 +3,8 @@ v4.6
   clock is present                      
 - Scanlines: New 'very thin' setting    
   (Thanks to @SvtTerminator)            
+- Generated passwords: Avoid ambiguous  
+  characters.                           
                                         
 v4.5                                    
 - Terraonion MODE disc switch support   
