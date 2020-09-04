@@ -1,5 +1,23 @@
 # DreamcastHDMI / DCDigital
 
+#### 2020-09-04 *Firmware v4.7* (*Unified*)
+
+- Installer access point (IAP) mode
+
+    To start IAP mode: `L` + `start` + `X` + `Y` + `A` + `B`
+
+    This sets up an access point with predefined credentials, an OSD screen warns about insecure WiFi credentials.
+
+    IAP credentials are:
+
+    ```
+    WiFi SSID:     DCDigital-Install
+    WiFi Password: installme!
+    HTTP Username: please
+    HTTP Password: installme!
+    IP Address:    192.168.4.1
+    ```
+
 #### 2020-08-27 *Firmware v4.6* (*Unified*)
 
 - Fixed: LED pattern when no input clock is present
