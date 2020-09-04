@@ -6,6 +6,7 @@
 
 #define FW_PORT 80
 
+extern bool isIAPMode;
 extern char httpAuthUser[64];
 extern char httpAuthPass[64];
 extern char firmwareServer[256];
@@ -21,6 +22,9 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
 void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char* target, const char* filename, unsigned int maxlen, const char* resetValue);
 
 bool _isAuthenticated(AsyncWebServerRequest *request) {
+    if (isIAPMode) {
+        return request->authenticate("please", "installme!");
+    }
     return request->authenticate(httpAuthUser, httpAuthPass);
 }
 

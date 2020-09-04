@@ -36,6 +36,7 @@
 
 bool isHhttpAuthPassGenerated = false;
 bool isRelaxedFirmware = false;
+bool isIAPMode = false;
 
 char ssid[64] = DEFAULT_SSID;
 char password[64] = DEFAULT_PASSWORD;
@@ -63,6 +64,7 @@ char keyboardLayout[8] = DEFAULT_KEYBOARD_LAYOUT;
 IPAddress ipAddress( 192, 168, 4, 1 );
 bool inInitialSetupMode = false;
 AsyncWebServer server(80);
+AsyncStaticWebHandler* handler;
 SPIFlash flash(CS);
 int last_error = NO_ERROR; 
 int totalLength;
@@ -240,7 +242,7 @@ void generateWiFiPassword() {
     DEBUG2("AP password: %s\n", WiFiAPPSK);
 }
 
-void setupAPMode(void) {
+void _setupAPMode(const char *ssid, const char *psk) {
     WiFi.mode(WIFI_AP);
     uint8_t mac[WL_MAC_ADDR_LENGTH];
     WiFi.softAPmacAddress(mac);
@@ -259,10 +261,20 @@ void setupAPMode(void) {
 
     DEBUG2("AP_NameChar: %s\n", AP_NameChar);
     generateWiFiPassword();
-    WiFi.softAP(AP_NameChar, WiFiAPPSK);
-    DEBUG2(">> SSID:   %s\n", AP_NameChar);
-    DEBUG2(">> AP-PSK: %s\n", WiFiAPPSK);
+    if (ssid && psk) {
+        WiFi.softAP(ssid, psk);
+        DEBUG2(">> SSID:   %s\n", ssid);
+        DEBUG2(">> AP-PSK: %s\n", psk);
+    } else {
+        WiFi.softAP(AP_NameChar, WiFiAPPSK);
+        DEBUG2(">> SSID:   %s\n", AP_NameChar);
+        DEBUG2(">> AP-PSK: %s\n", WiFiAPPSK);
+    }
     inInitialSetupMode = true;
+}
+
+void setupAPMode() {
+    _setupAPMode(NULL, NULL);
 }
 
 void setupWiFi() {
@@ -1005,7 +1017,7 @@ void setupHTTPServer() {
         fpgaTask.ForceLoop();
     });
 
-    AsyncStaticWebHandler* handler = &server
+    handler = &server
         .serveStatic("/", SPIFFS, "/")
         .setDefaultFile("index.html");
     // set authentication by configured user/pass later
@@ -1214,6 +1226,13 @@ void setColorMode() {
     });
 }
 
+void startIAPMode() {
+    WiFi.disconnect();
+    _setupAPMode("DCHDMI-Install", "installme!");
+    handler->setAuthentication("please", "installme!");
+    isIAPMode = true;
+}
+
 void loop(void){
     ArduinoOTA.handle();
     taskManager.Loop();
@@ -1278,6 +1297,8 @@ void loop(void){
             GammaMode--; setColorMode();
         } else if (incomingByte == '=') {
             GammaMode = 0x0F; setColorMode();
+        } else if (incomingByte == 'I') {
+            startIAPMode();
         } else {
             DEBUG2("DEBUG serial key: %u\n", incomingByte);
         }

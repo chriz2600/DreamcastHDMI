@@ -517,6 +517,24 @@ static const char OSD_WIFI_EDIT_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "          " MENU_OK_STR ": Save  " MENU_CANCEL_STR ": Cancel            "
 );
 
+const static char IAP_WARNING_MENU[MENU_BUFFER_LEN] PROGMEM = (
+    "Installer Access Point                  "
+    "                                        "
+    " Insecure installer access point mode!  "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+    "                                        "
+);
+
 typedef std::function<void(uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat)> ClickHandler;
 typedef std::function<bool(uint8_t shiftcode, uint8_t chardata)> KeyboardHandler;
 typedef std::function<uint8_t(uint8_t* menu_text, uint8_t menu_activeLine)> PreDisplayHook;
@@ -718,6 +736,8 @@ void closeOSD() {
     setOSD(false, NULL);
 }
 
+void startIAPMode();
+
 FPGATask fpgaTask(1, [](uint16_t controller_data, bool isRepeat) {
     if (!isRepeat) {
         if (!OSDOpen && CHECK_BIT(controller_data, CTRLR_TRIGGER_OSD)) {
@@ -728,6 +748,18 @@ FPGATask fpgaTask(1, [](uint16_t controller_data, bool isRepeat) {
         if (CHECK_BIT(controller_data, CTRLR_TRIGGER_DEFAULT_RESOLUTION)) {
             DEBUG1("FPGATask: switchResolution\n");
             switchResolution(RESOLUTION_VGA);
+            return;
+        }
+        // 15: a, 14: b, 13: x, 12: y, 11: up, 10: down, 09: left, 08: right
+        // 07: start, 06: ltrigger, 05: rtrigger, 04: trigger_osd        
+        if (CHECK_CTRLR_MASK(controller_data, 0xF0C0)) {
+            DEBUG1("FPGATask: enterIAPMode\n");
+            startIAPMode();
+            currentMenu = &iapWarningMenu;
+            setOSD(true, [](uint8_t Address, uint8_t Value) {
+                currentMenu->Display();
+                OSDOpen = Value;
+            });
             return;
         }
     }

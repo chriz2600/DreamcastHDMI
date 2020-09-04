@@ -137,3 +137,11 @@ Menu optResetConfirmMenu("OptResetConfirm", OSD_OPT_RESET_CONFIRM_MENU, NO_SELEC
     return menu_activeLine;
 }, NULL, true);
 
+Menu iapWarningMenu("IAPWarningMenu", IAP_WARNING_MENU, NO_SELECT_LINE, NO_SELECT_LINE, [](uint16_t controller_data, uint8_t menu_activeLine, bool isRepeat) {
+    if (!isRepeat && CHECK_CTRLR_MASK(controller_data, MENU_OK)) {
+        currentMenu = &mainMenu;
+        closeOSD();
+        return;
+    }
+}, NULL, NULL, true);
+
