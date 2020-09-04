@@ -1228,7 +1228,7 @@ void setColorMode() {
 
 void startIAPMode() {
     WiFi.disconnect();
-    _setupAPMode("DCHDMI-Install", "installme!");
+    _setupAPMode("DCDigital-Install", "installme!");
     handler->setAuthentication("please", "installme!");
     isIAPMode = true;
 }
