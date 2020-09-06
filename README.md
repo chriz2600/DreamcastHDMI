@@ -18,6 +18,8 @@
     IP Address:    192.168.4.1
     ```
 
+- Fixed: `very thin` scanlines now work in Relaxed firmware too
+
 #### 2020-08-27 *Firmware v4.6* (*Unified*)
 
 - Fixed: LED pattern when no input clock is present

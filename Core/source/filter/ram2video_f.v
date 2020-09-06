@@ -423,7 +423,11 @@ module ram2video_f(
             //////////////////////////////////////////////////////////////////////
             // SCANLINES
             if (scanline.active) begin
-                isScanline <= counterY_shift_q_q_q_q[2:1] >> scanline.thickness ^ scanline.oddeven;
+                if (scanline.dopre) begin
+                    isScanline <= counterY_shift_q_q_q_q[2:1] >> scanline.thickness ^ scanline.oddeven;
+                end else begin
+                    isScanline <= counterY_shift_q_q_q_q[1:0] >> scanline.thickness ^ scanline.oddeven;
+                end
             end else begin
                 isScanline <= 1'b0;
             end

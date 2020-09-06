@@ -1,5 +1,7 @@
 v4.7                                    
 - Installer access point mode           
+- Fixed: 'very thin' scanlines now work 
+  in Relaxed firmware too               
                                         
 v4.6                                    
 - Fixed: LED pattern when no input      
