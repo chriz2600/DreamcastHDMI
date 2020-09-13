@@ -839,7 +839,10 @@ function createListing(data) {
         if (name.length > maxFilenameLen) maxFilenameLen = name.length;
     }
     return (
-       "Size    Filename\n"
+       Array(maxFilenameLen + 9).join('-') + "\n"
+       + "FSImpl: " + data.fsImpl + "\n"
+       + Array(maxFilenameLen + 9).join('-') + "\n"
+       + "Size    Filename\n"
        + Array(maxFilenameLen + 9).join('-') + "\n"
        + msg
        + Array(maxFilenameLen + 9).join('-') + "\n"

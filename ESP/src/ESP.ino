@@ -32,7 +32,7 @@
 #include "web.h"
 #include "Menu.h"
 #include "pwgen.h"
-#include "index.html.gz.h"
+//#include "index.html.gz.h"
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -122,6 +122,7 @@ Menu *currentMenu;
 Menu *previousMenu;
 
 //////////////////////////////////////////////////////////////////////////////////
+char fs_impl_name[16];
 
 void setupFilesystem() {
     DEBUG2(">> Setting up filesystem...\n");
@@ -131,9 +132,11 @@ void setupFilesystem() {
 
     if (SPIFFS.begin()) {
         filesystem = &SPIFFS;
+        snprintf(fs_impl_name, 12, "SPIFFS");
         DEBUG2(">> Found SPIFFS...\n");
     } else {
         filesystem = &LittleFS;
+        snprintf(fs_impl_name, 12, "LittleFS");
         DEBUG2(">> Using LittleFS...\n");
     }
 
@@ -425,7 +428,11 @@ void listFiles(JsonArray* datas, String prefix, const char* dirname) {
             listFiles(datas, prefix + dir.fileName() + "/", dir.fileName().c_str());
         } else {
             JsonObject &data = datas->createNestedObject();
-            data["name"] = prefix + dir.fileName();
+            if (dir.fileName().startsWith(prefix)) {
+                data["name"] = dir.fileName();
+            } else {
+                data["name"] = prefix + dir.fileName();
+            }
             data["size"] = dir.fileSize();
         }
     }
@@ -492,6 +499,7 @@ void setupHTTPServer() {
 
         root["totalBytes"] = fs_info.totalBytes;
         root["usedBytes"] = fs_info.usedBytes;
+        root["fsImpl"] = fs_impl_name;
         // root["blockSize"] = fs_info.blockSize;
         // root["pageSize"] = fs_info.pageSize;
         // root["maxOpenFiles"] = fs_info.maxOpenFiles;

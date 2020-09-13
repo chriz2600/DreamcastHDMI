@@ -14,3 +14,4 @@ cd $(dirname $0)/..
 
 faketty inliner -m data.in/index.html > data/index.html
 gzip -n -f -9 data/index.html
+ ( echo "const uint8_t index_html_gz[] PROGMEM = {" ; xxd -i ./data/index.html.gz | tail -n +2 ) > index.html.gz.h

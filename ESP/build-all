@@ -47,7 +47,6 @@ export SOURCE_DATE_EPOCH=$(git --no-pager log -1 --pretty='format:%ct' src)
 echo $SOURCE_DATE_EPOCH
 
 ./local/prepare-index-html
- ( echo "const uint8_t index_html_gz[] PROGMEM = {" ; xxd -i ./data/index.html.gz | tail -n +2 ) > index.html.gz.h
 cat data.in/changelog.in | tr -d '\n\t' > data/changelog
 
 if [ "$skip_firmware_bin" != "true" ] ; then

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-username="please"
-password="installme!"
+username=${ESP_USERNAME:-"please"}
+password=${ESP_PASSWORD:-"installme!"}
 hostname=${ESP_HOSTNAME:-192.168.4.1}
 
 function doUpload() {
