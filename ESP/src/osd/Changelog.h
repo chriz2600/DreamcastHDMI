@@ -1,6 +1,7 @@
 #include "../global.h"
 #include "../Menu.h"
 #include <FS.h>
+#include "LittleFS.h"
 
 #define CHNGL_BUFFER_SIZE ((MENU_WIDTH * MENU_CHNGL_RESULT_HEIGHT) + 2)
 
@@ -66,7 +67,7 @@ Menu changelogMenu("ChangelogMenu", OSD_CHANGELOG_MENU, NO_SELECT_LINE, NO_SELEC
     changelogCurrentSeek = 0;
 
     DEBUG("ChangelogMenu started");
-    changelogFile = SPIFFS.open(CHANGELOG_FILE, "r");
+    changelogFile = filesystem->open(CHANGELOG_FILE, "r");
     changelogFileSize = changelogFile.size();
     changelogBytesRead = changelogFile.readBytes((char *) changelogBuffer, CHNGL_BUFFER_SIZE - 1);
 

@@ -7,4 +7,4 @@ esptool.py \
     -p ${SERIAL_PORT} \
     write_flash \
     0x00000000 .pio/build/unified/firmware.bin \
-    0x00100000 .pio/build/unified/spiffs.bin
+    0x00100000 .pio/build/unified/littlefs.bin

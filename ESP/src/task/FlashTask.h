@@ -98,7 +98,7 @@ class FlashTask : public Task {
 
             md5.begin();
             spiMD5.begin();
-            flashFile = SPIFFS.open(FIRMWARE_FILE, "r");
+            flashFile = filesystem->open(FIRMWARE_FILE, "r");
 
             if (flashFile) {
                 // pre-parse header to get bundle information

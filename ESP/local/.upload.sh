@@ -1,8 +1,8 @@
 #!/bin/bash
 
-username="dchdmi"
-password="testtest"
-hostname=${ESP_HOSTNAME:-dc-firmware-manager.local}
+username="please"
+password="installme!"
+hostname=${ESP_HOSTNAME:-192.168.4.1}
 
 function doUpload() {
     target=$1

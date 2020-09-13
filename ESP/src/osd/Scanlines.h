@@ -30,7 +30,7 @@ char* getScanlineThicknessStr() {
     } else if (_scanlineThickness == 0) {
         return (char*)SCANLINES_VERY_THIN;
     } else {
-        return "unkown";
+        return (char*)"unkown";
     }
 }
 

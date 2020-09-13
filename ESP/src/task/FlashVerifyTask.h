@@ -44,7 +44,7 @@ class FlashVerifyTask : public Task {
                 return false;
             }
 
-            testFile = SPIFFS.open(vFile, "r");
+            testFile = filesystem->open(vFile, "r");
             if (!testFile) {
                 last_error = ERROR_FILE;
                 InvokeCallback(false);

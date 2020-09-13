@@ -35,7 +35,7 @@ void handleUpload(AsyncWebServerRequest *request, String filename, size_t index,
     if (!index) {
         fname = filename.c_str();
         md5.begin();
-        request->_tempFile = SPIFFS.open(filename, "w");
+        request->_tempFile = filesystem->open(filename, "w");
         DEBUG(">> Receiving %s\n", filename.c_str());
     }
     if (request->_tempFile) {
@@ -170,7 +170,7 @@ void _handleDownload(AsyncWebServerRequest *request, const char *filename, Strin
     currentJobDone = false;
     last_error = NO_ERROR;
     md5.begin();
-    flashFile = SPIFFS.open(filename, "w");
+    flashFile = filesystem->open(filename, "w");
 
     if (flashFile) {
         aClient = new AsyncClient();
@@ -260,11 +260,11 @@ void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char
     if(request->hasParam(param, true)) {
         AsyncWebParameter *p = request->getParam(param, true);
         if (p->value() == "") {
-            DEBUG("SPIFFS.remove: %s\n", filename);
+            DEBUG(FS_IMPL_STR ".remove: %s\n", filename);
             if (!skipSettingNow) {
                 snprintf(target, maxlen, "%s", resetValue);
             }
-            SPIFFS.remove(filename);
+            filesystem->remove(filename);
         } else {
             if (skipSettingNow) {
                 _writeFile(filename, p->value().c_str(), maxlen);
@@ -292,7 +292,7 @@ void writeSetupParameter(AsyncWebServerRequest *request, const char* param, char
 }
 
 void handleFlash(AsyncWebServerRequest *request, const char *filename) {
-    if (SPIFFS.exists(filename)) {
+    if (filesystem->exists(filename)) {
         taskManager.StartTask(&flashTask);
         request->send(200);
     } else {
@@ -301,7 +301,7 @@ void handleFlash(AsyncWebServerRequest *request, const char *filename) {
 }
 
 void handleESPFlash(AsyncWebServerRequest *request, const char *filename) {
-    if (SPIFFS.exists(filename)) {
+    if (filesystem->exists(filename)) {
         taskManager.StartTask(&flashESPTask);
         request->send(200);
     } else {
@@ -310,7 +310,7 @@ void handleESPFlash(AsyncWebServerRequest *request, const char *filename) {
 }
 
 void handleESPIndexFlash(AsyncWebServerRequest *request) {
-    if (SPIFFS.exists(ESP_INDEX_STAGING_FILE)) {
+    if (filesystem->exists(ESP_INDEX_STAGING_FILE)) {
         taskManager.StartTask(&flashESPIndexTask);
         request->send(200);
     } else {

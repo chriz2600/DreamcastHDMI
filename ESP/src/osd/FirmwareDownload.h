@@ -139,8 +139,8 @@ ProgressCallback createProgressCallback(int pos, bool forceDownload, int line, c
     return [ vfile, cfile, pos, forceDownload, line ](int read, int total, bool done, int error) {
         if (error != NO_ERROR) {
             gotFWDownloadError = true;
-            SPIFFS.remove(vfile);
-            SPIFFS.remove(cfile);
+            filesystem->remove(vfile);
+            filesystem->remove(cfile);
             fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "[ ERROR DOWNLOADING  ] done.", [ pos, forceDownload ]() {
                 downloadCascade(pos + 1, forceDownload);
             });
@@ -151,8 +151,8 @@ ProgressCallback createProgressCallback(int pos, bool forceDownload, int line, c
             flashVerifyTask.Set(vfile, cfile, [ vfile, cfile, pos, forceDownload, line ](bool isok) {
                 if (!isok) {
                     gotFWDownloadError = true;
-                    SPIFFS.remove(vfile);
-                    SPIFFS.remove(cfile);
+                    filesystem->remove(vfile);
+                    filesystem->remove(cfile);
                     fpgaTask.DoWriteToOSD(12, MENU_OFFSET + line, (uint8_t*) "[ ERROR DOWNLOADING  ] done.", [ pos, forceDownload ]() {
                         downloadCascade(pos + 1, forceDownload);
                     });

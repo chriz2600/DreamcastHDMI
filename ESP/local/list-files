@@ -1,6 +1,6 @@
 #!/bin/bash
 
-hostname=${ESP_HOSTNAME:-dc-firmware-manager.local}
+hostname=${ESP_HOSTNAME:-192.168.4.1}
 
-curl --digest --user dchdmi:testtest \
+curl --digest --user 'please:installme!' \
     -s "http://${hostname}/list-files" | jq .

@@ -51,7 +51,7 @@ class FlashESPTask : public Task {
             last_error = NO_ERROR;
 
             md5.begin();
-            flashFile = SPIFFS.open(ESP_FIRMWARE_FILE, "r");
+            flashFile = filesystem->open(ESP_FIRMWARE_FILE, "r");
 
             if (flashFile) {
                 totalLength = flashFile.size();

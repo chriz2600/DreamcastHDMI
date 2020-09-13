@@ -39,7 +39,7 @@ FPGA firmware comes in 3 different file types:
 
 - `4MB-firmware.bin` ESP firmware.
 
-- `4MB-spiffs.bin` ESP Filesystem image. ***Used for initial programming.***
+- `4MB-littlefs.bin` ESP Filesystem image. ***Used for initial programming.***
 
 #### ESP web console: https://dc.i74.de/esp/
 

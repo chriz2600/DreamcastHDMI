@@ -7,6 +7,7 @@
 #include <WiFiClient.h>
 #include <ESP8266mDNS.h>
 #include <FS.h>
+#include "LittleFS.h"
 #include <Hash.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
@@ -31,6 +32,7 @@
 #include "web.h"
 #include "Menu.h"
 #include "pwgen.h"
+#include "index.html.gz.h"
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -121,11 +123,23 @@ Menu *previousMenu;
 
 //////////////////////////////////////////////////////////////////////////////////
 
-void setupSPIFFS() {
-    DEBUG2(">> Setting up SPIFFS...\n");
-    if (!SPIFFS.begin()) {
-        DEBUG(">> SPIFFS begin failed, trying to format...");
-        if (SPIFFS.format()) {
+void setupFilesystem() {
+    DEBUG2(">> Setting up filesystem...\n");
+    SPIFFSConfig cfg;
+    cfg.setAutoFormat(false);
+    SPIFFS.setConfig(cfg);
+
+    if (SPIFFS.begin()) {
+        filesystem = &SPIFFS;
+        DEBUG2(">> Found SPIFFS...\n");
+    } else {
+        filesystem = &LittleFS;
+        DEBUG2(">> Using LittleFS...\n");
+    }
+
+    if (!filesystem->begin()) {
+        DEBUG(">> " FS_IMPL_STR " begin failed, trying to format...");
+        if (filesystem->format()) {
             DEBUG("done.\n");
         } else {
             DEBUG("error.\n");
@@ -404,6 +418,19 @@ void setupMDNS() {
     }
 }
 
+void listFiles(JsonArray* datas, String prefix, const char* dirname) {
+    Dir dir = filesystem->openDir(dirname);
+    while (dir.next()) {
+        if (dir.isDirectory()) {
+            listFiles(datas, prefix + dir.fileName() + "/", dir.fileName().c_str());
+        } else {
+            JsonObject &data = datas->createNestedObject();
+            data["name"] = prefix + dir.fileName();
+            data["size"] = dir.fileSize();
+        }
+    }
+}
+
 void setupHTTPServer() {
     DEBUG2(">> Setting up HTTP server...\n");
 
@@ -443,6 +470,15 @@ void setupHTTPServer() {
         request->send(200, "text/plain", msg);
     });
 
+    // server.on("/index.html", HTTP_GET, [](AsyncWebServerRequest *request){
+    //     if(!_isAuthenticated(request)) {
+    //         return request->requestAuthentication();
+    //     }
+    //     AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", index_html_gz, data_index_html_gz_len);
+    //     response->addHeader("Content-Encoding", "gzip");
+    //     request->send(response);
+    // });
+
     server.on("/list-files", HTTP_GET, [](AsyncWebServerRequest *request){
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
@@ -452,7 +488,7 @@ void setupHTTPServer() {
         response->addHeader("Server","DCHDMI");
         JsonObject& root = response->getRoot();
         FSInfo fs_info;
-        SPIFFS.info(fs_info);
+        filesystem->info(fs_info);
 
         root["totalBytes"] = fs_info.totalBytes;
         root["usedBytes"] = fs_info.usedBytes;
@@ -467,12 +503,7 @@ void setupHTTPServer() {
 
         JsonArray &datas = root.createNestedArray("files");
 
-        Dir dir = SPIFFS.openDir("/");
-        while (dir.next()) {
-            JsonObject &data = datas.createNestedObject();
-            data["name"] = dir.fileName();
-            data["size"] = dir.fileSize();
-        }
+        listFiles(&datas, "/", "/");
 
         response->setLength();
         request->send(response);
@@ -524,8 +555,8 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        SPIFFS.remove(ESP_INDEX_FILE);
-        SPIFFS.remove(String(ESP_INDEX_FILE) + ".md5");
+        filesystem->remove(ESP_INDEX_FILE);
+        filesystem->remove(String(ESP_INDEX_FILE) + ".md5");
         request->send(200);
     });
 
@@ -533,26 +564,26 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        SPIFFS.remove(FIRMWARE_FILE);
-        SPIFFS.remove(ESP_FIRMWARE_FILE);
-        SPIFFS.remove(ESP_INDEX_STAGING_FILE);
-        SPIFFS.remove(String(FIRMWARE_FILE) + ".md5");
-        SPIFFS.remove(String(ESP_FIRMWARE_FILE) + ".md5");
-        SPIFFS.remove(String(ESP_INDEX_STAGING_FILE) + ".md5");
+        filesystem->remove(FIRMWARE_FILE);
+        filesystem->remove(ESP_FIRMWARE_FILE);
+        filesystem->remove(ESP_INDEX_STAGING_FILE);
+        filesystem->remove(String(FIRMWARE_FILE) + ".md5");
+        filesystem->remove(String(ESP_FIRMWARE_FILE) + ".md5");
+        filesystem->remove(String(ESP_INDEX_STAGING_FILE) + ".md5");
 
-        SPIFFS.remove(LOCAL_FPGA_MD5);
-        SPIFFS.remove(LOCAL_ESP_MD5);
-        SPIFFS.remove(LOCAL_ESP_INDEX_MD5);
+        filesystem->remove(LOCAL_FPGA_MD5);
+        filesystem->remove(LOCAL_ESP_MD5);
+        filesystem->remove(LOCAL_ESP_INDEX_MD5);
 
-        SPIFFS.remove(SERVER_FPGA_MD5);
-        SPIFFS.remove(SERVER_ESP_MD5);
-        SPIFFS.remove(SERVER_ESP_INDEX_MD5);
+        filesystem->remove(SERVER_FPGA_MD5);
+        filesystem->remove(SERVER_ESP_MD5);
+        filesystem->remove(SERVER_ESP_INDEX_MD5);
 
         // remove legacy config data
-        SPIFFS.remove("/etc/firmware_fpga");
-        SPIFFS.remove("/etc/firmware_format");
-        SPIFFS.remove("/etc/force_vga");
-        SPIFFS.remove("/etc/resolution");
+        filesystem->remove("/etc/firmware_fpga");
+        filesystem->remove("/etc/firmware_format");
+        filesystem->remove("/etc/force_vga");
+        filesystem->remove("/etc/resolution");
         request->send(200);
     });
 
@@ -560,17 +591,17 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        SPIFFS.remove("/etc/ssid");
-        SPIFFS.remove("/etc/password");
-        SPIFFS.remove("/etc/ota_pass");
-        SPIFFS.remove("/etc/http_auth_user");
-        SPIFFS.remove("/etc/http_auth_pass");
-        SPIFFS.remove("/etc/conf_ip_addr");
-        SPIFFS.remove("/etc/conf_ip_gateway");
-        SPIFFS.remove("/etc/conf_ip_mask");
-        SPIFFS.remove("/etc/conf_ip_dns");
-        SPIFFS.remove("/etc/hostname");
-        SPIFFS.remove("/etc/keyblayout");
+        filesystem->remove("/etc/ssid");
+        filesystem->remove("/etc/password");
+        filesystem->remove("/etc/ota_pass");
+        filesystem->remove("/etc/http_auth_user");
+        filesystem->remove("/etc/http_auth_pass");
+        filesystem->remove("/etc/conf_ip_addr");
+        filesystem->remove("/etc/conf_ip_gateway");
+        filesystem->remove("/etc/conf_ip_mask");
+        filesystem->remove("/etc/conf_ip_dns");
+        filesystem->remove("/etc/hostname");
+        filesystem->remove("/etc/keyblayout");
 
         ssid[0] = '\0';
         password[0] = '\0';
@@ -592,7 +623,7 @@ void setupHTTPServer() {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
-        SPIFFS.format();
+        filesystem->format();
         request->send(200);
     });
 
@@ -1017,8 +1048,9 @@ void setupHTTPServer() {
         fpgaTask.ForceLoop();
     });
 
+    //server.rewrite("/", "/index.html");
     handler = &server
-        .serveStatic("/", SPIFFS, "/")
+        .serveStatic("/", *filesystem, "/")
         .setDefaultFile("index.html");
     // set authentication by configured user/pass later
     handler->setAuthentication(httpAuthUser, httpAuthPass);
@@ -1151,7 +1183,7 @@ void setup(void) {
     pinMode(NCONFIG, INPUT);
 
     setupI2C();
-    setupSPIFFS();
+    setupFilesystem();
     setupResetMode();
     setupOutputResolution();
     setupScanlines();

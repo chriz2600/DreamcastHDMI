@@ -51,8 +51,8 @@ class FlashESPIndexTask : public Task {
             last_error = NO_ERROR;
             
             md5.begin();
-            sourceFile = SPIFFS.open(ESP_INDEX_STAGING_FILE, "r");
-            targetFile = SPIFFS.open(ESP_INDEX_FILE, "w");
+            sourceFile = filesystem->open(ESP_INDEX_STAGING_FILE, "r");
+            targetFile = filesystem->open(ESP_INDEX_FILE, "w");
 
             if (sourceFile && targetFile) {
                 totalLength = sourceFile.size();

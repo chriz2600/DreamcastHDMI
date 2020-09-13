@@ -68,7 +68,7 @@ To flash the firmware the first time, you need a serial port (e.g. a usb to seri
 
 The latest firmware is always available on [esp.i74.de](https://esp.i74.de/master/).
 
-The firmware is divided into 2 parts, one (firmware.bin) is the actual firmware, the other (spiffs.bin) is the initial flash file system.
+The firmware is divided into 2 parts, one (firmware.bin) is the actual firmware, the other (littlefs.bin) is the initial flash file system.
 
 #### First time flash:
 
@@ -79,7 +79,7 @@ See [ESP8266 Boot Mode Selection](https://github.com/espressif/esptool/wiki/ESP8
 If you have to program more than one ESP [this](https://www.tindie.com/products/petl/esp12-programmer-board-with-pogo-pins/) might come in handy.
 
 ```
-esptool.py -p <serial_port> write_flash 0x00000000 firmware.bin 0x00100000 spiffs.bin
+esptool.py -p <serial_port> write_flash 0x00000000 firmware.bin 0x00100000 littlefs.bin
 
 serial_port: 
     e.g. COM5 on windows, /dev/cu.usbserial-A50285BI on OSX.

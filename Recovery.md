@@ -50,7 +50,7 @@ But this didn't prevent you from flashing the corrupted file leading to a bricke
   You will need the following files:
 
   - [4MB-firmware.bin](https://esp.i74.de/master/4MB-firmware.bin)
-  - [4MB-spiffs.bin](https://esp.i74.de/master/4MB-spiffs.bin)
+  - [4MB-littlefs.bin](https://esp.i74.de/master/4MB-littlefs.bin)
 
 - Remove the DCHDMI mainboard from you Dreamcast.
 
@@ -68,7 +68,7 @@ But this didn't prevent you from flashing the corrupted file leading to a bricke
 
   *Be sure, that you execute the command in the folder, where you previously saved the files.*
   ```
-  esptool.py -p <COM_PORT> write_flash 0x00000000 4MB-firmware.bin 0x00100000 4MB-spiffs.bin
+  esptool.py -p <COM_PORT> write_flash 0x00000000 4MB-firmware.bin 0x00100000 4MB-littlefs.bin
   ```
   `COM_PORT` should be something like `COM6` (on Windows) or `/dev/tty.usbserial-A50285BI` (on Linux/Mac OS X)
 

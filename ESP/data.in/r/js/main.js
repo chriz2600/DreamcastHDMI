@@ -6,7 +6,7 @@ var FIRMWARE_EXTENSION = "dc";
 var ESP_FIRMWARE_FILE = "/firmware.bin";
 var ESP_INDEX_STAGING_FILE = "/esp.index.html.gz";
 var ESP_FIRMWARE_EXTENSION = "bin";
-var DEFAULT_PROMPT = 'dc-hdmi> ';
+var DEFAULT_PROMPT = 'DCDigital> ';
 
 var process = {};
 process.nextTick = (function () {

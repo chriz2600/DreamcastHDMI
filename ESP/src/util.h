@@ -3,6 +3,7 @@
 
 #include "global.h"
 #include <FS.h>
+#include "LittleFS.h"
 
 extern bool OSDOpen;
 
@@ -23,7 +24,7 @@ void resetall() {
 }
 
 void _writeFile(const char *filename, const char *towrite, unsigned int len) {
-    File f = SPIFFS.open(filename, "w");
+    File f = filesystem->open(filename, "w");
     if (f) {
         f.write((const uint8_t*) towrite, len);
         f.close();
@@ -32,10 +33,10 @@ void _writeFile(const char *filename, const char *towrite, unsigned int len) {
 }
 
 void _readFile(const char *filename, char *target, unsigned int len, const char* defaultValue) {
-    bool exists = SPIFFS.exists(filename);
+    bool exists = filesystem->exists(filename);
     bool readFromFile = false;
     if (exists) {
-        File f = SPIFFS.open(filename, "r");
+        File f = filesystem->open(filename, "r");
         if (f) {
             f.readBytes(target, len);
             f.close();
@@ -138,7 +139,7 @@ void resetFPGAConfiguration() {
 bool isValidV2FPGAFirmwareBundle() {
     bool isValid = false;
     uint8_t header[16];
-    File file = SPIFFS.open(FIRMWARE_FILE, "r");
+    File file = filesystem->open(FIRMWARE_FILE, "r");
     if (file) {
         file.readBytes((char *) header, 16);
         /* new fpga firmware bundle must be v2 
