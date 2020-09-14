@@ -31,6 +31,8 @@ typedef struct {
     char host[64];
     char keyboardLayout[8];
     char protectedMode[8];
+    char localFPGAMD5[33];
+    char localESPMD5[33];
 } Config;
 
 void readFullConfig(Config &config) {
@@ -66,6 +68,8 @@ void readFullConfig(Config &config) {
     _readFile("/etc/hostname",                  config.host,                    64, DEFAULT_HOST);
     _readFile("/etc/keyblayout",                config.keyboardLayout,           8, DEFAULT_KEYBOARD_LAYOUT);
     _readFile("/etc/protected/mode",            config.protectedMode,            8, DEFAULT_PROTECTED_MODE);
+    _readFile(LOCAL_FPGA_MD5,                   config.localFPGAMD5,            33, DEFAULT_MD5_SUM);
+    _readFile(LOCAL_ESP_MD5,                    config.localESPMD5,             33, DEFAULT_MD5_SUM);
 }
 
 void saveFullConfig(Config &config) {
@@ -101,6 +105,8 @@ void saveFullConfig(Config &config) {
     _writeFile("/etc/hostname",                  config.host,                    64, DEFAULT_HOST);
     _writeFile("/etc/keyblayout",                config.keyboardLayout,           8, DEFAULT_KEYBOARD_LAYOUT);
     _writeFile("/etc/protected/mode",            config.protectedMode,            8, DEFAULT_PROTECTED_MODE);
+    _writeFile(LOCAL_FPGA_MD5,                   config.localFPGAMD5,            33, DEFAULT_MD5_SUM);
+    _writeFile(LOCAL_ESP_MD5,                    config.localESPMD5,             33, DEFAULT_MD5_SUM);
 }
 
 void dumpFullConfig(Config &config) {
@@ -136,5 +142,7 @@ void dumpFullConfig(Config &config) {
     DEBUG2("%s / %s / %d / %s\n", "/etc/hostname",                  config.host,                    64, DEFAULT_HOST);
     DEBUG2("%s / %s / %d / %s\n", "/etc/keyblayout",                config.keyboardLayout,           8, DEFAULT_KEYBOARD_LAYOUT);
     DEBUG2("%s / %s / %d / %s\n", "/etc/protected/mode",            config.protectedMode,            8, DEFAULT_PROTECTED_MODE);
+    DEBUG2("%s / %s / %d / %s\n", LOCAL_FPGA_MD5,                   config.localFPGAMD5,            33, DEFAULT_MD5_SUM);
+    DEBUG2("%s / %s / %d / %s\n", LOCAL_ESP_MD5,                    config.localESPMD5,             33, DEFAULT_MD5_SUM);
 }
 
