@@ -32,6 +32,18 @@ void _writeFile(const char *filename, const char *towrite, unsigned int len) {
     }
 }
 
+void _writeFile(const char *filename, const char *towrite, unsigned int len, const char* defaultValue) {
+    if (strcmp(defaultValue, towrite) == 0) {
+        return;
+    }
+    File f = filesystem->open(filename, "w");
+    if (f) {
+        f.write((const uint8_t*) towrite, len);
+        f.close();
+        DEBUG2(">> _writeFile: %s:[%s]\n", filename, towrite);
+    }
+}
+
 void _readFile(const char *filename, char *target, unsigned int len, const char* defaultValue) {
     bool exists = filesystem->exists(filename);
     bool readFromFile = false;

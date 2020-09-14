@@ -49,6 +49,7 @@ void handleUpload(AsyncWebServerRequest *request, String filename, size_t index,
             md5.calculate();
             String md5sum = md5.toString();
             _writeFile((fname + ".md5").c_str(), md5sum.c_str(), md5sum.length());
+            DEBUG2("handleUpload done.\n");
         }
     }
 }
@@ -310,12 +311,27 @@ void handleESPFlash(AsyncWebServerRequest *request, const char *filename) {
 }
 
 void handleESPIndexFlash(AsyncWebServerRequest *request) {
+    DEBUG2("Starting handleESPIndexFlash\n");
     if (filesystem->exists(ESP_INDEX_STAGING_FILE)) {
         taskManager.StartTask(&flashESPIndexTask);
         request->send(200);
     } else {
         request->send(404);
     }
+}
+
+void handleESPIndexFlash2(AsyncWebServerRequest *request) {
+    DEBUG2("Starting handleESPIndexFlash2\n");
+    uint16_t errcode;
+    if (filesystem->exists(ESP_INDEX_STAGING_FILE)) {
+        taskManager.StartTask(&flashESPIndexTask);
+        errcode = 302;
+    } else {
+        errcode = 404;
+    }
+    AsyncWebServerResponse *response = request->beginResponse(errcode);
+    response->addHeader("Location", "/progress2");
+    request->send(response);
 }
 
 #endif

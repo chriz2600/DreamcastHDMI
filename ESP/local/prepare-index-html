@@ -12,6 +12,12 @@ faketty() {
 
 cd $(dirname $0)/..
 
-faketty inliner -m data.in/index.html > data/index.html
-gzip -n -f -9 data/index.html
- ( echo "const uint8_t index_html_gz[] PROGMEM = {" ; xxd -i ./data/index.html.gz | tail -n +2 ) > index.html.gz.h
+for page in index upload_index progress2 ; do
+    faketty inliner -m data.in/${page}.html > data/${page}.html
+    gzip -n -f -9 data/${page}.html
+    ( echo "const uint8_t ${page}_html_gz[] PROGMEM = {" ; xxd -i ./data/${page}.html.gz | tail -n +2 ) > src/static/${page}.html.gz.h
+done
+
+# remove included files from fs
+rm ./data/progress2.html.gz
+rm ./data/upload_index.html.gz

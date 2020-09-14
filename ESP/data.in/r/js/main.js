@@ -274,6 +274,8 @@ var term = $('#term').terminal(function(command, term) {
         startTransaction(null, function() {
             getFlashChipSize();
         });
+    } else if (command.match(/^\s*migratefs\s*$/)) {
+        migrateFS();
     } else if (command.match(/^\s*download\s*$/)) {
         downloadall(0);
     } else if (command.match(/^\s*downloadfpga\s*$/)) {
@@ -856,6 +858,49 @@ function getFlashChipSize() {
     }).fail(function() {
         endTransaction('Error getting current config.', true);
     });
+}
+
+function migrateFSStep2(tout) {
+    if (tout) {
+        document.location.href = "/upload-index.html";
+    } else {
+        setTimeout(function() { migrateFSStep2(true); }, 5000);
+    }
+}
+
+function migrateFS(dldone) {
+    term.history().disable();
+    if (dldone) {
+        startTransaction(null, function() {
+            $.ajax("/migratefs").done(function (data) {
+                if ($.trim(data) == "done") {
+                    term.echo("Success! FS changed, configuration saved. Sending to upload page in 5 seconds.");
+                    migrateFSStep2(false);
+                } else {
+                    endTransaction($.trim(data), false, function() {});
+                }
+            }).fail(function() {
+                endTransaction($.trim(data), true);
+            });
+        });
+    } else {
+        term.push(function(command) {
+            term.pop();
+            var value = "";
+            var lm = command.match(/^(.+)$/i);
+            if (lm) {
+                value = $.trim(lm[0]);
+            }
+            if (value.match(/^(y|yes)$/)) {
+                migrateFS(true);
+            } else {
+                term.error("FS migration aborted");
+            }
+        }, {
+            prompt: "Have you downloaded index.html (y)es/(n)o? "
+        });
+        window.open("/index.html.gz", "_blank");
+    }
 }
 
 function getMacAddress() {

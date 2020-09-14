@@ -33,6 +33,8 @@
 #include "Menu.h"
 #include "pwgen.h"
 //#include "index.html.gz.h"
+#include "static/upload_index.html.gz.h"
+#include "static/progress2.html.gz.h"
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -122,13 +124,55 @@ Menu *currentMenu;
 Menu *previousMenu;
 
 //////////////////////////////////////////////////////////////////////////////////
+
+typedef struct {
+    char resetMode[16];
+    char videoMode[16];
+    char configuredResolution[16];
+    char deinterlaceMode480i[16];
+    char deinterlaceMode576i[16];
+    char scanlinesActive[32];
+    char scanlinesIntensity[32];
+    char scanlinesOddeven[32];
+    char scanlinesThickness[32];
+    char scanlinesDopre[32];
+    char two40pOffset[32];
+    char vgaOffset[32];
+    char upscalingMode[32];
+    char colorSpace[32];
+    char colorExpansion[32];
+    char gammaMode[32];
+    char ssid[64];
+    char password[64];
+    char otaPassword[64];
+    char firmwareServer[256];
+    char firmwareServerPath[256];
+    char firmwareVariant[64];
+    char firmwareVersion[64];
+    char httpAuthUser[64];
+    char httpAuthPass[64];
+    char confIPAddr[24];
+    char confIPGateway[24];
+    char confIPMask[24];
+    char confIPDNS[24];
+    char host[64];
+    char keyboardLayout[8];
+    char protectedMode[8];
+} Config;
+
+//////////////////////////////////////////////////////////////////////////////////
 char fs_impl_name[16];
 
 void setupFilesystem() {
     DEBUG2(">> Setting up filesystem...\n");
+    
     SPIFFSConfig cfg;
     cfg.setAutoFormat(false);
     SPIFFS.setConfig(cfg);
+
+    LittleFSConfig cfglfs;
+    cfglfs.setAutoFormat(false);
+    LittleFS.setConfig(cfglfs);
 
     if (SPIFFS.begin()) {
         filesystem = &SPIFFS;
@@ -148,6 +192,111 @@ void setupFilesystem() {
             DEBUG("error.\n");
         }
     }
+}
+
+void readFullConfig(Config &config) {
+    _readFile("/etc/reset/mode",                config.resetMode,               16, DEFAULT_RESET_MODE);
+    _readFile("/etc/video/mode",                config.videoMode,               16, DEFAULT_VIDEO_MODE);
+    _readFile("/etc/video/resolution",          config.configuredResolution,    16, DEFAULT_VIDEO_RESOLUTION);
+    _readFile("/etc/deinterlace/mode/480i",     config.deinterlaceMode480i,     16, DEFAULT_DEINTERLACE_MODE);
+    _readFile("/etc/deinterlace/mode/576i",     config.deinterlaceMode576i,     16, DEFAULT_DEINTERLACE_MODE);
+    _readFile("/etc/scanlines/active",          config.scanlinesActive,         32, DEFAULT_SCANLINES_ACTIVE);
+    _readFile("/etc/scanlines/intensity",       config.scanlinesIntensity,      32, DEFAULT_SCANLINES_INTENSITY);
+    _readFile("/etc/scanlines/oddeven",         config.scanlinesOddeven,        32, DEFAULT_SCANLINES_ODDEVEN);
+    _readFile("/etc/scanlines/thickness",       config.scanlinesThickness,      32, DEFAULT_SCANLINES_THICKNESS);
+    _readFile("/etc/scanlines/dopre",           config.scanlinesDopre,          32, "1");
+    _readFile("/etc/240p/offset",               config.two40pOffset,            32, DEFAULT_240P_OFFSET);
+    _readFile("/etc/vga/offset",                config.vgaOffset,               32, DEFAULT_VGA_OFFSET);
+    _readFile("/etc/upscaling/mode",            config.upscalingMode,           32, DEFAULT_UPSCALING_MODE);
+    _readFile("/etc/color/space",               config.colorSpace,              32, DEFAULT_COLOR_SPACE);
+    _readFile("/etc/color/expansion",           config.colorExpansion,          32, DEFAULT_COLOR_EXPANSION_MODE);
+    _readFile("/etc/gamma/mode",                config.gammaMode,               32, DEFAULT_GAMMA_MODE);
+    _readFile("/etc/ssid",                      config.ssid,                    64, DEFAULT_SSID);
+    _readFile("/etc/password",                  config.password,                64, DEFAULT_PASSWORD);
+    _readFile("/etc/ota_pass",                  config.otaPassword,             64, DEFAULT_OTA_PASSWORD);
+    _readFile("/etc/firmware_server",           config.firmwareServer,         256, DEFAULT_FW_SERVER);
+    _readFile("/etc/firmware_server_path",      config.firmwareServerPath,     256, DEFAULT_FW_SERVER_PATH);
+    _readFile("/etc/firmware_variant",          config.firmwareVariant,         64, DEFAULT_FW_VARIANT);
+    _readFile("/etc/firmware_version",          config.firmwareVersion,         64, DEFAULT_FW_VERSION);
+    _readFile("/etc/http_auth_user",            config.httpAuthUser,            64, DEFAULT_HTTP_USER);
+    _readFile("/etc/http_auth_pass",            config.httpAuthPass,            64, DEFAULT_HTTP_PASS);
+    _readFile("/etc/conf_ip_addr",              config.confIPAddr,              24, DEFAULT_CONF_IP_ADDR);
+    _readFile("/etc/conf_ip_gateway",           config.confIPGateway,           24, DEFAULT_CONF_IP_GATEWAY);
+    _readFile("/etc/conf_ip_mask",              config.confIPMask,              24, DEFAULT_CONF_IP_MASK);
+    _readFile("/etc/conf_ip_dns",               config.confIPDNS,               24, DEFAULT_CONF_IP_DNS);
+    _readFile("/etc/hostname",                  config.host,                    64, DEFAULT_HOST);
+    _readFile("/etc/keyblayout",                config.keyboardLayout,           8, DEFAULT_KEYBOARD_LAYOUT);
+    _readFile("/etc/protected/mode",            config.protectedMode,            8, DEFAULT_PROTECTED_MODE);
+}
+
+void saveFullConfig(Config &config) {
+    _writeFile("/etc/reset/mode",                config.resetMode,               16, DEFAULT_RESET_MODE);
+    _writeFile("/etc/video/mode",                config.videoMode,               16, DEFAULT_VIDEO_MODE);
+    _writeFile("/etc/video/resolution",          config.configuredResolution,    16, DEFAULT_VIDEO_RESOLUTION);
+    _writeFile("/etc/deinterlace/mode/480i",     config.deinterlaceMode480i,     16, DEFAULT_DEINTERLACE_MODE);
+    _writeFile("/etc/deinterlace/mode/576i",     config.deinterlaceMode576i,     16, DEFAULT_DEINTERLACE_MODE);
+    _writeFile("/etc/scanlines/active",          config.scanlinesActive,         32, DEFAULT_SCANLINES_ACTIVE);
+    _writeFile("/etc/scanlines/intensity",       config.scanlinesIntensity,      32, DEFAULT_SCANLINES_INTENSITY);
+    _writeFile("/etc/scanlines/oddeven",         config.scanlinesOddeven,        32, DEFAULT_SCANLINES_ODDEVEN);
+    _writeFile("/etc/scanlines/thickness",       config.scanlinesThickness,      32, DEFAULT_SCANLINES_THICKNESS);
+    _writeFile("/etc/scanlines/dopre",           config.scanlinesDopre,          32, "1");
+    _writeFile("/etc/240p/offset",               config.two40pOffset,            32, DEFAULT_240P_OFFSET);
+    _writeFile("/etc/vga/offset",                config.vgaOffset,               32, DEFAULT_VGA_OFFSET);
+    _writeFile("/etc/upscaling/mode",            config.upscalingMode,           32, DEFAULT_UPSCALING_MODE);
+    _writeFile("/etc/color/space",               config.colorSpace,              32, DEFAULT_COLOR_SPACE);
+    _writeFile("/etc/color/expansion",           config.colorExpansion,          32, DEFAULT_COLOR_EXPANSION_MODE);
+    _writeFile("/etc/gamma/mode",                config.gammaMode,               32, DEFAULT_GAMMA_MODE);
+    _writeFile("/etc/ssid",                      config.ssid,                    64, DEFAULT_SSID);
+    _writeFile("/etc/password",                  config.password,                64, DEFAULT_PASSWORD);
+    _writeFile("/etc/ota_pass",                  config.otaPassword,             64, DEFAULT_OTA_PASSWORD);
+    _writeFile("/etc/firmware_server",           config.firmwareServer,         256, DEFAULT_FW_SERVER);
+    _writeFile("/etc/firmware_server_path",      config.firmwareServerPath,     256, DEFAULT_FW_SERVER_PATH);
+    _writeFile("/etc/firmware_variant",          config.firmwareVariant,         64, DEFAULT_FW_VARIANT);
+    _writeFile("/etc/firmware_version",          config.firmwareVersion,         64, DEFAULT_FW_VERSION);
+    _writeFile("/etc/http_auth_user",            config.httpAuthUser,            64, DEFAULT_HTTP_USER);
+    _writeFile("/etc/http_auth_pass",            config.httpAuthPass,            64, DEFAULT_HTTP_PASS);
+    _writeFile("/etc/conf_ip_addr",              config.confIPAddr,              24, DEFAULT_CONF_IP_ADDR);
+    _writeFile("/etc/conf_ip_gateway",           config.confIPGateway,           24, DEFAULT_CONF_IP_GATEWAY);
+    _writeFile("/etc/conf_ip_mask",              config.confIPMask,              24, DEFAULT_CONF_IP_MASK);
+    _writeFile("/etc/conf_ip_dns",               config.confIPDNS,               24, DEFAULT_CONF_IP_DNS);
+    _writeFile("/etc/hostname",                  config.host,                    64, DEFAULT_HOST);
+    _writeFile("/etc/keyblayout",                config.keyboardLayout,           8, DEFAULT_KEYBOARD_LAYOUT);
+    _writeFile("/etc/protected/mode",            config.protectedMode,            8, DEFAULT_PROTECTED_MODE);
+}
+
+void dumpFullConfig(Config &config) {
+    DEBUG2("%s / %s / %d / %s\n", "/etc/reset/mode",                config.resetMode,               16, DEFAULT_RESET_MODE);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/video/mode",                config.videoMode,               16, DEFAULT_VIDEO_MODE);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/video/resolution",          config.configuredResolution,    16, DEFAULT_VIDEO_RESOLUTION);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/deinterlace/mode/480i",     config.deinterlaceMode480i,     16, DEFAULT_DEINTERLACE_MODE);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/deinterlace/mode/576i",     config.deinterlaceMode576i,     16, DEFAULT_DEINTERLACE_MODE);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/scanlines/active",          config.scanlinesActive,         32, DEFAULT_SCANLINES_ACTIVE);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/scanlines/intensity",       config.scanlinesIntensity,      32, DEFAULT_SCANLINES_INTENSITY);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/scanlines/oddeven",         config.scanlinesOddeven,        32, DEFAULT_SCANLINES_ODDEVEN);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/scanlines/thickness",       config.scanlinesThickness,      32, DEFAULT_SCANLINES_THICKNESS);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/scanlines/dopre",           config.scanlinesDopre,          32, "1");
+    DEBUG2("%s / %s / %d / %s\n", "/etc/240p/offset",               config.two40pOffset,            32, DEFAULT_240P_OFFSET);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/vga/offset",                config.vgaOffset,               32, DEFAULT_VGA_OFFSET);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/upscaling/mode",            config.upscalingMode,           32, DEFAULT_UPSCALING_MODE);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/color/space",               config.colorSpace,              32, DEFAULT_COLOR_SPACE);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/color/expansion",           config.colorExpansion,          32, DEFAULT_COLOR_EXPANSION_MODE);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/gamma/mode",                config.gammaMode,               32, DEFAULT_GAMMA_MODE);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/ssid",                      config.ssid,                    64, DEFAULT_SSID);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/password",                  config.password,                64, DEFAULT_PASSWORD);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/ota_pass",                  config.otaPassword,             64, DEFAULT_OTA_PASSWORD);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/firmware_server",           config.firmwareServer,         256, DEFAULT_FW_SERVER);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/firmware_server_path",      config.firmwareServerPath,     256, DEFAULT_FW_SERVER_PATH);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/firmware_variant",          config.firmwareVariant,         64, DEFAULT_FW_VARIANT);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/firmware_version",          config.firmwareVersion,         64, DEFAULT_FW_VERSION);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/http_auth_user",            config.httpAuthUser,            64, DEFAULT_HTTP_USER);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/http_auth_pass",            config.httpAuthPass,            64, DEFAULT_HTTP_PASS);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/conf_ip_addr",              config.confIPAddr,              24, DEFAULT_CONF_IP_ADDR);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/conf_ip_gateway",           config.confIPGateway,           24, DEFAULT_CONF_IP_GATEWAY);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/conf_ip_mask",              config.confIPMask,              24, DEFAULT_CONF_IP_MASK);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/conf_ip_dns",               config.confIPDNS,               24, DEFAULT_CONF_IP_DNS);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/hostname",                  config.host,                    64, DEFAULT_HOST);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/keyblayout",                config.keyboardLayout,           8, DEFAULT_KEYBOARD_LAYOUT);
+    DEBUG2("%s / %s / %d / %s\n", "/etc/protected/mode",            config.protectedMode,            8, DEFAULT_PROTECTED_MODE);
 }
 
 void setupResetMode() {
@@ -425,7 +574,7 @@ void listFiles(JsonArray* datas, String prefix, const char* dirname) {
     Dir dir = filesystem->openDir(dirname);
     while (dir.next()) {
         if (dir.isDirectory()) {
-            listFiles(datas, prefix + dir.fileName() + "/", dir.fileName().c_str());
+            listFiles(datas, prefix + dir.fileName() + "/", (prefix + dir.fileName()).c_str());
         } else {
             JsonObject &data = datas->createNestedObject();
             if (dir.fileName().startsWith(prefix)) {
@@ -468,7 +617,72 @@ void setupHTTPServer() {
         handleUpload(request, ESP_INDEX_STAGING_FILE, index, data, len, final);
     });
 
-    server.on("/debug", HTTP_GET, [](AsyncWebServerRequest *request){
+    server.on("/upload/index-archive", HTTP_POST, [](AsyncWebServerRequest *request){
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        handleESPIndexFlash2(request);
+    }, [](AsyncWebServerRequest *request, String filename, size_t index, uint8_t *data, size_t len, bool final) {
+        handleUpload(request, ESP_INDEX_STAGING_FILE, index, data, len, final);
+    });
+
+    server.on("/progress2", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        DEBUG("progress2 requested...\n");
+        char msg[64];
+        if (last_error) {
+            sprintf(msg, "ERROR %i\n", last_error);
+            request->send(200, "text/plain", msg);
+            // clear last_error
+            last_error = NO_ERROR;
+        } else {
+            int progress = totalLength <= 0 ? 0 : (int)(readLength * 100 / totalLength);
+            if (progress == 100 && !currentJobDone) {
+                progress = 99;
+            }
+            if (progress == 100) {
+                AsyncWebServerResponse *response = request->beginResponse(302);
+                response->addHeader("Location", "/");
+                request->send(response);
+            } else {
+                AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", progress2_html_gz, __data_progress2_html_gz_len);
+                response->addHeader("Content-Encoding", "gzip");
+                request->send(response);
+            }
+        }
+    });
+
+    server.on("/upload-index.html", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+        AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", upload_index_html_gz, __data_upload_index_html_gz_len);
+        response->addHeader("Content-Encoding", "gzip");
+        request->send(response);
+    });
+
+    server.on("/migratefs", HTTP_GET, [](AsyncWebServerRequest *request) {
+        if(!_isAuthenticated(request)) {
+            return request->requestAuthentication();
+        }
+
+        if (false && LittleFS.begin()) {
+            request->send(200, "text/plain", "noop");
+        } else {
+            Config config;
+            readFullConfig(config);
+            if (LittleFS.format()) {
+                saveFullConfig(config);
+                request->send(200, "text/plain", "done");
+            } else {
+                request->send(200, "text/plain", "FORMAT_FAILED");
+            }
+        }
+    });
+
+    server.on("/debug", HTTP_GET, [](AsyncWebServerRequest *request) {
         if(!_isAuthenticated(request)) {
             return request->requestAuthentication();
         }
