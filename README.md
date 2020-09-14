@@ -1,6 +1,6 @@
 # DreamcastHDMI / DCDigital
 
-#### 2020-09-04 *Firmware v4.7* (*Unified*)
+#### 2020-09-14 *Firmware v4.7* (*Unified*)
 
 - Installer access point (IAP) mode
 
@@ -19,6 +19,12 @@
     ```
 
 - Fixed: `very thin` scanlines now work in Relaxed firmware too
+
+- ESP firmware is now built using PlatformIO 5.0.1
+
+- ESP new default filesystem is [LittleFS](https://github.com/ARMmbed/littlefs).
+
+    *Optional: [Filesytem Migration Guide](FS_Migration.md)*
 
 #### 2020-08-27 *Firmware v4.6* (*Unified*)
 

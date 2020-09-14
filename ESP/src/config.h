@@ -1,3 +1,6 @@
+#include "global.h"
+#include "util.h"
+
 typedef struct {
     char resetMode[16];
     char videoMode[16];
