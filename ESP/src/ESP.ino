@@ -668,7 +668,7 @@ void setupHTTPServer() {
             return request->requestAuthentication();
         }
 
-        if (false && LittleFS.begin()) {
+        if (LittleFS.begin()) {
             request->send(200, "text/plain", "noop");
         } else {
             Config config;
@@ -993,6 +993,7 @@ void setupHTTPServer() {
         root["deinterlace_mode"] = deinterlaceMode480i;
         root["protected_mode"] = protectedMode;
         root["keyboard_layout"] = keyboardLayout;
+        root["fsImpl"] = fs_impl_name;
 
         response->setLength();
         request->send(response);

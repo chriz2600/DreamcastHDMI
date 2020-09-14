@@ -735,7 +735,8 @@ var setupDataMapping = {
 };
 var dataExcludeMap = {
     "flash_chip_size":"",
-    "fw_version":""
+    "fw_version":"",
+    "fsImpl":""
 };
 
 function setupDataDisplayToString(data, isSafe) {
@@ -869,6 +870,10 @@ function migrateFSStep2(tout) {
 }
 
 function migrateFS(dldone) {
+    if (currentConfigData["fsImpl"] == "LittleFS") {
+        term.echo("FS migration already done.");
+        return;
+    }
     term.history().disable();
     if (dldone) {
         startTransaction(null, function() {
@@ -876,6 +881,8 @@ function migrateFS(dldone) {
                 if ($.trim(data) == "done") {
                     term.echo("Success! FS changed, configuration saved. Sending to upload page in 5 seconds.");
                     migrateFSStep2(false);
+                } else if ($.trim(data) == "noop") {
+                    endTransaction("FS migration already done.");
                 } else {
                     endTransaction($.trim(data), false, function() {});
                 }
