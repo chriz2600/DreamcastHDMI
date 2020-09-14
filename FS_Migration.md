@@ -63,5 +63,4 @@ Start the migration process by using the `migratefs` command.
 
 - You end up in the web console again. Use the `ls` command to confirm the `FSImpl` row says: `LittleFS`.
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/T64nVHV1DeE" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
+[![DCDigital Filesystem Migration](http://dc.i74.de/fs_mig_guide.png)](https://www.youtube.com/watch?v=T64nVHV1DeE "DCDigital Filesystem Migration")
