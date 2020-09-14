@@ -11,6 +11,7 @@ extern char httpAuthUser[64];
 extern char httpAuthPass[64];
 extern char firmwareServer[256];
 extern char firmwareServerPath[256];
+extern char progress2RedirectLocation[32];
 
 static AsyncClient *aClient = NULL;
 String fname;
@@ -329,6 +330,7 @@ void handleESPIndexFlash2(AsyncWebServerRequest *request) {
     } else {
         errcode = 404;
     }
+    snprintf(progress2RedirectLocation, 30, "/");
     AsyncWebServerResponse *response = request->beginResponse(errcode);
     response->addHeader("Location", "/progress2");
     request->send(response);

@@ -863,7 +863,7 @@ function getFlashChipSize() {
 
 function migrateFSStep2(tout) {
     if (tout) {
-        document.location.href = "/upload-index.html";
+        document.location.href = "/progress2";
     } else {
         setTimeout(function() { migrateFSStep2(true); }, 5000);
     }
@@ -878,8 +878,8 @@ function migrateFS(dldone) {
     if (dldone) {
         startTransaction(null, function() {
             $.ajax("/migratefs").done(function (data) {
-                if ($.trim(data) == "done") {
-                    term.echo("Success! FS changed, configuration saved. Sending to upload page in 5 seconds.");
+                if ($.trim(data) == "started") {
+                    term.echo("FS migration started. Proceeding in 5 seconds...");
                     migrateFSStep2(false);
                 } else if ($.trim(data) == "noop") {
                     endTransaction("FS migration already done.");

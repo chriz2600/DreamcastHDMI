@@ -19,3 +19,4 @@ data/firmware.dc
 data/firmware.dc.md5
 .pio
 build
+local/my-setup
