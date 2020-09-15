@@ -1195,7 +1195,7 @@ void waitForController() {
     uint8_t _ForceVGA = ForceVGA;
     DEBUG2(">> Checking video mode controller override...\n");
 
-    for (int i = 0 ; i < 3333 ; i++) {
+    for (int i = 0 ; i < MAX_WAIT_FOR_CONTROLLER_PACKET ; i++) {
         // stop, if we got a valid packet
         if (gotValidPacket) {
             DEBUG2("   found valid controller packet at %i\n", i);

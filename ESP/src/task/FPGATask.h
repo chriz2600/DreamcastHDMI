@@ -91,7 +91,15 @@ class FPGATask : public Task {
             Task(repeat),
             controller_handler(chandler),
             keyboard_handler(khandler)
-        { };
+        { 
+            size_t bufsize = OSD_LINES * OSD_ROWS * sizeof(uint8_t);
+            osdbuffer = (uint8_t*) malloc(bufsize);
+            if (osdbuffer != NULL) {
+                // copy MENU_HEAD
+                memcpy(osdbuffer, MENU_HEAD, strlen((char*)MENU_HEAD));
+                memInitDone = true;
+            }
+        };
 
         virtual uint8_t GetColorExpansion() {
             if (ColorExpansionMode == COLOR_EXP_AUTO) {
@@ -110,14 +118,14 @@ class FPGATask : public Task {
         }
 
         virtual void DoWriteToOSD(uint8_t column, uint8_t row, uint8_t charData[], WriteOSDCallbackHandlerFunction handler) {
-            //DEBUG2("DoWriteToOSD: %u %u %u %u\n", column, row, strlen((char*) charData), osdqueue.size());
+            //DEBUG2("DoWriteToOSD: %u %u %u %u %p\n", column, row, strlen((char*) charData), osdqueue.size(), &handler);
             if (column > 39) { column = 39; }
             if (row > 23) { row = 23; }
 
             int start = row * 40 + column;
             int _len = strlen((char*) charData);
-            int length = _len > (OSD_SIZE) ? OSD_SIZE : _len;
-            
+            int length = _len + start > (OSD_SIZE) ? OSD_SIZE - start : _len;
+
             memcpy(&osdbuffer[start], charData, length);
             /*
                 Only add to queue, if there is no handler left or handler is set.
@@ -191,6 +199,7 @@ class FPGATask : public Task {
         uint8_t fpgaResetState = FPGA_RESET_INACTIVE;
         uint8_t nbpState = 0;
         bool waitForNoKey = false;
+        bool memInitDone = false;
 
         std::queue<osddata_t> osdqueue;
         std::queue<writedata_t> writequeue;
@@ -201,14 +210,12 @@ class FPGATask : public Task {
         uint8_t lastEffectiveColorMode = COLOR_EXP_AUTO;
 
         virtual bool OnStart() {
-            // create osdbuffer
-            osdbuffer = (uint8_t*) malloc(OSD_LINES * OSD_ROWS);
-            if (osdbuffer != NULL) {
-                // copy MENU_HEAD
-                memcpy(osdbuffer, MENU_HEAD, OSD_LINES * OSD_ROWS);
-                return true;
+            if (memInitDone) {
+                DEBUG2(">> FPGATask: allocated %d byte osdbuffer\n", OSD_LINES * OSD_ROWS * sizeof(uint8_t));
+            } else {
+                DEBUG2(">> FPGATask: allocating osdbuffer FAILED!\n");
             }
-            return false;
+            return true;
         }
 
         void handleWrite() {
@@ -329,7 +336,7 @@ class FPGATask : public Task {
         void handleMetadata() {
             // update controller data and meta
             uint8_t buffer[2];
-            uint8_t buffer2[I2C_CONTROLLER_AND_DATA_BASE_LENGTH];
+            uint8_t buffer2[I2C_CONTROLLER_AND_DATA_BASE_LENGTH] = { 0 };
             
             ///////////////////////////////////////////////////
             // read controller data

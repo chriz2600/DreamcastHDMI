@@ -74,7 +74,7 @@ int writeProgress(uint8_t *buffer, size_t maxLen, int progress) {
 }
 
 bool forceI2CWrite(uint8_t addr1, uint8_t val1, uint8_t addr2, uint8_t val2) {
-    int retryCount = 5000;
+    int retryCount = MAX_FORCE_I2C_RETRY;
     int retries = 0;
     bool success = false;
 

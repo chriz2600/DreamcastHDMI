@@ -23,6 +23,9 @@ FS* filesystem;
 
 //////////////////////////////////////////////////////////////////////////////////
 
+#define MAX_FORCE_I2C_RETRY 5000
+#define MAX_WAIT_FOR_CONTROLLER_PACKET 3333
+
 #define DEFAULT_SSID ""
 #define DEFAULT_PASSWORD ""
 #define DEFAULT_OTA_PASSWORD ""
