@@ -177,21 +177,18 @@ uint8_t mapResolution(uint8_t resd, bool skipDebug) {
         }
     } else if (CurrentResolutionData & FORCE_GENERATE_TIMING_AND_VIDEO) {
         targetres = RESOLUTION_1080p;
-    } else if (
-           CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER 
-        && CurrentDeinterlaceMode576i == DEINTERLACE_MODE_PASSTHRU 
-        && CurrentResolutionData & RESOLUTION_DATA_IS_PAL
-    )
-    {
-        targetres |= RESOLUTION_MOD_576i;
-    } else if (
-           CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER 
-        && CurrentDeinterlaceMode480i == DEINTERLACE_MODE_PASSTHRU
-    )
-    {
-        targetres |= RESOLUTION_MOD_480i;
-    } else if (CurrentResolutionData & RESOLUTION_DATA_IS_PAL) {
-        targetres |= RESOLUTION_MOD_576p;
+    } else if (CurrentResolutionData & RESOLUTION_DATA_LINE_DOUBLER) {      // interlaced input video
+        if (CurrentResolutionData & RESOLUTION_DATA_IS_PAL) {                   // PAL input video
+            if (CurrentDeinterlaceMode576i == DEINTERLACE_MODE_PASSTHRU) {          // PAL passthru
+                targetres |= RESOLUTION_MOD_576i;
+            } else {                                                                // PAL bob
+                targetres |= RESOLUTION_MOD_576p;
+            }
+        } else {                                                                // NTSC input video
+            if (CurrentDeinterlaceMode480i == DEINTERLACE_MODE_PASSTHRU) {          // NTSC passthru
+                targetres |= RESOLUTION_MOD_480i;
+            }                                                                       // NTSC bob
+        }
     }
 
     if (!skipDebug) {
