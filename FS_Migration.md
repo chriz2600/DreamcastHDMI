@@ -1,6 +1,6 @@
 # Filesystem Migration
 
-`v4.7` supports two filesystems, [SPIFFS](https://github.com/pellepl/spiffs) (no longer maintained and deprecated) and [LittleFS](https://github.com/ARMmbed/littlefs).
+`v4.7` supports two filesystems, [SPIFFS](https://github.com/pellepl/spiffs) (no longer maintained by the author and deprecated by platformio, but still supported by DCDigital) and [LittleFS](https://github.com/ARMmbed/littlefs) (the new default for both platformio and DCDigital).
 
 If you have updated from an older firmware, your DCDigital will still use **SPIFFS**. But it's possible to migrate from **SPIFFS** to **LittleFS**.
 
