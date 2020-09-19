@@ -26,6 +26,8 @@
 
     *Optional: [Filesytem Migration Guide](FS_Migration.md)*
 
+- Fixed: PAL bob deinterlacing setting was overwritten by NTSC passthru setting, which resulted in corrupted image.
+
 #### 2020-08-27 *Firmware v4.6* (*Unified*)
 
 - Fixed: LED pattern when no input clock is present
