@@ -4,6 +4,8 @@
 
 If you have updated from an older firmware, your DCDigital will still use **SPIFFS**. But it's possible to migrate from **SPIFFS** to **LittleFS**.
 
+***Important** After migrating the filesystem, you will loose all settings after a downgrade to a version < v4.7*
+
 #### Step 1
 
 Upgrade firmware to `v4.7`
