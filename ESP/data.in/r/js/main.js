@@ -803,8 +803,7 @@ function doRequest(req, msg) {
 function listFiles() {
     $.ajax({
         type: "GET",
-        url: "/list-files",
-        headers: { Connection: close }
+        url: "/list-files"
     }).done(function (data) {
         endTransaction(createListing(data));
     }).fail(function() {

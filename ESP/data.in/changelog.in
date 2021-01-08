@@ -1,3 +1,7 @@
+v4.8                                    
+- Fixed: issue #16: Web console         
+  incompatibilities between browsers    
+                                        
 v4.7                                    
 - Installer access point mode           
 - Fixed: 'very thin' scanlines now work 
