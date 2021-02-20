@@ -6,6 +6,7 @@ extern char ssid[64];
 extern char password[64];
 extern Menu wifiEditMenu;
 
+extern bool isIAPMode;
 extern bool inInitialSetupMode;
 extern bool isHhttpAuthPassGenerated;
 extern char httpAuthPass[64];
@@ -64,13 +65,14 @@ Menu wifiMenu("WiFiMenu", OSD_WIFI_MENU, MENU_WIFI_FIRST_SELECT_LINE, MENU_WIFI_
     snprintf(buffer, 28, "%-27s", strlen(password) > 0 ? "<password-set>" : "<password-not-set>");
     memcpy(&menu_text[MENU_WIFI_PASSWORD_LINE * MENU_WIDTH + 12], buffer, 27);
 
-    snprintf(buffer, 16, "%15s", WiFi.status() == WL_CONNECTED ? "[Connected]" : inInitialSetupMode ? "[Access point]" : "[Error]");
+    snprintf(buffer, 16, "%15s", wifiTask.isReady() ? (WiFi.status() == WL_CONNECTED ? "[Connected]" : wifiTask.isAPOnly() || isIAPMode ? "[Access point]" : "[Error]") : "[Starting...]");
+
     memcpy(&menu_text[25], buffer, 15);
 
     uint8_t i = 3;
     IPAddress ipAddress = WiFi.localIP();
 
-    if (inInitialSetupMode) {
+    if (wifiTask.isAPOnly() || inInitialSetupMode || isIAPMode) {
         snprintf(buffer, 39, "Access point SSID:     %-15s", AP_NameChar);
         memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, 38);
 
@@ -84,14 +86,26 @@ Menu wifiMenu("WiFiMenu", OSD_WIFI_MENU, MENU_WIFI_FIRST_SELECT_LINE, MENU_WIFI_
 
     memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, strlen(buffer));
 
-    if (inInitialSetupMode || isHhttpAuthPassGenerated || CurrentProtectedMode == PROTECTED_MODE_OFF) {
-        snprintf(buffer, 39, "Web login username:    %-15s", httpAuthUser);
-        memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, 38);
+    if (wifiTask.isAPOnly() || inInitialSetupMode || isHhttpAuthPassGenerated || CurrentProtectedMode == PROTECTED_MODE_OFF || isIAPMode) {
 
-        snprintf(buffer, 39, "Web login password:    %-15s", (isHhttpAuthPassGenerated || CurrentProtectedMode == PROTECTED_MODE_OFF) ? showPW ? httpAuthPass : "<hidden>" : "<password-set>");
-        memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, 38);
+        if (isIAPMode) {
+            snprintf(buffer, 39, "Web login username:    %-15s", "please");
+            memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, 38);
 
-        snprintf(buffer, 41, "%-40s", "   " MENU_OK_STR ": Select  Y: Reveal pw  " MENU_CANCEL_STR ": Back     ");
+            snprintf(buffer, 39, "Web login password:    %-15s", "installme!");
+            memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, 38);
+
+            snprintf(buffer, 41, "%-40s", "          " MENU_OK_STR ": Select  " MENU_CANCEL_STR ": Back            ");
+        } else {
+            snprintf(buffer, 39, "Web login username:    %-15s", httpAuthUser);
+            memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, 38);
+
+            snprintf(buffer, 39, "Web login password:    %-15s", (isHhttpAuthPassGenerated || CurrentProtectedMode == PROTECTED_MODE_OFF) ? showPW ? httpAuthPass : "<hidden>" : "<password-set>");
+            memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, 38);
+
+            snprintf(buffer, 41, "%-40s", "   " MENU_OK_STR ": Select  Y: Reveal pw  " MENU_CANCEL_STR ": Back     ");
+        }
+
     } else {
         snprintf(buffer, 39, "%-38s", "");
         memcpy(&menu_text[(MENU_WIFI_PASSWORD_LINE + i++) * MENU_WIDTH + 2], buffer, 38);

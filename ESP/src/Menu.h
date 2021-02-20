@@ -5,6 +5,7 @@
 #include <functional>
 #include "global.h"
 #include "task/FPGATask.h"
+#include "task/WifiTask.h"
 #include "keymap.h"
 
 #define MENU_OFFSET 7
@@ -540,6 +541,7 @@ typedef std::function<bool(uint8_t shiftcode, uint8_t chardata)> KeyboardHandler
 typedef std::function<uint8_t(uint8_t* menu_text, uint8_t menu_activeLine)> PreDisplayHook;
 
 extern FPGATask fpgaTask;
+extern WifiTask wifiTask;
 bool OSDOpen = false;
 
 uint8_t Menu_OSD_buffer[MENU_BUFFER_LEN];

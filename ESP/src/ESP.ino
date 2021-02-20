@@ -28,6 +28,7 @@
 #include "task/FlashEraseTask.h"
 #include "task/InfoTask.h"
 #include "task/FSMigrateTask.h"
+#include "task/WifiTask.h"
 #include "util.h"
 #include "data.h"
 #include "web.h"
@@ -63,13 +64,13 @@ char resetMode[16] = "";
 char deinterlaceMode480i[16] = "";
 char deinterlaceMode576i[16] = "";
 char protectedMode[8] = "";
-char AP_NameChar[64];
+char AP_NameChar[64] = "";
 char WiFiAPPSK[12] = "";
 char keyboardLayout[8] = DEFAULT_KEYBOARD_LAYOUT; 
 IPAddress ipAddress( 192, 168, 4, 1 );
 bool inInitialSetupMode = false;
 AsyncWebServer server(80);
-AsyncStaticWebHandler* handler;
+AsyncStaticWebHandler* handler = NULL;
 SPIFlash flash(CS);
 int last_error = NO_ERROR; 
 int totalLength;
@@ -120,6 +121,7 @@ FlashVerifyTask flashVerifyTask(1);
 FlashEraseTask flashEraseTask(1);
 InfoTask infoTask(16);
 FSMigrateTask fsMigrateTask(10);
+WifiTask wifiTask(60);
 
 extern Menu mainMenu;
 Menu *currentMenu;
@@ -166,6 +168,14 @@ void setupFilesystem() {
         }
     }
 }
+
+// int _getWiFiQuality(int dBm) {
+//     if (dBm <= -100)
+//         return 0;
+//     if (dBm >= -50)
+//         return 100;
+//     return 2 * (dBm + 100);
+// }
 
 void setupResetMode() {
     readCurrentResetMode();
@@ -271,157 +281,8 @@ void setupCredentials(void) {
     }
 }
 
-void generateWiFiPassword() {
-    generate_password(WiFiAPPSK);
-    DEBUG2("AP password: %s\n", WiFiAPPSK);
-}
-
-void _setupAPMode(const char *ssid, const char *psk) {
-    WiFi.mode(WIFI_AP);
-    uint8_t mac[WL_MAC_ADDR_LENGTH];
-    WiFi.softAPmacAddress(mac);
-    String macID = String(mac[WL_MAC_ADDR_LENGTH - 2], HEX) +
-    String(mac[WL_MAC_ADDR_LENGTH - 1], HEX);
-    macID.toUpperCase();
-    String AP_NameString = String("DCHDMI") + String("-") + macID;
-
-    memset(AP_NameChar, 0, AP_NameString.length() + 1);
-
-    for (uint i=0; i<AP_NameString.length(); i++) {
-        if (i < 63) {
-            AP_NameChar[i] = AP_NameString.charAt(i);
-        }
-    }
-
-    DEBUG2("AP_NameChar: %s\n", AP_NameChar);
-    generateWiFiPassword();
-    if (ssid && psk) {
-        WiFi.softAP(ssid, psk);
-        DEBUG2(">> SSID:   %s\n", ssid);
-        DEBUG2(">> AP-PSK: %s\n", psk);
-    } else {
-        WiFi.softAP(AP_NameChar, WiFiAPPSK);
-        DEBUG2(">> SSID:   %s\n", AP_NameChar);
-        DEBUG2(">> AP-PSK: %s\n", WiFiAPPSK);
-    }
-    inInitialSetupMode = true;
-}
-
-void setupAPMode() {
-    _setupAPMode(NULL, NULL);
-}
-
 void setupWiFi() {
-    WiFi.persistent(false);
-    if (strlen(ssid) == 0) {
-        DEBUG2(">> No ssid, starting AP mode...\n");
-        setupAPMode();
-    } else {
-        DEBUG2(">> Trying to connect in client mode first...\n");
-        setupWiFiStation();
-    }
-}
-
-int _getWiFiQuality(int dBm) {
-  if (dBm <= -100)
-    return 0;
-  if (dBm >= -50)
-    return 100;
-  return 2 * (dBm + 100);
-}
-
-void setupWiFiStation() {
-    // int n = WiFi.scanNetworks();
-    // DEBUG2("Found %d networks\n", n);
-    // for (int i = 0; i < n; i++) {
-    //     int dBm = WiFi.RSSI(i);
-    //     DEBUG2("%02d) SSID: %s\n    BSSID: %s\n    Channel: %d\n    Quality: %d%%\n", i, WiFi.SSID(i).c_str(), WiFi.BSSIDstr(i).c_str(), WiFi.channel(i), _getWiFiQuality(dBm));
-    // }
-
-    bool doStaticIpConfig = false;
-    IPAddress ipAddr;
-    doStaticIpConfig = ipAddr.fromString(confIPAddr);
-    IPAddress ipGateway;
-    doStaticIpConfig = doStaticIpConfig && ipGateway.fromString(confIPGateway);
-    IPAddress ipMask;
-    doStaticIpConfig = doStaticIpConfig && ipMask.fromString(confIPMask);
-    IPAddress ipDNS;
-    doStaticIpConfig = doStaticIpConfig && ipDNS.fromString(confIPDNS);
-
-    //WIFI INIT
-    WiFi.mode(WIFI_STA);
-    WiFi.persistent(false);
-    WiFi.setAutoConnect(false);
-    WiFi.disconnect(true);
-    WiFi.softAPdisconnect(true);
-    WiFi.begin();
-    // WiFi.setAutoConnect(true);
-    // WiFi.setAutoReconnect(true);
-    //WiFi.setPhyMode(WIFI_PHY_MODE_11B);
-    //WiFi.setPhyMode(WIFI_PHY_MODE_11G);
-    //WiFi.setPhyMode(WIFI_PHY_MODE_11N);
-    WiFi.setSleepMode(WIFI_NONE_SLEEP, 0);
-
-    DEBUG(">> Do static ip configuration: %i\n", doStaticIpConfig);
-    if (doStaticIpConfig) {
-        WiFi.config(ipAddr, ipGateway, ipMask, ipDNS);
-    }
-
-    DEBUG(">> WiFi.getAutoConnect: %i\n", WiFi.getAutoConnect());
-    DEBUG(">> Connecting to %s\n", ssid);
-
-    if (String(WiFi.SSID()) != String(ssid)) {
-        WiFi.begin(ssid, password);
-        DEBUG(">> WiFi.begin: %s@%s\n", password, ssid);
-    }
-    
-    bool success = true;
-    int tries = 0;
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        DBG_OUTPUT_PORT.print(".");
-        if (tries == 60) {
-            WiFi.disconnect();
-            success = false;
-            break;
-        }
-        tries++;
-    }
-
-    DEBUG2(">> success: %i\n", success);
-
-    if (!success) {
-        // setup AP mode to configure ssid and password
-        setupAPMode();
-    } else {
-        WiFi.hostname(host);
-        WiFi.setAutoReconnect(true);
-
-        ipAddress = WiFi.localIP();
-        IPAddress gateway = WiFi.gatewayIP();
-        IPAddress subnet = WiFi.subnetMask();
-
-        DEBUG2(
-            ">> Connected!\n   IP address:      %d.%d.%d.%d\n",
-            ipAddress[0], ipAddress[1], ipAddress[2], ipAddress[3]
-        );
-        DEBUG2(
-            "   Gateway address: %d.%d.%d.%d\n",
-            gateway[0], gateway[1], gateway[2], gateway[3]
-        );
-        DEBUG2(
-            "   Subnet mask:     %d.%d.%d.%d\n",
-            subnet[0], subnet[1], subnet[2], subnet[3]
-        );
-        DEBUG2(
-            "   Hostname:        %s\n",
-            WiFi.hostname().c_str()
-        );
-        DEBUG2(
-            "   MAC addr:        %s\n",
-            WiFi.macAddress().c_str()
-        );
-    }
+    taskManager.StartTask(&wifiTask);
 }
 
 void setupMDNS() {
@@ -1300,10 +1161,6 @@ void setup(void) {
         DEBUG2("FPGA firmware missing or broken, reflash needed.\n");
         doReflash();
     }
-    setupHTTPServer();
-    DEBUG2(">> httpAuthUser: %s\n", httpAuthUser);
-    DEBUG2(">> httpAuthPass: %s\n", httpAuthPass);
-    DEBUG2(">> Ready.\n");
     printSerialMenu();
 }
 
@@ -1348,11 +1205,22 @@ void setColorMode() {
     });
 }
 
+void refreshWiFiMenu() {
+    if (OSDOpen && currentMenu == &wifiMenu) {
+        currentMenu->Display();
+    }
+}
+
 void startIAPMode() {
     WiFi.disconnect();
     _setupAPMode("DCDigital-Install", "installme!");
-    handler->setAuthentication("please", "installme!");
+    if (handler != NULL) {
+        handler->setAuthentication("please", "installme!");
+    } else {
+        setupHTTPServer();
+    }
     isIAPMode = true;
+    refreshWiFiMenu();
 }
 
 void loop(void){
