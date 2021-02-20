@@ -1,3 +1,6 @@
+v4.9                                    
+- Async WiFi setup, solves issue #17    
+                                        
 v4.8                                    
 - Fixed: issue #16: Web console         
   incompatibilities between browsers    
