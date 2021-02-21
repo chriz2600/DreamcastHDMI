@@ -566,7 +566,7 @@ function help(full, expert) {
             msg += "1) Use [[b;#fff;]check] to see, if any updates are available.\n";
             msg += "2) If updates are available, use [[b;#fff;]download] to stage the updates.\n";
             msg += "3) Use [[b;#fff;]flash] to apply the updates.\n";
-            msg += "4) Use [[b;#fff;]reset] to restart DCHDMI with the updates.\n";
+            msg += "4) Use [[b;#fff;]reset] to restart DCDigital with the updates.\n";
             msg += " \n";
             msg += "- Use [[b;#fff;]config] to display current configuration.\n";
             msg += "- Use [[b;#fff;]setup] to update the configuration.\n";
@@ -598,7 +598,7 @@ function help(full, expert) {
     if (expert) {
         msg += "[[b;#fff;]flash][[bi;#fff000;]type] [[;#666;].....] flash [[bi;#fff000;]type] from staging area\n";
     }
-    msg += "[[b;#fff;]reset] [[;#666;].........] full DCHDMI reset\n";
+    msg += "[[b;#fff;]reset] [[;#666;].........] full DCDigital reset\n";
     if (expert) {
         msg += "[[b;#fff;]reset][[bi;#fff000;]type] [[;#666;].....] reset [[bi;#fff000;]type] \n";
     }
@@ -716,7 +716,7 @@ var setupDataMapping = {
     firmware_server_path: [ "Firmware Server Path ", "empty", "[[ib;lightblue;]path prefix]", null, null, "Only needed, if you want to connect to a custom fw server." ],
     firmware_version:     [ "Firmware Version     ", "master", "[[b;lightblue;]master] / [[b;lightblue;]develop] / [[b;lightblue;]vX.Y.Z]", /^(master|develop|bleeding|experimental|v\d+\.\d+\.\d+)$/, null, "Leave this on [[b;white;]master], if you want to get firmware updates\n    from the stable branch, set to [[b;white;]develop] to get updates from\n    develop branch, use [[b;white;]vX.Y.Z] to pin to a specific version." ],
     http_auth_user:       [ "HTTP User            ", "dchdmi" ],
-    http_auth_pass:       [ "HTTP Password        ", "generated", null, null, null, "[[b;red;]If you do not set a password, a new one will be]\n    [[b;red;]generated each time DCHDMI starts!]" ],
+    http_auth_pass:       [ "HTTP Password        ", "generated", null, null, null, "[[b;red;]If you do not set a password, a new one will be]\n    [[b;red;]generated each time DCDigital starts!]" ],
     conf_ip_addr:         [ "IP address           ", "empty", validIpMsg, ipCheck, null, "Leave empty for DHCP." ],
     conf_ip_gateway:      [ "Gateway              ", "empty", validIpMsg, ipCheck, null, "Leave empty for DHCP." ],
     conf_ip_mask:         [ "Netmask              ", "empty", validIpMsg, ipCheck, null, "Leave empty for DHCP." ],

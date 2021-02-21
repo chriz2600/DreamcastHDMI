@@ -34,7 +34,7 @@ void _setupAPMode(const char *ssid, const char *psk) {
     String macID = String(mac[WL_MAC_ADDR_LENGTH - 2], HEX) +
     String(mac[WL_MAC_ADDR_LENGTH - 1], HEX);
     macID.toUpperCase();
-    String AP_NameString = String("DCHDMI") + String("-") + macID;
+    String AP_NameString = String("DCDigital") + String("-") + macID;
 
     memset(AP_NameChar, 0, AP_NameString.length() + 1);
 

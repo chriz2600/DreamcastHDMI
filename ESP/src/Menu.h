@@ -284,7 +284,7 @@ static const char OSD_FIRMWARE_CONFIG_RECONFIG_MENU[MENU_BUFFER_LEN] PROGMEM = (
 static const char OSD_FIRMWARE_TRANSITIONAL_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Transitional firmware detected          "
     "                                        "
-    "    You recently updated your DCHDMI    "
+    "  You recently updated your DCDigital   "
     "     to a firmware version >= v4.0.     "
     "                                        "
     "  A transitional fpga firmware package  "
@@ -370,7 +370,7 @@ static const char OSD_FIRMWARE_FLASH_MENU[MENU_BUFFER_LEN] PROGMEM = (
 static const char OSD_FIRMWARE_RESET_MENU[MENU_BUFFER_LEN] PROGMEM = (
     "Restart Firmware                        "
     "                                        "
-    "           Restart DCHDMI?              "
+    "           Restart DCDigital?           "
     "   This will also reset the dreamcast!  "
     "                                        "
     "                                        "
