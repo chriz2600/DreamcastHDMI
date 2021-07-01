@@ -1,6 +1,6 @@
 # DreamcastHDMI / DCDigital
 
-#### 2021-02-20 *Firmware v4.8* (*Unified*)
+#### 2021-02-20 *Firmware v4.9* (*Unified*)
 
 - Asynchronous WiFi setup, solves issue #17
 
