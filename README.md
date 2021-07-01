@@ -1,5 +1,13 @@
 # DreamcastHDMI / DCDigital
 
+#### 2021-02-20 *Firmware v4.8* (*Unified*)
+
+- Asynchronous WiFi setup, solves issue #17
+
+#### 2021-01-08 *Firmware v4.8* (*Unified*)
+
+- Fixed: issue #16: Web console incompatibilities with newer browsers
+
 #### 2020-09-14 *Firmware v4.7* (*Unified*)
 
 - Installer access point (IAP) mode
